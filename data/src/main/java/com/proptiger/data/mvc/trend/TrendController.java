@@ -56,7 +56,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("app/v1/trend")
@@ -80,7 +80,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
         PaginatedResponse<?> paginatedResponse = trendService.getPaginatedTrend(selector, rangeField, rangeValue);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend.csv")
@@ -107,7 +107,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("/app/v1/entity/user/catchment/{catchmentId}/trend")
@@ -141,7 +141,7 @@ public class TrendController extends BaseController {
                 catchmentId,
                 userInfo);
 
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend.csv")
@@ -172,7 +172,7 @@ public class TrendController extends BaseController {
                 rangeValue,
                 selector);
 
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("app/v1/trend/current")
@@ -196,7 +196,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
         PaginatedResponse<?> paginatedResponse = trendService.getCurrentPaginatedTrend(selector, rangeField, rangeValue);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/current.csv")
@@ -223,7 +223,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("/app/v1/entity/user/catchment/{catchmentId}/trend/current")
@@ -272,7 +272,7 @@ public class TrendController extends BaseController {
                 rangeValue,
                 catchmentId,
                 userInfo);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("data/v1/trend/hitherto")
@@ -287,7 +287,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("app/v1/trend/hitherto")
@@ -317,7 +317,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 hithertoDurationSelector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/hitherto.csv")
@@ -354,7 +354,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("/app/v1/entity/user/catchment/{catchmentId}/trend/hitherto")
@@ -410,7 +410,7 @@ public class TrendController extends BaseController {
                 hithertoDurationSelector,
                 catchmentId,
                 userInfo);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("data/v1/price-trend")
@@ -424,7 +424,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("data/v1/price-trend-list")
@@ -434,7 +434,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
         PaginatedResponse<?> paginatedResponse = trendService.getPricePaginatedTrend(selector, rangeField, rangeValue);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend.csv")
@@ -462,7 +462,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend.csv")
@@ -495,7 +495,7 @@ public class TrendController extends BaseController {
                 rangeValue,
                 catchmentId,
                 userInfo);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("data/v1/price-trend/current")
@@ -509,7 +509,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("data/v1/price-trend-list/current")
@@ -519,7 +519,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
         PaginatedResponse<?> paginatedResponse = trendService.getCurrentPricePaginatedTrend(selector, rangeField, rangeValue);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend/current.csv")
@@ -551,7 +551,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/current.csv")
@@ -584,7 +584,7 @@ public class TrendController extends BaseController {
                 rangeValue,
                 catchmentId,
                 userInfo);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("data/v1/price-trend/hitherto")
@@ -599,7 +599,7 @@ public class TrendController extends BaseController {
                         rangeField,
                         rangeValue,
                         hithertoDurationSelector), rangeField, rangeValue, selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("data/v1/price-trend-list/hitherto")
@@ -614,7 +614,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 hithertoDurationSelector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend/hitherto")
@@ -652,7 +652,7 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend-list/hitherto")
@@ -672,7 +672,7 @@ public class TrendController extends BaseController {
                 hithertoDurationSelector,
                 catchmentId,
                 userInfo);
-        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector)));
+        return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/hitherto.csv")
@@ -860,6 +860,11 @@ public class TrendController extends BaseController {
     
     private Set<String> getFilterFieldSet(FIQLSelector selector)
     {
-        return(selector.clone().addField("extraAttributes").addField(TrendService.RANGE_KEY).getFieldSet());
+        FIQLSelector selector2 = selector.clone().addField("extraAttributes").addField(TrendService.RANGE_KEY);
+        Set<String> groupedFields = selector.getGroupSet();
+        for(String gf : groupedFields)       {   
+            selector2.addField(gf);
+        }
+        return(selector2.getFieldSet());
     }
 }
