@@ -1,7 +1,7 @@
 package com.proptiger.data.internal.dto;
 
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.user.User;
 
 /**
  * Registration DTO
@@ -77,22 +77,13 @@ public class Register extends BaseModel {
         this.registerMe = registerMe;
     }
 
-    public ForumUser createForumUserObject() {
-        ForumUser forumUser = new ForumUser();
-        forumUser.setUsername(this.userName);
-        forumUser.setEmail(this.email);
-        forumUser.setContact(this.contact);
-        forumUser.setCountryId(this.countryId);
-        forumUser.setPassword(this.password);
-        // TODO these empty string should be removed once we alter forum_user
-        // table
-        forumUser.setCity("");
-        forumUser.setImage("");
-        forumUser.setFbImageUrl("");
-        forumUser.setProvider("");
-        forumUser.setProviderid("");
-        forumUser.setUniqueUserId("");
-        forumUser.setStatus(ForumUser.USER_STATUS_ACTIVE);
-        return forumUser;
+    public User createUser() {
+        User user = new User();
+        user.setFullName(this.getUserName());
+        user.setPassword(this.getPassword());
+        user.setCountryId(this.getCountryId());
+        user.setRegistered(this.getRegisterMe());
+        user.setEmail(this.getEmail());
+        return user;
     }
 }
