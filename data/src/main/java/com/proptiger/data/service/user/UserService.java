@@ -212,6 +212,9 @@ public class UserService {
     @Transactional
     public CustomUser getUserDetailsByEmail(String email){
         User user = userDao.findByEmail(email);
+        if(user == null){
+            throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, ResponseErrorMessages.EMAIL_NOT_REGISTERED);
+        }
         CustomUser customUser = createCustomUserObj(user, Application.DEFAULT, false);
         return customUser;
     }
@@ -503,7 +506,7 @@ public class UserService {
     private User getUserFromRegister(Register register) {
         User user = userDao.findByEmail(register.getEmail());
         if (user == null) {
-            user = createFreshUserFromRegister(register);
+            user = register.createUser();
         }
         else {
             if (!register.getRegisterMe() || user.isRegistered()) {
@@ -513,13 +516,6 @@ public class UserService {
                 user.copyFieldsFromRegisterToUser(register);
             }
         }
-        return user;
-    }
-
-    private User createFreshUserFromRegister(Register register) {
-        User user = new User();
-        user.setEmail(register.getEmail());
-        user.copyFieldsFromRegisterToUser(register);
         return user;
     }
 

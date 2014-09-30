@@ -27,13 +27,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.model.user.Dashboard;
 
 /**
- * 
+ * Use User model instead of this 
  * @author mukand
  */
 @Entity
 @Table(name = "FORUM_USER")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
+@Deprecated
 public class ForumUser extends BaseModel {
     public static final String USER_STATUS_ACTIVE = "1";
 
