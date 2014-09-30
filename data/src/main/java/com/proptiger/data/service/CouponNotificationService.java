@@ -55,7 +55,7 @@ public class CouponNotificationService {
         payloadMap.put(Tokens.CouponIssued.CouponPrice.name(), couponCatalogue.getCouponPrice());
         payloadMap.put(Tokens.CouponIssued.Date.name(), couponCatalogue.getPurchaseExpiryAt());
         payloadMap.put(Tokens.CouponIssued.Discount.name(), couponCatalogue.getDiscount());
-        //payloadMap.put(Tokens.CouponIssued.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
+        payloadMap.put(Tokens.CouponIssued.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
         payloadMap.put(Tokens.CouponIssued.ProjectName.name(), property.getProject().getName());
         payloadMap.put(Tokens.CouponIssued.UnitName.name(), property.getUnitName());
         payloadMap.put(Tokens.CouponIssued.Size.name(), property.getSize());
