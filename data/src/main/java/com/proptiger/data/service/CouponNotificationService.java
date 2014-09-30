@@ -56,7 +56,7 @@ public class CouponNotificationService {
         payloadMap.put(Tokens.CouponIssued.Date.name(), couponCatalogue.getPurchaseExpiryAt());
         payloadMap.put(Tokens.CouponIssued.Discount.name(), couponCatalogue.getDiscount());
         payloadMap.put(Tokens.CouponIssued.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
-        payloadMap.put(Tokens.CouponIssued.ProjectName.name(), property.getProjectName());
+        payloadMap.put(Tokens.CouponIssued.ProjectName.name(), property.getProject().getName());
         payloadMap.put(Tokens.CouponIssued.UnitName.name(), property.getUnitName());
         payloadMap.put(Tokens.CouponIssued.Size.name(), property.getSize());
         payloadMap.put(Tokens.CouponIssued.UserName.name(), user.getFullName());
@@ -126,7 +126,7 @@ public class CouponNotificationService {
         User user = userService.getUserById(transaction.getUserId());
 
         notificationPayloadMap.put(Tokens.CouponCancelled.CouponCode.name(), transaction.getCode());
-        notificationPayloadMap.put(Tokens.CouponCancelled.ProjectName.name(), property.getProjectName());
+        notificationPayloadMap.put(Tokens.CouponCancelled.ProjectName.name(), property.getProject().getName());
         notificationPayloadMap.put(Tokens.CouponCancelled.UnitName.name(), property.getUnitName());
         notificationPayloadMap.put(Tokens.CouponCancelled.UserName.name(), user.getFullName());
         notificationPayloadMap.put(Tokens.CouponCancelled.Size.name(), property.getSize());
@@ -169,12 +169,14 @@ public class CouponNotificationService {
         User user = userService.getUserById(transaction.getUserId());
 
         notificationPayloadMap.put(Tokens.CouponRedeemed.RedeemedDate.name(), transaction.getUpdatedAt());
-        notificationPayloadMap.put(Tokens.CouponRedeemed.ProjectName.name(), property.getProjectName());
+        notificationPayloadMap.put(Tokens.CouponRedeemed.ProjectName.name(), property.getProject().getName());
         notificationPayloadMap.put(Tokens.CouponRedeemed.UnitName.name(), property.getUnitName());
         notificationPayloadMap.put(Tokens.CouponRedeemed.Size.name(), property.getSize());
         notificationPayloadMap.put(Tokens.CouponRedeemed.CouponPrice.name(), couponCatalogue.getCouponPrice());
         notificationPayloadMap.put(Tokens.CouponRedeemed.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
         notificationPayloadMap.put(Tokens.CouponRedeemed.UserName.name(), user.getFullName());
+        notificationPayloadMap.put(Tokens.CouponRedeemed.CouponCode.name(), transaction.getCode());
+
 
         List<String> ccList = new ArrayList<String>();
         List<String> bccList = new ArrayList<String>();
