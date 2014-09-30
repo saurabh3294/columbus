@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.citruspay</groupId>
+  <artifactId>sandbox-merchant-kit</artifactId>
+  <versioning>
+    <release>1.4</release>
+    <versions>
+      <version>1.4</version>
+    </versions>
+    <lastUpdated>20140930182920</lastUpdated>
+  </versioning>
+</metadata>
