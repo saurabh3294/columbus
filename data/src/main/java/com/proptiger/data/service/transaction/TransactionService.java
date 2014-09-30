@@ -192,4 +192,5 @@ public class TransactionService {
     private int updateTransactionStatusByOldStatus(int transactionId, TransactionStatus newTxnStatus, TransactionStatus oldTxnStatus){
         return transactionDao.updateTransactionStatusByOldStatus(transactionId, newTxnStatus.getId(), oldTxnStatus.getId());
     }
+    
 }

@@ -157,7 +157,7 @@ public class CouponCatalogueService {
         if (transaction == null) {
             throw new BadRequestException(
                     ResponseCodes.RESOURCE_NOT_FOUND,
-                    "Coupon Code does not exits or has been redeemed.");
+                    "Coupon Code does not exists or has been redeemed.");
         }
 
         UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
@@ -227,12 +227,14 @@ public class CouponCatalogueService {
      */
     public Transaction fetchCouponDetails(String couponCode, String userProofId) {
         Transaction transaction = getTransactionService().getTransactionsByCouponCode(couponCode);
-        transaction = getTransactionService().getUpdatedTransaction(transaction.getId());
+        
         
         if (transaction == null) {
             throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
         }
-
+        
+        transaction = getTransactionService().getUpdatedTransaction(transaction.getId());
+        
         UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
                 transaction.getUserId(),
                 userProofId);
