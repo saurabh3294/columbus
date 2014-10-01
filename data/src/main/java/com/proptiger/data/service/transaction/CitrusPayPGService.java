@@ -557,7 +557,7 @@ public class CitrusPayPGService {
         }
         
         citrusPayPGTransactionService.saveRefundTransaction(transaction, lastEnquiry, incrementCouponInventory);
-       
+        
         return true;
     }
    
