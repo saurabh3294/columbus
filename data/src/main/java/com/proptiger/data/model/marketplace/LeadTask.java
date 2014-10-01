@@ -40,7 +40,6 @@ public class LeadTask extends BaseModel {
 
     @ExcludeFromBeanCopy
     @Column(name = "lead_offer_id")
-    @JsonIgnore
     private int                             leadOfferId;
 
     @Column(name = "lead_task_status_id")

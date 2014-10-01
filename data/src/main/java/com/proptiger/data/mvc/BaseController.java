@@ -118,6 +118,11 @@ public abstract class BaseController {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    protected <T> T filterFields(Object object, Set<String> fields, Class<T> returnClassType) {
+        return ((T)(filterFields(object, fields)));
+    }
+        
     protected Object filterFields(Object object, Set<String> fields) {
         try {
             if (object == null)

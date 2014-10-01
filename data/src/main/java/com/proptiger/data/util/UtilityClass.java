@@ -28,6 +28,25 @@ public class UtilityClass {
 
         return c;
     }
+    
+    /**
+     * Returns non zero max of given 2 date - null otherwise
+     * 
+     * @param a
+     * @param b
+     * @return
+     */
+    public static Date max(Date a, Date b) {
+        Date c = a;
+        if (a == null) {
+            c = b;
+        }
+        else if (b != null) {
+            c = DateUtil.max(a, b);
+        }
+
+        return c;
+    }
 
     /**
      * Returns non zero min of given 2 numbers - null otherwise
@@ -47,7 +66,26 @@ public class UtilityClass {
 
         return c;
     }
+    
+    /**
+     * Returns non zero min of given 2 date - null otherwise
+     * 
+     * @param a
+     * @param b
+     * @return
+     */
+    public static Date min(Date a, Date b) {
+        Date c = a;
+        if (a == null) {
+            c = b;
+        }
+        else if (b != null) {
+            c = DateUtil.min(a, b);
+        }
 
+        return c;
+    }
+    
     /**
      * @return {@link Integer} non zero min of given 2 integers - null otherwise
      * 
@@ -173,7 +211,8 @@ public class UtilityClass {
     /**
      * @param list
      * @param count
-     * @return first count elements of the list OR whole list if it has less N elements.
+     * @return first count elements of the list OR whole list if it has less N
+     *         elements.
      */
     public static <T> List<T> getFirstNElementsOfList(List<T> list, int count) {
         if (list == null) {
@@ -184,5 +223,21 @@ public class UtilityClass {
             return (new ArrayList<T>(list.subList(0, finalIndex)));
         }
     }
-    
+
+    /**
+     * 
+     * @param actualKey
+     * @return {@link Object} that can pe put in grouped response as key
+     */
+    public static Object getResponseGroupKey(Object actualKey) {
+        Object result = null;
+        if (actualKey instanceof Date) {
+            Date date = (Date) actualKey;
+            result = date.getTime();
+        }
+        else {
+            result = actualKey;
+        }
+        return result;
+    }
 }

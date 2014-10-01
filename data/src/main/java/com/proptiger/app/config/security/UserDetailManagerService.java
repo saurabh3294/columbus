@@ -1,27 +1,23 @@
 package com.proptiger.app.config.security;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.enums.Application;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.service.ApplicationNameService;
-import com.proptiger.data.service.user.UserSubscriptionService;
-import com.proptiger.exception.InvalidUserRoleException;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.user.UserDao;
+import com.proptiger.data.service.ApplicationNameService;
+import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Custom implementation of UserDetailsService to provide criteria to
- * authenicate a user. This class uses database to authenticate.
+ * authenticate a user. This class uses database to authenticate.
  * 
  * @author Rajeev Pandey
  * @author azi
@@ -37,11 +33,12 @@ public class UserDetailManagerService implements UserDetailsService {
     
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserDetails userDetails = null;
+        ActiveUser userDetails = null;
         User user = null;
         if (username != null && !username.isEmpty()) {
             user = userDao.findByEmail(username);
             if (user != null) {
+                Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
                 String password = user.getPassword() == null ? "" : user.getPassword();
                 userDetails = new ActiveUser(
                         user.getId(),
@@ -51,7 +48,7 @@ public class UserDetailManagerService implements UserDetailsService {
                         true,
                         true,
                         true,
-                        new ArrayList<GrantedAuthority>());
+                       SecurityContextUtils.getDefaultAuthority(user.getId()), applicationType);
             }
             else {
                 logger.error("User not found with email {}", username);

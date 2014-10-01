@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -30,7 +31,6 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
@@ -39,7 +39,10 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 
+import com.proptiger.api.filter.IPBasedAPIAccessFilter;
 import com.proptiger.app.config.security.social.CustomSpringSocialConfigurer;
+import com.proptiger.data.enums.security.UserRole;
+import com.proptiger.data.service.security.OTPService;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -80,8 +83,14 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.rememberMe().rememberMeServices(createPersistentTokenBasedRememberMeService())
                 .key(Constants.Security.REMEMBER_ME_COOKIE);
         http.csrf().disable();
-        http.authorizeRequests().regexMatchers(Constants.Security.USER_API_REGEX, Constants.Security.AUTH_API_REGEX)
-                .authenticated();
+
+        http.authorizeRequests()
+                .regexMatchers(Constants.Security.USER_DETAIL_API_REGEX).access("hasRole('" + UserRole.ADMIN_BACKEND.name() + "')")
+                .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.USER.name() + "')")
+                .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.ADMIN_BACKEND.name() + "')")
+                .regexMatchers(Constants.Security.OTP_VALIDATE_API_REGEX)
+                .access("hasRole('" + UserRole.PRE_AUTH_USER.name() + "')").anyRequest().permitAll();
+
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
         http.addFilter(createUserNamePasswordLoginFilter());
         http.addFilter(createRememberMeAuthFilter());
@@ -90,6 +99,19 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.apply(createSocialAuthConfigurer());
         http.addFilter(createConcurrentSessionFilter());
+        http.exceptionHandling().accessDeniedHandler(createAccessDeniedHandler());
+        http.addFilterBefore(createIPBasedAPIAccessFilter(), CustomUsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Bean
+    public Filter createIPBasedAPIAccessFilter() {
+        return new IPBasedAPIAccessFilter();
+    }
+
+    @Bean
+    public AccessDeniedHandler createAccessDeniedHandler() {
+        AccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        return accessDeniedHandler;
     }
 
     @Bean
@@ -122,7 +144,8 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public GenericFilterBean createUserNamePasswordLoginFilter() throws Exception {
-        UsernamePasswordAuthenticationFilter loginFilter = new UsernamePasswordAuthenticationFilter();
+        UsernamePasswordAuthenticationFilter loginFilter = new CustomUsernamePasswordAuthenticationFilter(
+                createOTPService());
         loginFilter.setSessionAuthenticationStrategy(createSessionStrategy());
         loginFilter.setAuthenticationManager(createAuthenticationManager());
         loginFilter.setAuthenticationFailureHandler(createAuthFailureHandler());
@@ -136,6 +159,11 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
         loginFilter.setRememberMeServices(createPersistentTokenBasedRememberMeService());
         return loginFilter;
+    }
+
+    @Bean
+    public OTPService createOTPService() {
+        return new OTPService();
     }
 
     @Bean

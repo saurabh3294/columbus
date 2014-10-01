@@ -25,7 +25,6 @@ import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHi
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
-import com.proptiger.data.service.ForumUserService;
 import com.proptiger.data.util.Serializer;
 
 @Service
@@ -40,9 +39,6 @@ public class NotificationMessageService {
 
     @Autowired
     private NotificationTypeService                 notiTypeService;
-
-    @Autowired
-    private ForumUserService                        forumUserService;
 
     @Autowired
     private UserNotificationTypeSubscriptionService userNTSubscriptionService;
@@ -135,27 +131,58 @@ public class NotificationMessageService {
      * @return
      */
     public NotificationMessage createNotificationMessage(String notificationType, int userId, String template) {
-        NotificationType notiType = notiTypeService.findByName(notificationType);
-        NotificationMessagePayload payload = new NotificationMessagePayload();
-        Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Template.name(), template);
-        payload.setExtraAttributes(extraAttributes);
-        return new NotificationMessage(userId, payload, notiType);
+        Map<String, Object> payloadMap = new HashMap<String, Object>();
+        payloadMap.put(Tokens.Default.Template.name(), template);
+        return createNotificationMessage(notificationType, userId, payloadMap);
     }
-    
+
     /**
-     * This method is used by external clients for creating Notification
-     * Message and adding payloadMap in it
+     * This method is used by external clients for creating Notification Message
+     * and adding payloadMap in it
      * 
      * @param notificationType
      * @param userId
      * @param payloadMap
      * @return
      */
-    public NotificationMessage createNotificationMessage(String notificationType, int userId, HashMap<String, Object> payloadMap) {
-        NotificationType notiType = notiTypeService.findByName(notificationType);
+    public NotificationMessage createNotificationMessage(
+            String notificationType,
+            int userId,
+            Map<String, Object> payloadMap) {
+        return createNotificationMessage(notificationType, userId, payloadMap, null, null, null);
+    }
+
+    /**
+     * This method is used by external clients for creating Notification Message
+     * and adding payloadMap in it
+     * 
+     * @param notificationType
+     * @param userId
+     * @param payloadMap
+     * @param fromEmail
+     * @param ccList
+     * @return
+     */
+    public NotificationMessage createNotificationMessage(
+            String notificationType,
+            int userId,
+            Map<String, Object> payloadMap,
+            String fromEmail,
+            List<String> ccList,
+            List<String> bccList) {
+        
+        NotificationType notiType = null;
+        if (notificationType == null) {
+            notiType = notiTypeService.findDefaultNotificationType();
+        }
+        else {
+            notiType = notiTypeService.findByName(notificationType);
+        }
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setExtraAttributes(payloadMap);
+        payload.setFromEmail(fromEmail);
+        payload.setCcList(ccList);
+        payload.setBccList(bccList);
         return new NotificationMessage(userId, payload, notiType);
     }
 
@@ -169,13 +196,10 @@ public class NotificationMessageService {
      * @return
      */
     public NotificationMessage createNotificationMessage(int userId, String subject, String body) {
-        NotificationType notiType = notiTypeService.findDefaultNotificationType();
-        NotificationMessagePayload payload = new NotificationMessagePayload();
-        Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Subject.name(), subject);
-        extraAttributes.put(Tokens.Body.name(), body);
-        payload.setExtraAttributes(extraAttributes);
-        return new NotificationMessage(userId, payload, notiType);
+        Map<String, Object> payloadMap = new HashMap<String, Object>();
+        payloadMap.put(Tokens.Default.Subject.name(), subject);
+        payloadMap.put(Tokens.Default.Body.name(), body);
+        return createNotificationMessage(null, userId, payloadMap);
     }
 
     public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId, Object primaryKeyId) {
@@ -341,5 +365,5 @@ public class NotificationMessageService {
     public void setUserNTSubscriptionService(UserNotificationTypeSubscriptionService userNTSubscriptionService) {
         this.userNTSubscriptionService = userNTSubscriptionService;
     }
-    
+
 }

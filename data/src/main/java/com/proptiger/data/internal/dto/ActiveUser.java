@@ -7,7 +7,6 @@ import org.springframework.social.security.SocialUser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.enums.Application;
-import com.proptiger.data.service.ApplicationNameService;
 
 /**
  * Active user details to hold principle and other authorities of user after
@@ -22,19 +21,20 @@ public class ActiveUser extends SocialUser {
     //TODO should be removed once we define role for a user
     @JsonIgnore
     private Application applicationType = Application.DEFAULT;
-
+    
     public ActiveUser(
-            Integer id,
+            Integer userId,
             String username,
             String password,
             boolean enabled,
             boolean accountNonExpired,
             boolean credentialsNonExpired,
             boolean accountNonLocked,
-            Collection<? extends GrantedAuthority> authorities) {
+            Collection<? extends GrantedAuthority> authorities,
+            Application applicationTyep) {
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
-        this.userIdentifier = id;
-        this.applicationType = ApplicationNameService.getApplicationTypeOfRequest();
+        this.userIdentifier = userId;
+        this.applicationType = applicationTyep;
     }
 
     public Integer getUserIdentifier() {

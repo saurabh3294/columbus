@@ -5,8 +5,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,7 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.social.connect.UserProfile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,25 +47,29 @@ import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.ForumUser.WhoAmIDetail;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.ProjectDiscussionSubscription;
 import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.data.model.user.Dashboard;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.User.WhoAmIDetail;
+import com.proptiger.data.model.user.UserAttribute;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
-import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.repo.user.UserAttributeDao;
 import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
@@ -106,9 +114,6 @@ public class UserService {
 
     @Autowired
     private EnquiryDao                       enquiryDao;
-
-    @Autowired
-    private ForumUserDao                     forumUserDao;
 
     @Autowired
     private UserDao                          userDao;
@@ -158,13 +163,20 @@ public class UserService {
     @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
+    @Autowired
+    private DashboardService                 dashboardService;
+	
+    @Autowired
+    private UserAttributeDao                 userAttributeDao;
+
     @PostConstruct
     private void initialize() {
         currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
     }
     
     public boolean isRegistered(String email) {
-        if (forumUserDao.findByEmail(email) != null) {
+        User user = userDao.findByEmail(email);
+        if (user != null && user.isRegistered()) {
             return true;
         }
 
@@ -179,19 +191,37 @@ public class UserService {
      * @return {@link ForumUser}
      */
     @Transactional
-    public CustomUser getUserDetails(int userId) {
-        ForumUser user = forumUserDao.findByUserId(userId);
+    public CustomUser getUserDetails(Integer userId, Application application) {
+        User user = userDao.findById(userId);
+        CustomUser customUser = createCustomUserObj(user, application, true);
+        return customUser;
+    }
+
+    private CustomUser createCustomUserObj(User user, Application application, boolean needDashboards) {
         CustomUser customUser = new CustomUser();
-        customUser.setId(user.getUserId());
+        customUser.setId(user.getId());
         customUser.setEmail(user.getEmail());
-        customUser.setFirstName(user.getUsername());
-        customUser.setContactNumber(Long.toString(user.getContact()));
-        customUser.setProfileImageUrl(user.getFbImageUrl());
-
-        Hibernate.initialize(user.getDashboards());
-        customUser.setDashboards(user.getDashboards());
-
-        setAppDetails(customUser, user);
+        customUser.setFirstName(user.getFullName());
+        customUser.setContactNumber(user.getPriorityContactNumber());
+        customUser.setProfileImageUrl(user.getProfileImageUrl());
+        if(needDashboards){
+            List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
+            customUser.setDashboards(dashboards);
+        }
+       
+        if(application.equals(Application.B2B)){
+            setAppDetails(customUser, user);
+        }
+        return customUser;
+    }
+    
+    @Transactional
+    public CustomUser getUserDetailsByEmail(String email){
+        User user = userDao.findByEmail(email);
+        if(user == null){
+            throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, ResponseErrorMessages.EMAIL_NOT_REGISTERED);
+        }
+        CustomUser customUser = createCustomUserObj(user, Application.DEFAULT, false);
         return customUser;
     }
 
@@ -201,17 +231,17 @@ public class UserService {
      * @param user
      * @return {@link ForumUser}
      */
-    private CustomUser setAppDetails(CustomUser customUser, ForumUser user) {
+    private CustomUser setAppDetails(CustomUser customUser, User user) {
         HashMap<Application, UserAppDetail> appDetailsMap = new HashMap<>();
 
-        for (UserPreference preference : preferenceService.getUserPreferences(user.getUserId())) {
+        for (UserPreference preference : preferenceService.getUserPreferences(user.getId())) {
             UserAppDetail appDetail = new UserAppDetail();
             appDetail.setPreference(preference);
             appDetailsMap.put(preference.getApp(), appDetail);
         }
-
+        List<UserSubscriptionMapping> userSubscriptions = userSubscriptionMappingDao.findAllByUserId(user.getId());
         List<UserAppSubscription> subscriptions = new ArrayList<>();
-        for (UserSubscriptionMapping mapping : user.getUserSubscriptionMappings()) {
+        for (UserSubscriptionMapping mapping : userSubscriptions) {
             CompanySubscription subscription = mapping.getSubscription();
             customUser.getCompanyIds().add(subscription.getCompanyId());
 
@@ -250,26 +280,46 @@ public class UserService {
     private UserAppSubscription setUserAppSubscriptionDetails(
             List<SubscriptionPermission> subscriptionPermissions,
             UserAppSubscription userAppSubscription) {
-        List<Integer> subscribedIds = new ArrayList<>();
+        List<Integer> subscribedIdsCity = new ArrayList<>();
+        List<Integer> subscribedIdsLocality = new ArrayList<>();
+        Permission permission = null;
+        int objectTypeId = 0;
         for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
-            subscribedIds.add(subscriptionPermission.getPermission().getObjectId());
+            permission = subscriptionPermission.getPermission();
+            objectTypeId = permission.getObjectTypeId();
+            if(objectTypeId == DomainObject.city.getObjectTypeId()){
+                subscribedIdsCity.add(permission.getObjectId());
+            }
+            else if(objectTypeId == DomainObject.locality.getObjectTypeId()){
+                subscribedIdsLocality.add(permission.getObjectId());
+            }
         }
-
-        if (!subscribedIds.isEmpty()) {
-            userAppSubscription.setUserType(DomainObject.getFromObjectTypeId(
-                    subscriptionPermissions.get(0).getPermission().getObjectTypeId()).toString());
-
-            String json = "{\"filters\":{\"and\":[{\"equal\":{\"" + userAppSubscription.getUserType()
-                    + "Id\":["
-                    + StringUtils.join(subscribedIds, ',')
-                    + "]}}]},\"paging\":{\"start\":0,\"rows\":9999}}";
-
-            List<Locality> localities = localityService.getLocalities(new Gson().fromJson(json, Selector.class))
-                    .getResults();
-
+        
+        /* Populating UserType */
+        
+        if(subscribedIdsCity.isEmpty() && subscribedIdsLocality.isEmpty()){
+            return userAppSubscription;
+        }
+        else if(subscribedIdsCity.isEmpty()){
+            userAppSubscription.setUserType(DomainObject.locality.toString());
+        }
+        else{
+            userAppSubscription.setUserType(DomainObject.city.toString());
+        }
+        
+        /* Populating Locality List */
+        
+        List<Locality> localityList = getLocalityListByCityIdList(subscribedIdsCity);
+        
+        if(!subscribedIdsLocality.isEmpty()){
+            localityList.addAll(localityService.findByLocalityIdList(subscribedIdsLocality).getResults());
+        }
+        
+        if (!localityList.isEmpty()) {
+            
             @SuppressWarnings("unchecked")
             Map<Integer, List<Locality>> cityGroupedLocalities = (Map<Integer, List<Locality>>) UtilityClass
-                    .groupFieldsAsPerKeys(localities, Arrays.asList("cityId"));
+                    .groupFieldsAsPerKeys(localityList, Arrays.asList("cityId"));
 
             for (Integer cityId : cityGroupedLocalities.keySet()) {
                 userAppSubscription.setCityCount(userAppSubscription.getCityCount() + 1);
@@ -298,7 +348,20 @@ public class UserService {
         }
         return userAppSubscription;
     }
+    
+    private List<Locality> getLocalityListByCityIdList(List<Integer> subscribedIdsCity) {
 
+        if (subscribedIdsCity.isEmpty()) {
+            return new ArrayList<Locality>();
+        }
+
+        String json = "{\"filters\":{\"and\":[{\"equal\":{\"" + "cityId\":["
+                + StringUtils.join(subscribedIdsCity, ',')
+                + "]}}]},\"paging\":{\"start\":0,\"rows\":9999}}";
+
+        return (localityService.getLocalities(new Gson().fromJson(json, Selector.class)).getResults());
+    }
+    
     /**
      * Get if user have already enquired a entity
      * 
@@ -307,7 +370,7 @@ public class UserService {
      * @return
      */
     public AlreadyEnquiredDetails hasEnquired(Integer projectId, Integer userId) {
-        String email = forumUserDao.findEmailByUserId(userId);
+        String email = userDao.findById(userId).getEmail();
         Enquiry enquiry = null;
         AlreadyEnquiredDetails alreadyEnquiredDetails = new AlreadyEnquiredDetails(null, false, enquiredWithinDays);
         if (projectId != null) {
@@ -379,11 +442,12 @@ public class UserService {
      * @return
      */
     public WhoAmIDetail getWhoAmIDetail() {
-        ActiveUser activeUser = SecurityContextUtils.getLoggedInUser();
+        ActiveUser activeUser = SecurityContextUtils.getActiveUser();
         if (activeUser == null) {
             throw new UnauthorizedException();
         }
-        WhoAmIDetail whoAmIDetail = forumUserDao.getWhoAmIDetail(activeUser.getUserIdentifier());
+        User user = userDao.findById(activeUser.getUserIdentifier());
+        WhoAmIDetail whoAmIDetail = user.createWhoAmI();
         if (whoAmIDetail.getImageUrl() == null || whoAmIDetail.getImageUrl().isEmpty()) {
             whoAmIDetail.setImageUrl(cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
         }
@@ -410,8 +474,8 @@ public class UserService {
         logger.debug("Changing password for user {}", activeUser.getUsername());
         User user = userDao.findOne(activeUser.getUserIdentifier());
         user.setPassword(changePassword.getNewPassword());
-        userDao.save(user);
-        SecurityContextUtils.autoLogin(forumUserDao.findByUserId(user.getId()));
+        user = userDao.save(user);
+        SecurityContextUtils.autoLogin(user);
     }
 
     /**
@@ -435,24 +499,20 @@ public class UserService {
          * send mail only if user registers
          */
         if (user.isRegistered()) {
-            ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
             MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
             MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
                     propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
             mailSender.sendMailUsingAws(details);
-            SecurityContextUtils.autoLogin(registeredUser);
+            SecurityContextUtils.autoLogin(user);
         }
 
-        /*
-         * after registration make user auto login
-         */
-        return getUserDetails(user.getId());
+        return getUserDetails(user.getId(), Application.DEFAULT);
     }
 
     private User getUserFromRegister(Register register) {
         User user = userDao.findByEmail(register.getEmail());
         if (user == null) {
-            user = createFreshUserFromRegister(register);
+            user = register.createUser();
         }
         else {
             if (!register.getRegisterMe() || user.isRegistered()) {
@@ -462,13 +522,6 @@ public class UserService {
                 user.copyFieldsFromRegisterToUser(register);
             }
         }
-        return user;
-    }
-
-    private User createFreshUserFromRegister(Register register) {
-        User user = new User();
-        user.setEmail(register.getEmail());
-        user.copyFieldsFromRegisterToUser(register);
         return user;
     }
 
@@ -500,8 +553,8 @@ public class UserService {
      * @return
      */
     public String resetPassword(String email) {
-        ForumUser forumUser = forumUserDao.findRegisteredUserByEmail(email);
-        if (forumUser == null) {
+        User user = userDao.findByEmail(email);
+        if (user == null || !user.isRegistered()) {
             return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
         }
         // token valid for 1 month
@@ -515,9 +568,7 @@ public class UserService {
         forumUserToken.setExpirationDate(calendar.getTime());
         forumUserTokenDao.save(forumUserToken);
         String retrivePasswordLink = proptigerUrl + "/forgotpass.php?token=" + token + "&id=" + encodedEmail;
-        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
-                forumUser.getUsername(),
-                retrivePasswordLink);
+        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(user.getFullName(), retrivePasswordLink);
         MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
         MailDetails details = new MailDetails(mailBody).setMailTo(email);
         mailSender.sendMailUsingAws(details);
@@ -589,6 +640,11 @@ public class UserService {
 
         if (userInDB != null) {
             user.setId(userInDB.getId());
+            String fullName = user.getFullName();
+            if (fullName != null && !fullName.isEmpty()) {
+                userInDB.setFullName(fullName);
+                userDao.save(userInDB);
+            }
         }
         else {
             user.setId(userDao.save(user).getId());
@@ -608,13 +664,22 @@ public class UserService {
      * @return
      */
     private void patchUser(User user) {
-        List<UserContactNumber> contactNumbers = user.getContactNumbers();
+        
+        
+        // checking and creating user attributes.
+        createUserAttributes(user);
+        updateContactNumbers(user);
+    }
+
+    private void updateContactNumbers(User user) {
+        Set<UserContactNumber> contactNumbers = user.getContactNumbers();
 
         if (contactNumbers == null || contactNumbers.isEmpty()) {
             return;
         }
+        Iterator<UserContactNumber> it = contactNumbers.iterator();
 
-        UserContactNumber userContactNumber = contactNumbers.get(0);
+        UserContactNumber userContactNumber = it.next();
         String contactNumber = userContactNumber.getContactNumber();
 
         if (contactNumber != null && !contactNumber.isEmpty()) {
@@ -632,6 +697,63 @@ public class UserService {
                 user.setId(userContactNumber.getUserId());
             }
         }
+    }
+
+    /**
+     * This method will take the user attributes from the user object. It will
+     * check whether these attributes exists in the database for a user. If it
+     * does not exists then it will create them else update them with new value.
+     * 
+     * @param user
+     */
+    private void createUserAttributes(User user) {
+        List<UserAttribute> attributeList = user.getAttributes();
+        if (attributeList == null || attributeList.isEmpty()) {
+            return;
+        }
+
+        int userId = user.getId();
+        ListIterator<UserAttribute> it = attributeList.listIterator();
+
+        while (it.hasNext()) {
+            UserAttribute userAttribute = it.next();
+            String attributeName = userAttribute.getAttributeName();
+            String attributeValue = userAttribute.getAttributeValue();
+
+            /*
+             * If attribute value or name is invalid then it will remove those
+             * attributes.
+             */
+            if (attributeName == null || attributeValue == null || attributeName.isEmpty() || attributeValue.isEmpty()) {
+                it.remove();
+                continue;
+            }
+
+            UserAttribute savedAttribute = userAttributeDao.findByUserIdAndAttributeName(userId, attributeName);
+            /**
+             * 1: attribute Name does not exists 2: attribute Name exists but
+             * its value has been changed.
+             */
+            if (savedAttribute == null || !savedAttribute.getAttributeValue().equals(userAttribute.getAttributeValue())) {
+                userAttribute.setUserId(userId);
+                // Attribute value has been changed. Hence setting the primary
+                // key to make a update.
+                if (savedAttribute != null) {
+                    userAttribute.setId(savedAttribute.getId());
+                }
+                /*
+                 * It will fire the insert query or update query.
+                 */
+                savedAttribute = userAttributeDao.saveAndFlush(userAttribute);
+
+            }
+            // replacing the current object with the database object.
+            it.remove();
+            it.add(savedAttribute);
+
+        }
+
+        user.setAttributes(attributeList);
     }
 
     /**
@@ -654,13 +776,13 @@ public class UserService {
         return users;
     }
 
-    public Map<Integer, List<UserContactNumber>> getUserContactNumbers(List<Integer> clientIds) {
+    public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(List<Integer> clientIds) {
         List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
-        Map<Integer, List<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
+        Map<Integer, Set<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
 
         for (UserContactNumber userContactNumber : userContactNumbers) {
             if (!contactNumbersOfUser.containsValue(userContactNumber.getUserId())) {
-                contactNumbersOfUser.put(userContactNumber.getUserId(), new ArrayList<UserContactNumber>());
+                contactNumbersOfUser.put(userContactNumber.getUserId(), new HashSet<UserContactNumber>());
             }
             contactNumbersOfUser.get(userContactNumber.getUserId()).add(userContactNumber);
         }
@@ -673,5 +795,28 @@ public class UserService {
 
     public User getUserById(int userId) {
         return userDao.findOne(userId);
+    }
+    
+    public UserContactNumber getTopPriorityContact(int userId) {
+        List<UserContactNumber> contacts = contactNumberDao.findByUserIdOrderByPriorityAsc(userId);
+        if (contacts.isEmpty()) {
+            return null;
+        }
+        return contacts.get(0);
+    }
+    
+    /**
+     * This method will return the attributes of the user based on the attribute value provided.
+     * @param userId
+     * @param attributeValue
+     * @return
+     */
+    public UserAttribute checkUserAttributesByAttributeValue(int userId, String attributeValue) {
+        return userAttributeDao.findByUserIdAndAttributeValue(userId, attributeValue);
+    }
+
+    public void enrichUserDetails(User user) {
+        user.setContactNumbers(new HashSet<UserContactNumber>(contactNumberDao.findByUserIdOrderByPriorityAsc(user.getId())));
+        user.setAttributes(userAttributeDao.findByUserId(user.getId()));
     }
 }

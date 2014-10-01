@@ -6,8 +6,10 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -16,6 +18,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,7 @@ import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.Project;
@@ -49,21 +53,27 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PropertyService {
     @Autowired
-    private PropertyDao          propertyDao;
+    private PropertyDao            propertyDao;
 
     @Autowired
-    private ProjectService       projectService;
+    private ProjectService         projectService;
 
     @Autowired
-    private ImageEnricher        imageEnricher;
+    private ImageEnricher          imageEnricher;
 
     @Autowired
-    private SolrDao              solrDao;
+    private SolrDao                solrDao;
 
     @Autowired
-    private EntityManagerFactory emf;
+    private EntityManagerFactory   emf;
 
-    private static int           ROWS_THRESHOLD = 200;
+    // do not apply autowire.
+    private CouponCatalogueService couponCatalogueService;
+
+    @Autowired
+    private ApplicationContext     applicationContext;
+
+    private static int             ROWS_THRESHOLD = 200;
 
     /**
      * Returns properties given a selector
@@ -74,6 +84,11 @@ public class PropertyService {
     public List<Property> getProperties(Selector propertyFilter) {
         List<Property> properties = propertyDao.getProperties(propertyFilter);
         imageEnricher.setPropertiesImages(properties);
+
+        Set<String> fields = propertyFilter.getFields();
+        if (fields != null && fields.contains("couponCatalogue")) {
+            setCouponCatalogueForProperties(properties);
+        }
 
         return properties;
     }
@@ -172,7 +187,14 @@ public class PropertyService {
     }
 
     public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
-        return propertyDao.getProperties(selector);
+        PaginatedResponse<List<Property>> response = propertyDao.getProperties(selector);
+
+        Set<String> fields = selector.getFieldSet();
+        if (fields != null && fields.contains("couponCatalogue")) {
+            setCouponCatalogueForProperties(response.getResults());
+        }
+
+        return response;
     }
 
     public Map<String, Map<String, Map<String, FieldStatsInfo>>> getAvgPricePerUnitAreaBHKWise(
@@ -344,5 +366,59 @@ public class PropertyService {
         paginatedResponse.setResults(builder.retrieveResults());
         entityManager.close();
         return paginatedResponse;
+    }
+
+    /**
+     * This method will take the list of property object and return the list of
+     * property Ids.
+     * 
+     * @param properties
+     * @return
+     */
+    private List<Integer> getPropertyIdsFromProperties(List<Property> properties) {
+        List<Integer> propertyIds = new ArrayList<Integer>();
+
+        if (properties == null || properties.isEmpty())
+            return propertyIds;
+
+        for (Property property : properties) {
+            propertyIds.add(property.getPropertyId());
+        }
+
+        return propertyIds;
+    }
+
+    /**
+     * This method will take the list of properties and set the coupon catalogue
+     * for those properties.
+     * 
+     * @param properties
+     */
+    public void setCouponCatalogueForProperties(List<Property> properties) {
+        List<Integer> propertyIds = getPropertyIdsFromProperties(properties);
+
+        Map<Integer, CouponCatalogue> map = getCoupCatalogueService().getCouponCatalogueMapByPropertyIds(propertyIds);
+
+        CouponCatalogue couponCatalogue;
+        for (Property property : properties) {
+            couponCatalogue = map.get(property.getPropertyId());
+            if (couponCatalogue == null) {
+                // resetting them if they are coming from solr.
+                property.setCouponCatalogue(null);
+                property.setCouponAvailable(null);
+                continue;
+            }
+
+            property.setCouponCatalogue(map.get(property.getPropertyId()));
+            property.setCouponAvailable(true);
+        }
+    }
+
+    public CouponCatalogueService getCoupCatalogueService() {
+        if (couponCatalogueService == null) {
+            couponCatalogueService = applicationContext.getBean(CouponCatalogueService.class);
+        }
+
+        return couponCatalogueService;
     }
 }

@@ -92,7 +92,7 @@ public class PortfolioPriceTrendService {
      */
     public ProjectPriceTrend getListingPriceTrend(Integer userId, Integer listingId, Integer noOfMonths) {
         logger.debug("Price trend for user id {} and listing id {} for months {}", userId, listingId, noOfMonths);
-        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
         if (listing == null) {

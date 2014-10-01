@@ -18,11 +18,14 @@ import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.security.SocialUser;
 
+import com.proptiger.data.enums.Application;
 import com.proptiger.data.enums.AuthProvider;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.user.UserDao;
+import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Connection repository to find already estabilished connections with provider
@@ -33,9 +36,9 @@ import com.proptiger.data.service.user.UserService;
  */
 
 public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepository {
-    
+
     @Autowired
-    private UserService userService;
+    private UserService      userService;
 
     @Autowired
     private UserDao          userDao;
@@ -102,15 +105,17 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
                 providerUserId,
                 profileImageUrl);
         if (user != null) {
+            Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
             SocialUser socialUser = new ActiveUser(
                     user.getId(),
                     user.getEmail(),
-                    (user.getPassword() == null)? "dummy": user.getPassword() ,
+                    (user.getPassword() == null) ? "dummy" : user.getPassword(),
                     true,
                     true,
                     true,
                     true,
-                    new ArrayList<GrantedAuthority>());
+                    SecurityContextUtils.getDefaultAuthority(user.getId()),
+                    applicationType);
 
             return new UsernamePasswordAuthenticationToken(socialUser, null, socialUser.getAuthorities());
         }

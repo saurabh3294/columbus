@@ -18,7 +18,10 @@ public class APIResponse implements Serializable {
     private static final long serialVersionUID = -7809000164180146201L;
     private Long              totalCount;
     private String            statusCode;
+
+    @JsonInclude(Include.ALWAYS)
     private Object            data;
+
     private APIError          error;
 
     public APIResponse() {

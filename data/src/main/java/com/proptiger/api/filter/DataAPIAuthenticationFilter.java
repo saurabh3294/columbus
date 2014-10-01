@@ -25,7 +25,6 @@ import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.util.CacheClientUtil;
 import com.proptiger.data.util.Constants;
-import com.proptiger.exception.AuthenticationException;
 
 /**
  * This filter is authenticating user, if user have already logged in then it

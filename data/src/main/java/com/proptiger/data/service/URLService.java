@@ -240,7 +240,6 @@ public class URLService {
                 }
                 break;
             case LOCALITY_SUBURB_OVERVIEW:
-            case LOCALITY_SUBURB_LANDMARK:
                 // localitySuburbListingUrl, cityName, response status
                 responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 Object[] localitySuburbUrlData = getLocalitySuburbListingUrl(urlDetail);
@@ -280,6 +279,35 @@ public class URLService {
                     }
                 }
                 break;
+            case LOCALITY_SUBURB_LANDMARK:
+                responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
+                Object[] localitySuburbLandMarkUrlData = getLocalitySuburbListingUrl(urlDetail);
+
+                domainUrl = (String) localitySuburbLandMarkUrlData[0];
+                responseStatus = (Integer) localitySuburbLandMarkUrlData[2];
+                is404FallbackSet = (boolean) localitySuburbLandMarkUrlData[4];
+
+                if (is404FallbackSet) {
+                    redirectUrl = domainUrl;
+                    if (domainUrl != null && !domainUrl.isEmpty()) {
+                        redirectUrl = domainUrl;
+                        if (urlDetail.getOverviewType() != null) {
+                            redirectUrl = domainUrl;
+                        }
+                    }
+                }
+                else {
+                    domainUrl = domainUrl.replaceFirst("property-sale-", "");
+                    domainUrl = domainUrl + urlDetail.getAppendingString();
+                    if (!domainUrl.equals(urlDetail.getUrl()) || hasTrailingSlace) {
+                        redirectUrl = domainUrl;
+                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
+                    }
+                    else {
+                        responseStatus = HttpStatus.SC_OK;
+                    }
+                }
+                break;
             case CITY_URLS:
                 City city = null;
                 try {
@@ -294,6 +322,7 @@ public class URLService {
                 }
                 break;
             case STATIC_URLS:
+            case DIWALI_MELA_URL:
                 responseStatus = HttpStatus.SC_OK;
                 break;
             case PORTFOLIO_URLS:

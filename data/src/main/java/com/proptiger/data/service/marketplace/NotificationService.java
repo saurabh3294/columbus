@@ -139,14 +139,11 @@ public class NotificationService {
      * @return
      */
     public int getNotificationsCountForUser(int userId) {
-        List<Notification> notificationTypes = notificationDao.getNotificationWithTypeForUser(userId);
+        List<MarketplaceNotificationType> notificationTypes = getNotificationsForUser(userId);
 
         int count = 0;
-        for (Notification notification : notificationTypes) {
-
-            if (!(notification.getNotificationType().isIgnorable() && notification.isRead())) {
-                count = count + 1;
-            }
+        for (MarketplaceNotificationType notificationType : notificationTypes) {
+            count = count + notificationType.getNotifications().size();
         }
         return count;
     }
@@ -192,13 +189,17 @@ public class NotificationService {
         if (notification == null) {
             notification = createTaskNotification(nextTask, notificationTypeId);
             if (sendNotification) {
-                // XXX GCM notification being sent
                 if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_ALL)) {
-                    generatedService.createNotificationGenerated(Arrays.asList(notificationMessageService
-                            .createNotificationMessage(
+                    String gcmMessage = getGcmMessageContentForGroupableNotification(
+                            notification.getUserId(),
+                            notificationTypeId);
+                    logger.debug("SENDING TASK NOTIFICATION  = " + gcmMessage);
+                    generatedService.createNotificationGenerated(
+                            Arrays.asList(notificationMessageService.createNotificationMessage(
                                     defaultNotificationType,
                                     notification.getUserId(),
-                                    notification.getStringDetails())), Arrays.asList(MediumType.MarketplaceApp));
+                                    gcmMessage)),
+                            Arrays.asList(MediumType.MarketplaceApp));
                 }
             }
         }
@@ -213,13 +214,10 @@ public class NotificationService {
      * @return
      */
     private Notification createTaskNotification(LeadTask leadTask, int notificationTypeId) {
-        // XXX should be removed from here... need to figure out why offer
-        // object is not being set automatically
-        leadTask.setLeadOffer(leadOfferDao.findOne(leadTask.getLeadOfferId()));
+        LeadOffer offer = leadOfferDao.findOne(leadTask.getLeadOfferId());
 
-        leadTask.unlinkCircularLoop();
         return createNotification(
-                leadTask.getLeadOffer().getAgentId(),
+                offer.getAgentId(),
                 notificationTypeId,
                 leadTask.getId(),
                 SerializationUtils.objectToJson(leadTask));
@@ -355,7 +353,8 @@ public class NotificationService {
         List<Notification> notifications = notificationDao.getInvalidTaskNotificationForLeadOffer(
                 leadOfferId,
                 validTaskIdForNotification,
-                notificationTypeId, masterTaskIds);
+                notificationTypeId,
+                masterTaskIds);
         notificationDao.delete(notifications);
     }
 
@@ -434,12 +433,11 @@ public class NotificationService {
         MarketplaceNotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
         for (Integer userId : map.keySet()) {
             notificationType.setNotifications(map.get(userId));
-            JsonNode message = SerializationUtils.objectToJson(notificationType);
-
-            System.out.println("SENDING NOTIFICATION TO USERID: " + userId + " MESSAGE: " + message);
+            String message = SerializationUtils.objectToJson(notificationType).toString();
             if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_ALL)) {
+                logger.debug("SENDING TASK NOTIFICATION == " + message);
                 generatedService.createNotificationGenerated(Arrays.asList(notificationMessageService
-                        .createNotificationMessage(defaultNotificationType, userId, message.toString())), Arrays
+                        .createNotificationMessage(defaultNotificationType, userId, message)), Arrays
                         .asList(MediumType.MarketplaceApp));
             }
         }
@@ -468,6 +466,7 @@ public class NotificationService {
      * @param offer
      * @return
      */
+
     public Notification sendLeadOfferNotification(int offerId) {
         LeadOffer offer = leadOfferDao.getLeadOfferWithRequirements(offerId);
         Notification notification = createNotification(
@@ -475,15 +474,37 @@ public class NotificationService {
                 NotificationType.LeadOffered.getId(),
                 offer.getId(),
                 SerializationUtils.objectToJson(offer));
-        // XXX send notification to broker
+
         if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_NEW_OFFER)) {
+            String gcmMessage = getGcmMessageContentForGroupableNotification(
+                    offer.getAgentId(),
+                    notification.getNotificationTypeId());
+            logger.debug("LEAD OFFER NOTIFICATION CONTENT === " + gcmMessage);
+
             generatedService.createNotificationGenerated(Arrays.asList(notificationMessageService
-                    .createNotificationMessage(
-                            defaultNotificationType,
-                            notification.getUserId(),
-                            notification.getStringDetails())), Arrays.asList(MediumType.MarketplaceApp));
+                    .createNotificationMessage(defaultNotificationType, notification.getUserId(), gcmMessage)), Arrays
+                    .asList(MediumType.MarketplaceApp));
         }
         return notification;
+    }
+
+    /**
+     * method to get gcm message content on lead offer
+     * 
+     * @param userId
+     * @param notificationTypeId
+     * @return
+     */
+    private String getGcmMessageContentForGroupableNotification(int userId, int notificationTypeId) {
+        MarketplaceNotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
+        List<Notification> notifications = notificationDao
+                .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
+        for (Notification notification : notifications) {
+            notification.setNotificationType(null);
+        }
+        notificationType.setNotifications(notifications);
+
+        return SerializationUtils.objectToJson(notificationType).toString();
     }
 
     /**

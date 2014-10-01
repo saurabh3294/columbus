@@ -201,7 +201,7 @@ public class LeadOfferService {
                 List<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
 
-                Map<Integer, List<UserContactNumber>> contactNumbers = null;
+                Map<Integer, Set<UserContactNumber>> contactNumbers = null;
                 if (fields.contains("contactNumbers")) {
                     contactNumbers = userService.getUserContactNumbers(clientIds);
                 }

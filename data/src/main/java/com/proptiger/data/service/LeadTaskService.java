@@ -118,7 +118,7 @@ public class LeadTaskService {
      */
     @Transactional
     public LeadTask updateTask(LeadTaskDto taskDto) {
-        ActiveUser user = SecurityContextUtils.getLoggedInUser();
+        ActiveUser user = SecurityContextUtils.getActiveUser();
         int currentTaskId = taskDto.getId();
         int nextTaskId = 0;
         LeadTask savedTask = leadTaskDao.findOne(currentTaskId);
@@ -329,9 +329,10 @@ public class LeadTaskService {
 
         if (leadOffer.getNextTaskId() != null) {
             LeadTask nextTask = getLeadTask(leadOffer.getNextTaskId());
+            LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusDetail(nextTask.getTaskStatusId());
             Date scheduledTime = nextTask.getScheduledFor();
             if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
-                    && nextTask.getTaskStatus().getMasterTaskId() != LeadTaskName.Call.getId()) {
+                    && leadTaskStatus.getMasterTaskId() != LeadTaskName.Call.getId()) {
                 notificationService.createNotificationForTask(notificationTypeId, nextTask, false);
                 validTaskIdForNotification = nextTask.getId();
             }

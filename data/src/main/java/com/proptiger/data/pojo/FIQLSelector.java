@@ -8,9 +8,8 @@ package com.proptiger.data.pojo;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -178,18 +177,18 @@ public class FIQLSelector implements Cloneable, Serializable {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
-    public Set<String> getFieldSet() {
+    public LinkedHashSet<String> getFieldSet() {
         return (getTokenizedValuesAsSet(this.fields, ","));
     }
 
-    public Set<String> getGroupSet() {
+    public LinkedHashSet<String> getGroupSet() {
         return (getTokenizedValuesAsSet(this.group, ","));
     }
 
-    private Set<String> getTokenizedValuesAsSet(String line, String dlim) {
-        Set<String> result = new HashSet<>();
+    private LinkedHashSet<String> getTokenizedValuesAsSet(String line, String dlim) {
+        LinkedHashSet<String> result = new LinkedHashSet<>();
         if (line != null && !line.trim().isEmpty()) {
-            result = new HashSet<>(Arrays.asList(line.split(dlim)));
+            result = new LinkedHashSet<>(Arrays.asList(line.split(dlim)));
         }
         return result;
     }
@@ -243,21 +242,22 @@ public class FIQLSelector implements Cloneable, Serializable {
         return ToStringBuilder.reflectionToString(obj, ToStringStyle.SHORT_PREFIX_STYLE).equals(
                 ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE));
     }
-    
+
     /**
      * applies defaults in {@link FIQLSelector} for get task apis
      * 
      * @param selector
      * @return
      */
-    public FIQLSelector applyDefSort(String defaultSort){
-        
+    public FIQLSelector applyDefSort(String defaultSort) {
+
         if (this.getSort() == null) {
             this.setSort(defaultSort);
         }
         return this;
     }
-    public FIQLSelector applyDefFields(String fields){
+
+    public FIQLSelector applyDefFields(String fields) {
         if (this.getFields() == null) {
             this.setFields(fields);
         }

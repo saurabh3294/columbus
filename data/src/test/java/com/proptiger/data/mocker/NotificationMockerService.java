@@ -83,10 +83,17 @@ public class NotificationMockerService {
         return new NotificationMessage(userId, payload, notiType);
     }
 
-    public NotificationMessage getMockNotificationMessageForAndroid() {
+    public NotificationMessage getMockNotificationMessageForTemplate(String template) {
         Integer userId = 1211884;
         NotificationType notiType = getMockNotificationType();
-        NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplate();
+        NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplate(template);
+        return new NotificationMessage(userId, payload, notiType);
+    }
+    
+    public NotificationMessage getMockNotificationMessageForTemplateMap(Map<String, Object> templateMap) {
+        Integer userId = 1211884;
+        NotificationType notiType = getMockNotificationType();
+        NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplateMap(templateMap);
         return new NotificationMessage(userId, payload, notiType);
     }
 
@@ -141,30 +148,27 @@ public class NotificationMockerService {
         String body = "This is a mock email body for XYZ";
 
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Subject.name(), subject);
-        extraAttributes.put(Tokens.Body.name(), body);
-
-        NotificationMessagePayload payload = new NotificationMessagePayload();
-        payload.setNotificationTypePayload(getMockNotificationTypePayload());
-        payload.setExtraAttributes(extraAttributes);
-        return payload;
+        extraAttributes.put(Tokens.Default.Subject.name(), subject);
+        extraAttributes.put(Tokens.Default.Body.name(), body);
+        return getMockNotificationMessagePayloadWithTemplateMap(extraAttributes);
     }
 
-    private NotificationMessagePayload getMockNotificationMessagePayloadWithTemplate() {
-        String template = "{'id':121, 'notifications': ['notification_01', 'notification_02'] }";
-
+    private NotificationMessagePayload getMockNotificationMessagePayloadWithTemplate(String template) {
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Template.name(), template);
-
+        extraAttributes.put(Tokens.Default.Template.name(), template);
+        return getMockNotificationMessagePayloadWithTemplateMap(extraAttributes);
+    }
+    
+    private NotificationMessagePayload getMockNotificationMessagePayloadWithTemplateMap(Map<String, Object> templateMap) {
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setNotificationTypePayload(getMockNotificationTypePayload());
-        payload.setExtraAttributes(extraAttributes);
+        payload.setExtraAttributes(templateMap);
         return payload;
     }
 
     private NotificationMessagePayload getMockNotificationMessagePayload() {
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.ProjectName.name(), "dummyProjectName");
+        extraAttributes.put(Tokens.PortfolioProjectUpdates.ProjectName.name(), "dummyProjectName");
 
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setNotificationTypePayload(getMockNotificationTypePayload());
