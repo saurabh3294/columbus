@@ -114,6 +114,9 @@ public class LeadOfferService {
     @Autowired
     private NotificationService          notificationService;
 
+    @Autowired
+    private PropertyReader               propertyReader;
+
     /**
      * 
      * @param integer
@@ -527,7 +530,7 @@ public class LeadOfferService {
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
         String heading = "Matching Property suggested by our trusted broker";
         String templatePath = marketplaceTemplateBasePath + claimTemplate;
-        sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
+        sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId, "Proptiger.com");
     }
 
     @Transactional
@@ -614,7 +617,7 @@ public class LeadOfferService {
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
 
                 if (leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId()) {
-                    sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
+                    sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId, null);
                 }
                 return newListingIds;
             }
@@ -627,7 +630,8 @@ public class LeadOfferService {
             String templatePath,
             String heading,
             List<Integer> newListingIds,
-            Integer userId) {
+            Integer userId,
+            String username) {
 
         if (newListingIds != null) {
             Set<String> fields = new HashSet<>();
@@ -658,9 +662,15 @@ public class LeadOfferService {
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
 
+            if (username == null) {
+                username = leadOfferInDB.getAgent().getFullName();
+            }
+
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
-            MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(
-                    leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
+            MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
+                    .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
+                    .setReplyTo(leadOfferInDB.getAgent().getEmail())
+                    .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
             mailSender.sendMailUsingAws(mailDetails);
         }
     }
@@ -841,6 +851,8 @@ public class LeadOfferService {
         /*
          * creating task for email status done
          */
+
+        leadTask.setNotes(senderDetails.getSubject());
         LeadTask createdTask = leadTaskService.createLeadTask(leadTask);
         /*
          * update last task id in lead offer
@@ -857,8 +869,12 @@ public class LeadOfferService {
                 || senderDetails.getMailTo().isEmpty()) {
             throw new BadRequestException("Invalid mail details");
         }
+
+        String username = userService.getUserById(activeUser.getUserIdentifier()).getFullName();
+
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
-                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername());
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername())
+                .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
     }

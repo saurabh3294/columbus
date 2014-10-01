@@ -2,6 +2,7 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Service
 public class ListingService {
@@ -99,9 +100,7 @@ public class ListingService {
             throw new ResourceAlreadyExistException("Listing could not be created");
         }
         if (currentListingPrice != null) {
-            ListingPrice listingPriceCreated = listingPriceService.createListingPrice(
-                    currentListingPrice,
-                    listing);
+            ListingPrice listingPriceCreated = listingPriceService.createListingPrice(currentListingPrice, listing);
 
             // save listing again with current listing price id
             listing.setCurrentPriceId(listingPriceCreated.getId());
@@ -113,6 +112,39 @@ public class ListingService {
         List<ListingAmenity> amenities = listingAmenityService.createListingAmenities(property.getProjectId(), listing);
         listing.setListingAmenities(amenities);
         return listing;
+    }
+
+    public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) {
+        listing.setId(listingId);
+        Listing listingInDB = listingDao.findById(listingId);
+        Property property = listingInDB.getProperty();
+        listing.setProperty(null);
+
+        if (listing.getFloor() != null) {
+            listingInDB.setFloor(listing.getFloor());
+        }
+
+        if (listing.getJsonDump() != null) {
+            listingInDB.setJsonDump(listing.getJsonDump());
+        }
+
+        List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(Collections
+                .singletonList(listingId));
+
+        List<Integer> masterAmenityIds = new ArrayList<Integer>();
+
+        for (ListingAmenity listingAmenity : listingAmenities) {
+            if (!listing.getMasterAmenityIds().contains(listingAmenity.getAmenity().getAmenityId())) {
+                masterAmenityIds.add((int) listingAmenity.getAmenity().getAmenityId());
+            }
+        }
+        listing.setMasterAmenityIds(masterAmenityIds);
+        List<ListingAmenity> amenities = listingAmenityService.createListingAmenities(property.getProjectId(), listing);
+        listing.setListingAmenities(amenities);
+
+        listingDao.save(listingInDB);
+
+        return new PaginatedResponse<>(listing, 1);
     }
 
     /**
@@ -140,7 +172,8 @@ public class ListingService {
             List<ProjectPhase> projectPhase = projectPhaseService.getPhaseDetailsFromFiql(
                     new FIQLSelector().addAndConditionToFilter("phaseType==" + EntityType.Logical),
                     property.getProjectId(),
-                    DataVersion.Website, null);
+                    DataVersion.Website,
+                    null);
             if (projectPhase != null && projectPhase.size() > 0) {
                 listing.setPhaseId(projectPhase.get(0).getPhaseId());
             }
@@ -196,14 +229,18 @@ public class ListingService {
      */
     public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector) {
         selector.applyDefSort("-id");
-        Pageable pageable = new LimitOffsetPageRequest(
-                selector.getStart(),
-                selector.getRows(),
-                selector.getSpringDataSort());
-        List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, pageable);
 
+        List<Long> listingSize = listingDao.findListingsCount(userId, DataVersion.Website, Status.Active);
+
+        List<Listing> listings;
+        if (selector.getStart() > listingSize.get(0)) {
+            return new PaginatedResponse<>(null, listingSize.get(0));
+        }
+        else {
+            listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, selector);
+        }
         String fields = selector.getFields();
-        if(fields != null){
+        if (fields != null) {
             if (fields.contains("listingAmenities")) {
                 List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(listings);
                 if (listingAmenities.size() > 0) {
@@ -214,13 +251,14 @@ public class ListingService {
                 }
             }
         }
-      //TODO due to explicit join would be fetched so if not asked then set this to null, handle using FIQL
-        if(fields == null || !fields.contains("property")){
-            for(Listing l: listings){
-                l.setProperty(null);    
+        // TODO due to explicit join would be fetched so if not asked then set
+        // this to null, handle using FIQL
+        if (fields == null || !fields.contains("property")) {
+            for (Listing l : listings) {
+                l.setProperty(null);
             }
         }
-        return new PaginatedResponse<>(listings, listings.size());
+        return new PaginatedResponse<>(listings, listingSize.get(0));
     }
 
     /**
@@ -236,14 +274,16 @@ public class ListingService {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
         String fields = selector.getFields();
-        if(fields != null){
-            if(fields.contains("listingAmenities")){
-                List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(Arrays.asList(listing));
+        if (fields != null) {
+            if (fields.contains("listingAmenities")) {
+                List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(Arrays
+                        .asList(listing));
                 listing.setListingAmenities(listingAmenities);
             }
         }
-        if(fields == null || !fields.contains("property")){
-            //due to explicit join in query it would be fetched so if not asked then set this to null
+        if (fields == null || !fields.contains("property")) {
+            // due to explicit join in query it would be fetched so if not asked
+            // then set this to null
             listing.setProperty(null);
         }
         return listing;
@@ -283,8 +323,9 @@ public class ListingService {
         List<Integer> listingPriceId = listingDao.getListingPriceIds(propertyId);
         List<ListingPrice> listingPrices = null;
         if (listingPriceId != null && !listingPriceId.isEmpty()) {
-            listingPrices =  listingDao.getListingPrice(listingPriceId);
+            listingPrices = listingDao.getListingPrice(listingPriceId);
         }
         return listingPrices;
     }
+
 }
