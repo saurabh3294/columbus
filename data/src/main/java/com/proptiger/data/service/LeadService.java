@@ -12,10 +12,13 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import net.sf.uadetector.ReadableUserAgent;
+import net.sf.uadetector.UserAgentStringParser;
+import net.sf.uadetector.service.UADetectorServiceFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.net.HttpHeaders;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.enums.lead.ProcessingStatus;
 import com.proptiger.data.enums.lead.SalesType;
@@ -314,13 +317,33 @@ public class LeadService {
     }
 
     public HashMap<String, String> setCookieInLead(Enquiry enquiry, HttpServletRequest request) {
+
         HashMap<String, String> cookieMap = new HashMap<String, String>();
         Cookie[] requestCookies = request.getCookies();
-        Enumeration<String> aEnumeration = request.getHeaderNames();
-        System.out.println(aEnumeration);
-        enquiry.setHttpReferer(request.getHeader("Referer")); // TODO
+        
+        enquiry.setHttpReferer(request.getHeader("Referer"));
         enquiry.setIp(request.getRemoteAddr());
 
+        // Set application source of lead
+        if (enquiry.getApplicationType() == null) {
+            UserAgentStringParser parser = UADetectorServiceFactory.getResourceModuleParser();
+            ReadableUserAgent agent = parser.parse(request.getHeader("User-Agent"));
+            String applicationSource = agent.getDeviceCategory().getName();
+            System.out.println(applicationSource);
+
+            if (!applicationSource.isEmpty() && (applicationSource.toLowerCase().equals("PDA") || applicationSource
+                    .toLowerCase().equals("SMARTPHONE"))) {
+                enquiry.setApplicationType("Mobile Site");
+            }
+
+            else if (!applicationSource.isEmpty() && applicationSource.toLowerCase().equals("TABLET")) {
+                enquiry.setApplicationType("Tablet Site");
+            }
+            else {
+                enquiry.setApplicationType("Desktop Site");
+            }
+        }
+        
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
                 System.out.println(c.getName());
@@ -469,6 +492,7 @@ public class LeadService {
         else {
             enquiry.setRegisteredUser("YES");
         }
+
     }
 
     private void setSalesTypeInEnquiry(Enquiry enquiry, Project project) {
