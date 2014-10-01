@@ -379,6 +379,11 @@
  		    <artifactId>BeanstalkClient</artifactId>
 		    <version>1.4.6</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.uadetector</groupId>
+			<artifactId>uadetector-resources</artifactId>
+			<version>2014.04</version>
+		</dependency>
 		<!-- Spring Social Facebook -->
 		<dependency>
 			<groupId>org.springframework.social</groupId>
