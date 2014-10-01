@@ -84,7 +84,8 @@ public class CouponNotificationService {
         notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
 
     }
-
+    
+    @Async
     public void notifyUserOnRefund(Transaction transaction, CouponCatalogue couponCatalogue) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
 
@@ -92,7 +93,7 @@ public class CouponNotificationService {
 
         payloadMap.put(Tokens.CouponRefunded.CouponCode.name(), transaction.getCode());
         payloadMap.put(Tokens.CouponRefunded.CouponPrice.name(), transaction.getAmount());
-        payloadMap.put(Tokens.CouponRefunded.TransactionId.name(), transaction.getId());
+        payloadMap.put(Tokens.CouponRefunded.TransactionId.name(), "" + transaction.getId());
         payloadMap.put(Tokens.CouponIssued.UserName.name(), user.getFullName());
 
         List<String> ccList = new ArrayList<String>();
@@ -119,6 +120,7 @@ public class CouponNotificationService {
         notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
     }
 
+    @Async
     public void notifyUserForCancelCoupon(Transaction transaction, CouponCatalogue couponCatalogue) {
         Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
 
