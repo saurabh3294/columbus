@@ -470,6 +470,7 @@ public class Project extends BaseModel {
     @Field("MIN_RESALE_OR_PRIMARY_PRICE")
     private Double                  minResaleOrPrimaryPrice;
 
+    @Transient
     @Field("RESALE_PRICE_PER_UNIT_AREA")
     private Double                  resalePricePerUnitArea;
 
