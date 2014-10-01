@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.citruspay.pg.model.Enquiry;
 import com.proptiger.data.model.CouponCatalogue;
@@ -30,7 +31,8 @@ public class CitrusPayPGTransactionService {
     
     @Autowired
     private CouponNotificationService couponNotificationService;
-
+    
+    @Transactional
     public boolean saveRefundTransaction(Transaction transaction, Enquiry lastEnquiry, boolean incrementCouponInventory) {
 
         Payment payment = citrusPayPGService.createPaymentFromEnquiry(transaction, lastEnquiry);
