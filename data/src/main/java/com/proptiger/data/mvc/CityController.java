@@ -53,4 +53,11 @@ public class CityController extends BaseController {
 
         return new APIResponse(super.filterFields(cityService.getCityInfo(cityId), null));
     }
+    
+    @RequestMapping(value = "/{cityId}/landmark")
+    @ResponseBody
+    public APIResponse getCityLandMarkImages(@PathVariable int cityId) {
+        return new APIResponse(cityService.getCityLandMarkImages(cityId));
+    }
+    
 }

@@ -192,6 +192,12 @@ public class City extends BaseModel {
     @Field("CITY_COUPON_AVAILABLE")
     private Boolean              isCouponAvailable;
 
+    @Transient
+    private List<LandMark>       completeAmenities;
+
+    @Transient
+    private Map<String, Integer> amenityTypeCount;
+
     public Integer getId() {
         return id;
     }
@@ -472,7 +478,7 @@ public class City extends BaseModel {
         this.isCouponAvailable = isCouponAvailable;
     }
 
-public Integer getCityPopulation() {
+    public Integer getCityPopulation() {
         return cityPopulation;
     }
 
@@ -494,5 +500,21 @@ public Integer getCityPopulation() {
 
     public void setCityPropertyCount(Integer cityPropertyCount) {
         this.cityPropertyCount = cityPropertyCount;
+    }
+
+    public List<LandMark> getCompleteAmenities() {
+        return completeAmenities;
+    }
+
+    public void setCompleteAmenities(List<LandMark> completeAmenities) {
+        this.completeAmenities = completeAmenities;
+    }
+
+    public Map<String, Integer> getAmenityTypeCount() {
+        return amenityTypeCount;
+    }
+
+    public void setAmenityTypeCount(Map<String, Integer> amenityTypeCount) {
+        this.amenityTypeCount = amenityTypeCount;
     }
 }
