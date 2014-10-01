@@ -61,9 +61,8 @@ public class LeadOfferDaoImpl {
      * @param dueDate
      * @return
      */
-    
-    public List<LeadOffer> getPage(int agentId,List<Integer> statusIds,String dueDate,FIQLSelector selector)
-    {
+
+    public List<LeadOffer> getPage(int agentId, List<Integer> statusIds, String dueDate, FIQLSelector selector) {
         EntityManager em = emf.createEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<LeadOffer> cq = cb.createQuery(LeadOffer.class);
@@ -115,13 +114,8 @@ public class LeadOfferDaoImpl {
         List<LeadOffer> leadOffers = query.getResultList();
         return leadOffers;
     }
-    
-    
-    public List<Long> getTotalCount(int agentId,
-            List<Integer> statusIds,
-            String dueDate,
-            FIQLSelector selector)
-    {
+
+    public List<Long> getTotalCount(int agentId, List<Integer> statusIds, String dueDate, FIQLSelector selector) {
         EntityManager emCount = emf.createEntityManager();
         CriteriaBuilder cbCount = emCount.getCriteriaBuilder();
         CriteriaQuery<Long> cqCount = cbCount.createQuery(Long.class);
@@ -145,7 +139,7 @@ public class LeadOfferDaoImpl {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         Date today = cal.getTime();
-        
+
         try {
             today = sdf.parse(sdf.format(cal.getTime()));
         }
@@ -154,7 +148,7 @@ public class LeadOfferDaoImpl {
 
         cal.add(Calendar.DATE, 1);
         Date tomorrow = cal.getTime();
-        
+
         if ("today".equalsIgnoreCase(dueDate)) {
             conditionsCount.add(cbCount.between(
                     leadTaskJoinCount.<Date> get("scheduledFor"),
@@ -169,11 +163,10 @@ public class LeadOfferDaoImpl {
 
         cqCount.where(conditionsCount.toArray(new Predicate[0]));
         List<Long> countTotal = emCount.createQuery(cqCount).getResultList();
-        
+
         return countTotal;
     }
-    
-    
+
     public PaginatedResponse<List<LeadOffer>> getLeadOffers(
             int agentId,
             List<Integer> statusIds,
@@ -182,14 +175,15 @@ public class LeadOfferDaoImpl {
         PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>();
         List<Long> countTotal = getTotalCount(agentId, statusIds, dueDate, selector);
         paginatedResponse.setTotalCount(countTotal.get(0));
-        
-        if(selector.getStart() > countTotal.get(0))
-        {
-            throw new BadRequestException("Start entry is greater than size");
+
+        List<LeadOffer> leadOffers;
+        if (selector.getStart() > countTotal.get(0)) {
+            leadOffers = null;
         }
-        List<LeadOffer> leadOffers = getPage(agentId, statusIds, dueDate, selector);
+        else {
+            leadOffers = getPage(agentId, statusIds, dueDate, selector);
+        }
         paginatedResponse.setResults(leadOffers);
-        
         return paginatedResponse;
     }
 }

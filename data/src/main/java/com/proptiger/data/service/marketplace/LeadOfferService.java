@@ -617,7 +617,7 @@ public class LeadOfferService {
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
 
                 if (leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId()) {
-                    sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId,null);
+                    sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId, null);
                 }
                 return newListingIds;
             }
@@ -630,7 +630,8 @@ public class LeadOfferService {
             String templatePath,
             String heading,
             List<Integer> newListingIds,
-            Integer userId,String username) {
+            Integer userId,
+            String username) {
 
         if (newListingIds != null) {
             Set<String> fields = new HashSet<>();
@@ -661,7 +662,6 @@ public class LeadOfferService {
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
 
-            
             if (username == null) {
                 username = leadOfferInDB.getAgent().getFullName();
             }
