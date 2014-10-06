@@ -113,18 +113,17 @@ public class ListingService {
     }
 
     public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) {
-        listing.setId(listingId);        
+        listing.setId(listingId);
         Listing listingInDB = listingDao.findById(listingId);
-        
+
         System.out.println(userIdentifier);
         System.out.println(listingInDB.getSellerId());
         System.out.println(!listingInDB.getSellerId().equals(userIdentifier));
-        
-        if(!listingInDB.getSellerId().equals(userIdentifier))
-        {
+
+        if (!listingInDB.getSellerId().equals(userIdentifier)) {
             throw new BadRequestException("you can change only your listings");
         }
-        
+
         Property property = listingInDB.getProperty();
         listing.setProperty(null);
 
