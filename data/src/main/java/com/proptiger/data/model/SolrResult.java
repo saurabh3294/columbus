@@ -421,6 +421,12 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "CITY_PROPERTY_COUNT")
     private Integer           cityPropertyCount;
+    
+    @Field(value = "SUBURB_LOCALITY_COUNT")
+    private Integer           suburbLocalityCount;
+    
+    @Field(value = "SUBURB_PROPERTY_COUNT")
+    private Integer           suburbPropertyCount;
 
     public SolrResult() {
         property.setProject(project);
@@ -1345,5 +1351,15 @@ public class SolrResult extends BaseModel {
     @Field(value = "CITY_PROPERTY_COUNT")
     public void setCityPropertyCount(Integer cityPropertyCount) {
         city.setCityPropertyCount(cityPropertyCount);
+    }
+
+    @Field(value = "SUBURB_LOCALITY_COUNT")
+    public void setSuburbLocalityCount(Integer suburbLocalityCount) {
+        suburb.setSuburbLocalityCount(suburbLocalityCount);
+    }
+    
+    @Field(value = "SUBURB_PROPERTY_COUNT")
+    public void setSuburbPropertyCount(Integer suburbPropertyCount) {
+        suburb.setSuburbPropertyCount(suburbPropertyCount);
     }
 }
