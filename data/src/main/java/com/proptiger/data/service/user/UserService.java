@@ -40,7 +40,7 @@ import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
-import com.proptiger.data.internal.dto.Register;
+import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
@@ -485,64 +485,36 @@ public class UserService {
      * @return
      */
     @Transactional
-    public CustomUser register(Register register) {
+    public CustomUser register(RegisterUser register) {
+        register.setUserAuthProviderDetails(null);
         RegistrationUtils.validateRegistration(register);
-        User user = getUserFromRegister(register);
-
-        user = userDao.saveAndFlush(user);
-
+        register.setRegistered(true);
+        User user = userDao.findByEmail(register.getEmail());
+        User toCreate = register.createUserObj();
+        if (user == null) {
+            user = userDao.saveAndFlush(toCreate);
+        }
+        else if(user.isRegistered()){
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+        }
+        else if(!user.isRegistered()){
+            user.setRegistered(true);
+            user = userDao.saveAndFlush(user);
+        }
+        toCreate.setId(user.getId());
         createDefaultProjectDiscussionSubscriptionForUser(user.getId());
-
-        manageContactNumberOnRegistration(user, register);
-
+        patchUser(toCreate);
         /*
          * send mail only if user registers
          */
         if (user.isRegistered()) {
-            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
-            MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
+            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, user);
+            MailDetails details = new MailDetails(mailBody).setMailTo(user.getEmail()).setFrom(
                     propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
             mailSender.sendMailUsingAws(details);
             SecurityContextUtils.autoLogin(user);
         }
-
         return getUserDetails(user.getId(), Application.DEFAULT);
-    }
-
-    private User getUserFromRegister(Register register) {
-        User user = userDao.findByEmail(register.getEmail());
-        if (user == null) {
-            user = register.createUser();
-        }
-        else {
-            if (!register.getRegisterMe() || user.isRegistered()) {
-                throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
-            }
-            else {
-                user.copyFieldsFromRegisterToUser(register);
-            }
-        }
-        return user;
-    }
-
-    // manages contact numbers for every registration
-    // will be more relevant once we start supporting multiple contacts
-    private void manageContactNumberOnRegistration(User user, Register register) {
-        String primaryContactNumber = register.getContact().toString();
-        UserContactNumber savedContactNumber = user.getContactByContactNumber(primaryContactNumber);
-
-        if (savedContactNumber == null) {
-            contactNumberDao.incrementPriorityForUser(user.getId());
-            UserContactNumber userContactNumber = new UserContactNumber(primaryContactNumber, user.getId());
-            contactNumberDao.save(userContactNumber);
-        }
-        else {
-            if (savedContactNumber.getPriority() != UserContactNumber.primaryContactPriority) {
-                contactNumberDao.incrementPriorityForUser(user.getId());
-                savedContactNumber.setPriority(UserContactNumber.primaryContactPriority);
-                contactNumberDao.save(savedContactNumber);
-            }
-        }
     }
 
     /**

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
-import com.proptiger.data.internal.dto.Register;
+import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
@@ -84,7 +84,7 @@ public class UserController extends BaseController {
     }
     @RequestMapping(value = Constants.Security.REGISTER_URL, method = RequestMethod.POST)
     @ResponseBody
-    public APIResponse register(@RequestBody Register register){
+    public APIResponse register(@RequestBody RegisterUser register){
         CustomUser forumUser = userService.register(register);
         return new APIResponse(forumUser);
     }

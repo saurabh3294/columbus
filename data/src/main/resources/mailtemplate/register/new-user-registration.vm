@@ -27,7 +27,7 @@
             <tr>
                <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
                <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
-                  Dear ${newregistration.userName},<br /><br />
+                  Dear ${newregistration.fullName},<br /><br />
                   Welcome to PropTiger.com! <br /><br />
                   Thank you for your registration and choosing us as your destination for your dream home.  At 
                   PropTiger, you can search India’s most preferred New Homes, compare them and purchase 

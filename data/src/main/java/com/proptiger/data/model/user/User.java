@@ -11,13 +11,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-import com.proptiger.data.internal.dto.Register;
+import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 
@@ -57,10 +56,10 @@ public class User extends BaseModel {
     private Set<UserAuthProviderDetail> userAuthProviderDetails;
 
     @Column(name = "created_at")
-    private Date                         createdAt        = new Date();
+    private Date                         createdAt;
 
     @Column(name = "updated_at")
-    private Date                         updatedAt = new Date();
+    private Date                         updatedAt;
 
     @Column(name = "email")
     private String email;
@@ -190,11 +189,11 @@ public class User extends BaseModel {
         this.updatedAt = new Date();
     }
 
-    public void copyFieldsFromRegisterToUser(Register register) {
-        this.setFullName(register.getUserName());
+    public void copyFieldsFromRegisterToUser(RegisterUser register) {
+        this.setFullName(register.getFullName());
         this.setPassword(register.getPassword());
         this.setCountryId(register.getCountryId());
-        this.setRegistered(register.getRegisterMe());
+        this.setRegistered(true);
         this.setEmail(register.getEmail());
     }
     
