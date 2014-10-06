@@ -13,7 +13,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +28,6 @@ import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.marketplace.ListingDao;
@@ -117,6 +115,11 @@ public class ListingService {
     public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) {
         listing.setId(listingId);
         Listing listingInDB = listingDao.findById(listingId);
+
+        if (!listingInDB.getSellerId().equals(userIdentifier)) {
+            throw new BadRequestException("you can change only your listings");
+        }
+
         Property property = listingInDB.getProperty();
         listing.setProperty(null);
 
@@ -133,12 +136,21 @@ public class ListingService {
 
         List<Integer> masterAmenityIds = new ArrayList<Integer>();
 
+        List<Integer> alreadyPresentMasterAminityIds = new ArrayList<Integer>();
+
         for (ListingAmenity listingAmenity : listingAmenities) {
-            if (!listing.getMasterAmenityIds().contains(listingAmenity.getAmenity().getAmenityId())) {
-                masterAmenityIds.add((int) listingAmenity.getAmenity().getAmenityId());
+            alreadyPresentMasterAminityIds.add((int) listingAmenity.getAmenity().getAmenityId());
+        }
+
+        for (Integer aminityId : listing.getMasterAmenityIds()) {
+            masterAmenityIds.add(aminityId);
+            if (alreadyPresentMasterAminityIds.contains(aminityId)) {
+                masterAmenityIds.remove(aminityId);
             }
         }
-        listing.setMasterAmenityIds(masterAmenityIds);
+        if (masterAmenityIds != null)
+            listing.setMasterAmenityIds(masterAmenityIds);
+
         List<ListingAmenity> amenities = listingAmenityService.createListingAmenities(property.getProjectId(), listing);
         listing.setListingAmenities(amenities);
 
