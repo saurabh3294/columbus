@@ -36,8 +36,8 @@ public class EventInitiator {
      * Generates the DB events at regular intervals.
      */
     @Scheduled(
-            fixedDelayString = "${scheduler.fixeddelay.notification}",
-            initialDelayString = "${scheduler.initialdelay.notification}")
+            fixedDelayString = "${scheduler.fixeddelay.event}",
+            initialDelayString = "${scheduler.initialdelay.event.dbEventGenerator}")
     public void dbEventGenerator() {
         Thread.currentThread().setName("Raw Event Generator");
 
@@ -52,8 +52,8 @@ public class EventInitiator {
     }
 
     @Scheduled(
-            fixedDelayString = "${scheduler.fixeddelay.notification}",
-            initialDelayString = "${scheduler.initialdelay.notification}")
+            fixedDelayString = "${scheduler.fixeddelay.event}",
+            initialDelayString = "${scheduler.initialdelay.event.dbRawEventProcessor}")
     public void dbRawEventProcessor() {
         Thread.currentThread().setName("Raw Event Scheduler");
         logger.info("DBRawEventProcessor: Process Raw Events started");
@@ -62,8 +62,8 @@ public class EventInitiator {
     }
 
     @Scheduled(
-            fixedDelayString = "${scheduler.fixeddelay.notification}",
-            initialDelayString = "${scheduler.initialdelay.notification}")
+            fixedDelayString = "${scheduler.fixeddelay.event}",
+            initialDelayString = "${scheduler.initialdelay.event.dbProcessedEventProcessor}")
     public void dbProcessedEventProcessor() {
         Thread.currentThread().setName("Processed Event Scheduler");
         logger.info("DBProcessedEventProcessor: Process Processed Events started");
