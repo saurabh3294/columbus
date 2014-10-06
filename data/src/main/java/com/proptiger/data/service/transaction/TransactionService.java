@@ -130,7 +130,11 @@ public class TransactionService {
     }
 
     public List<Transaction> getRefundableTransactions() {
-        return transactionDao.getRefundableTransactions(DateUtil.addDays(new Date(), -1 * MAX_REFUND_PERIOD));
+        List<Integer> refundableTransactionStatus = new ArrayList<Integer>();
+        refundableTransactionStatus.add(TransactionStatus.Incomplete.getId());
+        refundableTransactionStatus.add(TransactionStatus.RefundInitiated.getId());
+        
+        return transactionDao.getRefundableTransactions(DateUtil.addDays(new Date(), -1 * MAX_REFUND_PERIOD), refundableTransactionStatus);
     }
 
     public Transaction getNonRedeemTransactionByCode(String code) {
@@ -189,7 +193,7 @@ public class TransactionService {
     }
     
     @Transactional
-    private int updateTransactionStatusByOldStatus(int transactionId, TransactionStatus newTxnStatus, TransactionStatus oldTxnStatus){
+    public int updateTransactionStatusByOldStatus(int transactionId, TransactionStatus newTxnStatus, TransactionStatus oldTxnStatus){
         return transactionDao.updateTransactionStatusByOldStatus(transactionId, newTxnStatus.getId(), oldTxnStatus.getId());
     }
     
