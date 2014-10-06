@@ -138,7 +138,7 @@ public class ListingService {
 
         if (listingAmenities != null) {
             for (ListingAmenity listingAmenity : listingAmenities) {
-                alreadyPresentListingAminityIds.add((int) listingAmenity.getId());
+                alreadyPresentListingAminityIds.add(listingAmenity.getId());
             }
             listingAmenityService.removeAminities(alreadyPresentListingAminityIds);
         }
