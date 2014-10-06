@@ -13,7 +13,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +28,6 @@ import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.marketplace.ListingDao;
@@ -115,8 +113,18 @@ public class ListingService {
     }
 
     public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) {
-        listing.setId(listingId);
+        listing.setId(listingId);        
         Listing listingInDB = listingDao.findById(listingId);
+        
+        System.out.println(userIdentifier);
+        System.out.println(listingInDB.getSellerId());
+        System.out.println(!listingInDB.getSellerId().equals(userIdentifier));
+        
+        if(!listingInDB.getSellerId().equals(userIdentifier))
+        {
+            throw new BadRequestException("you can change only your listings");
+        }
+        
         Property property = listingInDB.getProperty();
         listing.setProperty(null);
 
