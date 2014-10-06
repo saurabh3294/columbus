@@ -427,6 +427,9 @@ public class SolrResult extends BaseModel {
     
     @Field(value = "SUBURB_PROPERTY_COUNT")
     private Integer           suburbPropertyCount;
+    
+    @Field(value ="POPULATION_SURVEY_DATE")
+    private Date              populationSurveyDate;
 
     public SolrResult() {
         property.setProject(project);
@@ -1361,5 +1364,10 @@ public class SolrResult extends BaseModel {
     @Field(value = "SUBURB_PROPERTY_COUNT")
     public void setSuburbPropertyCount(Integer suburbPropertyCount) {
         suburb.setSuburbPropertyCount(suburbPropertyCount);
+    }
+    
+    @Field(value ="POPULATION_SURVEY_DATE")
+    public void setPopulationSurveyDate(Date populationSurveyDate) {
+        city.setPopulationSurveyDate(populationSurveyDate);
     }
 }

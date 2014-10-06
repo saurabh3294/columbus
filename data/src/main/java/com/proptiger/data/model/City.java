@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -197,6 +198,10 @@ public class City extends BaseModel {
 
     @Transient
     private Map<String, Integer> amenityTypeCount;
+    
+    @Transient
+    @Field("POPULATION_SURVEY_DATE")
+    private Date                populationSurveyDate;
 
     public Integer getId() {
         return id;
@@ -516,5 +521,13 @@ public class City extends BaseModel {
 
     public void setAmenityTypeCount(Map<String, Integer> amenityTypeCount) {
         this.amenityTypeCount = amenityTypeCount;
+    }
+
+    public Date getPopulationSurveyDate() {
+        return populationSurveyDate;
+    }
+
+    public void setPopulationSurveyDate(Date populationSurveyDate) {
+        this.populationSurveyDate = populationSurveyDate;
     }
 }
