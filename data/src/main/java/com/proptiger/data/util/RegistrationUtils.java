@@ -7,7 +7,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.internal.dto.Register;
+import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.exception.BadRequestException;
 
@@ -26,7 +26,7 @@ public class RegistrationUtils {
      * 
      * @param register
      */
-    public static void validateRegistration(Register register) {
+    public static void validateRegistration(RegisterUser register) {
         /*
          * to make it to work for new website that does not take confirm
          * password field on UI.

@@ -9,7 +9,7 @@ import com.proptiger.data.model.user.User;
  * @author azi
  * 
  */
-public class Register extends User {
+public class RegisterUser extends User {
     private static final long serialVersionUID = 5973266034024200507L;
 
     private String            confirmPassword;

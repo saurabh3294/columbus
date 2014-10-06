@@ -40,7 +40,7 @@ import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
-import com.proptiger.data.internal.dto.Register;
+import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
@@ -485,7 +485,7 @@ public class UserService {
      * @return
      */
     @Transactional
-    public CustomUser register(Register register) {
+    public CustomUser register(RegisterUser register) {
         register.setUserAuthProviderDetails(null);
         RegistrationUtils.validateRegistration(register);
         register.setRegistered(true);
