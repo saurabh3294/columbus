@@ -134,22 +134,14 @@ public class ListingService {
         List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(Collections
                 .singletonList(listingId));
 
-        List<Integer> masterAmenityIds = new ArrayList<Integer>();
+        List<Integer> alreadyPresentListingAminityIds = new ArrayList<Integer>();
 
-        List<Integer> alreadyPresentMasterAminityIds = new ArrayList<Integer>();
-
-        for (ListingAmenity listingAmenity : listingAmenities) {
-            alreadyPresentMasterAminityIds.add((int) listingAmenity.getAmenity().getAmenityId());
-        }
-
-        for (Integer aminityId : listing.getMasterAmenityIds()) {
-            masterAmenityIds.add(aminityId);
-            if (alreadyPresentMasterAminityIds.contains(aminityId)) {
-                masterAmenityIds.remove(aminityId);
+        if (listingAmenities != null) {
+            for (ListingAmenity listingAmenity : listingAmenities) {
+                alreadyPresentListingAminityIds.add(listingAmenity.getId());
             }
+            listingAmenityService.removeAminities(alreadyPresentListingAminityIds);
         }
-        if (masterAmenityIds != null)
-            listing.setMasterAmenityIds(masterAmenityIds);
 
         List<ListingAmenity> amenities = listingAmenityService.createListingAmenities(property.getProjectId(), listing);
         listing.setListingAmenities(amenities);
