@@ -130,7 +130,7 @@ $velocityUtility.roundToTwoDecimal($maxBudgetInLacs) Lacs.
               
              
                   <tr>
-                    <td style="text-align:center;" class="responsive-image"	><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f; line-height:30px;"><strong>Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}</strong></div>
+                    <td style="text-align:center;" class="responsive-image"	><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f; line-height:30px;"><strong>Phone: +91 ${leadOffer.agent.contactNumbers.iterator().next().contactNumber}</strong></div>
                       
                       
                     </td></tr></table>
