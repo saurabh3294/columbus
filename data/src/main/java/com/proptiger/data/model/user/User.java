@@ -11,7 +11,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -57,10 +56,10 @@ public class User extends BaseModel {
     private Set<UserAuthProviderDetail> userAuthProviderDetails;
 
     @Column(name = "created_at")
-    private Date                         createdAt        = new Date();
+    private Date                         createdAt;
 
     @Column(name = "updated_at")
-    private Date                         updatedAt = new Date();
+    private Date                         updatedAt;
 
     @Column(name = "email")
     private String email;
@@ -191,10 +190,10 @@ public class User extends BaseModel {
     }
 
     public void copyFieldsFromRegisterToUser(Register register) {
-        this.setFullName(register.getUserName());
+        this.setFullName(register.getFullName());
         this.setPassword(register.getPassword());
         this.setCountryId(register.getCountryId());
-        this.setRegistered(register.getRegisterMe());
+        this.setRegistered(true);
         this.setEmail(register.getEmail());
     }
     
