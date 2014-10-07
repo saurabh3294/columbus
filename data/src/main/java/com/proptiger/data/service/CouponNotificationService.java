@@ -45,7 +45,8 @@ public class CouponNotificationService {
     
     @Value("${mail.from.customer}")
     private String                       fromEmail;
-
+    
+    @Async
     public void notifyUserOnCouponBuy(Transaction transaction, CouponCatalogue couponCatalogue) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
 

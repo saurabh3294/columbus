@@ -16,22 +16,22 @@ import com.proptiger.data.service.transaction.TransactionService;
 
 @Service
 public class CitrusPayPGTransactionService {
-    
+
     @Autowired
-    private TransactionService transactionService;
-    
+    private TransactionService        transactionService;
+
     @Autowired
-    private PaymentService paymentService;
-    
+    private PaymentService            paymentService;
+
     @Autowired
-    private CouponCatalogueService couponCatalogueService;
-    
+    private CouponCatalogueService    couponCatalogueService;
+
     @Autowired
-    private CitrusPayPGService citrusPayPGService;
-    
+    private CitrusPayPGService        citrusPayPGService;
+
     @Autowired
     private CouponNotificationService couponNotificationService;
-    
+
     @Transactional
     public boolean saveRefundTransaction(Transaction transaction, Enquiry lastEnquiry, boolean incrementCouponInventory) {
 
@@ -55,7 +55,27 @@ public class CitrusPayPGTransactionService {
         }
 
         couponNotificationService.notifyUserOnRefund(transaction, couponCatalogue);
-        
+
+        return true;
+    }
+
+    @Transactional
+    public boolean handleOfflineRefund(Transaction transaction, Payment payment) {
+        Payment refundPayment = paymentService.createOfflinePayment(
+                transaction.getAmount(),
+                payment.getTypeId(),
+                PaymentStatus.Refunded,
+                transaction.getId());
+
+        paymentService.save(refundPayment);
+        transaction.setStatusId(TransactionStatus.Refunded.getId());
+        transactionService.save(transaction);
+        CouponCatalogue couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
+                transaction.getProductId(),
+                1);
+
+        couponNotificationService.notifyUserForCancelCoupon(transaction, couponCatalogue);
+
         return true;
     }
 

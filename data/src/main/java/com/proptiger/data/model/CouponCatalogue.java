@@ -86,7 +86,7 @@ public class CouponCatalogue extends BaseModel {
     @Transient
     private List<String>      listBuilderEmail = new ArrayList<String>();
 
-    @PostConstruct
+    @PostLoad
     public void postPopulateFields() {
         if (builderEmail != null && !builderEmail.isEmpty()) {
             listBuilderEmail = Arrays.asList(builderEmail.split(";"));

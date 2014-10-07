@@ -7,14 +7,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.ws.rs.core.SecurityContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.CouponCatalogue;
@@ -26,11 +23,11 @@ import com.proptiger.data.model.transaction.Payment;
 import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.transaction.TransactionDao;
+import com.proptiger.data.service.CitrusPayPGTransactionService;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.CouponNotificationService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.exception.BadRequestException;
 
 /**
@@ -65,6 +62,8 @@ public class TransactionService {
 
     @Autowired
     private PaymentService            paymentService;
+    
+    private CitrusPayPGTransactionService citrusPayPGTransactionService;
 
     public Transaction createTransaction(Transaction transaction) {
         User user = createUserForTransaction(transaction);
@@ -156,9 +155,23 @@ public class TransactionService {
                 DateUtil.addDays(new Date(), -1 * MAX_REFUND_PERIOD),
                 refundableTransactionStatus);
     }
-
+    
+    @Transactional
     public Transaction getNonRedeemTransactionByCode(String code) {
-        return transactionDao.getNonExercisedTransactionByCode(code);
+        Transaction transaction = transactionDao.getNonExercisedTransactionByCode(code);
+        if(transaction == null){
+            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, "Coupon Code does not exits or has been redeemed or been refunded already.");
+        }
+        
+        List<Payment> payments = transaction.getPayments();
+        
+        if (payments == null || payments.isEmpty()) {
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, "Invalid Request Request");
+        }
+        
+        payments.size();
+        
+        return transaction;
     }
 
     public Transaction getTransactionsByCouponCode(String code) {
@@ -183,6 +196,21 @@ public class TransactionService {
     // Do not place Transaction annotation here as it will revert back the
     // refund initiated status.
     public boolean handleTransactionRefund(Transaction transaction) {
+        Payment lastPayment = transaction.getPayments().get(transaction.getPayments().size() - 1 );
+        if (lastPayment.getTypeId() == PaymentType.Online.getId()) {
+            return handleOnlineRefund(transaction);
+        }
+        else if (lastPayment.getTypeId() == PaymentType.Cheque.getId() || lastPayment.getTypeId() == PaymentType.Cash
+                .getId()) {
+            return getCitrusPayPGTransactionService().handleOfflineRefund(transaction, lastPayment);
+        }
+
+        return false;
+    }
+
+    
+
+    private boolean handleOnlineRefund(Transaction transaction) {
         // Needed to work on Transaction Annotation on internal method calls.
         boolean status = applicationContext.getBean(TransactionService.class).updateTransactionAsRefundInitiate(
                 transaction);
@@ -255,14 +283,15 @@ public class TransactionService {
 
         transaction = save(transaction);
         /*
-         * After creating transaction, code can be created as it required transaction Id.
+         * After creating transaction, code can be created as it required
+         * transaction Id.
          */
         transaction.setCode(getCitrusPayPGService().createCouponCode(transaction));
         transaction = save(transaction);
 
         Payment payment = paymentService.createOfflinePayment(
                 transaction.getAmount(),
-                paymentType,
+                paymentType.getId(),
                 PaymentStatus.Success,
                 transaction.getId());
         paymentService.save(payment);
@@ -274,5 +303,13 @@ public class TransactionService {
 
         return transaction;
     }
+    
+    private CitrusPayPGTransactionService getCitrusPayPGTransactionService(){
+        if(citrusPayPGTransactionService == null){
+            citrusPayPGTransactionService = applicationContext.getBean(CitrusPayPGTransactionService.class);
+        }
         
+        return citrusPayPGTransactionService;
+    }
+
 }
