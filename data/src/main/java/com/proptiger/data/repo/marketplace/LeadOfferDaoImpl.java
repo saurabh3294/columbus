@@ -105,9 +105,10 @@ public class LeadOfferDaoImpl {
         }
 
         cq.where(conditions.toArray(new Predicate[0]));
-
+        cq.orderBy(cb.desc(c.get("id")));
+        
         Query query = em.createQuery(cq);
-
+        
         query.setFirstResult(selector.getStart());
         query.setMaxResults(selector.getRows());
 
