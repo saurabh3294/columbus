@@ -8,7 +8,7 @@ package com.proptiger.data.model.enums.transaction;
  * 
  */
 public enum PaymentType {
-    Online(1), Cheque(2);
+    Online(1), Cheque(2), Cash(3);
 
     int id;
 

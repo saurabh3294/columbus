@@ -66,7 +66,7 @@ public class CouponNotificationService {
         List<String> ccList = new ArrayList<String>();
         List<String> bccList = new ArrayList<String>();
 
-        bccList.add(couponCatalogue.getBuilderEmail());
+        bccList.addAll(couponCatalogue.getListBuilderEmail());
 
         // Sending it to user.
         NotificationMessage nMessage = nMessageService.createNotificationMessage(
@@ -102,7 +102,7 @@ public class CouponNotificationService {
         List<String> bccList = new ArrayList<String>();
 
         if (couponCatalogue != null) {
-            bccList.add(couponCatalogue.getBuilderEmail());
+            bccList.addAll(couponCatalogue.getListBuilderEmail());
         }
 
         // Sending it to user.
@@ -142,7 +142,7 @@ public class CouponNotificationService {
 
         List<String> ccList = new ArrayList<String>();
         List<String> bccList = new ArrayList<String>();
-        bccList.add(couponCatalogue.getBuilderEmail());
+        bccList.addAll(couponCatalogue.getListBuilderEmail());
 
         NotificationMessage nMessage = nMessageService.createNotificationMessage(
                 NotificationTypeEnum.CouponCancelled.getName(),
@@ -187,7 +187,7 @@ public class CouponNotificationService {
 
         List<String> ccList = new ArrayList<String>();
         List<String> bccList = new ArrayList<String>();
-        bccList.add(couponCatalogue.getBuilderEmail());
+        bccList.addAll(couponCatalogue.getListBuilderEmail());
 
         NotificationMessage nMessage = nMessageService.createNotificationMessage(
                 NotificationTypeEnum.CouponRedeemed.getName(),
@@ -226,7 +226,7 @@ public class CouponNotificationService {
         List<String> ccList = new ArrayList<String>();
         List<String> bccList = new ArrayList<String>();
 
-        bccList.add(couponCatalogue.getBuilderEmail());
+        bccList.addAll(couponCatalogue.getListBuilderEmail());
 
         // Sending it to user.
         NotificationMessage nMessage = nMessageService.createNotificationMessage(
@@ -263,4 +263,5 @@ public class CouponNotificationService {
 
         return new Long(discountPrice.longValue()).toString();
     }
+    
 }

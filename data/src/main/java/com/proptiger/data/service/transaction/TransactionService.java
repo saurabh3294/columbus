@@ -17,12 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.model.CouponCatalogue;
+import com.proptiger.data.model.enums.transaction.PaymentStatus;
+import com.proptiger.data.model.enums.transaction.PaymentType;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
 import com.proptiger.data.model.enums.transaction.TransactionType;
+import com.proptiger.data.model.transaction.Payment;
 import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.transaction.TransactionDao;
 import com.proptiger.data.service.CouponCatalogueService;
+import com.proptiger.data.service.CouponNotificationService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.SecurityContextUtils;
@@ -35,35 +40,40 @@ import com.proptiger.exception.BadRequestException;
 @Service
 public class TransactionService {
     @Value("${transaction.peruser.max.count}")
-    private int                    MAX_COUPON_PER_USER;
+    private int                       MAX_COUPON_PER_USER;
 
     @Value("${transaction.refund.days.count}")
-    private int                    MAX_REFUND_PERIOD;
+    private int                       MAX_REFUND_PERIOD;
 
     @Autowired
-    private TransactionDao         transactionDao;
+    private TransactionDao            transactionDao;
 
     @Autowired
-    private UserService            userService;
+    private UserService               userService;
 
     @Autowired
-    private ApplicationContext     applicationContext;
+    private ApplicationContext        applicationContext;
 
     // do not autowire this class.
-    private CitrusPayPGService     citrusPayPGService;
+    private CitrusPayPGService        citrusPayPGService;
 
     @Autowired
-    private CouponCatalogueService couponCatalogueService;
+    private CouponCatalogueService    couponCatalogueService;
+
+    @Autowired
+    private CouponNotificationService couponNotificationService;
+
+    @Autowired
+    private PaymentService            paymentService;
 
     public Transaction createTransaction(Transaction transaction) {
-        transaction.getUser().setRegistered(false);
-        User user = userService.createUser(transaction.getUser());
-        //SecurityContextUtils.autoLogin(user);
-        
+        User user = createUserForTransaction(transaction);
+
         validateMaxCouponsBought(user.getId(), transaction);
 
         // Trying to reuse existing transaction wherever possible
-        // TODO - remove as one user's payment might not be inserted because of same
+        // TODO - remove as one user's payment might not be inserted because of
+        // same
         List<Transaction> transactions = transactionDao.getExistingReusableTransactions(user.getId());
         if (transactions != null && !transactions.isEmpty()) {
             transaction.setId(transactions.get(0).getId());
@@ -88,6 +98,14 @@ public class TransactionService {
         transaction = transactionDao.saveAndFlush(transaction);
         transaction.setUser(user);
         return transaction;
+    }
+
+    private User createUserForTransaction(Transaction transaction) {
+        transaction.getUser().setRegistered(false);
+        User user = userService.createUser(transaction.getUser());
+        // SecurityContextUtils.autoLogin(user);
+
+        return user;
     }
 
     private void validateMaxCouponsBought(int userId, Transaction transaction) {
@@ -125,16 +143,18 @@ public class TransactionService {
         return transactionDao.findOne(transactionId);
     }
 
-    public void save(Transaction transaction) {
-        transactionDao.saveAndFlush(transaction);
+    public Transaction save(Transaction transaction) {
+        return transactionDao.saveAndFlush(transaction);
     }
 
     public List<Transaction> getRefundableTransactions() {
         List<Integer> refundableTransactionStatus = new ArrayList<Integer>();
         refundableTransactionStatus.add(TransactionStatus.Incomplete.getId());
         refundableTransactionStatus.add(TransactionStatus.RefundInitiated.getId());
-        
-        return transactionDao.getRefundableTransactions(DateUtil.addDays(new Date(), -1 * MAX_REFUND_PERIOD), refundableTransactionStatus);
+
+        return transactionDao.getRefundableTransactions(
+                DateUtil.addDays(new Date(), -1 * MAX_REFUND_PERIOD),
+                refundableTransactionStatus);
     }
 
     public Transaction getNonRedeemTransactionByCode(String code) {
@@ -145,41 +165,49 @@ public class TransactionService {
         return transactionDao.getTransactionByCode(code);
     }
 
-    public List<Transaction> getUserCouponsBought(int userId, Transaction transaction){
+    public List<Transaction> getUserCouponsBought(int userId, Transaction transaction) {
         List<Integer> listTransaction = new ArrayList<Integer>();
         listTransaction.add(TransactionStatus.Complete.getId());
         listTransaction.add(TransactionStatus.CouponExercised.getId());
         listTransaction.add(TransactionStatus.RefundInitiated.getId());
         listTransaction.add(TransactionStatus.Incomplete.getId());
-        
-        List<Transaction> transactions = transactionDao.getTransactionsByStatusAndUserAndProductId(userId, listTransaction, transaction.getProductId());
-        
+
+        List<Transaction> transactions = transactionDao.getTransactionsByStatusAndUserAndProductId(
+                userId,
+                listTransaction,
+                transaction.getProductId());
+
         return transactions;
     }
-    
-    // Do not place Transaction annotation here as it will revert back the refund initiated status.
-    public boolean handleTransactionRefund(Transaction transaction){
+
+    // Do not place Transaction annotation here as it will revert back the
+    // refund initiated status.
+    public boolean handleTransactionRefund(Transaction transaction) {
         // Needed to work on Transaction Annotation on internal method calls.
-        boolean status = applicationContext.getBean(TransactionService.class).updateTransactionAsRefundInitiate(transaction);
-        if(!status){
+        boolean status = applicationContext.getBean(TransactionService.class).updateTransactionAsRefundInitiate(
+                transaction);
+        if (!status) {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, "Invalid Refund Request");
         }
-        
+
         return getCitrusPayPGService().handleRefundByTransactionId(transaction, true);
     }
-    
+
     @Transactional
-    public boolean updateTransactionAsRefundInitiate(Transaction transaction){
-     // mark transaction as refund initiated.
-        int rowsAffected = updateTransactionStatusByOldStatus(transaction.getId(), TransactionStatus.RefundInitiated, TransactionStatus.Complete);
-        
-        if(rowsAffected < 1){
+    public boolean updateTransactionAsRefundInitiate(Transaction transaction) {
+        // mark transaction as refund initiated.
+        int rowsAffected = updateTransactionStatusByOldStatus(
+                transaction.getId(),
+                TransactionStatus.RefundInitiated,
+                TransactionStatus.Complete);
+
+        if (rowsAffected < 1) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     @Transactional
     public int updateCouponRedeem(Transaction transaction) {
         return transactionDao.updateCouponAsRedeem(transaction.getId());
@@ -191,10 +219,60 @@ public class TransactionService {
         }
         return citrusPayPGService;
     }
-    
+
     @Transactional
-    public int updateTransactionStatusByOldStatus(int transactionId, TransactionStatus newTxnStatus, TransactionStatus oldTxnStatus){
-        return transactionDao.updateTransactionStatusByOldStatus(transactionId, newTxnStatus.getId(), oldTxnStatus.getId());
+    public int updateTransactionStatusByOldStatus(
+            int transactionId,
+            TransactionStatus newTxnStatus,
+            TransactionStatus oldTxnStatus) {
+        return transactionDao.updateTransactionStatusByOldStatus(
+                transactionId,
+                newTxnStatus.getId(),
+                oldTxnStatus.getId());
     }
-    
+
+    @Transactional
+    public Transaction createOfflineCoupon(Transaction transaction, PaymentType paymentType) {
+        User user = createUserForTransaction(transaction);
+
+        validateMaxCouponsBought(user.getId(), transaction);
+
+        CouponCatalogue couponCatalogue = couponCatalogueService.getCouponCatalogue(transaction.getProductId());
+
+        if (transaction.getAmount() != couponCatalogue.getCouponPrice()) {
+            throw new BadRequestException(" Coupon Buy Amout is not same.");
+        }
+
+        transaction.setStatusId(TransactionStatus.Complete.getId());
+        transaction.setUserId(user.getId());
+
+        couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), -1);
+
+        // Coupon Inventory did not get updated.
+        if (couponCatalogue == null) {
+            throw new BadRequestException(" There are no coupons left to be bought. Please refund the money.");
+        }
+
+        transaction = save(transaction);
+        /*
+         * After creating transaction, code can be created as it required transaction Id.
+         */
+        transaction.setCode(getCitrusPayPGService().createCouponCode(transaction));
+        transaction = save(transaction);
+
+        Payment payment = paymentService.createOfflinePayment(
+                transaction.getAmount(),
+                paymentType,
+                PaymentStatus.Success,
+                transaction.getId());
+        paymentService.save(payment);
+
+        /**
+         * Notify User about the payment of coupon.
+         */
+        couponNotificationService.notifyUserOnCouponBuy(transaction, couponCatalogue);
+
+        return transaction;
+    }
+        
 }

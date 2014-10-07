@@ -240,7 +240,7 @@ public class CitrusPayPGService {
         return true;
     }
 
-    private String createCouponCode(Transaction transaction) {
+    public String createCouponCode(Transaction transaction) {
         return "PT" + transaction.getId()
                 + RandomStringUtils.randomAlphabetic(7 - (int) Math.log10(transaction.getId())).toUpperCase();
     }
