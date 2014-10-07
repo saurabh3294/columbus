@@ -1,11 +1,9 @@
 package com.proptiger.data.mvc;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,6 +35,6 @@ public class LeadController extends BaseController {
     public Object updateLead(
             HttpServletRequest request,
             @RequestBody Enquiry enquiry) {
-        return new APIResponse(leadService.updateLeadEnquiry(enquiry, request));
+        return new APIResponse(leadService.updateLeadEnquiry(enquiry, request).getResults());
     }
 }

@@ -396,16 +396,13 @@
                   Dear ${leadgeneration.enquiry.name}, <br /><br />
                   Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
                   We have received your enquiry regarding 
-                  $projects = ${leadgeneration.projects}
-                  #foreach($project in $projects)
-                  $last:  $foreach.last
-                  $index: $foreach.index
-                  
-                  	if ($last != $index)
-                  		<a href=http://www.proptiger.com/$project.URL style='text-decoration:none;'> $project.builder.name project.name </a>,  
-                  	else
-                  		<a href=http://www.proptiger.com/$project.URL style='text-decoration:none;'> $project.builder.name project.name </a>
-                  
+                  #foreach($project in ${leadgeneration.projects})
+                  #set ($last = $foreach.last)
+                  	#if ($last != true)
+                  		<a href=http://www.proptiger.com/$project.URL style='text-decoration:none;'> $project.builder.name $project.name </a>,  
+                  	#else
+                  		<a href=http://www.proptiger.com/$project.URL style='text-decoration:none;'> $project.builder.name $project.name </a>
+                  	#end
                   #end
                   </b> -  
                   Our Sales team will get in touch with you soon. 

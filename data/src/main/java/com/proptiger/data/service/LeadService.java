@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.enums.lead.BuyPeriod;
 import com.proptiger.data.enums.lead.ProcessingStatus;
 import com.proptiger.data.enums.lead.SalesType;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
@@ -93,7 +94,7 @@ public class LeadService {
         LeadValidator leadValidator = new LeadValidator();
         leadInvalidations = leadValidator.validateLead(enquiry);
 
-        // give 5xx not map
+        // giving 5xx not map
         if (!leadInvalidations.isEmpty()) {
             throw new ProAPIException(ResponseCodes.BAD_REQUEST, leadInvalidations.toString());
         }
@@ -145,14 +146,14 @@ public class LeadService {
         // TODO
         enquiry.setGaPpc(1);
 
-        // try {
+         try {
         enquiry = leadDao.saveAndFlush(enquiry);
-        // }
-        // catch (Exception exception) {
-        // throw new ProAPIException(
-        // ResponseCodes.DATABASE_CONNECTION_ERROR,
-        // "Lead : All validations passed but still unable to insert into enquiry table");
-        // }
+         }
+         catch (Exception exception) {
+         throw new ProAPIException(
+         ResponseCodes.DATABASE_CONNECTION_ERROR,
+         "Lead : All validations passed but still unable to insert into enquiry table");
+         }
 
         if (((enquiry.getMultipleProjectIds() != null) && !enquiry.getMultipleProjectIds().isEmpty()) || enquiry
                 .getBuySell() != "sell") {
@@ -207,27 +208,12 @@ public class LeadService {
 
     private LeadSubmitMail generateDataToMail(Enquiry enquiry) {
         LeadSubmitMail leadMailData = new LeadSubmitMail();
+        leadMailData.setEnquiry(enquiry);
 
         if ((enquiry.getMultipleProjectIds() != null) && !enquiry.getMultipleProjectIds().isEmpty()) {
             List<Project> projects = projectDatabaseDao.getProjectsOnId(enquiry.getMultipleProjectIds());
-
-            StringBuilder projectDetail = new StringBuilder();
-
-            // TODO
-            for (Project project : projects) {
-                projectDetail.append("<a href='http://www.proptiger.com/" + project.getURL()
-                        + "' style='text-decoration:none;'>"
-                        + project.getBuilder().getName()
-                        + " "
-                        + project.getName()
-                        + "</a>, ");
-            }
-
-            String projectDetailString = projectDetail.toString().substring(0, projectDetail.toString().length() - 2);
             leadMailData.setProjects(projects);
-            leadMailData.setProjectsDetail(projectDetailString);
             leadMailData.setLeadMailFlag("leadAcceptanceResale");
-            leadMailData.setEnquiry(enquiry);
             return leadMailData;
         }
 
@@ -235,19 +221,17 @@ public class LeadService {
                 && enquiry.getProjectName() != null
                 && enquiry.getProjectName() != "") { // empty to null
 
-            // TODO set projecturl
-            leadMailData.setEnquiry(enquiry);
+            // TODO set projecturl - join on property in lead.php, do we already have all url in project table?
             if (enquiry.getProject() == null) {
                 Project projectDetails = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
                 leadMailData.getEnquiry().setProject(projectDetails);
             }
-
             leadMailData.setLeadMailFlag("google_buy_sell_client");
         }
 
         else if (enquiry.getProjectName() != null && enquiry.getProjectName() != "") {
-            leadMailData.setEnquiry(enquiry);
-
+            
+            // TODO set projecturl
             if (enquiry.getProject() == null) {
                 Project projectDetails = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
                 leadMailData.getEnquiry().setProject(projectDetails);
@@ -256,8 +240,6 @@ public class LeadService {
         }
 
         else if (enquiry.getPageName() != null && enquiry.getPageName().equals("HOMELOAN")) {
-            leadMailData.setEnquiry(enquiry);
-
             if (enquiry.getCity() == null) {
                 City city = cityService.getCityByName(enquiry.getCityName());
                 leadMailData.getEnquiry().setCity(city);
@@ -269,17 +251,14 @@ public class LeadService {
                 && (enquiry.getPageName().equals("GOOGLE 4") || enquiry.getPageName().equals("GOOGLE 8"))) {
 
             leadMailData.setLeadMailFlag("googlepage-withoutproject");
-            leadMailData.setEnquiry(enquiry);
         }
         else if (enquiry.getPageName() != null && enquiry.getPageName().toLowerCase().equals("portfolio")) {
 
             leadMailData.setLeadMailFlag("my-portfolio");
-            leadMailData.setEnquiry(enquiry);
         }
 
         else {
             leadMailData.setLeadMailFlag("leadAcceptancewithoutproject");
-            leadMailData.setEnquiry(enquiry);
             if (enquiry.getLocality() == null) {
                 Locality localityInfo = localityDao.getLocalityOnLocAndCity(
                         enquiry.getLocalityName(),
@@ -320,8 +299,13 @@ public class LeadService {
 
         HashMap<String, String> cookieMap = new HashMap<String, String>();
         Cookie[] requestCookies = request.getCookies();
-        
-        enquiry.setHttpReferer(request.getHeader("Referer"));
+
+        if(request.getHeader("Referer") != null) {
+            enquiry.setHttpReferer(request.getHeader("Referer"));
+        }
+        else {
+            enquiry.setHttpReferer("");
+        }
         enquiry.setIp(request.getRemoteAddr());
 
         // Set application source of lead
@@ -329,7 +313,6 @@ public class LeadService {
             UserAgentStringParser parser = UADetectorServiceFactory.getResourceModuleParser();
             ReadableUserAgent agent = parser.parse(request.getHeader("User-Agent"));
             String applicationSource = agent.getDeviceCategory().getName();
-            System.out.println(applicationSource);
 
             if (!applicationSource.isEmpty() && (applicationSource.toLowerCase().equals("PDA") || applicationSource
                     .toLowerCase().equals("SMARTPHONE"))) {
@@ -343,19 +326,14 @@ public class LeadService {
                 enquiry.setApplicationType("Desktop Site");
             }
         }
-        
+
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
-                System.out.println(c.getName());
-                System.out.println(c.getValue() + '\n');
                 try {
                     cookieMap.put(c.getName(), URLDecoder.decode(c.getValue(), "UTF-8"));
                     c.setValue(URLDecoder.decode(c.getValue(), "UTF-8"));
-                    System.out.println(c.getValue() + '\n');
-                    System.out.println(c.getName() + c.getName() + c.getName());
                 }
                 catch (UnsupportedEncodingException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 
@@ -412,13 +390,13 @@ public class LeadService {
         Locality localityInfo = null;
         Project projectInfo = null;
 
-        if (enquiry.getProjectId() == null) {
+        if (enquiry.getProjectId() == null || enquiry.getProjectId() < 0) {
             enquiry.setProjectId(0);
         }
         if (enquiry.getProjectName() == null) {
             enquiry.setProjectName("");
         }
-        if (enquiry.getCityId() == null) {
+        if (enquiry.getCityId() == null || enquiry.getCityId() < 0) {
             enquiry.setCityId(0);
         }
         if (enquiry.getCityName() == null) {
@@ -430,7 +408,15 @@ public class LeadService {
         if (enquiry.getPageUrl() == null) {
             enquiry.setPageUrl("");
         }
-
+        if(enquiry.getBudgetFlag() == null || !enquiry.getBudgetFlag()) {
+            enquiry.setBudget("");
+        }
+        if(enquiry.getBuyPeriodFlag() == null || !enquiry.getBuyPeriodFlag()) {
+            enquiry.setBuyPeriod(BuyPeriod.EMPTY);
+        }
+        if(enquiry.getHomeLoanTypeFlag() == null || !enquiry.getHomeLoanTypeFlag()) {
+            enquiry.setHomeLoanType("");
+        }
         if (enquiry.getProjectId() != 0) {
             projectInfo = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
             if (projectInfo != null) {
@@ -484,7 +470,10 @@ public class LeadService {
             enquiry.setProcessingStatus(ProcessingStatus.processing);
         }
 
+        // set Sales Type
         setSalesTypeInEnquiry(enquiry, projectInfo);
+        
+        //Set if user is registered
         ActiveUser user = SecurityContextUtils.getLoggedInUser();
         if (user == null) {
             enquiry.setRegisteredUser("NO");
@@ -498,6 +487,7 @@ public class LeadService {
     private void setSalesTypeInEnquiry(Enquiry enquiry, Project project) {
         if (((enquiry.getMultipleProjectIds() != null) && !enquiry.getMultipleProjectIds().isEmpty()) || (enquiry
                 .getPageName().equals("GOOGLE 9") || enquiry.getPageName().equals("portfolio"))) {
+            // TODO get flag from request
             if (enquiry.getResaleAndLaunchFlag()) {
                 enquiry.setSalesType(SalesType.primary);
             }
@@ -508,7 +498,7 @@ public class LeadService {
         else if (enquiry.getBuySell() != null && enquiry.getBuySell().equals("sell")) {
             enquiry.setSalesType(SalesType.seller);
         }
-        else if (enquiry.getHomeLoanType() != null) {
+        else if ((enquiry.getHomeLoanType() != null) && !enquiry.getHomeLoanType().isEmpty()) {
             enquiry.setSalesType(SalesType.homeloan);
         }
         else {
@@ -541,7 +531,7 @@ public class LeadService {
         }
     }
 
-    // TODO set cookie autofill
+    // TODO cookie autofill, facebook, tracker
 
     public PaginatedResponse<?> updateLeadEnquiry(Enquiry enquiry, HttpServletRequest request) {
         return null;

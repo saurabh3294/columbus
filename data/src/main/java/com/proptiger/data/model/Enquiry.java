@@ -4,6 +4,7 @@
  */
 package com.proptiger.data.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -21,16 +22,13 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import javax.ws.rs.DefaultValue;
-
-import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.enums.lead.BuyPeriod;
 import com.proptiger.data.enums.lead.ProcessingStatus;
 import com.proptiger.data.enums.lead.SalesType;
+import com.proptiger.data.util.DateUtil;
 
 /**
  * 
@@ -48,186 +46,177 @@ public class Enquiry extends BaseModel {
     private long              id;
     @Column(name = "NAME")
     private String            name;
-    
+
     @Column(name = "email")
     private String            email;
     @Column(name = "PHONE")
     private String            phone;
-    
+
     @Transient
     private Integer           countryId;
-    
+
     @Column(name = "COUNTRY_OF_RESIDENCE")
     private String            country;
-    
+
     @Column(name = "QUERY")
     private String            query;
 
-//    @JsonProperty("project_id")
     @Column(name = "PROJECT_ID")
     private Integer           projectId;
-    
-    @Transient
-    private List<Integer>           multipleProjectIds;
 
-  //  @JsonProperty("project_name")
+    @Transient
+    private List<Integer>     multipleProjectIds;
+
     @Column(name = "PROJECT_NAME")
     private String            projectName;
-    
+
     @Transient
     private String            projectUrl;
-    
+
     @Transient
     private Integer           typeId;
 
-    //@JsonProperty("locality_id")
- //   @JsonProperty(required = false,value = "locality_id" )
     @Column(name = "LOCALITY_ID")
     private Integer           localityId;
-    
+
     @Transient
     private String            localityName;
-    
+
     @Transient
     private String            localityUrl;
-    
+
     @Column(name = "CITY_ID")
     private Integer           cityId;
 
-    //@JsonProperty("city_name")
     @Column(name = "CITY_NAME")
     private String            cityName;
-    
+
     @Transient
     private String            cityUrl;
-    
+
     @Transient
     private String            builderName;
- 
+
     @Column(name = "IP")
     private String            ip;
 
     @Transient
-    private Boolean           resaleAndLaunchFlag; // true to 1
+    private Boolean           resaleAndLaunchFlag;                             // true
+                                                                                // to
+                                                                                // 1
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_DATE")
     private Date              createdDate;
-    
+
     @Column(name = "SOURCE")
     private String            source;
-    
+
     @Column(name = "FORM_NAME")
     private String            formName;
-    
+
     @Column(name = "PAGE_NAME")
     private String            pageName;
-    
+
     @Column(name = "PAGE_URL")
     private String            pageUrl;
-    
+
     @Column(name = "REF_URL")
     private String            landingPage;
 
     @Column(name = "AD_GRP")
     private String            adGrp;
-    
+
     @Column(name = "KEYWORDS")
     private String            keywords;
-    
+
     @Column(name = "CAMPAIGN")
     private String            campaign;
-    
+
     @Column(name = "PPC")
-    private Boolean            ppc;
-    
+    private Boolean           ppc;
+
     @Column(name = "USER")
     private String            user;
-    
+
     @Column(name = "HTTP_REFERER")
     private String            httpReferer;
-    
+
     @Column(name = "USER_MEDIUM")
     private String            userMedium;
 
-    //@JsonProperty("source")
     @Column(name = "GA_SOURCE")
     private String            gaSource;
 
-    //@JsonProperty("user_medium")
     @Column(name = "GA_MEDIUM")
     private String            gaMedium;
 
-    //@JsonProperty("user_network")
     @Column(name = "GA_NETWORK")
     private String            gaNetwork;
-    
+
     @Column(name = "GA_KEYWORDS")
     private String            gaKeywords;
-    
+
     @Column(name = "GA_CAMPAIGN")
     private String            gaCampaign;
-    
+
     @Column(name = "GA_USER_ID")
     private String            gaUserId;
-    
+
     @Column(name = "GA_TIMESPENT")
     private String            gaTimespent;
-    
 
     @Column(name = "GA_PPC")
-    private int            gaPpc;
+    private int               gaPpc;
 
     @Column(name = "PROCESSING_STATUS")
     @Enumerated(EnumType.STRING)
-    private   ProcessingStatus          processingStatus  =  ProcessingStatus.unsuccessful ;
-    
+    private ProcessingStatus  processingStatus = ProcessingStatus.unsuccessful;
+
     @Column(name = "REGISTERED_USER")
-    private String registeredUser   = "";
-    
+    private String            registeredUser;
+
     @Column(name = "LEAD_SALE_TYPE")
     @Enumerated(EnumType.STRING)
-    private SalesType            salesType  =   SalesType.primary;
+    private SalesType         salesType        = SalesType.primary;
 
-    //@JsonProperty("application_type")
     @Column(name = "APPLICATION_TYPE")
     private String            applicationType;
-    
-    // Lead Query fields
-    @Transient
-    private String  bedrooms;
 
     @Transient
-    private Boolean  budgetFlag;
-    
+    private String            bedrooms;
+
     @Transient
-    private String  budget;
-    
+    private Boolean           budgetFlag;
+
     @Transient
-    private Boolean  homeLoanTypeFlag;
-    
+    private String            budget;
+
     @Transient
-    private String  homeLoanType;
-    
+    private Boolean           homeLoanTypeFlag;
+
     @Transient
-    private String  propertyType;
-    
+    private String            homeLoanType;
+
     @Transient
-    private Boolean  buyPeriodFlag;
-    
+    private String            propertyType;
+
+    @Transient
+    private Boolean           buyPeriodFlag;
+
     @Column(name = "BUY_PERIOD")
     @Enumerated(EnumType.ORDINAL)
-    private BuyPeriod  buyPeriod;
-    
+    private BuyPeriod         buyPeriod;
+
     @Transient
-    private String  json;
-    
+    private String            json;
+
     @Transient
-    private String  leadMailFlag;
-    
+    private String            leadMailFlag;
+
     @Transient
-    private String  buySell;
-    
+    private String            buySell;
+
     @ManyToOne
     @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
     @JsonIgnore
@@ -236,13 +225,13 @@ public class Enquiry extends BaseModel {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROJECT_ID", nullable = false, insertable = false, updatable = false)
     @JsonIgnore
-    private Project         project;
+    private Project           project;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CITY_ID", insertable = false, updatable = false)
     @JsonIgnore
-    private City            city;
-    
+    private City              city;
+
     public long getId() {
         return id;
     }
@@ -715,7 +704,6 @@ public class Enquiry extends BaseModel {
         this.buyPeriod = buyPeriod;
     }
 
-    
     public City getCity() {
         return city;
     }
@@ -728,7 +716,7 @@ public class Enquiry extends BaseModel {
     public void prePersist() {
         createdDate = new Date();
     }
-    
+
     public static class EnquiryCustomDetails extends BaseModel {
         private static final long serialVersionUID = -8600077968473619387L;
         private String            projectName;
@@ -784,34 +772,46 @@ public class Enquiry extends BaseModel {
         beanstalkEnquiry.setId(this.getId());
         beanstalkEnquiry.setName(this.getName());
         beanstalkEnquiry.setApplicationType(this.getApplicationType());
-        // beanstalkEnquiry.setCityName(cityName);
         beanstalkEnquiry.setCountry(this.getCountry());
         beanstalkEnquiry.setDeadReason("None");
         beanstalkEnquiry.setDescription(this.getQuery());
         beanstalkEnquiry.setEnquiryTime(this.getCreatedDate());
         beanstalkEnquiry.setEmail(this.getEmail());
-        // beanstalkEnquiry.setFollowUpDate(this.getCreatedDate());
+
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+        String updatedDate = format.format(DateUtil.addMinutes(DateUtil.addHours(this.getCreatedDate(), 12), 24));
+        beanstalkEnquiry.setFollowUpDate(updatedDate);
+
         beanstalkEnquiry.setLeadOwner("leadowner");
         beanstalkEnquiry.setLeadOwnerId("442");
         beanstalkEnquiry.setLeadType("none");
-        // beanstalkEnquiry.setLocality(locality);
         beanstalkEnquiry.setLocalityId(this.getLocalityId());
         beanstalkEnquiry.setPhone(this.getPhone());
         beanstalkEnquiry.setProjectId(this.getProjectId());
-        // beanstalkEnquiry.setProjectName(projectName);
+        
+//        if (this.getProjectId() != 0 && this.getProject() != null && this.getProject().getBuilder() != null && this.getProject().getBuilder().getName() != null) {
+//            beanstalkEnquiry.setProjectName(this.getProject().getBuilder().getName().concat(" ")
+//                    .concat(this.getProjectName().replace(this.getProject().getBuilder().getName(), "")));
+//        }
+//        else {
+            beanstalkEnquiry.setProjectName(this.getProjectName());
+//        }
+        
+        beanstalkEnquiry.setCityName(this.getCityName());
+        beanstalkEnquiry.setLocality(this.getLocalityName());
         beanstalkEnquiry.setQuery(this.getQuery());
         beanstalkEnquiry.setReferrer("");
         beanstalkEnquiry.setReferrerLeadId("");
-        beanstalkEnquiry.setSource(this.gaSource);
+        beanstalkEnquiry.setSource(this.getSource());
         beanstalkEnquiry.setStatus("New");
         beanstalkEnquiry.setSubbrokerDetails("");
         beanstalkEnquiry.setUserMedium(this.getGaMedium());
         beanstalkEnquiry.setUserNetwork(this.getGaNetwork());
-                
-        if(this.getPageName() == "CONTACT US") {
+
+        if (this.getPageName() == "CONTACT US") {
             beanstalkEnquiry.setLeadTag("contact");
         }
-        else if(this.getSalesType() == SalesType.resale) {
+        else if (this.getSalesType() == SalesType.resale) {
             beanstalkEnquiry.setLeadTag("resale");
         }
         else if (this.getPageName() == "HOMELOAN" || this.getSalesType() == SalesType.homeloan) {

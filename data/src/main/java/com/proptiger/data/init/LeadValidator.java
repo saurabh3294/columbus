@@ -8,9 +8,9 @@ import com.proptiger.data.model.Enquiry;
 
 public class LeadValidator {
 
-    HashMap<String, String> leadInvalidations = new HashMap<String, String>();
-
     public HashMap<String, String> validateLead(Enquiry enquiry) {
+
+        HashMap<String, String> leadInvalidations = new HashMap<String, String>();
 
         if (enquiry.getName() == null) {
             leadInvalidations.put("lead_name", "Please enter Name.");
