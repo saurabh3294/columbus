@@ -201,6 +201,10 @@ public class Property extends BaseModel {
     @Transient
     @Field("PROPERTY_COUPON_AVAILABLE")
     private Boolean              isCouponAvailable;
+    
+    @Transient
+    @Field("IS_PROPERTY_SOLD_OUT")
+    private boolean              isPropertySoldOut;
 
     public String getProjectName() {
         return projectName;
@@ -508,5 +512,13 @@ public class Property extends BaseModel {
 
     public void setCouponAvailable(Boolean isCouponAvailable) {
         this.isCouponAvailable = isCouponAvailable;
+    }
+
+    public boolean getIsPropertySoldOut() {
+        return isPropertySoldOut;
+    }
+
+    public void setIsPropertySoldOut(Boolean isPropertySoldOut) {
+        this.isPropertySoldOut = isPropertySoldOut;
     }
 }

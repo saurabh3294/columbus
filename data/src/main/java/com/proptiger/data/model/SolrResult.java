@@ -430,6 +430,9 @@ public class SolrResult extends BaseModel {
     
     @Field(value ="POPULATION_SURVEY_DATE")
     private Date              populationSurveyDate;
+    
+    @Field(value ="IS_PROPERTY_SOLD_OUT")
+    private boolean           isPropertySoldOut;
 
     public SolrResult() {
         property.setProject(project);
@@ -1369,5 +1372,10 @@ public class SolrResult extends BaseModel {
     @Field(value ="POPULATION_SURVEY_DATE")
     public void setPopulationSurveyDate(Date populationSurveyDate) {
         city.setPopulationSurveyDate(populationSurveyDate);
+    }
+
+    @Field(value ="IS_PROPERTY_SOLD_OUT")
+    public void setIsPropertySoldOut(boolean isPropertySoldOut) {
+        property.setIsPropertySoldOut(isPropertySoldOut);
     }
 }
