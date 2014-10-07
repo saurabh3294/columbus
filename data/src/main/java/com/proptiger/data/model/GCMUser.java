@@ -17,7 +17,7 @@ import org.hibernate.annotations.Type;
 import com.proptiger.data.enums.AndroidApplication;
 
 @Entity
-@Table(name = "gcm.gcm_users")
+@Table(name = "user.gcm_users")
 public class GCMUser extends BaseModel {
 
     private static final long  serialVersionUID = 7829394463604901690L;
