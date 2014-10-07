@@ -77,7 +77,7 @@ public class LeadOfferDaoImpl {
         List<Predicate> conditions = new ArrayList<>();
         conditions.add(cb.equal(c.get("agentId"), agentId));
 
-        cq.orderBy(cb.asc(leadTaskJoin.<Date> get("scheduledFor")), cb.asc(c.get("createdAt")));
+        cq.orderBy(cb.asc(leadTaskJoin.<Date> get("scheduledFor")), cb.desc(c.get("id")));
 
         if (statusIds != null && !statusIds.isEmpty()) {
             conditions.add(c.get("statusId").in(statusIds));
@@ -105,10 +105,9 @@ public class LeadOfferDaoImpl {
         }
 
         cq.where(conditions.toArray(new Predicate[0]));
-        cq.orderBy(cb.desc(c.get("id")));
-        
+
         Query query = em.createQuery(cq);
-        
+
         query.setFirstResult(selector.getStart());
         query.setMaxResults(selector.getRows());
 
