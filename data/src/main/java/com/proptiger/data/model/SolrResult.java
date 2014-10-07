@@ -433,6 +433,9 @@ public class SolrResult extends BaseModel {
     
     @Field(value ="IS_PROPERTY_SOLD_OUT")
     private boolean           isPropertySoldOut;
+    
+    @Field("PANORAMA_VIEW_PATH")
+    private String              panoramaViewPath;
 
     public SolrResult() {
         property.setProject(project);
@@ -1377,5 +1380,10 @@ public class SolrResult extends BaseModel {
     @Field(value ="IS_PROPERTY_SOLD_OUT")
     public void setIsPropertySoldOut(boolean isPropertySoldOut) {
         property.setIsPropertySoldOut(isPropertySoldOut);
+    }
+
+    @Field("PANORAMA_VIEW_PATH")
+    public void setPanoramaViewPath(String panoramaViewPath) {
+        property.setPanoramaViewPath(panoramaViewPath);
     }
 }
