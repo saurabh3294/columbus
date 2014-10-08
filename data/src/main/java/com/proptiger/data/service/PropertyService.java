@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
@@ -43,6 +44,7 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
@@ -74,6 +76,16 @@ public class PropertyService {
     private ApplicationContext     applicationContext;
 
     private static int             ROWS_THRESHOLD = 200;
+    
+    public static String cdnImageUrl;
+    
+    @Autowired
+    private PropertyReader reader;
+    
+    @PostConstruct
+    private void init() {
+       cdnImageUrl = reader.getRequiredProperty("cdn.image.url");
+    }
 
     /**
      * Returns properties given a selector

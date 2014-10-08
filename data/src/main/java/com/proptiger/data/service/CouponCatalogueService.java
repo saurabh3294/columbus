@@ -1,6 +1,5 @@
 package com.proptiger.data.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -10,26 +9,24 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.enums.resource.ResourceType;
+import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.CouponCatalogue;
-import com.proptiger.data.model.Property;
 import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserAttribute;
-import com.proptiger.data.notification.enums.MediumType;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
-import com.proptiger.data.notification.enums.Tokens;
-import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.CouponCatalogueDao;
+import com.proptiger.data.service.transaction.PaymentService;
 import com.proptiger.data.service.transaction.TransactionService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.exception.BadRequestException;
+import com.proptiger.exception.ResourceNotAvailableException;
 
 @Service
 public class CouponCatalogueService {
@@ -54,8 +51,8 @@ public class CouponCatalogueService {
     
     @Autowired
     private CouponNotificationService couponNotificationService;
-
-    // Do not autowire them. Use getter to use them.
+    
+   // Do not autowire them. Use getter to use them.
     private TransactionService         transactionService;
     private PropertyService            propertyService;
 
@@ -142,6 +139,9 @@ public class CouponCatalogueService {
      */
     public CouponCatalogue getCouponCatalogue(int id) {
         CouponCatalogue coupon = couponCatalogueDao.findOne(id);
+        if(coupon == null){
+            throw new ResourceNotAvailableException(ResourceType.Coupon, ResourceTypeAction.GET);
+        }
         coupon.setProperty(getPropertyService().getProperty(coupon.getPropertyId()));
         return coupon;
     }
@@ -250,10 +250,6 @@ public class CouponCatalogueService {
     
     public boolean cancelCoupon(String couponCode, String userProofId){
         Transaction transaction = getTransactionService().getNonRedeemTransactionByCode(couponCode);
-        
-        if (transaction == null) {
-            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, "Coupon Code does not exits or has been redeemed or been refunded already.");
-        }
 
         UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
                 transaction.getUserId(),
