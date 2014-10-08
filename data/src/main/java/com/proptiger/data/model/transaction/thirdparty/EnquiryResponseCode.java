@@ -1,7 +1,7 @@
 package com.proptiger.data.model.transaction.thirdparty;
 
 public enum EnquiryResponseCode {
-    SuccessPayment("0"), RefundInitiated("8"), RefundSuccess("11");
+    SuccessPayment("0"), RefundInitiated("8"), RefundSuccess("11"), FailPayment("1");
     
     String responseCode;
     

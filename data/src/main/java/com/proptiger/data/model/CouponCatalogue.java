@@ -1,7 +1,11 @@
 package com.proptiger.data.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -77,7 +81,18 @@ public class CouponCatalogue extends BaseModel {
     @Column(name = "email")
     @JsonIgnore
     private String            builderEmail;
-    
+
+    @JsonIgnore
+    @Transient
+    private List<String>      listBuilderEmail = new ArrayList<String>();
+
+    @PostLoad
+    public void postPopulateFields() {
+        if (builderEmail != null && !builderEmail.isEmpty()) {
+            listBuilderEmail = Arrays.asList(builderEmail.split(";"));
+        }
+    }
+
     public int getId() {
         return id;
     }
@@ -180,6 +195,14 @@ public class CouponCatalogue extends BaseModel {
 
     public void setDiscountPricePerUnitArea(Integer discountPricePerUnitArea) {
         this.discountPricePerUnitArea = discountPricePerUnitArea;
+    }
+
+    public List<String> getListBuilderEmail() {
+        return listBuilderEmail;
+    }
+
+    public void setListBuilderEmail(List<String> listBuilderEmail) {
+        this.listBuilderEmail = listBuilderEmail;
     }
 
 }

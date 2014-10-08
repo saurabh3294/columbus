@@ -5,16 +5,20 @@ package com.proptiger.data.mvc.transaction;
 
 import java.net.URI;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.meta.DisableCaching;
+import com.proptiger.data.model.enums.transaction.PaymentType;
 import com.proptiger.data.model.enums.transaction.TransactionType;
 import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.mvc.BaseController;
@@ -49,6 +53,15 @@ public class TransactionController extends BaseController {
                     "Some Problem with Gateway. Please try again after some time.");
         }
         return new APIResponse(uri);
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "data/v1/transaction/offline-coupon", method = RequestMethod.POST)
+    public APIResponse createOfflineCouponTransaction(@RequestBody Transaction transaction, @RequestParam(defaultValue = "Cheque", required = false) PaymentType paymentType) {
+        transaction.setTypeId(TransactionType.BuyCoupon.getId());
+        Transaction createdTransaction = transactionService.createOfflineCoupon(transaction, paymentType);
+        
+        return new APIResponse(createdTransaction);
     }
 
     @ResponseBody
