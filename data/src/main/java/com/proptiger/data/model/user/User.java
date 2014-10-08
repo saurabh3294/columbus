@@ -44,7 +44,7 @@ public class User extends BaseModel {
     private Integer                      countryId;
 
     @Column(name = "is_registered")
-    private boolean                      registered       = true;
+    private boolean                      registered;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<UserEmail>              emails;
@@ -63,10 +63,13 @@ public class User extends BaseModel {
 
     @Column(name = "email")
     private String email;
+    
+    @Column(name = "verified")
+    private boolean verified;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<UserAttribute>         attributes;
-
+    
     public int getId() {
         return id;
     }
@@ -153,6 +156,14 @@ public class User extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
     }
 
     public boolean isContactPresent(String userContactNumber) {
