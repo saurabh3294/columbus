@@ -67,6 +67,9 @@ public class ProjectPhase extends BaseModel {
     @Column(name = "LAUNCH_DATE")
     private Date                 launchDate;
 
+    @Column(name = "PRE_LAUNCH_DATE")
+    private Date                 preLaunchDate;
+
     @Column(name = "COMPLETION_DATE")
     private Date                 completionDate;
 
@@ -429,5 +432,13 @@ public class ProjectPhase extends BaseModel {
         public void setSecondaryPrice(Integer secondaryPrice) {
             this.secondaryPrice = secondaryPrice;
         }
+    }
+
+    public Date getPreLaunchDate() {
+        return preLaunchDate;
+    }
+
+    public void setPreLaunchDate(Date preLaunchDate) {
+        this.preLaunchDate = preLaunchDate;
     }
 }

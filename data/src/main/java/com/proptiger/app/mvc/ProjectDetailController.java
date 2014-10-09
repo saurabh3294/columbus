@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.Locality;
@@ -162,6 +163,7 @@ public class ProjectDetailController extends BaseController {
 
     @RequestMapping(value = { "app/v2/project-detail/{projectId}" })
     @ResponseBody
+    @DisableCaching
     public APIResponse getProjectDetailsV2(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
@@ -187,6 +189,7 @@ public class ProjectDetailController extends BaseController {
 
     @RequestMapping(value = { "app/v3/project-detail/{projectId}" })
     @ResponseBody
+    @DisableCaching
     public APIResponse getProjectDetailsV3(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
@@ -203,6 +206,7 @@ public class ProjectDetailController extends BaseController {
     
     @RequestMapping(value = { "app/v4/project-detail/{projectId}" })
     @ResponseBody
+    @DisableCaching
     public APIResponse getProjectDetailsV4(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {

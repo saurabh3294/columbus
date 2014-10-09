@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -20,6 +21,7 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
             NotificationStatus generatedNotificationStatus);
 
     @Modifying
+    @Transactional
     @Query("UPDATE NotificationGenerated set notificationStatus = ?2 WHERE notificationStatus = ?3 AND id = ?1 ")
     public Integer updateByNotificationStatusOnOldNotificationStatus(
             Integer id,
@@ -32,7 +34,7 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
             Date date,
             MediumType medium);
 
-    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationType NT JOIN NG.forumUser FU JOIN NG.notificationMedium NM WHERE NG.notificationStatus in ?1 AND NM.id = ?2 AND FU.userId = ?3 AND NT.id = ?4 AND NG.objectId = ?5 ORDER BY NG.updatedAt DESC")
+    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationType NT JOIN NG.notificationMedium NM WHERE NG.notificationStatus in ?1 AND NM.id = ?2 AND NG.userId = ?3 AND NT.id = ?4 AND NG.objectId = ?5 ORDER BY NG.updatedAt DESC")
     public List<NotificationGenerated> getLastNotificationGenerated(
             List<NotificationStatus> notificationStatusList,
             int mediumTypeId,
@@ -41,7 +43,7 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
             Integer objectId,
             Pageable pageable);
 
-    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.forumUser FU JOIN NG.notificationMedium NM WHERE NG.notificationStatus in ?1 AND FU.userId = ?2 AND NM.id = ?3 ORDER BY NG.updatedAt DESC")
+    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationMedium NM WHERE NG.notificationStatus in ?1 AND NG.userId = ?2 AND NM.id = ?3 ORDER BY NG.updatedAt DESC")
     public List<NotificationGenerated> getLastSentNotificationGeneratedInMedium(
             List<NotificationStatus> notificationStatusList,
             Integer userId,

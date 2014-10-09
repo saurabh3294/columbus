@@ -1,8 +1,7 @@
 package com.proptiger.data.notification.sender;
 
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 
 public interface MediumSender {
-    public void send(MailBody mailBody, ForumUser forumUser);
+    public boolean send(String template, Integer userId, String notificationTypeName, NotificationSenderPayload payload);
 }

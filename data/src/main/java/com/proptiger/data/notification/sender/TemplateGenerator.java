@@ -1,7 +1,6 @@
 package com.proptiger.data.notification.sender;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -12,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.service.NotificationTypeNotificationMediumMappingService;
 
@@ -23,21 +20,16 @@ public class TemplateGenerator {
     private static Logger                                    logger  = LoggerFactory.getLogger(TemplateGenerator.class);
 
     private static final Pattern                             PATTERN = Pattern.compile("(<.+?>)");
-    private static final String                              SUBJECT = "subject";
-    private static final String                              BODY    = "body";
 
     @Autowired
     private NotificationTypeNotificationMediumMappingService ntNmMappingService;
 
-    public MailBody generateMailBodyFromTemplate(NotificationGenerated ntGenerated) {
+    public String generatePopulatedTemplate(NotificationGenerated ntGenerated) {
         String template = ntNmMappingService.getTemplate(ntGenerated);
         logger.debug("Template: " + template);
         Map<String, Object> payloadDataMap = ntGenerated.getNotificationMessagePayload().getExtraAttributes();
         logger.debug("PayloadDataMap: " + payloadDataMap.toString());
-        return getMailBody(ntGenerated, template, payloadDataMap);
-    }
 
-    private MailBody getMailBody(NotificationGenerated ntGenerated, String template, Map<String, Object> payloadDataMap) {
         if (template == null || template.isEmpty()) {
             logger.info("Mail Template is null or empty");
             return null;
@@ -48,16 +40,10 @@ public class TemplateGenerator {
             return null;
         }
 
-        HashMap<String, String> mailContentMap = getMailContentFromJsonTemplate(template);
-        if (mailContentMap == null || mailContentMap.isEmpty()) {
-            return null;
-        }
+        String populatedTemplate = replaceTokensWithValue(template, payloadDataMap);
 
-        String subject = replaceTokensWithValue(mailContentMap.get(SUBJECT), payloadDataMap);
-        String body = replaceTokensWithValue(mailContentMap.get(BODY), payloadDataMap);
-
-        if (body == null || body.isEmpty()) {
-            logger.info("Mail Body is null or empty");
+        if (populatedTemplate == null || populatedTemplate.isEmpty()) {
+            logger.info("Template token values not found in the payloadData map");
             // TO DO
             // if payloadDataMap does not contain any of the token value in the
             // template
@@ -67,25 +53,7 @@ public class TemplateGenerator {
             return null;
         }
 
-        // creating mail body and setting mail subject and mail body.
-        MailBody mailBody = new MailBody();
-        mailBody.setSubject(subject);
-        mailBody.setBody(body);
-        return mailBody;
-    }
-
-    private HashMap<String, String> getMailContentFromJsonTemplate(String template) {
-        HashMap<String, String> map = new HashMap<String, String>();
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            map = mapper.readValue(template, HashMap.class);
-            logger.debug("MailContentMap: " + map.toString());
-            return map;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return populatedTemplate;
     }
 
     private String replaceTokensWithValue(String template, Map<String, Object> payloadDataMap) {
@@ -96,8 +64,9 @@ public class TemplateGenerator {
         for (String token : tokens) {
             Object tokenValueObj = payloadDataMap.get(token.substring(1, token.length() - 1));
             if (tokenValueObj == null) {
-                logger.info("Token value NOT present in payload Data Map for token -" + token);
-                return null;
+                logger.error("Token value NOT present in payload Data Map for token - " + token);
+                // Returning the token value same as token
+                tokenValueObj = token;
             }
             String tokenValue = "";
             if (!(tokenValueObj instanceof String)) {

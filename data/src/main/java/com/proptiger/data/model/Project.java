@@ -23,6 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -473,6 +474,10 @@ public class Project extends BaseModel {
     private Double                  minResaleOrPrimaryPrice;
 
     @Transient
+    @Field("RESALE_PRICE_PER_UNIT_AREA")
+    private Double                  resalePricePerUnitArea;
+
+    @Transient
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double                  maxResaleOrPrimaryPrice;
 
@@ -501,28 +506,57 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_SOCIETY_SCORE")
     private Float                   projectSocietyScore;
-    
+
     @Transient
     @Field(value = "PROJECT_SAFETY_RANK")
     private Integer                 projectSafetyRank;
-    
+
     @Transient
     @Field(value = "PROJECT_LIVABILITY_RANK")
     private Integer                 projectLivabilityRank;
-    
+
     @Transient
     private boolean                 has3DImages;
-    
+
     @JsonIgnore
     @Column(name = "RESIDENTIAL_FLAG")
     @Enumerated(EnumType.STRING)
     private ResidentialFlag         residentialFlag;
 
     @Transient
+    private List<Image>              landmarkImages;
+
+    @Transient
     @Field("IMAGE_TYPE_COUNT")
     private Map<String, Integer>	 imageTypeCount;
 
-    
+    @Transient
+    private Integer                 maxDiscount;
+
+    @Transient
+    private Integer                 couponsInventoryLeft;
+
+    @Transient
+    private Integer                 totalCouponsInventory;
+
+    @Transient
+    private Double                  minDiscountPrice;
+
+    @Transient
+    private Double                  maxDiscountPrice;
+
+    @Transient
+    private Double                  minResaleOrDiscountPrice;
+
+    @Transient
+    private Double                  maxResaleOrDiscountPrice;
+
+    @Transient
+    private Boolean                 isCouponAvailable;
+
+    @Transient
+    private Date                    maxCouponExpiryAt;
+
     public int getProjectId() {
         return projectId;
     }
@@ -772,7 +806,7 @@ public class Project extends BaseModel {
     public String getProjectStatus() {
         return projectStatus;
     }
-    
+
     public void setProjectStatus(String projectStatus) {
         this.projectStatus = projectStatus;
     }
@@ -1279,6 +1313,104 @@ public class Project extends BaseModel {
     public void setResidentialFlag(ResidentialFlag residentialFlag) {
         this.residentialFlag = residentialFlag;
     }
+	
+    public List<Image> getLandmarkImages() {
+        return landmarkImages;
+    }
 
-    
+    public void setLandmarkImages(List<Image> landmarkImages) {
+        this.landmarkImages = landmarkImages;
+    }
+
+    public Integer getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(Integer maxDiscount) {
+        this.maxDiscount = maxDiscount;
+    }
+
+    public Integer getCouponsInventoryLeft() {
+        return couponsInventoryLeft;
+    }
+
+    public void setCouponsInventoryLeft(Integer couponsInventoryLeft) {
+        this.couponsInventoryLeft = couponsInventoryLeft;
+    }
+
+    public Integer getTotalCouponsInventory() {
+        return totalCouponsInventory;
+    }
+
+    public void setTotalCouponsInventory(Integer totalCouponsInventory) {
+        this.totalCouponsInventory = totalCouponsInventory;
+    }
+
+    public Double getMinDiscountPrice() {
+        return minDiscountPrice;
+    }
+
+    public void setMinDiscountPrice(Double minDiscountPrice) {
+        this.minDiscountPrice = minDiscountPrice;
+    }
+
+    public Double getMaxDiscountPrice() {
+        return maxDiscountPrice;
+    }
+
+    public void setMaxDiscountPrice(Double maxDiscountPrice) {
+        this.maxDiscountPrice = maxDiscountPrice;
+    }
+
+    public Double getMinResaleOrDiscountPrice() {
+        return minResaleOrDiscountPrice;
+    }
+
+    public void setMinResaleOrDiscountPrice(Double minResaleOrDiscountPrice) {
+        this.minResaleOrDiscountPrice = minResaleOrDiscountPrice;
+    }
+
+    public Double getMaxResaleOrDiscountPrice() {
+        return maxResaleOrDiscountPrice;
+    }
+
+    public void setMaxResaleOrDiscountPrice(Double maxResaleOrDiscountPrice) {
+        this.maxResaleOrDiscountPrice = maxResaleOrDiscountPrice;
+    }
+
+    public Boolean isCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
+    }
+
+    public Map<String, Integer> getImageTypeCount() {
+        return imageTypeCount;
+    }
+
+    public Boolean getIsCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setIsCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
+    }
+
+    public Date getMaxCouponExpiryAt() {
+        return maxCouponExpiryAt;
+    }
+
+    public void setMaxCouponExpiryAt(Date maxCouponExpiryAt) {
+        this.maxCouponExpiryAt = maxCouponExpiryAt;
+    }
+
+    public Double getResalePricePerUnitArea() {
+        return resalePricePerUnitArea;
+    }
+
+    public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
+        this.resalePricePerUnitArea = resalePricePerUnitArea;
+    }
 }

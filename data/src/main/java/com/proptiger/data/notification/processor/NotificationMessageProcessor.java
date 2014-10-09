@@ -80,8 +80,8 @@ public abstract class NotificationMessageProcessor {
         
         for (PortfolioListing portfolioListing : portfolioListings) {
             Map<String, Object> userDataMap = new HashMap<String, Object>();
-            userDataMap.put(Tokens.ProjectName.name(), portfolioListing.getProjectName());
-            userDataMap.put(Tokens.PropertyName.name(), portfolioListing.getName());
+            userDataMap.put(Tokens.PortfolioProjectUpdates.ProjectName.name(), portfolioListing.getProjectName());
+            userDataMap.put(Tokens.PortfolioProjectUpdates.PropertyName.name(), portfolioListing.getName());
 
             NotificationMessagePayload nmPayload = new NotificationMessagePayload();
             nmPayload.setExtraAttributes(userDataMap);
@@ -90,6 +90,14 @@ public abstract class NotificationMessageProcessor {
             payloadMap.put(portfolioListing.getUserId(), nmPayload);
         }
         return payloadMap;
+    }
+
+    public PortfolioService getPortfolioService() {
+        return portfolioService;
+    }
+
+    public void setPortfolioService(PortfolioService portfolioService) {
+        this.portfolioService = portfolioService;
     }
 
 }

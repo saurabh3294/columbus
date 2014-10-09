@@ -1,9 +1,13 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,6 +28,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.MediaUtil;
 
@@ -134,10 +139,25 @@ public class ImageEnricher {
         if (localities == null || localities.isEmpty())
             return;
 
-        Locality locality;
-        for (int i = 0; i < localities.size(); i++) {
-            locality = localities.get(i);
-            setLocalityImages(locality, imageCount);
+        List<Long> localityIds = new ArrayList<Long>();
+        for(Locality locality : localities) {
+            localityIds.add(new Long(locality.getLocalityId()));
+        }
+        
+        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.locality, localityIds);
+        if (imagesMap == null) {
+            return;
+        }
+        
+        for(Locality  locality : localities) {
+            List<Image> images = imagesMap.get(new Long(locality.getLocalityId()));
+            if (images != null && images.size() > 0) {
+                locality.setImageCount(images.size());
+                if (imageCount == null || imageCount < 0 || imageCount > images.size()) {
+                    imageCount = images.size();
+                }
+                locality.setImages(new ArrayList<Image>(images.subList(0, imageCount)));
+            }
         }
     }
 
@@ -369,22 +389,60 @@ public class ImageEnricher {
         return imagesMap;
     }
     
-    public void setAmenitiesImages(List<LandMark> amenities) {
-        if (amenities == null || amenities.isEmpty()) {
+    private Map<Long, List<Image>> getImagesMapOfAmenities(DomainObject domainObject, List<Long> objectIds, List<Locality> localities, Map<Integer, List<LandMark>> idLandMarksMap) {
+        Map<Long, List<Image>> imagesMap = new HashMap<>();
+        List<Image> images = imageService.getImages(domainObject, null, objectIds);
+        if (images == null) {
+            return null;
+        }
+       
+        List<Image> domainImages;
+        for (Image image : images) {
+            domainImages = imagesMap.get(image.getObjectId());
+            if (domainImages == null) {
+                domainImages = new ArrayList<>();
+                imagesMap.put(image.getObjectId(), domainImages);
+            }
+            domainImages.add(image);
+        }
+        
+        // Setting landmark images ordered by category and priority wise.
+        for (Locality locality : localities) {
+            List<LandMark> amenities = idLandMarksMap.get(locality.getLocalityId());
+            List<Image> img = new ArrayList<Image>();
+            for (LandMark amenity : amenities) {
+                Long objId = new Long(amenity.getId());
+                if (imagesMap.get(objId) != null) {
+                    img.addAll(imagesMap.get(objId));
+                }
+            }
+            //merging locality images also along with landmarks images
+            if (locality.getImages() != null) {
+                img.addAll(locality.getImages());
+            }
+            locality.setLandmarkImages(getImageListSortedOnPriority(img));
+        }
+        return imagesMap;
+    }
+    
+    public void setAmenitiesImages(Map<Integer, List<LandMark>> idLandMarksMap, List<Locality> localities, List<LandMark> amenityList) {
+        if (idLandMarksMap == null || idLandMarksMap.isEmpty()) {
             return;
         }
         
-        List<Long> amenityIds = new ArrayList<Long>();
-        for(LandMark amenity: amenities) {
-            amenityIds.add(new Long(amenity.getId()));
-        }
+        List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenityList);
         
-        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.landmark, amenityIds);
+        Map<Long, List<Image>> imagesMap = getImagesMapOfAmenities(DomainObject.landmark, amenityIds, localities, idLandMarksMap);
         if (imagesMap == null) {
             return;
         }
-        for (LandMark amenity: amenities) {
-            amenity.setImages(imagesMap.get(new Long(amenity.getId())));
+        
+        for(Locality locality : localities) {
+            List<LandMark> amenities = idLandMarksMap.get(locality.getLocalityId());
+            for (LandMark amenity : amenities) {
+                amenity.setImages(imagesMap.get(new Long(amenity.getId())));
+            }
+            locality.setLandmarks(amenities);
         }
     }
 
@@ -392,12 +450,90 @@ public class ImageEnricher {
         if (localities == null || localities.isEmpty()) {
             return;
         }
+        Map<Integer, List<LandMark>> idLandMarksMap = new HashMap<Integer, List<LandMark>>();
+        List<LandMark> amenityList = new ArrayList<LandMark>();
+        
         for(Locality locality : localities) {
             List<LandMark> amenities = localityAmenityService.getLocalityAmenities(locality.getLocalityId(), null);
-            if (amenities != null && !amenities.isEmpty()) {
-                setAmenitiesImages(amenities);
-                locality.setLandmarks(amenities);
-            }
+            idLandMarksMap.put(locality.getLocalityId(), amenities);
+            amenityList.addAll(amenities);
         }
+        setAmenitiesImages(idLandMarksMap, localities, amenityList);
+    }
+    
+    private List<Image> getImageListSortedOnPriority(List<Image> images) {
+        Map<String, List<Image>> imgMapTypeImagesList = new HashMap<String, List<Image>>();
+        for(Image img : images) {
+            List<Image> list = imgMapTypeImagesList.get(img.getImageTypeObj().getType());
+            if (list == null ) {
+                list = new ArrayList<Image>();
+                imgMapTypeImagesList.put(img.getImageTypeObj().getType(), list);
+            }
+            list.add(img);
+        }
+       
+        TreeMap<Integer, List<Image>> orderImgByCatPriority = new TreeMap<Integer, List<Image>>();
+        Set<String> type = imgMapTypeImagesList.keySet();
+        for(String imgType : type) {
+            List<Image> imgList = imgMapTypeImagesList.get(imgType);
+            Collections.sort(imgList, new Comparator<Image>() {
+                @Override
+                public int compare(Image o1, Image o2) {
+                    return o1.getPriority().compareTo(o2.getPriority());
+                }});
+            orderImgByCatPriority.put(imgList.size(), imgList);
+        }
+               
+        List<Image> orderedImgList = new ArrayList<Image>();
+        Integer typeCount = orderImgByCatPriority.size();
+        Integer imageCount = 100;
+       
+        for(Integer i : orderImgByCatPriority.keySet()) {
+            List<Image> imageList = orderImgByCatPriority.get(i);
+            Double maxImageCount = Math.ceil(imageCount/typeCount);
+            if (imageList.size() < maxImageCount) {
+                orderedImgList.addAll(imageList);
+                imageCount -= imageList.size();
+            }
+            else {
+                orderedImgList.addAll(imageList.subList(0, maxImageCount.intValue()));
+                imageCount -= maxImageCount.intValue();
+            }
+            typeCount--;
+        }
+       
+        return orderedImgList;
+    }
+
+    public void setProjectAmenitiesImages(Project project) {
+        if (project == null) {
+            return;
+        }
+
+        List<LandMark> amenities = project.getNeighborhood() != null
+                ? project.getNeighborhood()
+                : localityAmenityService.getLandMarksForProject(project, null, null);
+        if (amenities == null || amenities.isEmpty()) {
+            return;
+        }
+        List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
+        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        if (images == null) {
+            return;
+        }
+        project.setLandmarkImages(images);
+    }
+
+    public PaginatedResponse<List<Image>> getCityAmenityImages(List<LandMark> amenities) {
+        if (amenities == null || amenities.isEmpty()) {
+            return new PaginatedResponse<List<Image>>();
+        }
+        List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
+        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        if (images == null || images.isEmpty()) {
+            return new PaginatedResponse<List<Image>>();
+        }
+        List<Image> orderedImages = getImageListSortedOnPriority(images);
+        return new PaginatedResponse<List<Image>>(orderedImages, orderedImages.size());
     }
 }

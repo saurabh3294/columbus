@@ -33,7 +33,7 @@ public class ProjectDao extends ProjectSolrDao {
     private ProjectDBDao         projectDBDao;
 
     @Autowired
-    private ProjectDatabaseDao   projectDatabaseDao;
+    private ProjectDiscussionDao projectDiscussionDao;
 
     @Autowired
     private ProjectDiscussionDao projectDiscussionDao;
@@ -46,6 +46,7 @@ public class ProjectDao extends ProjectSolrDao {
         return projectDBDao.findByProjectIdAndVersion(projectId, DataVersion.Website);
     }
 
+    @Deprecated
     public Project findProjectByProjectId(int projectId) {
         return findActiveOrInactiveProjectById(projectId);
     }
@@ -72,7 +73,7 @@ public class ProjectDao extends ProjectSolrDao {
             int locationType,
             int locationId,
             int minCount) {
-        return projectDatabaseDao.getMostDiscussedProjects(date, locationType, locationId, minCount);
+        return projectDiscussionDao.getMostDiscussedProjects(date, locationType, locationId, minCount);
     }
 
     public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
@@ -99,6 +100,6 @@ public class ProjectDao extends ProjectSolrDao {
     }
 
     public Project findActiveOrInactiveProjectById(Integer id) {
-        return projectDatabaseDao.findByProjectIdAndVersion(id, DataVersion.Website);
+        return projectDiscussionDao.findByProjectIdAndVersion(id, DataVersion.Website);
     }
 }

@@ -49,7 +49,7 @@ public class LocalityDaoImpl {
 
     public PaginatedResponse<List<Locality>> getLocalities(Selector selector) {
         SolrQuery solrQuery = createSolrQuery(selector);
-
+        System.out.println(solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 
@@ -267,7 +267,16 @@ public class LocalityDaoImpl {
 
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
-        return getPaginatedResponse(queryResponse.getBeans(SolrResult.class), queryResponse);
+        PaginatedResponse<List<Locality>> results = getPaginatedResponse(
+                queryResponse.getBeans(SolrResult.class),
+                queryResponse);
+
+        if (results == null) {
+            results = new PaginatedResponse<List<Locality>>();
+            results.setResults(new ArrayList<Locality>());
+        }
+
+        return results;
     }
 
     /**

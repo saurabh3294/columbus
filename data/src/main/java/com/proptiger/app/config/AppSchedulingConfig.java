@@ -8,11 +8,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Enable sceduling and could be used to enable dynamic scheduling.
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Configuration
-@EnableScheduling
 @EnableAsync
+@EnableScheduling
 public class AppSchedulingConfig {
 
 }

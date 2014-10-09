@@ -73,7 +73,18 @@ public abstract class BaseController {
         }
 
         if (fieldsString != null && !fieldsString.isEmpty()) {
-            return filterFields(object, new HashSet<>(Arrays.asList(fieldsString.split(","))));
+            Set<String> actualFieldNames = new HashSet<>();
+            for(String f: Arrays.asList(fieldsString.split(","))){
+                if(f.contains(".")){
+                    String[] splittedField = f.split("\\.");
+                    actualFieldNames.addAll(Arrays.asList(splittedField));
+                }
+                else{
+                    actualFieldNames.add(f);
+                }
+                
+            }
+            return filterFields(object, actualFieldNames);
         }
 
         return filterFields(object, null);
@@ -107,6 +118,11 @@ public abstract class BaseController {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    protected <T> T filterFields(Object object, Set<String> fields, Class<T> returnClassType) {
+        return ((T)(filterFields(object, fields)));
+    }
+        
     protected Object filterFields(Object object, Set<String> fields) {
         try {
             if (object == null)
@@ -160,7 +176,8 @@ public abstract class BaseController {
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-        // true passed to CustomDateEditor constructor means convert empty String to null
+        // true passed to CustomDateEditor constructor means convert empty
+        // String to null
         binder.registerCustomEditor(Date.class, new CustomDateEditor(new ISO8601DateFormat(), true));
     }
 }

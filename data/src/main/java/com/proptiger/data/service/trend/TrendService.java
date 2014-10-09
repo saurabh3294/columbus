@@ -1,9 +1,13 @@
 package com.proptiger.data.service.trend;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +27,12 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.FIQLSelector.FIQLOperator;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.user.CatchmentService;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
@@ -38,7 +43,13 @@ import com.proptiger.exception.ProAPIException;
 
 @Service
 public class TrendService {
-    @Value("${b2b.price-inventory.max.month}")
+
+    @Autowired
+    private B2BAttributeService b2bAttributeService;
+
+    @Value("${b2b.price-inventory.max.month.dblabel}")
+    private String              currentMonthDbLabel;
+
     private String              currentMonth;
 
     @Autowired
@@ -56,14 +67,15 @@ public class TrendService {
 
     @PostConstruct
     private void initialize() {
+        currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
         HithertoDurationSelector.currentMonth = currentMonth;
     }
 
-    public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
+    public List<Trend> getTrend(FIQLSelector selector) {
         return trendDao.getTrend(selector);
     }
 
-    public List<InventoryPriceTrend> getTrend(FIQLSelector selector, String rangeField, String rangeValue) {
+    public List<Trend> getTrend(FIQLSelector selector, String rangeField, String rangeValue) {
         if (rangeField == null || rangeValue == null) {
             return getTrend(selector);
         }
@@ -72,11 +84,12 @@ public class TrendService {
         }
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getPaginatedTrend(
+    @SuppressWarnings("unchecked")
+    public PaginatedResponse<List<Trend>> getPaginatedTrend(
             final FIQLSelector selector,
             final String rangeField,
             final String rangeValue) {
-        PaginatedResponse<List<InventoryPriceTrend>> response = new PaginatedResponse<>();
+        PaginatedResponse<List<Trend>> response = new PaginatedResponse<>();
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
         Set<Callable<Map<String, Object>>> callables = new LinkedHashSet<>();
@@ -107,7 +120,7 @@ public class TrendService {
                 Map<String, Object> mapResult = future.get();
                 String key = mapResult.keySet().iterator().next();
                 if (key.equals(DATA_KEY)) {
-                    response.setResults((List<InventoryPriceTrend>) mapResult.get(DATA_KEY));
+                    response.setResults((List<Trend>) mapResult.get(DATA_KEY));
                 }
                 else if (key.equals(COUNT_KEY)) {
                     response.setTotalCount((long) mapResult.get(COUNT_KEY));
@@ -122,7 +135,7 @@ public class TrendService {
         return response;
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentPaginatedTrend(
+    public PaginatedResponse<List<Trend>> getCatchmentPaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -134,7 +147,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getCatchmentTrend(
+    public List<Trend> getCatchmentTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -146,18 +159,18 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getCurrentTrend(FIQLSelector selector, String rangeField, String rangeValue) {
+    public List<Trend> getCurrentTrend(FIQLSelector selector, String rangeField, String rangeValue) {
         return getTrend(getCurrentDateAppendedSelector(selector), rangeField, rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getCurrentPaginatedTrend(
+    public PaginatedResponse<List<Trend>> getCurrentPaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue) {
         return getPaginatedTrend(getCurrentDateAppendedSelector(selector), rangeField, rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentCurrentPaginatedTrend(
+    public PaginatedResponse<List<Trend>> getCatchmentCurrentPaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -170,7 +183,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getCatchmentCurrentTrend(
+    public List<Trend> getCatchmentCurrentTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -183,7 +196,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getHithertoTrend(
+    public List<Trend> getHithertoTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -191,7 +204,7 @@ public class TrendService {
         return getTrend(getHithertoDateAppendedSelector(selector, hithertoDurationSelector), rangeField, rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getHithertoPaginatedTrend(
+    public PaginatedResponse<List<Trend>> getHithertoPaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -202,7 +215,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentHithertoPaginatedTrend(
+    public PaginatedResponse<List<Trend>> getCatchmentHithertoPaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -216,7 +229,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getCatchmentHithertoTrend(
+    public List<Trend> getCatchmentHithertoTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -230,18 +243,18 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getPriceTrend(FIQLSelector selector, String rangeField, String rangeValue) {
+    public List<Trend> getPriceTrend(FIQLSelector selector, String rangeField, String rangeValue) {
         return getTrend(getDominantSupplyAppendedSelector(selector), rangeField, rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getPricePaginatedTrend(
+    public PaginatedResponse<List<Trend>> getPricePaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue) {
         return getPaginatedTrend(getDominantSupplyAppendedSelector(selector), rangeField, rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentPricePaginatedTrend(
+    public PaginatedResponse<List<Trend>> getCatchmentPricePaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -251,7 +264,7 @@ public class TrendService {
                 .getCatchmentFIQLFilter(catchmentId, userInfo))), rangeField, rangeValue);
     }
 
-    public List<InventoryPriceTrend> getCatchmentPriceTrend(
+    public List<Trend> getCatchmentPriceTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -261,14 +274,14 @@ public class TrendService {
                 .getCatchmentFIQLFilter(catchmentId, userInfo))), rangeField, rangeValue);
     }
 
-    public List<InventoryPriceTrend> getCurrentPriceTrend(FIQLSelector selector, String rangeField, String rangeValue) {
+    public List<Trend> getCurrentPriceTrend(FIQLSelector selector, String rangeField, String rangeValue) {
         return getTrend(
                 getDominantSupplyAppendedSelector(getCurrentDateAppendedSelector(selector)),
                 rangeField,
                 rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getCurrentPricePaginatedTrend(
+    public PaginatedResponse<List<Trend>> getCurrentPricePaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue) {
@@ -278,7 +291,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentCurrentPricePaginatedTrend(
+    public PaginatedResponse<List<Trend>> getCatchmentCurrentPricePaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -291,7 +304,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getCatchmentCurrentPriceTrend(
+    public List<Trend> getCatchmentCurrentPriceTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -304,7 +317,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getHithertoPriceTrend(
+    public List<Trend> getHithertoPriceTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -315,7 +328,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getHithertoPricePaginatedTrend(
+    public PaginatedResponse<List<Trend>> getHithertoPricePaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -326,7 +339,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentHithertoPricePaginatedTrend(
+    public PaginatedResponse<List<Trend>> getCatchmentHithertoPricePaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -341,7 +354,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getCatchmentHithertoPriceTrend(
+    public List<Trend> getCatchmentHithertoPriceTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -356,21 +369,18 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<InventoryPriceTrend> getRangeSpecificTrend(
-            final FIQLSelector selector,
-            final String rangeField,
-            String rangeValue) {
-        List<InventoryPriceTrend> result = new ArrayList<>();
+    public List<Trend> getRangeSpecificTrend(final FIQLSelector selector, final String rangeField, String rangeValue) {
+        List<Trend> result = new ArrayList<>();
 
         final List<Integer> rangeValueList = new ArrayList<>(getRangeValueListFromUserInput(rangeValue));
         final int rangeValueLength = rangeValueList.size();
 
         ExecutorService executor = Executors.newFixedThreadPool(Math.min(rangeValueLength + 1, MAX_THREAD_POOL_SIZE));
 
-        Set<Callable<List<InventoryPriceTrend>>> callables = new LinkedHashSet<>();
+        Set<Callable<List<Trend>>> callables = new LinkedHashSet<>();
 
-        callables.add(new Callable<List<InventoryPriceTrend>>() {
-            public List<InventoryPriceTrend> call() throws Exception {
+        callables.add(new Callable<List<Trend>>() {
+            public List<Trend> call() throws Exception {
                 FIQLSelector sel = selector.clone();
                 sel.addAndConditionToFilter(rangeField + FIQLOperator.LessThan.getValue() + rangeValueList.get(0));
                 return getTrend(sel);
@@ -379,8 +389,8 @@ public class TrendService {
 
         for (int i = 1; i < rangeValueLength; i++) {
             final int j = i;
-            callables.add(new Callable<List<InventoryPriceTrend>>() {
-                public List<InventoryPriceTrend> call() throws Exception {
+            callables.add(new Callable<List<Trend>>() {
+                public List<Trend> call() throws Exception {
                     FIQLSelector sel = selector.clone();
                     sel.addAndConditionToFilter(rangeField + FIQLOperator.LessThan.getValue() + rangeValueList.get(j))
                             .addAndConditionToFilter(
@@ -390,8 +400,8 @@ public class TrendService {
             });
         }
 
-        callables.add(new Callable<List<InventoryPriceTrend>>() {
-            public List<InventoryPriceTrend> call() throws Exception {
+        callables.add(new Callable<List<Trend>>() {
+            public List<Trend> call() throws Exception {
                 FIQLSelector sel = selector.clone();
                 sel.addAndConditionToFilter(rangeField + FIQLOperator.GreaterThanEqual.getValue()
                         + rangeValueList.get(rangeValueLength - 1));
@@ -399,13 +409,13 @@ public class TrendService {
             }
         });
 
-        List<Future<List<InventoryPriceTrend>>> futures = new ArrayList<>();
+        List<Future<List<Trend>>> futures = new ArrayList<>();
 
         try {
             futures = executor.invokeAll(callables);
 
             int i = 0;
-            for (Future<List<InventoryPriceTrend>> future : futures) {
+            for (Future<List<Trend>> future : futures) {
                 String key = RANGE_VALUE_SEPARATOR;
                 if (i != 0) {
                     key = rangeValueList.get(i - 1) + key;
@@ -414,8 +424,8 @@ public class TrendService {
                     key = key + rangeValueList.get(i);
                 }
 
-                List<InventoryPriceTrend> inventoryPriceTrends = future.get();
-                for (InventoryPriceTrend inventoryPriceTrend : inventoryPriceTrends) {
+                List<Trend> inventoryPriceTrends = future.get();
+                for (Trend inventoryPriceTrend : inventoryPriceTrends) {
                     inventoryPriceTrend.setRangeValue(key);
                     Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
                     extraAttributes.put(RANGE_KEY, key);
@@ -452,9 +462,9 @@ public class TrendService {
         return unitType;
     }
 
-    public List<Map<String, Object>> getFlattenedList(List<InventoryPriceTrend> inventoryPriceTrends) {
+    public List<Map<String, Object>> getFlattenedList(List<Trend> inventoryPriceTrends) {
         List<Map<String, Object>> maps = new ArrayList<>();
-        for (InventoryPriceTrend inventoryPriceTrend : inventoryPriceTrends) {
+        for (Trend inventoryPriceTrend : inventoryPriceTrends) {
             maps.add(inventoryPriceTrend.convertToMap());
         }
         return maps;
@@ -509,5 +519,121 @@ public class TrendService {
             result.add(allValues.get(size - 1) + RANGE_VALUE_SEPARATOR);
         }
         return result;
+    }
+
+    /**
+     * gets master list of all group values that's there in the trend list
+     * 
+     * @param trends
+     * @param selector
+     * @return {@link Map} of {@link String} and {@link Set} of {@link Object}
+     */
+    public Map<String, Set<Object>> getAllGroupValues(List<Trend> trends, FIQLSelector selector) {
+        Map<String, Set<Object>> allValues = new HashMap<>();
+        Set<String> groupFields = selector.getGroupSet();
+
+        for (Trend trend : trends) {
+            for (String groupField : groupFields) {
+                try {
+                    Field field = trend.getClass().getDeclaredField(groupField);
+                    field.setAccessible(true);
+                    if (!allValues.containsKey(groupField)) {
+                        allValues.put(groupField, new HashSet<>());
+                    }
+                    allValues.get(groupField).add(field.get(trend));
+                }
+                catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                    throw new ProAPIException("Error in reading field value: ", e);
+                }
+            }
+        }
+        return allValues;
+    }
+
+    /**
+     * 
+     * @param allGroupValues
+     * @param selector
+     * @param valuesForDummyObject
+     * @return
+     */
+    public Object getDummyObject(
+            Map<String, Set<Object>> allGroupValues,
+            FIQLSelector selector,
+            LinkedHashMap<String, Object> valuesForDummyObject) {
+        Set<String> selectorGroups = selector.getGroupSet();
+        Object result = null;
+
+        List<String> allKeys = new ArrayList<>(valuesForDummyObject.keySet());
+        String setGroupField = allKeys.get(allKeys.size() - 1);
+
+        Iterator<String> iterator = selectorGroups.iterator();
+        while (iterator.hasNext()) {
+            String currentGroupField = iterator.next();
+            if (currentGroupField.equals(setGroupField)) {
+                if (iterator.hasNext()) {
+                    String nextGroupField = iterator.next();
+                    Map<Object, Object> nextCallResult = new HashMap<>();
+
+                    for (Object groupValue : allGroupValues.get(nextGroupField)) {
+                        @SuppressWarnings("unchecked")
+                        LinkedHashMap<String, Object> valuesForNextDummyObject = (LinkedHashMap<String, Object>) valuesForDummyObject
+                                .clone();
+                        valuesForNextDummyObject.put(nextGroupField, groupValue);
+                        nextCallResult.put(
+                                UtilityClass.getResponseGroupKey(groupValue),
+                                getDummyObject(allGroupValues, selector, valuesForNextDummyObject));
+                    }
+                    result = nextCallResult;
+                }
+                else {
+                    result = populateGroupFieldsInDummyTrend(getDummyTrendObject(selector), valuesForDummyObject);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * populates group values in dummy {@link Trend} object
+     * 
+     * @param trend
+     * @param groupValueMap
+     *            key value map of group values that needs to be populated
+     * @return
+     */
+    private Trend populateGroupFieldsInDummyTrend(Trend trend, Map<String, Object> groupValueMap) {
+        for (String key : groupValueMap.keySet()) {
+            try {
+                Field field = trend.getClass().getDeclaredField(key);
+                field.setAccessible(true);
+                field.set(trend, groupValueMap.get(key));
+            }
+            catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                throw new ProAPIException("Exception in generating group values", e);
+            }
+        }
+        return trend;
+    }
+
+    /**
+     * gets dummy {@link Trend} object populating extra attributes as required
+     * by group fields
+     * 
+     * @param selector
+     * @return
+     */
+    private Trend getDummyTrendObject(FIQLSelector selector) {
+        Trend trend = new Trend();
+        Set<String> selectorFields = selector.getFieldSet();
+        for (String selectorField : selectorFields) {
+            try {
+                Trend.class.getField(selectorField);
+            }
+            catch (NoSuchFieldException | SecurityException e) {
+                trend.getExtraAttributes().put(selectorField, null);
+            }
+        }
+        return trend;
     }
 }

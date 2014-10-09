@@ -43,4 +43,12 @@ public interface ResponseErrorMessages {
     static String EMAIL_NOT_REGISTERED                = "Sorry, that email id is not registered with us.";
     static String PASSWORD_RECOVERY_MAIL_SENT         = "Password recovery mail sent";
     static String CAPTCHA_REQUIRED                    = "Captcha Required";
+    static String SESSION_EXPIRED_DUPLICATE_LOGIN     = "Session expired, duplicate login";
+    static String OTP_REQUIRED                        = "one time password required";
+    static String WRONG_OTP                           = "Wrong OTP";
+    static String OTP_EXPIRED                         = "OTP expired, sent new OTP";
+    
+    static String NON_B2B_USER                        = "Invalid userid and password. Please send mail to datalabs@proptiger.com for verifying userid and password.";
+    static String EXPIRED_PERMISSION_B2B_USER         = "Thanks for using our product. Validity of your subscription has expired. To continue using this service, please connect with your relationship manager or send us mail at datalabs@proptiger.com";
+    static String ACCESS_DENIED                       = "Access is denied";
 }

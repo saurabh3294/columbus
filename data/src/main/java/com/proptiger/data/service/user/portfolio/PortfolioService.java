@@ -45,6 +45,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.portfolio.OverallReturn;
 import com.proptiger.data.model.user.portfolio.Portfolio;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
@@ -53,9 +54,9 @@ import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.PropertyDao;
+import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.CityService;
@@ -109,9 +110,6 @@ public class PortfolioService {
     private PropertyReader            propertyReader;
 
     @Autowired
-    private ForumUserDao              forumUserDao;
-
-    @Autowired
     private MailSender                mailSender;
 
     @Autowired
@@ -142,6 +140,9 @@ public class PortfolioService {
 
     @Autowired
     private ImageEnricher             imageEnricher;
+    
+    @Autowired
+    private UserDao userDao;
 
     /**
      * Get portfolio object for a particular user id
@@ -380,7 +381,7 @@ public class PortfolioService {
     public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId) {
         logger.debug("Getting portfolio listing {} for user id {}", listingId, userId);
 
-        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId,
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
 
@@ -458,7 +459,7 @@ public class PortfolioService {
         logger.debug("Update portfolio listing {} for user id {}", listingId, userId);
         listing.setUserId(userId);
         listing.setId(listingId);
-        PortfolioListing updated = update(listing);
+        PortfolioListing updated = update(userId, listing);
         return updated;
     }
 
@@ -494,8 +495,8 @@ public class PortfolioService {
         return created;
     }
 
-    private PortfolioListing update(PortfolioListing toUpdate) {
-        PortfolioListing resourcePresent = preProcessUpdate(toUpdate);
+    private PortfolioListing update(Integer userId, PortfolioListing toUpdate) {
+        PortfolioListing resourcePresent = preProcessUpdate(userId, toUpdate);
         PortfolioListing resourceWithSameName = portfolioListingDao
                 .findByUserIdAndNameAndProjectIdAndListingStatusInAndSourceTypeIn(
                         toUpdate.getUserId(),
@@ -580,8 +581,8 @@ public class PortfolioService {
         }
     }
 
-    private PortfolioListing preProcessUpdate(PortfolioListing toUpdate) {
-        PortfolioListing resourcePresent = portfolioListingDao.findByListingIdAndListingStatusIn(
+    private PortfolioListing preProcessUpdate(Integer userId, PortfolioListing toUpdate) {
+        PortfolioListing resourcePresent = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
                 toUpdate.getId(),
                 Constants.LISTINGSTATUS_LIST);
         if (resourcePresent == null) {
@@ -607,7 +608,7 @@ public class PortfolioService {
     @CacheEvict(value = Constants.CacheName.PORTFOLIO_LISTING, key = "#listingId")
     public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId, String reason) {
         logger.debug("Delete Portfolio Listing id {} for userid {}", listingId, userId);
-        PortfolioListing propertyPresent = portfolioListingDao.findByListingIdAndListingStatusIn(
+        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
         if (propertyPresent == null) {
@@ -703,7 +704,9 @@ public class PortfolioService {
                 userId,
                 listingId,
                 interestedToSell);
-        PortfolioListing listing = portfolioListingDao.findOne(listingId);
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId,
+                listingId,
+                Arrays.asList(ListingStatus.ACTIVE));
         if (listing == null || !listing.getUserId().equals(userId)) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
@@ -744,7 +747,7 @@ public class PortfolioService {
                 userId,
                 listingId,
                 interestedToLoan);
-        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
         if (listing == null) {
@@ -833,10 +836,10 @@ public class PortfolioService {
     }
 
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
-        ForumUser forumUser = null;
+        User user = null;
         if (portfolioListing.getUserId() != null) {
-            forumUser = forumUserDao.findOne(portfolioListing.getUserId());
-            if (forumUser == null) {
+            user = userDao.findById(portfolioListing.getUserId());
+            if (user == null) {
                 throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
             }
         }
@@ -914,7 +917,8 @@ public class PortfolioService {
         if (savePortfolioListing == null) {
             throw new PersistenceException("Sell your property request cannot be saved.");
         }
-        savePortfolioListing.setForumUser(forumUser);
+        
+        savePortfolioListing.setForumUser(user.createForumUser());
         sendMailOnSellYourProperty(savePortfolioListing);
         return savePortfolioListing;
     }

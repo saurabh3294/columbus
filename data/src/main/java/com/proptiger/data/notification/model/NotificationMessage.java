@@ -32,7 +32,7 @@ public class NotificationMessage extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = 5129143086430525445L;
+    private static final long          serialVersionUID = 5129143086430525445L;
 
     @Id
     @Column(name = "id")
@@ -43,15 +43,15 @@ public class NotificationMessage extends BaseModel {
     private String                     data;
 
     @Column(name = "notification_type_generated_id")
-    private Integer notificationTypeGeneratedId;
-    
+    private Integer                    notificationTypeGeneratedId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_type_id")
     private NotificationType           notificationType;
 
     @Column(name = "user_id")
-    private Integer userId;
-    
+    private Integer                    userId;
+
     @Transient
     private NotificationMessagePayload notificationMessagePayload;
 
@@ -66,7 +66,7 @@ public class NotificationMessage extends BaseModel {
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date                       updatedAt;
-    
+
     @PreUpdate
     public void autoUpdateFields() {
         this.updatedAt = new Date();
@@ -80,21 +80,33 @@ public class NotificationMessage extends BaseModel {
         }
         autoUpdateFields();
     }
-    
+
     public NotificationMessage() {
-        // TODO Auto-generated constructor stub
+            // TODO Auto-generated constructor stub
     }
-    
+
+    /*
+     * Deprecating this method as there shouldn't be any logic inside this method. Use
+     * NotificationMessageService.createNotificationMessage(Integer userId,
+     * String subject, String body) instead.
+     */
+    @Deprecated
     public NotificationMessage(Integer userId, String subject, String body) {
         this.userId = userId;
         NotificationMessagePayload payload = new NotificationMessagePayload();
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Subject.name(), subject);
-        extraAttributes.put(Tokens.Body.name(), body);
+        extraAttributes.put(Tokens.Default.Subject.name(), subject);
+        extraAttributes.put(Tokens.Default.Body.name(), body);
         payload.setExtraAttributes(extraAttributes);
-        this.notificationMessagePayload = payload;     
+        this.notificationMessagePayload = payload;
     }
-    
+
+    public NotificationMessage(Integer userId, NotificationMessagePayload payload, NotificationType type) {
+        this.userId = userId;
+        this.notificationMessagePayload = payload;
+        this.notificationType = type;
+    }
+
     public int getId() {
         return id;
     }
@@ -110,7 +122,7 @@ public class NotificationMessage extends BaseModel {
     public void setData(String data) {
         this.data = data;
     }
-    
+
     public NotificationMessagePayload getNotificationMessagePayload() {
         return notificationMessagePayload;
     }

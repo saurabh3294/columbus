@@ -1,7 +1,11 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.persistence.Transient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -46,5 +50,18 @@ public class ProjectAmenityService {
         return projectCMSAmenityDao.findByProjectId(IdConverterForDatabase.getCMSDomainIdForDomainTypes(
                 DomainObject.project,
                 projectId));
+    }
+    
+    public List<ProjectCMSAmenity> getCMSAmenitiesByProjectIdAndAmenityIds(int projectId, List<Integer> masterAmenitieIds) {
+        if(masterAmenitieIds != null && masterAmenitieIds.size() > 0){
+            Set<Integer> ids = new HashSet<>(masterAmenitieIds);
+            return projectCMSAmenityDao.findByProjectIdAndMasterAmenityIds(projectId, ids);
+        }
+        return new ArrayList<>();
+    }
+    
+    @Transient
+    public List<ProjectCMSAmenity> createProjectAmenities(List<ProjectCMSAmenity> toCreate){
+        return projectCMSAmenityDao.save(toCreate);
     }
 }

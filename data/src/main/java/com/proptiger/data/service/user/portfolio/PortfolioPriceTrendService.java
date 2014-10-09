@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
+import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.ProjectPriceTrendService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.util.Constants;
@@ -66,9 +69,19 @@ public class PortfolioPriceTrendService {
     @Autowired
     private ProjectService           projectService;
 
-    @Value("${b2b.price-inventory.max.month}")
+    @Autowired
+    private B2BAttributeService      b2bAttributeService;
+
+    @Value("${b2b.price-inventory.max.month.dblabel}")
+    private String                   currentMonthDbLabel;
+
     public String                    trendCurrentMonth;
 
+    @PostConstruct
+    private void initialize() {
+        trendCurrentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
+    }
+    
     /**
      * Get price trend for a listing associated with user
      * 
@@ -79,7 +92,7 @@ public class PortfolioPriceTrendService {
      */
     public ProjectPriceTrend getListingPriceTrend(Integer userId, Integer listingId, Integer noOfMonths) {
         logger.debug("Price trend for user id {} and listing id {} for months {}", userId, listingId, noOfMonths);
-        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
         if (listing == null) {

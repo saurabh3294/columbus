@@ -1,32 +1,37 @@
 package com.proptiger.data.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.proptiger.data.enums.Application;
+import com.proptiger.data.enums.security.UserRole;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.user.User;
+import com.proptiger.data.service.ApplicationNameService;
 
 /**
  * Security utils to get current logged in user and session related work.
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 public class SecurityContextUtils {
 
     /**
      * @return ActiveUser object or null if user is not logged in
      */
-    public static ActiveUser getLoggedInUser() {
+    public static ActiveUser getActiveUser() {
         ActiveUser activeUser = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
@@ -58,20 +63,31 @@ public class SecurityContextUtils {
              * controllers
              */
             request.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, activeUser);
+            /*
+             * session will be valid for SESSION_MAX_INTERACTIVE_INTERVAL value,
+             * this should be same as of cookie life time, so both should be
+             * synched.
+             */
+            request.getSession().setMaxInactiveInterval(
+                    PropertyReader.getRequiredPropertyAsType(
+                            PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL,
+                            Integer.class));
         }
         return activeUser;
     }
 
-    private static Authentication createNewAuthentication(ForumUser forumUser) {
+    private static Authentication createNewAuthentication(User user) {
+        Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
         UserDetails userDetails = new ActiveUser(
-                forumUser.getUserId(),
-                forumUser.getEmail(),
-                forumUser.getPassword(),
+                user.getId(),
+                user.getEmail(),
+                user.getPassword(),
                 true,
                 true,
                 true,
                 true,
-                new ArrayList<GrantedAuthority>());
+                getDefaultAuthority(user.getId()),
+                applicationType);
 
         UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(
                 userDetails,
@@ -87,12 +103,12 @@ public class SecurityContextUtils {
      * This method will put active user in request session too, to enable
      * controllers to get active user object
      * 
-     * @param forumUser
+     * @param user
      * @return
      */
-    public static Authentication autoLogin(ForumUser forumUser) {
-        Authentication auth = createNewAuthentication(forumUser);
-        putAuthInContext(auth);
+    public static Authentication autoLogin(User user) {
+        Authentication auth = createNewAuthentication(user);
+        setAuthentication(auth);
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                 .getRequest();
         putActiveUserInSession(request, auth);
@@ -112,15 +128,63 @@ public class SecurityContextUtils {
                 activeUser,
                 null,
                 activeUser.getAuthorities());
-        putAuthInContext(newAuthentication);
+        setAuthentication(newAuthentication);
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest();
+        putActiveUserInSession(request, newAuthentication);
         return newAuthentication;
-    }
-
-    private static void putAuthInContext(Authentication auth) {
-        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    public static int getLoggedInUserId() {
+        return getActiveUser().getUserIdentifier();
+    }
+
+    public static void setAuthentication(Authentication newAuth) {
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+    }
+
+    public static List<GrantedAuthority> getDefaultAuthority(Integer userId) {
+        List<GrantedAuthority> authority = new ArrayList<>();
+        authority.add(new SimpleGrantedAuthority(UserRole.USER.name()));
+        if(userId.equals(Constants.ADMIN_USER_ID)){
+            authority.add(new SimpleGrantedAuthority(UserRole.ADMIN_BACKEND.name()));
+        }
+        
+        return authority;
+    }
+
+    /**
+     * This method grants USER role to the currently logged in user after otp
+     * validation
+     */
+    public static Authentication grantUserAuthorityToActiveUser() {
+        Authentication auth = SecurityContextUtils.getAuthentication();
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority(UserRole.USER.name()));
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                auth.getPrincipal(),
+                auth.getCredentials(),
+                authorities);
+        SecurityContextUtils.setAuthentication(newAuth);
+        return newAuth;
+    }
+    
+    /**
+     * This method grants PRE_AUTH_USER role to the currently logged in user after otp
+     * validation
+     */
+    public static Authentication grantPreAuthAuthority(Authentication auth) {
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority(UserRole.PRE_AUTH_USER.name()));
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                auth.getPrincipal(),
+                auth.getCredentials(),
+                authorities);
+        SecurityContextUtils.setAuthentication(newAuth);
+        return newAuth;
     }
 }

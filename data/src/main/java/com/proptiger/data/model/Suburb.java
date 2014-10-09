@@ -125,6 +125,27 @@ public class Suburb extends BaseModel {
     @Field(value = "SUBURB_VIEW_COUNT")
     private Integer                         suburbViewCount;
 
+    @Transient
+    @Field("SUBURB_TAG_LINE")
+    private String                          suburbTagLine;
+
+    @Transient
+    @Field("SUBURB_COUPON_MAX_DISCOUNT")
+    private Integer                         maxDiscount;
+
+    @Transient
+    @Field("SUBURB_COUPON_AVAILABLE")
+    private Boolean                         isCouponAvailable;
+    
+    @Transient
+    @Field("SUBURB_LOCALITY_COUNT")
+    private Integer                         suburbLocalityCount;
+    
+    @Transient
+    @Field("SUBURB_PROPERTY_COUNT")
+    private Integer                         suburbPropertyCount;
+
+    
     public int getId() {
         return id;
     }
@@ -276,4 +297,45 @@ public class Suburb extends BaseModel {
     public void setSuburbViewCount(Integer suburbViewCount) {
         this.suburbViewCount = suburbViewCount;
     }
+
+    public Integer getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(Integer maxDiscount) {
+        this.maxDiscount = maxDiscount;
+    }
+
+    public Boolean getIsCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setIsCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
+    }
+
+    public String getSuburbTagLine() {
+        return suburbTagLine;
+    }
+
+    public void setSuburbTagLine(String suburbTagLine) {
+        this.suburbTagLine = suburbTagLine;
+    }
+
+    public Integer getSuburbLocalityCount() {
+        return suburbLocalityCount;
+    }
+
+    public void setSuburbLocalityCount(Integer suburbLocalityCount) {
+        this.suburbLocalityCount = suburbLocalityCount;
+    }
+
+    public Integer getSuburbPropertyCount() {
+        return suburbPropertyCount;
+    }
+
+    public void setSuburbPropertyCount(Integer suburbPropertyCount) {
+        this.suburbPropertyCount = suburbPropertyCount;
+    }
+    
 }

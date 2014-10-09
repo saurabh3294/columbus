@@ -103,7 +103,7 @@ public class DBRawEventTableLog extends BaseModel {
     public void setDbName(String dbName) {
         this.dbName = dbName;
     }
-
+    
     public String getTableName() {
         return tableName;
     }
@@ -144,14 +144,6 @@ public class DBRawEventTableLog extends BaseModel {
         this.lastTransactionKeyValue = lastTransactionKeyValue;
     }
 
-    public String getPreFilters() {
-        return prefilters;
-    }
-
-    public void setPreFilters(String preFilters) {
-        this.prefilters = preFilters;
-    }
-
     public Map<String, List<Object>> getFilterMap() {
         return filterMap;
     }
@@ -182,6 +174,21 @@ public class DBRawEventTableLog extends BaseModel {
 
     public void setUniqueKeys(String uniqueKeys) {
         this.uniqueKeys = uniqueKeys;
+    }
+    
+    public String toString() {
+        String str = "";
+        str += "id : " + this.id + ", ";
+        str += "hostName : " + this.hostName + ", ";
+        str += "dbName : " + this.dbName + ", ";
+        str += "tableName : " + this.tableName + ", ";
+        str += "primaryKeyName" + this.primaryKeyName + ", ";
+        str += "transactionKeyName : " + this.transactionKeyName + ", ";
+        str += "dateAttributeName : " + this.dateAttributeName + ", ";
+        str += "lastTransactionKeyValue : " + this.lastTransactionKeyValue + ", ";
+        str += "prefilters : " + this.prefilters + ", ";
+        str += "uniqueKeys : " + this.uniqueKeys;
+        return str;
     }
 
 }

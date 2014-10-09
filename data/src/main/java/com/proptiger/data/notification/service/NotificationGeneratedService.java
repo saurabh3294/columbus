@@ -94,7 +94,7 @@ public class NotificationGeneratedService {
         Integer userId = null;
         List<NotificationGenerated> groupNotifcationGenerated = null;
         for (NotificationGenerated notificationGenerated : notificationGeneratedList) {
-            userId = notificationGenerated.getForumUser().getUserId();
+            userId = notificationGenerated.getUserId();
             groupNotifcationGenerated = groupNotificationMessageMap.get(userId);
 
             if (groupNotificationMessageMap.get(userId) == null) {
@@ -147,7 +147,7 @@ public class NotificationGeneratedService {
             populateDataBeforeSave(notificationGenerated);
             if (notificationGenerated.getNotificationMessage() != null) {
                 notificationGenerated.getNotificationMessage().setNotificationStatus(NotificationStatus.Generated);
-            }                
+            }
         }
         return notificationGeneratedDao.save(nGenerateds);
 
@@ -237,6 +237,14 @@ public class NotificationGeneratedService {
         return nGenerated;
     }
 
+    /**
+     * Create NotificationGenerateds for given Notification Messages in given
+     * Mediums
+     * 
+     * @param nMessages
+     * @param mediumTypes
+     * @return
+     */
     public List<NotificationGenerated> createNotificationGenerated(
             List<NotificationMessage> nMessages,
             List<MediumType> mediumTypes) {
@@ -297,7 +305,7 @@ public class NotificationGeneratedService {
         List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.getLastNotificationGenerated(
                 notificationStatusList,
                 ntGenerated.getNotificationMedium().getId(),
-                ntGenerated.getForumUser().getUserId(),
+                ntGenerated.getUserId(),
                 ntGenerated.getNotificationType().getId(),
                 ntGenerated.getObjectId(),
                 pageable);
@@ -314,8 +322,8 @@ public class NotificationGeneratedService {
         notificationStatusList.add(NotificationStatus.Sent);
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
         List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao
-                .getLastSentNotificationGeneratedInMedium(notificationStatusList, ntGenerated.getForumUser()
-                        .getUserId(), ntGenerated.getNotificationMedium().getId(), pageable);
+                .getLastSentNotificationGeneratedInMedium(notificationStatusList, ntGenerated.getUserId(), ntGenerated
+                        .getNotificationMedium().getId(), pageable);
         if (ntGeneratedList != null && !ntGeneratedList.isEmpty()) {
             return ntGeneratedList.get(0);
         }
@@ -333,7 +341,7 @@ public class NotificationGeneratedService {
             groupByMessageId = map.get(nGenerated.getNotificationMessage().getId());
             if (groupByMessageId == null) {
                 groupByMessageId = new LinkedHashMap<Integer, List<NotificationGenerated>>();
-                map.put(nGenerated.getForumUser().getUserId(), groupByMessageId);
+                map.put(nGenerated.getUserId(), groupByMessageId);
             }
             groupGenerateds = groupByMessageId.get(nGenerated.getNotificationMessage().getId());
             if (groupGenerateds == null) {
@@ -359,6 +367,7 @@ public class NotificationGeneratedService {
         return notificationGeneratedDao.findByNotificationStatus(NotificationStatus.Generated);
     }
 
+    @Transactional
     public void markNotificationGeneratedScheduled(NotificationGenerated ntGenerated, Date scheduledTime) {
         notificationGeneratedDao.updatedNotificationStatusAndScheduleTimeById(
                 ntGenerated.getId(),
@@ -366,9 +375,42 @@ public class NotificationGeneratedService {
                 scheduledTime);
     }
 
+    @Transactional
     public void markNotificationGeneratedSuppressed(NotificationGenerated ntGenerated) {
         notificationGeneratedDao.updateNotificationStatusById(
                 ntGenerated.getId(),
                 NotificationStatus.SchedulerSuppressed);
+    }
+
+    public NotificationGeneratedDao getNotificationGeneratedDao() {
+        return notificationGeneratedDao;
+    }
+
+    public void setNotificationGeneratedDao(NotificationGeneratedDao notificationGeneratedDao) {
+        this.notificationGeneratedDao = notificationGeneratedDao;
+    }
+
+    public NotificationMediumService getNotificationMediumService() {
+        return notificationMediumService;
+    }
+
+    public void setNotificationMediumService(NotificationMediumService notificationMediumService) {
+        this.notificationMediumService = notificationMediumService;
+    }
+
+    public NotificationTypeService getNotificationTypeService() {
+        return notificationTypeService;
+    }
+
+    public void setNotificationTypeService(NotificationTypeService notificationTypeService) {
+        this.notificationTypeService = notificationTypeService;
+    }
+
+    public NotificationTypeNotificationMediumMappingService getnMappingService() {
+        return nMappingService;
+    }
+
+    public void setnMappingService(NotificationTypeNotificationMediumMappingService nMappingService) {
+        this.nMappingService = nMappingService;
     }
 }
