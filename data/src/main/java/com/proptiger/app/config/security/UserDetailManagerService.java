@@ -36,22 +36,27 @@ public class UserDetailManagerService implements UserDetailsService {
         ActiveUser userDetails = null;
         User user = null;
         if (username != null && !username.isEmpty()) {
-            user = userDao.findByEmail(username);
-            if (user != null) {
-                Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
-                String password = user.getPassword() == null ? "" : user.getPassword();
-                userDetails = new ActiveUser(
-                        user.getId(),
-                        user.getEmail(),
-                        password,
-                        true,
-                        true,
-                        true,
-                        true,
-                       SecurityContextUtils.getDefaultAuthority(user.getId()), applicationType);
+            try {
+                user = userDao.findByEmail(username);
+                if (user != null) {
+                    Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
+                    String password = user.getPassword() == null ? "" : user.getPassword();
+                    userDetails = new ActiveUser(
+                            user.getId(),
+                            user.getEmail(),
+                            password,
+                            true,
+                            true,
+                            true,
+                            true,
+                           SecurityContextUtils.getDefaultAuthority(user.getId()), applicationType);
+                }
+                else {
+                    logger.error("User not found with email {}", username);
+                }
             }
-            else {
-                logger.error("User not found with email {}", username);
+            catch (Exception e) {
+                logger.error("error while fetching user ",e);
             }
         }
         // if no user found with given username(email)

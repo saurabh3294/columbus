@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.annotations.Intercepted;
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.TypeaheadService;
@@ -37,6 +38,7 @@ public class TypeaheadController extends BaseController {
     private String cityCookieLabel = "HOME_CITY";
     private String cityCookieSeparater = "%2C";
     
+    @Intercepted.TypeaheadListing
     @RequestMapping(value = "app/v1/typeahead")
     @ResponseBody
     public APIResponse getTypeaheads(@RequestParam String query,
@@ -54,6 +56,7 @@ public class TypeaheadController extends BaseController {
         return new APIResponse(super.filterFields(list, null), list.size());
     }
 
+    @Intercepted.TypeaheadListing
     @RequestMapping(value = "app/v2/typeahead")
     @ResponseBody
     public APIResponse getTypeaheadsV2(@RequestParam String query,
@@ -69,6 +72,7 @@ public class TypeaheadController extends BaseController {
         return new APIResponse(super.filterFields(list, null), list.size());
     }
 
+    @Intercepted.TypeaheadListing
     @RequestMapping(value = "app/v3/typeahead")
     @ResponseBody
     public APIResponse getTypeaheadsV3(HttpServletRequest request, @RequestParam String query,
@@ -110,6 +114,7 @@ public class TypeaheadController extends BaseController {
         return ((city == null || city.isEmpty()) ? defaultCityName : city);
     }
 
+    @Intercepted.TypeaheadListing
     @RequestMapping("app/v1/typeahead/exact")
     @ResponseBody
     public APIResponse getExactTypeaheads(@RequestParam String query,

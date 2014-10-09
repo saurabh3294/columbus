@@ -51,10 +51,10 @@ public class LandMarkDaoImpl {
     public Map<String, Integer> getAmenitiesTypeCount(Selector selector) {
         SolrQuery solrQuery = createSolrQuery(selector);
         solrQuery.add("facet", "true");
-        solrQuery.add("facet.field", "LANDMARK_TYPE_DESCRIPTION");
+        solrQuery.add("facet.field", "LANDMARK_DISPLAY_TYPE");
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         Map<String, Map<String, Integer>> facetMap = SolrResponseReader.getFacetResults(queryResponse.getResponse());
-        return facetMap.get("LANDMARK_TYPE_DESCRIPTION");
+        return facetMap.get("LANDMARK_DISPLAY_TYPE");
     }
     
     /*
