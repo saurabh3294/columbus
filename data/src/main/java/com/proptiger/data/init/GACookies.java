@@ -18,7 +18,9 @@ public class GACookies {
         String campaignMedium = null;
         String campaignTerm = null;
         String randomid = null;
-
+        String gaPpcActive = "1";
+        String gaPpcInactive = "0";
+        
         if (cookieMap.containsKey("__utma") && cookieMap.containsKey("__utmz")) {
 
             // Parse __utmz cookie
@@ -64,6 +66,9 @@ public class GACookies {
             // TODO logging
             // logMsg(TRACE, "in lead.php network is: " .$ga_network);
         }
+        else {
+            enquiry.setGaNetwork("");
+        }
 
         enquiry.setGaSource(campaignSource);
         enquiry.setGaMedium(campaignMedium);
@@ -92,11 +97,11 @@ public class GACookies {
                 || enquiry.getGaMedium().toLowerCase().trim().equals("banner") || !enquiry.getGaSource().toLowerCase()
                 .trim().equals("banner_ad"))) {
             enquiry.setPpc(true);
-            enquiry.setGaPpc(1);
+            enquiry.setGaPpc(gaPpcActive);
         }
         else {
             enquiry.setPpc(false);
-            enquiry.setGaPpc(0);
+            enquiry.setGaPpc(gaPpcInactive);
         }
 
         if (campaignSource == null) {

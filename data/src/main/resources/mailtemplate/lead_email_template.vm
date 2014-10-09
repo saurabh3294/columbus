@@ -1,3 +1,4 @@
+#parse("./mailtemplate/VM_global_library.vm")
 
 #if ($leadgeneration.leadMailFlag == 'leadAcceptance')
     
@@ -6,15 +7,15 @@
       <td>
          <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
             <tr>
-               <td width="120"><img src="{$IMG_SERVER}images/proptiger_logo.jpg?v=2" width="120" height="144" /></td>
-               <td width="456"><img src="{$IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
                <td width="24">
                   <table width="120" border="0" cellspacing="0" cellpadding="0">
                      <tr>
-                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">{date("jS M, Y")}</td>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
                      </tr>
                      <tr>
-                        <td><img src="{$IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
                      </tr>
                   </table>
                </td>
@@ -75,7 +76,7 @@
                   <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
                   <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
                   <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
-                  <div style="padding-left:40px"><a href="http://www.proptiger.com/property-portfolio-tracker.php?utm_source=internal&utm_medium=email&utm_campaign=my-portfolio&utm_content=leads"><img src="{$IMG_SERVER}images/portfolio_tracker_banner.png"/><a></div><br /><br />
+                  <div style="padding-left:40px"><a href="http://www.proptiger.com/property-portfolio-tracker.php?utm_source=internal&utm_medium=email&utm_campaign=my-portfolio&utm_content=leads"><img src="${IMG_SERVER}images/portfolio_tracker_banner.png"/><a></div><br /><br />
                   <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
                   notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
                </td>
@@ -99,15 +100,15 @@
       <td>
          <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
             <tr>
-               <td width="120"><img src="{$IMG_SERVER}images/proptiger_logo.jpg?v=2" width="120" height="144" /></td>
-               <td width="456"><img src="{$IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
                <td width="24">
                   <table width="120" border="0" cellspacing="0" cellpadding="0">
                      <tr>
-                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">{date("jS M, Y")}</td>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
                      </tr>
                      <tr>
-                        <td><img src="{$IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
                      </tr>
                   </table>
                </td>
@@ -173,7 +174,7 @@
                   <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
                   <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
                   <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
-                  <div style="padding-left:40px"><a href="http://www.proptiger.com/property-portfolio-tracker.php?utm_source=internal&utm_medium=email&utm_campaign=my-portfolio&utm_content=leads"><img src="{$IMG_SERVER}images/portfolio_tracker_banner.png"/><a></div><br /><br />
+                  <div style="padding-left:40px"><a href="http://www.proptiger.com/property-portfolio-tracker.php?utm_source=internal&utm_medium=email&utm_campaign=my-portfolio&utm_content=leads"><img src="${IMG_SERVER}images/portfolio_tracker_banner.png"/><a></div><br /><br />
                   <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
                   notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
                </td>
@@ -197,15 +198,15 @@
       <td>
          <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
             <tr>
-               <td width="120"><img src="{$IMG_SERVER}images/proptiger_logo.jpg?v=2" width="120" height="144" /></td>
-               <td width="456"><img src="{$IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
                <td width="24">
                   <table width="120" border="0" cellspacing="0" cellpadding="0">
                      <tr>
-                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">{date("jS M, Y")}</td>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
                      </tr>
                      <tr>
-                        <td><img src="{$IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
                      </tr>
                   </table>
                </td>
@@ -286,15 +287,15 @@
       <td>
          <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
             <tr>
-               <td width="120"><img src="{$IMG_SERVER}images/proptiger_logo.jpg?v=2" width="120" height="144" /></td>
-               <td width="456"><img src="{$IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
                <td width="24">
                   <table width="120" border="0" cellspacing="0" cellpadding="0">
                      <tr>
-                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">{date("jS M, Y")}</td>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
                      </tr>
                      <tr>
-                        <td><img src="{$IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
                      </tr>
                   </table>
                </td>
@@ -375,15 +376,15 @@
       <td>
          <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
             <tr>
-               <td width="120"><img src="{$IMG_SERVER}images/proptiger_logo.jpg?v=2" width="120" height="144" /></td>
-               <td width="456"><img src="{$IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
                <td width="24">
                   <table width="120" border="0" cellspacing="0" cellpadding="0">
                      <tr>
-                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">{date("jS M, Y")}</td>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
                      </tr>
                      <tr>
-                        <td><img src="{$IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
                      </tr>
                   </table>
                </td>
@@ -452,7 +453,7 @@
                   <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
                   <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
                   <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
-                  <div style="padding-left:40px"><a href="http://www.proptiger.com/property-portfolio-tracker.php?utm_source=internal&utm_medium=email&utm_campaign=my-portfolio&utm_content=leads"><img src="{$IMG_SERVER}images/portfolio_tracker_banner.png"/><a></div><br /><br />
+                  <div style="padding-left:40px"><a href="http://www.proptiger.com/property-portfolio-tracker.php?utm_source=internal&utm_medium=email&utm_campaign=my-portfolio&utm_content=leads"><img src="${IMG_SERVER}images/portfolio_tracker_banner.png"/><a></div><br /><br />
                   <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
                   notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
                </td>
@@ -476,15 +477,15 @@
       <td>
          <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
             <tr>
-               <td width="120"><img src="{$IMG_SERVER}images/proptiger_logo.jpg?v=2" width="120" height="144" /></td>
-               <td width="456"><img src="{$IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
                <td width="24">
                   <table width="120" border="0" cellspacing="0" cellpadding="0">
                      <tr>
-                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">{date("jS M, Y")}</td>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
                      </tr>
                      <tr>
-                        <td><img src="{$IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
                      </tr>
                   </table>
                </td>
@@ -535,15 +536,15 @@
       <td>
          <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
             <tr>
-               <td width="120"><img src="{$IMG_SERVER}images/proptiger_logo.jpg?v=2" width="120" height="144" /></td>
-               <td width="456"><img src="{$IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
                <td width="24">
                   <table width="120" border="0" cellspacing="0" cellpadding="0">
                      <tr>
-                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">{date("jS M, Y")}</td>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
                      </tr>
                      <tr>
-                        <td><img src="{$IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
                      </tr>
                   </table>
                </td>
@@ -589,15 +590,15 @@
       <td>
          <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
             <tr>
-               <td width="120"><img src="{$IMG_SERVER}images/proptiger_logo.jpg?v=2" width="120" height="144" /></td>
-               <td width="456"><img src="{$IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
                <td width="24">
                   <table width="120" border="0" cellspacing="0" cellpadding="0">
                      <tr>
-                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">{date("jS M, Y")}</td>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
                      </tr>
                      <tr>
-                        <td><img src="{$IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
                      </tr>
                   </table>
                </td>

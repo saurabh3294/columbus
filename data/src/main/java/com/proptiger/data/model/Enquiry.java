@@ -8,11 +8,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -43,7 +46,9 @@ public class Enquiry extends BaseModel {
     private static final long serialVersionUID = 8405769379921577431L;
     @Column(name = "ID")
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long              id;
+    
     @Column(name = "NAME")
     private String            name;
 
@@ -101,10 +106,8 @@ public class Enquiry extends BaseModel {
     private String            ip;
 
     @Transient
-    private Boolean           resaleAndLaunchFlag;                             // true
-                                                                                // to
-                                                                                // 1
-
+    private String           resaleAndLaunchFlag;                             
+    
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_DATE")
     private Date              createdDate;
@@ -167,7 +170,7 @@ public class Enquiry extends BaseModel {
     private String            gaTimespent;
 
     @Column(name = "GA_PPC")
-    private int               gaPpc;
+    private String               gaPpc;
 
     @Column(name = "PROCESSING_STATUS")
     @Enumerated(EnumType.STRING)
@@ -205,8 +208,8 @@ public class Enquiry extends BaseModel {
     private Boolean           buyPeriodFlag;
 
     @Column(name = "BUY_PERIOD")
-    @Enumerated(EnumType.ORDINAL)
-    private BuyPeriod         buyPeriod;
+    @Enumerated(EnumType.STRING)
+    private BuyPeriod         buyPeriod = BuyPeriod.EMPTY;
 
     @Transient
     private String            json;
@@ -376,11 +379,11 @@ public class Enquiry extends BaseModel {
         this.ip = ip;
     }
 
-    public Boolean getResaleAndLaunchFlag() {
+    public String getResaleAndLaunchFlag() {
         return resaleAndLaunchFlag;
     }
 
-    public void setResaleAndLaunchFlag(Boolean resaleAndLaunchFlag) {
+    public void setResaleAndLaunchFlag(String resaleAndLaunchFlag) {
         this.resaleAndLaunchFlag = resaleAndLaunchFlag;
     }
 
@@ -560,11 +563,11 @@ public class Enquiry extends BaseModel {
         this.gaTimespent = gaTimespent;
     }
 
-    public int getGaPpc() {
+    public String getGaPpc() {
         return gaPpc;
     }
 
-    public void setGaPpc(int gaPpc) {
+    public void setGaPpc(String gaPpc) {
         this.gaPpc = gaPpc;
     }
 
@@ -768,18 +771,23 @@ public class Enquiry extends BaseModel {
     public BeanstalkEnquiry createBeanstalkEnquiryObj() {
 
         BeanstalkEnquiry beanstalkEnquiry = new BeanstalkEnquiry();
-
+        
         beanstalkEnquiry.setId(this.getId());
+        beanstalkEnquiry.setEnquiryId(this.getId());
         beanstalkEnquiry.setName(this.getName());
         beanstalkEnquiry.setApplicationType(this.getApplicationType());
         beanstalkEnquiry.setCountry(this.getCountry());
         beanstalkEnquiry.setDeadReason("None");
         beanstalkEnquiry.setDescription(this.getQuery());
-        beanstalkEnquiry.setEnquiryTime(this.getCreatedDate());
+        
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        beanstalkEnquiry.setEnquiryTime(format.format(this.getCreatedDate()));
         beanstalkEnquiry.setEmail(this.getEmail());
 
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-        String updatedDate = format.format(DateUtil.addMinutes(DateUtil.addHours(this.getCreatedDate(), 12), 24));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        String updatedDate = dateFormat.format(DateUtil.addMinutes(DateUtil.addHours(this.getCreatedDate(), 12), 24));
         beanstalkEnquiry.setFollowUpDate(updatedDate);
 
         beanstalkEnquiry.setLeadOwner("leadowner");
@@ -789,20 +797,20 @@ public class Enquiry extends BaseModel {
         beanstalkEnquiry.setPhone(this.getPhone());
         beanstalkEnquiry.setProjectId(this.getProjectId());
         
-//        if (this.getProjectId() != 0 && this.getProject() != null && this.getProject().getBuilder() != null && this.getProject().getBuilder().getName() != null) {
-//            beanstalkEnquiry.setProjectName(this.getProject().getBuilder().getName().concat(" ")
-//                    .concat(this.getProjectName().replace(this.getProject().getBuilder().getName(), "")));
-//        }
-//        else {
+        if (this.getProjectId() != 0 && this.getProject() != null && this.getProject().getBuilder() != null && this.getProject().getBuilder().getName() != null) {
+            beanstalkEnquiry.setProjectName(this.getProject().getBuilder().getName().concat(" ")
+                    .concat(this.getProjectName().replace(this.getProject().getBuilder().getName(), "")));
+        }
+        else {
             beanstalkEnquiry.setProjectName(this.getProjectName());
-//        }
+        }
         
         beanstalkEnquiry.setCityName(this.getCityName());
         beanstalkEnquiry.setLocality(this.getLocalityName());
         beanstalkEnquiry.setQuery(this.getQuery());
         beanstalkEnquiry.setReferrer("");
         beanstalkEnquiry.setReferrerLeadId("");
-        beanstalkEnquiry.setSource(this.getSource());
+        beanstalkEnquiry.setSource(this.getGaSource());
         beanstalkEnquiry.setStatus("New");
         beanstalkEnquiry.setSubbrokerDetails("");
         beanstalkEnquiry.setUserMedium(this.getGaMedium());

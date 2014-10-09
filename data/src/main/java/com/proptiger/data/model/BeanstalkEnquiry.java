@@ -19,7 +19,7 @@ public class BeanstalkEnquiry {
     @JsonProperty("lead_type")
     private String leadType;
     
-    
+    @JsonProperty("lead_tag")
     private String leadTag;
     
     @JsonProperty("lead_owner")
@@ -45,6 +45,9 @@ public class BeanstalkEnquiry {
  
     // Enquiry Class fields
     private long id;
+    
+    @JsonProperty("enquiry_id")
+    private long enquiryId;
     
     private String name;
     
@@ -73,12 +76,19 @@ public class BeanstalkEnquiry {
     private String userNetwork;
     
     @JsonProperty("enq_time")
-    private Date enquiryTime;
+    private String enquiryTime;
     
     @JsonProperty("application_type")
     private String applicationType;
 
-    
+    public long getEnquiryId() {
+        return enquiryId;
+    }
+
+    public void setEnquiryId(long enquiryId) {
+        this.enquiryId = enquiryId;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -279,11 +289,11 @@ public class BeanstalkEnquiry {
         this.userNetwork = userNetwork;
     }
 
-    public Date getEnquiryTime() {
+    public String getEnquiryTime() {
         return enquiryTime;
     }
 
-    public void setEnquiryTime(Date enquiryTime) {
+    public void setEnquiryTime(String enquiryTime) {
         this.enquiryTime = enquiryTime;
     }
 
