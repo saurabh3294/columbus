@@ -208,8 +208,7 @@ public class Enquiry extends BaseModel {
     private Boolean           buyPeriodFlag;
 
     @Column(name = "BUY_PERIOD")
-    @Enumerated(EnumType.STRING)
-    private BuyPeriod         buyPeriod = BuyPeriod.EMPTY;
+    private String            buyPeriod;
 
     @Transient
     private String            json;
@@ -699,11 +698,11 @@ public class Enquiry extends BaseModel {
         this.buyPeriodFlag = buyPeriodFlag;
     }
 
-    public BuyPeriod getBuyPeriod() {
+    public String getBuyPeriod() {
         return buyPeriod;
     }
 
-    public void setBuyPeriod(BuyPeriod buyPeriod) {
+    public void setBuyPeriod(String buyPeriod) {
         this.buyPeriod = buyPeriod;
     }
 
