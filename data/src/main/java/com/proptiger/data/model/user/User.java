@@ -16,6 +16,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
@@ -38,6 +39,7 @@ public class User extends BaseModel {
     @Column(name = "full_name")
     private String                       fullName;
 
+    @JsonIgnore
     private String                       password;
 
     @Column(name = "country_id")
