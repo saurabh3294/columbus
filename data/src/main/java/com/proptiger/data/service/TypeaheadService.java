@@ -59,6 +59,11 @@ public class TypeaheadService {
 
     public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String city) {
 
+        /* If any filters were passed in URL, return only normal results */
+        if(!filterQueries.isEmpty()){
+            return (typeaheadDao.getTypeaheadsV2(query, rows, filterQueries));
+        }
+
         /* Get NLP based results */
         List<Typeahead> nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, city, rows);
 
