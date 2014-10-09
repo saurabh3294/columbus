@@ -36,7 +36,7 @@ public class CityController extends BaseController {
      * @param selectorStr
      * @return
      */
-    @Intercepted(value=Intercepted.Name.CityListing)
+    @Intercepted.CityListing
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public APIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr) {
