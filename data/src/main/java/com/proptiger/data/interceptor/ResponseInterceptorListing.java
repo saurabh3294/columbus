@@ -7,9 +7,11 @@ import java.util.Map;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +29,8 @@ import com.proptiger.data.service.user.UserSubscriptionService;
  * map-lookup-and-set-auth-flag-code
  */
 
-//@Aspect
-//@Order(1)
+@Aspect
+@Order(1)
 @Component
 public class ResponseInterceptorListing {
 
