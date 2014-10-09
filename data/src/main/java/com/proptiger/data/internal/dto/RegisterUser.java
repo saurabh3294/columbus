@@ -14,6 +14,17 @@ public class RegisterUser extends User {
 
     private String            confirmPassword;
 
+    //overriding this field as it's marked as JsonIgnore in User class
+    private String password;
+    
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getConfirmPassword() {
         return confirmPassword;
     }
