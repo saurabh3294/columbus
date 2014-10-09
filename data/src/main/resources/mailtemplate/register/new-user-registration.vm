@@ -33,6 +33,11 @@
                   PropTiger, you can search India’s most preferred New Homes, compare them and purchase 
                   them in a hassle-free and convenient manner. <br /><br />
                   For your reference, your user name to sign in on PropTiger.com is the email id ${newregistration.email} that you used while registering. Please click <a style="color:#1155cc; text-decoration:none;" href="${WEBSITE}?flag=email_track" target="_blank">here</a> to visit your account on PropTiger.com.<br /><br />
+                  <strong>We encourage you to validate your email address by clicking 
+                  <a style="color:#1155cc; text-decoration:none;" href="${newregistration.emailValidationLink}" target="_blank">here</a>
+                  </strong>
+                  <br/>
+                  <br/>
                   <strong>Once you log in to your account, you will be able to:</strong><br />
                   &#8226;  Participate in forums and write reviews,<br />
                   &#8226;  Add your favourite properties to your wishlist,<br />

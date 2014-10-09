@@ -1,6 +1,12 @@
 package com.proptiger.data.mvc;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +24,7 @@ import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
+import com.proptiger.data.service.user.UserService.UserCommunicationType;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -30,6 +37,9 @@ import com.proptiger.data.util.Constants;
 @Controller
 @DisableCaching
 public class UserController extends BaseController {
+
+    @Value("${proptiger.url}")
+    private String                           proptigerUrl;
 
     @Autowired
     private UserService userService;
@@ -65,7 +75,9 @@ public class UserController extends BaseController {
     @RequestMapping(method = RequestMethod.GET, value = "/app/v1/user/details")
     @ResponseBody
     public APIResponse getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        return new APIResponse(userService.getUserDetails(activeUser.getUserIdentifier(),activeUser.getApplicationType()));
+        return new APIResponse(userService.getUserDetails(
+                activeUser.getUserIdentifier(),
+                activeUser.getApplicationType()));
     }
     
     @RequestMapping(value = "data/v1/entity/user/who-am-i", method = RequestMethod.GET)
@@ -95,11 +107,27 @@ public class UserController extends BaseController {
         String message = userService.resetPassword(email);
         return new APIResponse(message);
     }
-    
-    @RequestMapping(value = "/app/v1/user/details-by-email", method = RequestMethod.GET)
+
+    /**
+     * Accesible by users having role UserRole.ADMIN_BACKEND
+     * 
+     * @param email
+     * @return
+     */
+    @RequestMapping(value = "app/v1/user/details-by-email", method = RequestMethod.GET)
     @ResponseBody
     public APIResponse getUserDetailsByEmailId(@RequestParam String email){
         CustomUser customUser = userService.getUserDetailsByEmail(email);
         return new APIResponse(customUser);
+    }
+
+    @RequestMapping(value = Constants.Security.USER_VALIDATE_API, method = RequestMethod.GET)
+    @ResponseBody
+    public void validateUserCommunicationDetails(
+            @RequestParam UserCommunicationType type,
+            @RequestParam String token,
+            HttpServletRequest request, HttpServletResponse response) throws IOException{
+        userService.validateUserCommunicationDetails(type, token);
+        response.sendRedirect(proptigerUrl+"?flag=email_valid");
     }
 }

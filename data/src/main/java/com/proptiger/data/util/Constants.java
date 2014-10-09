@@ -168,6 +168,7 @@ public class Constants {
      * 
      */
     public static final class Security {
+        public static final String USER_VALIDATE_API = "app/v1/validate";
         public static final String COOKIE_NAME_JSESSIONID       = "JSESSIONID";
 
         public static final String LOGOUT_URL                   = "/app/v1/logout";

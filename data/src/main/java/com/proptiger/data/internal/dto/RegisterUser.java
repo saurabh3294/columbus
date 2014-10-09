@@ -30,7 +30,7 @@ public class RegisterUser extends User {
         user.setEmails(this.getEmails());
         user.setFullName(this.getFullName());
         user.setPassword(this.getPassword());
-        user.setRegistered(this.isRegistered());
+        user.setRegistered(true);
         user.setContactNumbers(this.getContactNumbers());
         return user;
     }

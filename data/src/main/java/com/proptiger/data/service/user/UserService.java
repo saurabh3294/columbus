@@ -78,6 +78,7 @@ import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PasswordUtils;
 import com.proptiger.data.util.PropertyKeys;
@@ -96,6 +97,12 @@ import com.proptiger.exception.UnauthorizedException;
  */
 @Service
 public class UserService {
+    private static final String TYPE = "type";
+
+    public enum UserCommunicationType{email, contact};
+    
+    private static final Object TOKEN = "token";
+
     private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
@@ -508,13 +515,28 @@ public class UserService {
          * send mail only if user registers
          */
         if (user.isRegistered()) {
-            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, user);
+            ForumUserToken userToken = createForumUserToken(user.getId());
+            MailBody mailBody = htmlGenerator
+                    .generateMailBody(
+                            MailTemplateDetail.NEW_USER_REGISTRATION,
+                            new UserRegisterMailTemplate(
+                                    user.getFullName(),
+                                    user.getEmail(),
+                                    getEmailValidationLink(userToken)));
             MailDetails details = new MailDetails(mailBody).setMailTo(user.getEmail()).setFrom(
                     propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
             mailSender.sendMailUsingAws(details);
             SecurityContextUtils.autoLogin(user);
         }
         return getUserDetails(user.getId(), Application.DEFAULT);
+    }
+
+    private String getEmailValidationLink(ForumUserToken userToken) {
+        StringBuilder emailValidationLink = new StringBuilder(proptigerUrl)
+                .append(Constants.Security.USER_VALIDATE_API).append("?").append(TOKEN).append("=")
+                .append(userToken.getToken()).append("&").append(TYPE).append("=")
+                .append(UserCommunicationType.email.name());
+        return emailValidationLink.toString();
     }
 
     /**
@@ -529,22 +551,27 @@ public class UserService {
         if (user == null || !user.isRegistered()) {
             return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
         }
-        // token valid for 1 month
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, 1);
-        String token = PasswordUtils.generateTokenBase64Encoded();
-        token = PasswordUtils.encode(token);
-        String encodedEmail = PasswordUtils.base64Encode(email);
-        ForumUserToken forumUserToken = new ForumUserToken();
-        forumUserToken.setToken(token);
-        forumUserToken.setExpirationDate(calendar.getTime());
-        forumUserTokenDao.save(forumUserToken);
-        String retrivePasswordLink = proptigerUrl + "/forgotpass.php?token=" + token + "&id=" + encodedEmail;
+        ForumUserToken forumUserToken = createForumUserToken(user.getId());
+        String retrivePasswordLink = proptigerUrl + "/forgotpass.php?token=" + forumUserToken.getToken();
         ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(user.getFullName(), retrivePasswordLink);
         MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
         MailDetails details = new MailDetails(mailBody).setMailTo(email);
         mailSender.sendMailUsingAws(details);
         return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
+    }
+
+    private ForumUserToken createForumUserToken(Integer userId) {
+        // token valid for 1 month
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, 1);
+        String token = PasswordUtils.generateTokenBase64Encoded();
+        token = PasswordUtils.encode(token);
+        ForumUserToken forumUserToken = new ForumUserToken();
+        forumUserToken.setUserId(userId);
+        forumUserToken.setToken(token);
+        forumUserToken.setExpirationDate(calendar.getTime());
+        forumUserToken = forumUserTokenDao.save(forumUserToken);
+        return forumUserToken;
     }
 
     /**
@@ -790,5 +817,58 @@ public class UserService {
     public void enrichUserDetails(User user) {
         user.setContactNumbers(new HashSet<UserContactNumber>(contactNumberDao.findByUserIdOrderByPriorityAsc(user.getId())));
         user.setAttributes(userAttributeDao.findByUserId(user.getId()));
+    }
+
+    /**
+     * Mark user communication type as verified for valid token and email
+     * @param type
+     * @param token
+     */
+    public void validateUserCommunicationDetails(UserCommunicationType type, String token) {
+        ForumUserToken userToken = forumUserTokenDao.findByToken(token);
+        Calendar cal = Calendar.getInstance();
+        if(userToken == null){
+            throw new BadRequestException("Invalid token");
+        }
+        if(userToken.getExpirationDate().before(cal.getTime())){
+            throw new BadRequestException("Token expired");
+        }
+        User user = userDao.findById(userToken.getUserId());
+        switch (type) {
+            case email:
+                user.setVerified(true);
+                break;
+            case contact:
+                // do nothing
+                break;
+            default:
+                // do nothing
+                break;
+        }
+        //set verified as true
+        userDao.save(user);
+        //delete the token
+        forumUserTokenDao.delete(userToken);
+    }
+    
+    public static class UserRegisterMailTemplate{
+        private String fullName;
+        private String email;
+        private String emailValidationLink;
+        public UserRegisterMailTemplate(String userName, String email, String validationLink){
+            this.fullName = userName;
+            this.email = email;
+            this.emailValidationLink = validationLink;
+        }
+        public String getFullName() {
+            return fullName;
+        }
+        public String getEmail() {
+            return email;
+        }
+        public String getEmailValidationLink() {
+            return emailValidationLink;
+        }
+        
     }
 }

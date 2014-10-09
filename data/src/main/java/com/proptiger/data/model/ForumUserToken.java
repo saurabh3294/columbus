@@ -23,6 +23,9 @@ public class ForumUserToken  extends BaseModel{
     @Column(name = "token_id")
     private int tokenId;
     
+    @Column(name = "user_id")
+    private int userId;
+    
     @Column(name = "token")
     private String token;
     
@@ -51,6 +54,14 @@ public class ForumUserToken  extends BaseModel{
 
     public void setExpirationDate(Date expirationDate) {
         this.expirationDate = expirationDate;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
     
 }
