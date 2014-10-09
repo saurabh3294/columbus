@@ -1,4 +1,4 @@
-package com.proptiger.data.util;
+package com.proptiger.data.interceptor;
 
 import java.util.List;
 
@@ -15,6 +15,7 @@ import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.user.UserSubscriptionService;
+import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.exception.UnauthorizedException;
 
 /**
@@ -23,13 +24,15 @@ import com.proptiger.exception.UnauthorizedException;
  */
 @Aspect
 @Component
-public class FilterAuthTrendRequest {
+public class RequestInterceptorTrend {
 
     @Autowired
     private UserSubscriptionService    userSubscriptionService;
 
-    @Pointcut(
-            value = "execution(* com.proptiger.data.mvc.trend.TrendController.get*Trend(..)) || execution(* com.proptiger.data.mvc.trend.BuilderTrendController.get*(..))")
+    // @Pointcut(value =
+    // "execution(* com.proptiger.data.mvc.trend.TrendController.get*Trend(..)) || execution(* com.proptiger.data.mvc.trend.BuilderTrendController.get*(..))")
+    
+    @Pointcut("@annotation(com.proptiger.data.annotations.Intercepted.Trend)")
     public void addSubscriptionPermissionsToSelectorPointCut() {
     }
 
