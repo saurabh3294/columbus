@@ -55,7 +55,7 @@ public class CouponNotificationService {
         payloadMap.put(Tokens.CouponIssued.CouponPrice.name(), couponCatalogue.getCouponPrice());
         payloadMap.put(Tokens.CouponIssued.Date.name(), couponCatalogue.getPurchaseExpiryAt());
         payloadMap.put(Tokens.CouponIssued.Discount.name(), couponCatalogue.getDiscount());
-        //payloadMap.put(Tokens.CouponIssued.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
+        payloadMap.put(Tokens.CouponIssued.DiscountPrice.name(), getDiscountPrice(property, couponCatalogue));
         payloadMap.put(Tokens.CouponIssued.ProjectName.name(), property.getProject().getName());
         payloadMap.put(Tokens.CouponIssued.UnitName.name(), property.getUnitName());
         payloadMap.put(Tokens.CouponIssued.Size.name(), property.getSize());
@@ -85,23 +85,24 @@ public class CouponNotificationService {
 
     }
     
-    public void notifyUserOnRefund(Transaction transaction, CouponCatalogue couponCatalogue){
+    @Async
+    public void notifyUserOnRefund(Transaction transaction, CouponCatalogue couponCatalogue) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
 
         User user = userService.getUserById(transaction.getUserId());
 
         payloadMap.put(Tokens.CouponRefunded.CouponCode.name(), transaction.getCode());
         payloadMap.put(Tokens.CouponRefunded.CouponPrice.name(), transaction.getAmount());
-        payloadMap.put(Tokens.CouponRefunded.TransactionId.name(), transaction.getId());
+        payloadMap.put(Tokens.CouponRefunded.TransactionId.name(), "" + transaction.getId());
         payloadMap.put(Tokens.CouponIssued.UserName.name(), user.getFullName());
-        
+
         List<String> ccList = new ArrayList<String>();
         List<String> bccList = new ArrayList<String>();
-        
-        if(couponCatalogue != null){
+
+        if (couponCatalogue != null) {
             bccList.add(couponCatalogue.getBuilderEmail());
         }
-        
+
         // Sending it to user.
         NotificationMessage nMessage = nMessageService.createNotificationMessage(
                 NotificationTypeEnum.CouponRefunded.getName(),
@@ -110,7 +111,7 @@ public class CouponNotificationService {
                 fromEmail,
                 ccList,
                 bccList);
-        
+
         List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
         nMessages.add(nMessage);
         List<MediumType> mediumTypes = new ArrayList<MediumType>();
@@ -118,8 +119,9 @@ public class CouponNotificationService {
 
         notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
     }
-    
-    public void notifyUserForCancelCoupon(Transaction transaction, CouponCatalogue couponCatalogue){
+
+    @Async
+    public void notifyUserForCancelCoupon(Transaction transaction, CouponCatalogue couponCatalogue) {
         Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
 
         Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
@@ -131,9 +133,11 @@ public class CouponNotificationService {
         notificationPayloadMap.put(Tokens.CouponCancelled.UserName.name(), user.getFullName());
         notificationPayloadMap.put(Tokens.CouponCancelled.Size.name(), property.getSize());
         notificationPayloadMap.put(Tokens.CouponCancelled.Discount.name(), couponCatalogue.getDiscount());
-        notificationPayloadMap.put(Tokens.CouponCancelled.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
+        notificationPayloadMap.put(
+                Tokens.CouponCancelled.DiscountPrice.name(),
+                getDiscountPrice(property, couponCatalogue));
         notificationPayloadMap.put(Tokens.CouponCancelled.CouponPrice.name(), couponCatalogue.getCouponPrice());
-        
+
         List<String> ccList = new ArrayList<String>();
         List<String> bccList = new ArrayList<String>();
         bccList.add(couponCatalogue.getBuilderEmail());
@@ -145,16 +149,16 @@ public class CouponNotificationService {
                 fromEmail,
                 ccList,
                 bccList);
-        
+
         List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
         nMessages.add(nMessage);
         List<MediumType> mediumTypes = new ArrayList<MediumType>();
         mediumTypes.add(MediumType.Sms);
         mediumTypes.add(MediumType.Email);
-        
+
         notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
     }
-    
+
     /**
      * Notify user by email/sms when user coupon has been redeemed.
      * 
@@ -173,15 +177,16 @@ public class CouponNotificationService {
         notificationPayloadMap.put(Tokens.CouponRedeemed.UnitName.name(), property.getUnitName());
         notificationPayloadMap.put(Tokens.CouponRedeemed.Size.name(), property.getSize());
         notificationPayloadMap.put(Tokens.CouponRedeemed.CouponPrice.name(), couponCatalogue.getCouponPrice());
-        notificationPayloadMap.put(Tokens.CouponRedeemed.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
+        notificationPayloadMap.put(
+                Tokens.CouponRedeemed.DiscountPrice.name(),
+                getDiscountPrice(property, couponCatalogue));
         notificationPayloadMap.put(Tokens.CouponRedeemed.UserName.name(), user.getFullName());
         notificationPayloadMap.put(Tokens.CouponRedeemed.CouponCode.name(), transaction.getCode());
-
 
         List<String> ccList = new ArrayList<String>();
         List<String> bccList = new ArrayList<String>();
         bccList.add(couponCatalogue.getBuilderEmail());
-        
+
         NotificationMessage nMessage = nMessageService.createNotificationMessage(
                 NotificationTypeEnum.CouponRedeemed.getName(),
                 transaction.getUserId(),
@@ -189,14 +194,24 @@ public class CouponNotificationService {
                 fromEmail,
                 ccList,
                 bccList);
-        
+
         List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
         nMessages.add(nMessage);
         List<MediumType> mediumTypes = new ArrayList<MediumType>();
         mediumTypes.add(MediumType.Sms);
         mediumTypes.add(MediumType.Email);
-        
+
         notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
-        
+
+    }
+
+    private String getDiscountPrice(Property property, CouponCatalogue couponCatalogue) {
+        if (property.getBudget() == null) {
+            return "";
+        }
+
+        Double discountPrice = property.getBudget() - couponCatalogue.getDiscount();
+
+        return new Long(discountPrice.longValue()).toString();
     }
 }

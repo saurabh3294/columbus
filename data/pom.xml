@@ -70,7 +70,7 @@
     <dependencies>
         <dependency>
             <groupId>com.citruspay</groupId>
-            <artifactId>merchant-kit</artifactId>
+            <artifactId>sandbox-merchant-kit</artifactId>
             <version>1.4</version>
         </dependency>
         <dependency>
@@ -419,17 +419,17 @@
     </dependencies>
     <repositories>
         <repository>
+            <id>project.local</id>
+            <name>project</name>
+            <url>file:${project.basedir}/repo</url>
+        </repository>
+        <repository>
             <id>cedarsoft-thirdparty</id>
             <url>http://maven.cedarsoft.com/content/repositories/thirdparty/</url>
         </repository>
         <repository>
             <id>spring-maven-snapshot</id>
             <url>http://repo.springsource.org/libs-snapshot</url>
-        </repository>
-        <repository>
-            <id>project.local</id>
-            <name>project</name>
-            <url>file:${project.basedir}/repo</url>
         </repository>
     </repositories>
 </project>

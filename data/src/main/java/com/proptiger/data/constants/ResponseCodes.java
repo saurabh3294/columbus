@@ -19,7 +19,8 @@ public interface ResponseCodes {
 
     public static String COUPONS_SOLD_OUT            = "499";
     public static String MAX_COUPON_BUY_LIMIT        = "498";
-    
+    public static String GATEWAY_ERROR               = "497";
+
     public static String REQUEST_PARAM_INVALID       = BAD_REQUEST;
     public static String AUTHENTICATION_ERROR        = BAD_REQUEST;
 
