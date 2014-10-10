@@ -2,6 +2,7 @@ package com.proptiger.data.repo.marketplace;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -79,4 +80,12 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query(
             value = "SELECT DISTINCT LO FROM LeadOffer LO JOIN FETCH LO.lead L JOIN FETCH L.requirements LR WHERE LO.id = ?1")
     LeadOffer getLeadOfferWithRequirements(int leadOfferId);
+
+    @Modifying
+    @Transactional
+    @Query("update LeadOffer LO set LO.expireFlag = 1 where LO.leadId in (?1)")
+    void updateLeadOffers(List<Integer> leadIdList);
+
+    @Query("select LO.cycleId from LeadOffer LO where LO.leadId = ?1")
+    Long getMaxCycleId(int id);
 }

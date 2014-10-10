@@ -27,6 +27,7 @@ import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
+import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.model.marketplace.Notification;
@@ -469,7 +470,11 @@ public class NotificationService {
 
     public Notification sendLeadOfferNotification(int offerId) {
         LeadOffer offer = leadOfferDao.getLeadOfferWithRequirements(offerId);
-        Notification notification = createNotification(
+         for(LeadRequirement leadRequirement:offer.getLead().getRequirements())
+         {
+             leadRequirement.setLead(null);
+         }
+         Notification notification = createNotification(
                 offer.getAgentId(),
                 NotificationType.LeadOffered.getId(),
                 offer.getId(),

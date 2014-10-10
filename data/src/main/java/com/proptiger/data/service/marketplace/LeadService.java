@@ -1,7 +1,5 @@
 package com.proptiger.data.service.marketplace;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.Company;
@@ -101,6 +98,88 @@ public class LeadService {
         }
     }
 
+    public void manageLeadAuctionWithCycle(int leadId) {
+        Lead lead = leadDao.getLock(leadId);
+            
+            List<Company> brokerCompanies = getBrokersForLeadWithCycleExcludingAlreadyOffered(lead);
+            
+            boolean isAssigned = false;
+            if (brokerCompanies.isEmpty()) {
+                // XXX No broker found alert in future
+            }
+            else {
+                int countBrokers = 0;
+                
+                Long cycleId = leadOfferService.getMaxCycleId(lead.getId());
+                int cycleIdInt;
+                
+                if(cycleId == null)
+                {
+                    cycleId = (long) 1;
+                }
+                
+                if (cycleId > 0) {
+                    cycleIdInt =  cycleId.intValue();
+                }
+                else {
+                    cycleIdInt = 1;
+                }
+                
+                for (Company company : brokerCompanies) {
+                    
+                    LeadOffer offer = leadOfferService.offerLeadToBroker(lead, company, cycleIdInt + 1);
+                    
+                    if (offer != null) {
+                        isAssigned = true;
+                        notificationService.sendLeadOfferNotification(offer.getId());
+                    }
+                    countBrokers++;
+                    if (countBrokers >= PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class)) {
+                        break;
+                    }
+                    
+                }
+            }
+            if (!isAssigned) {
+                throw new ProAPIException("Error in Assigning lead id: " + leadId);
+            }
+    }
+
+    private List<Company> getBrokersForLeadWithCycleExcludingAlreadyOffered(Lead lead) {
+        List<Company> brokers = new ArrayList<>();        
+        List<Integer> localityIds = getLocalitiesForLead(lead.getId());
+        
+        if (localityIds.size() == 0) {
+            throw new ProAPIException("No locality found in lead");
+        }
+        else {
+            brokers = companyService.getBrokersForLocalities(localityIds);
+        }
+        
+
+        List<Integer> agentIds = new ArrayList<Integer>();
+
+        List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
+        if(!leadOffers.isEmpty())
+        {
+            lead.setLeadOffers(leadOffers);
+            for (LeadOffer leadOffer : lead.getLeadOffers()) {
+                agentIds.add(leadOffer.getAgentId());
+            }
+        }
+        if(!agentIds.isEmpty())
+        {
+            List<Company> brokersToExclude = companyService.getCompanyFromUserId(agentIds);
+            for (Company broker : brokersToExclude) {
+                if (brokers.contains(broker)) {
+                    brokers.remove(broker);
+                }
+            }
+        }
+        
+        return brokers;
+    }
+
     @Async
     public void manageLeadAuctionAsync(int leadId) {
         manageLeadAuction(leadId);
@@ -125,6 +204,19 @@ public class LeadService {
         return brokers;
     }
 
+    private List<Company> getBrokersForLeadWithCycle(int leadId) {
+        List<Company> brokers = new ArrayList<>();
+        Lead lead = leadDao.findOne(leadId);
+        List<Integer> localityIds = getLocalitiesForLead(lead.getId());
+        if (localityIds.size() == 0) {
+            throw new ProAPIException("No locality found in lead");
+        }
+        else {
+            brokers = companyService.getBrokersForLocalities(localityIds);
+        }
+        return brokers;
+    }
+
     /**
      * gets all localities for a particular lead
      * 
@@ -134,8 +226,10 @@ public class LeadService {
     @Transactional
     private List<Integer> getLocalitiesForLead(int leadId) {
         List<Integer> localityIds = new ArrayList<>();
-        Lead lead = leadDao.findOne(leadId);
+        Lead lead = leadDao.findRequirementsByLeadId(leadId);
+        
         for (LeadRequirement requirement : lead.getRequirements()) {
+            requirement.setLead(null);
             if (requirement.getLocalityId() != null) {
                 localityIds.add(requirement.getLocalityId());
             }

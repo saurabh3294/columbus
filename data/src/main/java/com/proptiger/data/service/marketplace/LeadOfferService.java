@@ -425,17 +425,17 @@ public class LeadOfferService {
         List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
         LeadOffer leadOffer = null;
         if (!agents.isEmpty()) {
-            leadOffer = createLeadOffer(lead, agents.get(0));
+            leadOffer = createLeadOffer(lead, agents.get(0), cycleId);
         }
         return leadOffer;
     }
 
-    public LeadOffer createLeadOffer(Lead lead, CompanyUser agent) {
+    public LeadOffer createLeadOffer(Lead lead, CompanyUser agent, int cycleId) {
         LeadOffer offer = new LeadOffer();
         offer.setLeadId(lead.getId());
         offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getId());
-        offer.setCycleId(1);
+        offer.setCycleId(cycleId);
         offer = leadOfferDao.save(offer);
         return offer;
     }
@@ -887,5 +887,9 @@ public class LeadOfferService {
             }
         }
         return leadOffers;
+    }
+
+    public Long getMaxCycleId(int id) {
+        return leadOfferDao.getMaxCycleId(id);
     }
 }

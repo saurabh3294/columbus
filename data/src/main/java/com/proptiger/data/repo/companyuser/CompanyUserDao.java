@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.enums.ActivationStatus;
+import com.proptiger.data.model.Company;
 import com.proptiger.data.model.companyuser.CompanyUser;
 
 /**
@@ -20,4 +21,7 @@ public interface CompanyUserDao extends JpaRepository<CompanyUser, Integer> {
     public CompanyUser findLocalitiesByUserId(int agentId);
 
     public CompanyUser findByUserId(Integer companyUserId);
+
+    @Query("select C from CompanyUser CU join CU.company C where CU.userId in (?1)")
+    public List<Company> findByAgentId(List<Integer> agentIds);
 }

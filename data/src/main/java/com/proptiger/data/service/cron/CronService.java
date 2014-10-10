@@ -1,7 +1,10 @@
 package com.proptiger.data.service.cron;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +52,6 @@ public class CronService {
 
     private static Logger       logger = LoggerFactory.getLogger(CronService.class);
 
-    @Scheduled(initialDelay = 10000, fixedDelay = 1800000)
     public void manageLeadAssignment() {
         Date createdSince = new Date(
                 new Date().getTime() - PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_CRON_BUFFER)
@@ -65,6 +67,50 @@ public class CronService {
         }
     }
 
+    
+    @Scheduled(initialDelay = 10000, fixedDelay = 1800000)
+    public void manageLeadAssignmentWithCycle() {
+        Date createdSince = new Date(
+                new Date().getTime() - PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_CRON_BUFFER)
+                        * 1000);
+        List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
+        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired();     
+        Set<Integer> leadIds = new HashSet<Integer>();
+        
+        
+        for(Lead lead:leads)
+        {
+            leadIds.add(lead.getId());    
+        }
+        
+        for(Lead lead:leadsWithLeadOfferExpired)
+        {
+            leadIds.add(lead.getId());
+        }
+        
+        List<Integer> leadIdList = new ArrayList<Integer>();
+        for(Integer leadId:leadIds)
+        {
+            leadIdList.add(leadId);
+        }
+        
+        if(!leadIds.isEmpty())
+        {
+            leadOfferDao.updateLeadOffers(leadIdList);
+        }
+        
+        for (Integer leadId : leadIdList) {
+            try {
+                leadService.manageLeadAuctionWithCycle(leadId);
+            }
+            catch (Exception e) {
+                logger.error("Error in lead assignment: " + e);
+            }
+        }
+    }
+    
+    
+    
     @Scheduled(
             initialDelayString = "${marketplace.notification.initial.delay}",
             fixedDelayString = "${marketplace.notification.fixed.delay}")

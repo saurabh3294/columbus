@@ -142,6 +142,10 @@ public class LeadOffer extends BaseModel {
     @Transient
     private User                     agent;
 
+    @Column(name = "expire_flag")
+    private boolean expireFlag;
+    
+    
     public User getAgent() {
         return agent;
     }
