@@ -20,7 +20,8 @@ public class Serializer {
         gsonBuilder = new GsonBuilder().excludeFieldsWithModifiers(Modifier.STATIC)
                 .excludeFieldsWithModifiers(Modifier.TRANSIENT)
                 .addSerializationExclusionStrategy(jsonExclusionStrategy)
-                .addDeserializationExclusionStrategy(jsonExclusionStrategy);
+                .addDeserializationExclusionStrategy(jsonExclusionStrategy)
+                .serializeNulls();
 
         gson = gsonBuilder.create();
     }
