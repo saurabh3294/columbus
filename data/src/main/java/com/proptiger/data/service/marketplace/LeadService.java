@@ -100,84 +100,108 @@ public class LeadService {
 
     public void manageLeadAuctionWithCycle(int leadId) {
         Lead lead = leadDao.getLock(leadId);
-            
-            List<Company> brokerCompanies = getBrokersForLeadWithCycleExcludingAlreadyOffered(lead);
-            
-            boolean isAssigned = false;
-            if (brokerCompanies.isEmpty()) {
-                // XXX No broker found alert in future
+
+        List<Company> brokerCompanies = getBrokersForLeadWithCycleExcludingAlreadyOffered(lead);
+
+        boolean isAssigned = false;
+        if (brokerCompanies.isEmpty()) {
+            // XXX No broker found alert in future
+        }
+        else {
+            int countBrokers = 0;
+
+            Long cycleId = leadOfferService.getMaxCycleId(lead.getId());
+            int cycleIdInt;
+
+            if (cycleId == null) {
+                cycleId = (long) 0;
+            }
+
+            if (cycleId > 0) {
+                cycleIdInt = (int) cycleId.intValue();
             }
             else {
-                int countBrokers = 0;
-                
-                Long cycleId = leadOfferService.getMaxCycleId(lead.getId());
-                int cycleIdInt;
-                
-                if(cycleId == null)
-                {
-                    cycleId = (long) 1;
-                }
-                
-                if (cycleId > 0) {
-                    cycleIdInt =  cycleId.intValue();
-                }
-                else {
-                    cycleIdInt = 1;
-                }
-                
-                for (Company company : brokerCompanies) {
-                    
-                    LeadOffer offer = leadOfferService.offerLeadToBroker(lead, company, cycleIdInt + 1);
-                    
-                    if (offer != null) {
-                        isAssigned = true;
-                        notificationService.sendLeadOfferNotification(offer.getId());
-                    }
-                    countBrokers++;
-                    if (countBrokers >= PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class)) {
-                        break;
-                    }
-                    
-                }
+                cycleIdInt = 0;
             }
-            if (!isAssigned) {
-                throw new ProAPIException("Error in Assigning lead id: " + leadId);
+
+            for (Company company : brokerCompanies) {
+
+                System.out.println("anubhav");
+                
+                LeadOffer offer = leadOfferService.offerLeadToBroker(lead, company, cycleIdInt + 1);
+
+                if (offer != null) {
+                    isAssigned = true;
+                    notificationService.sendLeadOfferNotification(offer.getId());
+                }
+                countBrokers++;
+                 
+                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
+                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
+                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
+                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
+                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
+                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
+                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
+                
+                if (countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class)) 
+                 {
+                     break; 
+                 }
             }
+        }
+        if (!isAssigned) {
+            throw new ProAPIException("Error in Assigning lead id: " + leadId);
+        }
     }
 
     private List<Company> getBrokersForLeadWithCycleExcludingAlreadyOffered(Lead lead) {
-        List<Company> brokers = new ArrayList<>();        
+        List<Company> brokers;
         List<Integer> localityIds = getLocalitiesForLead(lead.getId());
-        
+
         if (localityIds.size() == 0) {
             throw new ProAPIException("No locality found in lead");
         }
         else {
             brokers = companyService.getBrokersForLocalities(localityIds);
         }
-        
 
         List<Integer> agentIds = new ArrayList<Integer>();
 
         List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
-        if(!leadOffers.isEmpty())
-        {
+        if (!leadOffers.isEmpty()) {
             lead.setLeadOffers(leadOffers);
             for (LeadOffer leadOffer : lead.getLeadOffers()) {
                 agentIds.add(leadOffer.getAgentId());
             }
         }
-        if(!agentIds.isEmpty())
-        {
+
+        List<Company> brokerToConsider = new ArrayList<Company>();
+
+        if (!agentIds.isEmpty()) {
             List<Company> brokersToExclude = companyService.getCompanyFromUserId(agentIds);
+            List<Integer> brokerIds = new ArrayList<Integer>();
+
             for (Company broker : brokersToExclude) {
-                if (brokers.contains(broker)) {
-                    brokers.remove(broker);
+                brokerIds.add(broker.getId());
+            }
+
+            for (Company broker : brokers) {
+                if (!brokerIds.contains(broker.getId())) {
+                    brokerToConsider.add(broker);
                 }
             }
         }
+        else {
+            brokerToConsider = brokers;
+        }
         
-        return brokers;
+        for(Company broker:brokerToConsider)
+        {
+            System.out.println(broker.getName());
+        }
+        
+        return brokerToConsider;
     }
 
     @Async
@@ -227,7 +251,7 @@ public class LeadService {
     private List<Integer> getLocalitiesForLead(int leadId) {
         List<Integer> localityIds = new ArrayList<>();
         Lead lead = leadDao.findRequirementsByLeadId(leadId);
-        
+
         for (LeadRequirement requirement : lead.getRequirements()) {
             requirement.setLead(null);
             if (requirement.getLocalityId() != null) {

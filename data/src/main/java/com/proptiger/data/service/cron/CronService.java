@@ -91,6 +91,7 @@ public class CronService {
         List<Integer> leadIdList = new ArrayList<Integer>();
         for(Integer leadId:leadIds)
         {
+            System.out.println(leadId);
             leadIdList.add(leadId);
         }
         
