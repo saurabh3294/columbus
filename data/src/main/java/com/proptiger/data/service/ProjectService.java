@@ -231,9 +231,6 @@ public class ProjectService {
 
         Project project = solrProjects.get(0);
 
-        project.setMinResaleOrPrimaryPrice(UtilityClass.min(project.getMinPrice(), project.getMinResalePrice()));
-        project.setMaxResaleOrPrimaryPrice(UtilityClass.max(project.getMaxPrice(), project.getMaxResalePrice()));
-
         Set<String> fields = selector.getFields();
 
         /*
@@ -766,6 +763,10 @@ public class ProjectService {
 
             property.setProject(null);
         }
+        
+
+        project.setMinResaleOrPrimaryPrice(UtilityClass.min(project.getMinPrice(), project.getMinResalePrice()));
+        project.setMaxResaleOrPrimaryPrice(UtilityClass.max(project.getMaxPrice(), project.getMaxResalePrice()));
 
         return properties;
     }

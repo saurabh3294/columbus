@@ -69,68 +69,68 @@ import com.proptiger.exception.ProAPIException;
  */
 @Service
 public class CitrusPayPGService {
-    private static final String          CURRENCY_INR                             = "INR";
+    private static final String           CURRENCY_INR                             = "INR";
 
-    private static final String          ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE = "200";
+    private static final String           ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE = "200";
 
-    private static final String          FORWARD_SLASH                            = "/";
+    private static final String           FORWARD_SLASH                            = "/";
 
-    private static final String          SUCCESS_RESPONSE_CODE                    = "0";
+    private static final String           SUCCESS_RESPONSE_CODE                    = "0";
 
     @Value("${paymentgateway.citruspay.merchant.bankname}")
-    private String                       CITRUS_PAY_PG_MERCHANT_BANKNAME;
+    private String                        CITRUS_PAY_PG_MERCHANT_BANKNAME;
 
     @Value("${paymentgateway.citruspay.merchant.url}")
-    private String                       CITRUS_PAY_PG_MERCHANT_URL;
+    private String                        CITRUS_PAY_PG_MERCHANT_URL;
 
     @Value("${paymentgateway.merchant.secret.key}")
-    private String                       CITRUS_PAY_PG_MERCHANT_SECRET_KEY;
+    private String                        CITRUS_PAY_PG_MERCHANT_SECRET_KEY;
 
     @Value("${paymentgateway.merchant.return.url}")
-    private String                       CITRUS_PAY_PG_MERCHANT_RETURN_URL;
+    private String                        CITRUS_PAY_PG_MERCHANT_RETURN_URL;
 
     @Value("${paymentgateway.merchant.notify.url}")
-    private String                       CITRUS_PAY_PG_MERCHANT_NOTIFY_URL;
+    private String                        CITRUS_PAY_PG_MERCHANT_NOTIFY_URL;
 
     @Value("${paymentgateway.merchant.access.key}")
-    private String                       CITRUS_PAY_PG_MERCHANT_ACCESS_KEY;
+    private String                        CITRUS_PAY_PG_MERCHANT_ACCESS_KEY;
 
     @Autowired
-    private NotificationGeneratedService notificationGeneratedService;
+    private NotificationGeneratedService  notificationGeneratedService;
 
     @Autowired
-    private NotificationMessageService   notificationMessageService;
+    private NotificationMessageService    notificationMessageService;
 
     @Autowired
-    private NotificationGeneratedService nGeneratedService;
+    private NotificationGeneratedService  nGeneratedService;
 
-    private static Logger                logger                                   = LoggerFactory
-                                                                                          .getLogger(CitrusPayPGService.class);
-
-    @Autowired
-    private TransactionService           transactionService;
+    private static Logger                 logger                                   = LoggerFactory
+                                                                                           .getLogger(CitrusPayPGService.class);
 
     @Autowired
-    private CouponCatalogueService       couponCatalogueService;
+    private TransactionService            transactionService;
 
     @Autowired
-    private PaymentService               paymentService;
+    private CouponCatalogueService        couponCatalogueService;
 
     @Autowired
-    private CitrusPayPGResponseDao       citrusPayPGResponseDao;
+    private PaymentService                paymentService;
 
     @Autowired
-    private NotificationMessageService   nMessageService;
+    private CitrusPayPGResponseDao        citrusPayPGResponseDao;
 
     @Autowired
-    private UserService                  userService;
+    private NotificationMessageService    nMessageService;
 
     @Autowired
-    private ApplicationContext           applicationContext;
-    
+    private UserService                   userService;
+
     @Autowired
-    private CouponNotificationService couponNotificationService;
-    
+    private ApplicationContext            applicationContext;
+
+    @Autowired
+    private CouponNotificationService     couponNotificationService;
+
     @Autowired
     private CitrusPayPGTransactionService citrusPayPGTransactionService;
 
@@ -240,7 +240,7 @@ public class CitrusPayPGService {
         return true;
     }
 
-    private String createCouponCode(Transaction transaction) {
+    public String createCouponCode(Transaction transaction) {
         return "PT" + transaction.getId()
                 + RandomStringUtils.randomAlphabetic(7 - (int) Math.log10(transaction.getId())).toUpperCase();
     }
@@ -355,22 +355,27 @@ public class CitrusPayPGService {
         return enquiryResult;
     }
 
-    @Transactional
     public void updateDetails(Transaction transaction) {
         TransactionStatus transactionStatus = null;
         PaymentStatus paymentStatus = null;
         Enquiry lastEnquiry = null;
 
         EnquiryCollection enquiryCollection = fetchEnquiryCollection(transaction.getId());
-        if (enquiryCollection != null && ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE.equals(enquiryCollection
+        if (enquiryCollection != null && enquiryCollection.getEnquiry()!= null && ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE.equals(enquiryCollection
                 .getRespCode())) {
+            Enquiry lastEnquiryFound = null;
+            boolean wasPaymentDone = false;
             for (Enquiry enquiry : enquiryCollection.getEnquiry()) {
-                if (SUCCESS_RESPONSE_CODE.equals(enquiry.getRespCode())) {
+                lastEnquiryFound = enquiry;
+                if (enquiry.getRespCode().equals(EnquiryResponseCode.SuccessPayment.getResponseCode())) {
                     if (CitrusPayPGEnquiryTransactionType.SALE.name().equalsIgnoreCase(enquiry.getTxnType())) {
                         paymentStatus = PaymentStatus.Success;
                         transactionStatus = TransactionStatus.Complete;
                         lastEnquiry = enquiry;
+                        wasPaymentDone = true;
                     }
+                }
+                else if (enquiry.getRespCode().equals(EnquiryResponseCode.RefundSuccess.getResponseCode())) {
 
                     if (CitrusPayPGEnquiryTransactionType.REFUND.name().equalsIgnoreCase(enquiry.getTxnType())) {
                         paymentStatus = PaymentStatus.Refunded;
@@ -383,13 +388,17 @@ public class CitrusPayPGService {
 
             if (lastEnquiry != null) {
                 if (lastEnquiry.getCurrency().equalsIgnoreCase(CURRENCY_INR)) {
-                    if (transactionStatus == TransactionStatus.Complete && transaction.getStatusId() == TransactionStatus.Incomplete
-                            .getId()) {
-                        handleSuccessPayment(transaction, transactionStatus, paymentStatus, lastEnquiry);
+                    if (transactionStatus == TransactionStatus.Complete) {
+                        if (transaction.getStatusId() == TransactionStatus.Incomplete.getId()) {
+                            handleSuccessPayment(transaction, transactionStatus, paymentStatus, lastEnquiry);
+                        }
+                        else if (transaction.getStatusId() == TransactionStatus.RefundInitiated.getId()) {
+                            handleRefundInitiatedTransaction(transaction);
+                        }
                     }
                     // TODO only for completed state inventory should be reduced
-                    else if (transactionStatus == TransactionStatus.Refunded && transaction.getStatusId() == TransactionStatus.Complete
-                            .getId()) {
+                    else if (transactionStatus == TransactionStatus.Refunded && (transaction.getStatusId() == TransactionStatus.Complete
+                            .getId() || transaction.getStatusId() == TransactionStatus.RefundInitiated.getId())) {
                         handleRefundPayment(transaction, paymentStatus, lastEnquiry);
                     }
                 }
@@ -397,11 +406,54 @@ public class CitrusPayPGService {
                     logger.error("Currency mismatch - Found: " + lastEnquiry.getCurrency() + ", Expected: INR");
                 }
             }
+            // Transaction was not successful. It was neither refunded or sale.
+            else {
+                // If there never was any successful payment done then it
+                // qualify for incomplete payment failure.
+                // Only for transactions that are marked as incomplete.
+                handleTransactionFailure(transaction, wasPaymentDone, lastEnquiryFound);
+            }
+
         }
+    }
+
+    @Transactional
+    /**
+     * If there never was any successful payment done then it qualify for incomplete payment failure. Only for transactions that are marked as incomplete.
+     * @param transaction
+     * @param wasPaymentDone
+     * @param lastEnquiryFound
+     */
+    private void handleTransactionFailure(Transaction transaction, boolean wasPaymentDone, Enquiry lastEnquiryFound) {
+        if (lastEnquiryFound != null && lastEnquiryFound.getRespCode().equalsIgnoreCase(
+                EnquiryResponseCode.FailPayment.getResponseCode())
+                && !wasPaymentDone
+                && transaction.getStatusId() == TransactionStatus.Incomplete.getId()) {
+            
+            transactionService.updateTransactionStatusByOldStatus(
+                    transaction.getId(),
+                    TransactionStatus.TransactionCancelled,
+                    TransactionStatus.Incomplete);
+            couponNotificationService.notifyUserOnPaymentFailure(transaction);
+        }
+    }
+
+    /**
+     * If refund was not successful then the refund initiated transaction should
+     * be change to complete state.
+     * 
+     * @param transaction
+     */
+    private void handleRefundInitiatedTransaction(Transaction transaction) {
+        transactionService.updateTransactionStatusByOldStatus(
+                transaction.getId(),
+                TransactionStatus.Complete,
+                TransactionStatus.RefundInitiated);
     }
 
     private void handleRefundPayment(Transaction transaction, PaymentStatus paymentStatus, Enquiry lastEnquiry) {
         if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
+            int transactionOldStatusId = transaction.getStatusId();
             Payment payment = createPaymentFromEnquiry(transaction, lastEnquiry);
             payment.setStatusId(paymentStatus.getId());
             transaction.setStatusId(TransactionStatus.Refunded.getId());
@@ -410,8 +462,16 @@ public class CitrusPayPGService {
             /**
              * check if coupon has been granted only then refund it.
              */
-            // couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(),
-            // 1);
+            if (transaction.getCode() != null && (transactionOldStatusId == TransactionStatus.Complete.getId() || transactionOldStatusId == TransactionStatus.RefundInitiated
+                    .getId())) {
+
+                couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), 1);
+            }
+
+            couponNotificationService.notifyUserOnRefund(
+                    transaction,
+                    couponCatalogueService.getCouponCatalogue(transaction.getProductId()));
+
         }
         else {
             logger.error("Amount mismatch - Found: " + lastEnquiry.getAmount()
@@ -444,9 +504,11 @@ public class CitrusPayPGService {
             // Coupon Inventory did not get updated.
             if (couponCatalogue == null) {
                 handleRefundByTransactionId(transaction, false);
-                /*transactionStatus = TransactionStatus.Refunded;
-                paymentStatus = PaymentStatus.Refunded;
-                initiateRefund(transaction, lastEnquiry);*/
+                /*
+                 * transactionStatus = TransactionStatus.Refunded; paymentStatus
+                 * = PaymentStatus.Refunded; initiateRefund(transaction,
+                 * lastEnquiry);
+                 */
             }
             else {
                 transaction.setCode(createCouponCode(transaction));
@@ -508,7 +570,7 @@ public class CitrusPayPGService {
 
             // TODO send notification
         }
-        
+
         return true;
     }
 
@@ -526,7 +588,7 @@ public class CitrusPayPGService {
         payment.setTypeId(PaymentType.Online.getId());
         return payment;
     }
-    
+
     public boolean handleRefundByTransactionId(Transaction transaction, boolean incrementCouponInventory) {
         Object[] transactionStatusData = checkTransactionStatus(transaction);
         Enquiry lastEnquiry = (Enquiry) transactionStatusData[0];
@@ -539,13 +601,13 @@ public class CitrusPayPGService {
         }
 
         boolean refundStatus = initiateRefund(transaction, lastEnquiry);
-        
+
         // If refund Status failed then return false;
         // handle failure status.
-        if(!refundStatus){
+        if (!refundStatus) {
             return false;
         }
-        
+
         transactionStatusData = checkTransactionStatus(transaction);
         lastEnquiry = (Enquiry) transactionStatusData[0];
         transactionStatus = (TransactionStatus) transactionStatusData[1];
@@ -555,19 +617,19 @@ public class CitrusPayPGService {
             // TODO handle this case.
             return false;
         }
-        
+
         citrusPayPGTransactionService.saveRefundTransaction(transaction, lastEnquiry, incrementCouponInventory);
-        
+
         return true;
     }
-   
+
     private Object[] checkTransactionStatus(Transaction transaction) {
 
         EnquiryCollection enquiryCollection = fetchEnquiryCollection(transaction.getId());
 
         if (enquiryCollection == null || enquiryCollection.getEnquiry() == null
                 || enquiryCollection.getEnquiry().isEmpty()) {
-            throw new BadRequestException(" Transaction Id "+transaction.getId()+ " does not exists.");
+            throw new BadRequestException(" Transaction Id " + transaction.getId() + " does not exists.");
         }
         Enquiry lastEnquiry = null;
         TransactionStatus transactionStatus = null;
@@ -576,17 +638,17 @@ public class CitrusPayPGService {
         if (enquiryCollection != null && ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE.equals(enquiryCollection
                 .getRespCode())) {
             for (Enquiry enquiry : enquiryCollection.getEnquiry()) {
-                if ( enquiry.getRespCode().equals(EnquiryResponseCode.SuccessPayment.getResponseCode()) ) {
+                if (enquiry.getRespCode().equals(EnquiryResponseCode.SuccessPayment.getResponseCode())) {
 
                     if (CitrusPayPGEnquiryTransactionType.SALE.name().equalsIgnoreCase(enquiry.getTxnType())) {
                         paymentStatus = PaymentStatus.Success;
                         transactionStatus = TransactionStatus.Complete;
                         lastEnquiry = enquiry;
                     }
-                    
+
                 }
-                else if ( enquiry.getRespCode().equals(EnquiryResponseCode.RefundSuccess.getResponseCode()) ) {
-                    
+                else if (enquiry.getRespCode().equals(EnquiryResponseCode.RefundSuccess.getResponseCode())) {
+
                     if (CitrusPayPGEnquiryTransactionType.REFUND.name().equalsIgnoreCase(enquiry.getTxnType())) {
                         paymentStatus = PaymentStatus.Refunded;
                         transactionStatus = TransactionStatus.Refunded;
@@ -594,10 +656,10 @@ public class CitrusPayPGService {
                         // already refunded.
                         break;
                     }
-                    
+
                 }
-                
-                else if ( enquiry.getRespCode().equals(EnquiryResponseCode.RefundInitiated.getResponseCode()) ){
+
+                else if (enquiry.getRespCode().equals(EnquiryResponseCode.RefundInitiated.getResponseCode())) {
                     transactionStatus = TransactionStatus.RefundInitiated;
                 }
             }
@@ -619,5 +681,5 @@ public class CitrusPayPGService {
             }
         }
     }
-    
+
 }

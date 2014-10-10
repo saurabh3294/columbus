@@ -14,19 +14,22 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name = "FORUM_USER_TOKEN")
+@Table(name = "user.forum_user_token")
 public class ForumUserToken  extends BaseModel{
     private static final long serialVersionUID = -4258083722571667503L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "TOKEN_ID")
+    @Column(name = "token_id")
     private int tokenId;
     
-    @Column(name = "TOKEN")
+    @Column(name = "user_id")
+    private int userId;
+    
+    @Column(name = "token")
     private String token;
     
-    @Column(name = "EXPIRATION_DATE")
+    @Column(name = "expiration_date")
     private Date expirationDate;
 
     public int getTokenId() {
@@ -51,6 +54,14 @@ public class ForumUserToken  extends BaseModel{
 
     public void setExpirationDate(Date expirationDate) {
         this.expirationDate = expirationDate;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
     
 }

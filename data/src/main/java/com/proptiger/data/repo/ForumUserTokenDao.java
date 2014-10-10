@@ -9,5 +9,7 @@ import com.proptiger.data.model.ForumUserToken;
  *
  */
 public interface ForumUserTokenDao extends JpaRepository<ForumUserToken, Integer>{
+    
+    public ForumUserToken findByToken(String token);
 
 }
