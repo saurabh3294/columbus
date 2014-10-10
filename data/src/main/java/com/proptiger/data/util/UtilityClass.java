@@ -87,6 +87,26 @@ public class UtilityClass {
     }
     
     /**
+     * @return {@link Integer} non zero compare of given 2 integers - null otherwise
+     * 
+     * @param a
+     *            {@link Integer}
+     * @param b
+     *            {@link Integer}
+     * 
+     * @author Mukand Agarwal
+     */
+    public static Integer compareTo(Integer a, Integer b) {
+        if (a == null) {
+            return 1;
+        }
+        else if (b != null && b != 0) {
+            return a.compareTo(b);
+        }
+        return -1;
+    }
+    
+    /**
      * @return {@link Integer} non zero min of given 2 integers - null otherwise
      * 
      * @param a
