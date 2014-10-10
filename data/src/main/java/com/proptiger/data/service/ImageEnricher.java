@@ -31,6 +31,7 @@ import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.MediaUtil;
+import com.proptiger.data.util.UtilityClass;
 
 @Service
 public class ImageEnricher {
@@ -479,7 +480,7 @@ public class ImageEnricher {
             Collections.sort(imgList, new Comparator<Image>() {
                 @Override
                 public int compare(Image o1, Image o2) {
-                    return o1.getPriority().compareTo(o2.getPriority());
+                    return UtilityClass.compareTo(o1.getPriority(), o2.getPriority());
                 }});
             orderImgByCatPriority.put(imgList.size(), imgList);
         }
