@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.annotations.Intercepted;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.mvc.BaseController;
@@ -37,6 +38,7 @@ public class AppLocalityController extends BaseController {
      * @param selector
      * @return
      */
+    @Intercepted.LocalityListing
     @RequestMapping(value = "app/v1/locality")
     @ResponseBody
     public APIResponse getLocalityListingData(@RequestParam(required = false) String selector) {
@@ -56,6 +58,7 @@ public class AppLocalityController extends BaseController {
      * @param selector
      * @return
      */
+    @Intercepted.LocalityListing
     @RequestMapping(value = "app/v2/locality")
     @ResponseBody
     public APIResponse getLocalityListingDataV2(@RequestParam(required = false) String selector) {

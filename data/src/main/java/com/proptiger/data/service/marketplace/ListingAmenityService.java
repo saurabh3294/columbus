@@ -101,4 +101,10 @@ public class ListingAmenityService {
         }
         return getListingAmenities(listingIds);
     }
+
+    public void removeAminities(List<Integer> alreadyPresentListingAminityIds) {
+        if (alreadyPresentListingAminityIds != null && !alreadyPresentListingAminityIds.isEmpty()) {
+            listingAmenitiesDao.removeByIds(alreadyPresentListingAminityIds);            
+        }
+    }
 }

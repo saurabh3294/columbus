@@ -1,11 +1,10 @@
 package com.proptiger.data.notification.sender;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.StringWriter;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,17 +16,15 @@ import com.proptiger.data.notification.service.NotificationTypeNotificationMediu
 @Service
 public class TemplateGenerator {
 
-    private static Logger                                    logger  = LoggerFactory.getLogger(TemplateGenerator.class);
-
-    private static final Pattern                             PATTERN = Pattern.compile("(<.+?>)");
+    private static Logger                                    logger = LoggerFactory.getLogger(TemplateGenerator.class);
 
     @Autowired
     private NotificationTypeNotificationMediumMappingService ntNmMappingService;
 
-    public String generatePopulatedTemplate(NotificationGenerated ntGenerated) {
-        String template = ntNmMappingService.getTemplate(ntGenerated);
+    public String generatePopulatedTemplate(NotificationGenerated nGenerated) {
+        String template = ntNmMappingService.getTemplate(nGenerated);
         logger.debug("Template: " + template);
-        Map<String, Object> payloadDataMap = ntGenerated.getNotificationMessagePayload().getExtraAttributes();
+        Map<String, Object> payloadDataMap = nGenerated.getNotificationMessagePayload().getExtraAttributes();
         logger.debug("PayloadDataMap: " + payloadDataMap.toString());
 
         if (template == null || template.isEmpty()) {
@@ -40,7 +37,8 @@ public class TemplateGenerator {
             return null;
         }
 
-        String populatedTemplate = replaceTokensWithValue(template, payloadDataMap);
+        String populatedTemplate = populateTemplate(template, payloadDataMap, nGenerated.getNotificationType()
+                .getName());
 
         if (populatedTemplate == null || populatedTemplate.isEmpty()) {
             logger.info("Template token values not found in the payloadData map");
@@ -56,36 +54,11 @@ public class TemplateGenerator {
         return populatedTemplate;
     }
 
-    private String replaceTokensWithValue(String template, Map<String, Object> payloadDataMap) {
-        List<String> tokens = getTokenList(template);
-        if (tokens == null || tokens.isEmpty()) {
-            return template;
-        }
-        for (String token : tokens) {
-            Object tokenValueObj = payloadDataMap.get(token.substring(1, token.length() - 1));
-            if (tokenValueObj == null) {
-                logger.error("Token value NOT present in payload Data Map for token - " + token);
-                // Returning the token value same as token
-                tokenValueObj = token;
-            }
-            String tokenValue = "";
-            if (!(tokenValueObj instanceof String)) {
-                tokenValue = tokenValueObj + "";
-            }
-            else {
-                tokenValue = (String) tokenValueObj;
-            }
-            template = template.replaceAll(token, tokenValue);
-        }
-        return template;
-    }
-
-    private List<String> getTokenList(String template) {
-        List<String> list = new ArrayList<String>();
-        Matcher match = PATTERN.matcher(template);
-        while (match.find()) {
-            list.add(match.group());
-        }
-        return list;
+    private String populateTemplate(String template, Map<?, ?> dataMap, String logTag) {
+        VelocityContext context = new VelocityContext(dataMap);
+        StringWriter writer = new StringWriter();
+        Velocity.init();
+        Velocity.evaluate(context, writer, logTag, template);
+        return writer.getBuffer().toString();
     }
 }
