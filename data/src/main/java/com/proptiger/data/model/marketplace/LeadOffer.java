@@ -146,6 +146,26 @@ public class LeadOffer extends BaseModel {
     private boolean expireFlag;
     
     
+    @Column(name = "expire_time")
+    private Date expireTime;
+    
+    
+    public boolean isExpireFlag() {
+        return expireFlag;
+    }
+
+    public void setExpireFlag(boolean expireFlag) {
+        this.expireFlag = expireFlag;
+    }
+
+    public Date getExpireTime() {
+        return expireTime;
+    }
+
+    public void setExpireTime(Date expireTime) {
+        this.expireTime = expireTime;
+    }
+
     public User getAgent() {
         return agent;
     }
