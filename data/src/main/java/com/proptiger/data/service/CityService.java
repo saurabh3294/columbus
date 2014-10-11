@@ -14,6 +14,7 @@ import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.Project;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
@@ -43,6 +44,9 @@ public class CityService {
 
     @Autowired
     private LandMarkService localityAmenityService;
+    
+    @Autowired
+    private ImageEnricher   imageEnricher;
 
     /**
      * Get list of city details
@@ -75,7 +79,25 @@ public class CityService {
                 cityId,
                 city.getDominantUnitType()));
         city.setImages(imageService.getImages(DomainObject.city, null, cityId));
+        updateAmenitiesAndAmenityTypeCount(city);
         return city;
+    }
+
+    private void updateAmenitiesAndAmenityTypeCount(City city) {
+        if (city == null) {
+            return;
+        }
+
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"cityId\":" + city.getId()
+                + "}}]}, \"paging\":{\"start\":0,\"rows\":0}}", Selector.class);
+        // Currently only Amenity Type count is required
+        /*
+         * List<LandMark> amenities =
+         * localityAmenityService.getAmenityListByGroupSelector(selector); if
+         * (amenities == null || amenities.isEmpty()) { return; }
+         * city.setCompleteAmenities(amenities);
+         */
+        city.setAmenityTypeCount(localityAmenityService.getAmenityTypeCount(selector));
     }
 
     public City getCity(Integer cityId) {
@@ -140,5 +162,14 @@ public class CityService {
                     new Paging(0, 10));
             city.setAmenities(amenities);
         }
+    }
+
+    public PaginatedResponse<List<Image>> getCityLandMarkImages(int cityId) {
+        City city = cityDao.getCity(cityId);
+        if (city == null) {
+            return new PaginatedResponse<List<Image>>();
+        }
+        List<LandMark> amenity = localityAmenityService.getLandMarksByCity(cityId, null, new Paging(0, 2000));
+        return imageEnricher.getCityAmenityImages(amenity);
     }
 }

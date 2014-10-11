@@ -1,4 +1,4 @@
-package com.proptiger.data.util;
+package com.proptiger.data.interceptor;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +32,7 @@ import com.proptiger.data.service.user.UserSubscriptionService;
 @Aspect
 @Order(1)
 @Component
-public class ResponseFilteringAuth {
+public class ResponseInterceptorListing {
 
     @Autowired
     private UserSubscriptionService   userSubscriptionService;
@@ -51,11 +51,16 @@ public class ResponseFilteringAuth {
     private final String  typeAheadIdSeparator = "-";
 
     @Autowired
-    private static Logger logger               = LoggerFactory.getLogger(ResponseFilteringAuth.class);
+    private static Logger logger               = LoggerFactory.getLogger(ResponseInterceptorListing.class);
 
+    // "@annotation(com.proptiger.data.annotations.Intercepted))"
+    
     @SuppressWarnings("unchecked")
+//    @AfterReturning(
+//            pointcut = "execution(java.lang.Object com.proptiger.app.mvc.ProjectListingController.getProjectListings(..))",
+//            returning = "retVal")
     @AfterReturning(
-            pointcut = "execution(java.lang.Object com.proptiger.app.mvc.ProjectListingController.getProjectListings(..))",
+            pointcut = "@annotation(com.proptiger.data.annotations.Intercepted.ProjectListing)",
             returning = "retVal")
     public void filterResponseProjectListings(Object retVal) throws Throwable {
 
@@ -79,8 +84,11 @@ public class ResponseFilteringAuth {
     }
 
     @SuppressWarnings("unchecked")
+//    @AfterReturning(
+//            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.app.mvc.AppLocalityController.getLocalityListingData(..))",
+//            returning = "retVal")
     @AfterReturning(
-            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.app.mvc.AppLocalityController.getLocalityListingData(..))",
+            pointcut = "@annotation(com.proptiger.data.annotations.Intercepted.LocalityListing)",
             returning = "retVal")
     public void filterResponseLocalityListings(Object retVal) throws Throwable {
         Object data = getApiResponseData(retVal);
@@ -103,8 +111,11 @@ public class ResponseFilteringAuth {
     }
 
     @SuppressWarnings("unchecked")
+//    @AfterReturning(
+//            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.data.mvc.CityController.getCities(..))",
+//            returning = "retVal")
     @AfterReturning(
-            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.data.mvc.CityController.getCities(..))",
+            pointcut = "@annotation(com.proptiger.data.annotations.Intercepted.CityListing))",
             returning = "retVal")
     public void filterResponseCityListings(Object retVal) throws Throwable {
         Object data = getApiResponseData(retVal);
@@ -123,8 +134,11 @@ public class ResponseFilteringAuth {
     }
 
     @SuppressWarnings("unchecked")
+//    @AfterReturning(
+//            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.data.mvc.TypeaheadController.*(..))",
+//            returning = "retVal")
     @AfterReturning(
-            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.data.mvc.TypeaheadController.*(..))",
+            pointcut = "@annotation(com.proptiger.data.annotations.Intercepted.TypeaheadListing))",
             returning = "retVal")
     public void filterTypeAhead(Object retVal) throws Throwable {
         Object data = getApiResponseData(retVal);

@@ -103,6 +103,8 @@ public class ListingAmenityService {
     }
 
     public void removeAminities(List<Integer> alreadyPresentListingAminityIds) {
-        listingAmenitiesDao.removeByIds(alreadyPresentListingAminityIds);
+        if (alreadyPresentListingAminityIds != null && !alreadyPresentListingAminityIds.isEmpty()) {
+            listingAmenitiesDao.removeByIds(alreadyPresentListingAminityIds);            
+        }
     }
 }

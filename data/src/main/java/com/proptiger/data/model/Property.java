@@ -24,6 +24,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.enums.DataType;
@@ -31,6 +32,7 @@ import com.proptiger.data.enums.EntityType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.util.DoubletoIntegerConverter;
 import com.proptiger.data.util.UtilityClass;
 
@@ -201,6 +203,14 @@ public class Property extends BaseModel {
     @Transient
     @Field("PROPERTY_COUPON_AVAILABLE")
     private Boolean              isCouponAvailable;
+    
+    @Transient
+    @Field("IS_PROPERTY_SOLD_OUT")
+    private boolean              isPropertySoldOut;
+    
+    @Transient
+    @Field("PANORAMA_VIEW_PATH")
+    private String              panoramaViewPath;
 
     public String getProjectName() {
         return projectName;
@@ -508,5 +518,27 @@ public class Property extends BaseModel {
 
     public void setCouponAvailable(Boolean isCouponAvailable) {
         this.isCouponAvailable = isCouponAvailable;
+    }
+
+    public boolean getIsPropertySoldOut() {
+        return isPropertySoldOut;
+    }
+
+    public void setIsPropertySoldOut(boolean isPropertySoldOut) {
+        this.isPropertySoldOut = isPropertySoldOut;
+    }
+    
+    @JsonProperty
+    public String getPanoramaViewPath() {
+        if (panoramaViewPath == null || panoramaViewPath.isEmpty()
+                || panoramaViewPath.contains(PropertyService.cdnImageUrl)) {
+            return panoramaViewPath;
+        }
+
+        return PropertyService.cdnImageUrl + panoramaViewPath;
+    }
+
+    public void setPanoramaViewPath(String panoramaViewPath) {
+        this.panoramaViewPath = panoramaViewPath;
     }
 }

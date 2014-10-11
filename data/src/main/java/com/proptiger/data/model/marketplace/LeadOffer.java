@@ -83,7 +83,7 @@ public class LeadOffer extends BaseModel {
     private int                      agentId;
 
     @Column(name = "status_id")
-    private Integer                  statusId;
+    private int                      statusId;
 
     @Column(name = "cycle_id")
     @JsonIgnore
@@ -218,11 +218,11 @@ public class LeadOffer extends BaseModel {
         this.agentId = agentId;
     }
 
-    public int getStatusId() {
+    public Integer getStatusId() {
         return statusId;
     }
 
-    public void setStatusId(int statusId) {
+    public void setStatusId(Integer statusId) {
         this.statusId = statusId;
     }
 

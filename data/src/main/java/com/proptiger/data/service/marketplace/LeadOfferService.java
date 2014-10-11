@@ -669,6 +669,7 @@ public class LeadOfferService {
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
                     .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
+                    .setMailCC(leadOfferInDB.getAgent().getEmail())
                     .setReplyTo(leadOfferInDB.getAgent().getEmail())
                     .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
             mailSender.sendMailUsingAws(mailDetails);

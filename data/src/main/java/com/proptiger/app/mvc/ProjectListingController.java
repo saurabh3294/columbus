@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.annotations.Intercepted;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
 import com.proptiger.data.mvc.BaseController;
@@ -42,6 +43,7 @@ public class ProjectListingController extends BaseController {
     @Autowired
     private ProjectService  projectService;
 
+    @Intercepted.ProjectListing
     @RequestMapping(value = "app/v1/project-listing")
     public @ResponseBody
     Object getProjectListings(
@@ -72,6 +74,7 @@ public class ProjectListingController extends BaseController {
         return new APIResponse(response, projects.getTotalCount());
     }
     
+    @Intercepted.ProjectListing
     @RequestMapping(value = "app/v2/project-listing")
     public @ResponseBody
     Object getProjectListingsV2(

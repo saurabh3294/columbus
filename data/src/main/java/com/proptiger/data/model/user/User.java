@@ -11,13 +11,13 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-import com.proptiger.data.internal.dto.Register;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 
@@ -39,13 +39,14 @@ public class User extends BaseModel {
     @Column(name = "full_name")
     private String                       fullName;
 
+    @JsonIgnore
     private String                       password;
 
     @Column(name = "country_id")
     private Integer                      countryId;
 
     @Column(name = "is_registered")
-    private boolean                      registered       = true;
+    private boolean                      registered;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<UserEmail>              emails;
@@ -57,17 +58,20 @@ public class User extends BaseModel {
     private Set<UserAuthProviderDetail> userAuthProviderDetails;
 
     @Column(name = "created_at")
-    private Date                         createdAt        = new Date();
+    private Date                         createdAt;
 
     @Column(name = "updated_at")
-    private Date                         updatedAt = new Date();
+    private Date                         updatedAt;
 
     @Column(name = "email")
     private String email;
+    
+    @Column(name = "verified")
+    private boolean verified;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<UserAttribute>         attributes;
-
+    
     public int getId() {
         return id;
     }
@@ -156,6 +160,14 @@ public class User extends BaseModel {
         this.updatedAt = updatedAt;
     }
 
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
     public boolean isContactPresent(String userContactNumber) {
         if (contactNumbers != null) {
             for (UserContactNumber contactNumber : contactNumbers) {
@@ -190,11 +202,11 @@ public class User extends BaseModel {
         this.updatedAt = new Date();
     }
 
-    public void copyFieldsFromRegisterToUser(Register register) {
-        this.setFullName(register.getUserName());
+    public void copyFieldsFromRegisterToUser(RegisterUser register) {
+        this.setFullName(register.getFullName());
         this.setPassword(register.getPassword());
         this.setCountryId(register.getCountryId());
-        this.setRegistered(register.getRegisterMe());
+        this.setRegistered(true);
         this.setEmail(register.getEmail());
     }
     

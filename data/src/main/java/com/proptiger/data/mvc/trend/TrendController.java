@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.annotations.Intercepted;
 import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
@@ -45,6 +46,7 @@ public class TrendController extends BaseController {
     @Autowired
     private CatchmentService catchmentService;
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/trend")
     @ResponseBody
     public APIResponse getTrend(
@@ -59,6 +61,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("app/v1/trend")
     @ResponseBody
     public APIResponse getAppTrend(
@@ -73,6 +76,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(response, getFilterFieldSet(selector)));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/trend-list")
     @ResponseBody
     public APIResponse getListTrend(
@@ -83,6 +87,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend.csv")
     @ResponseBody
     public String getCsvTrend(
@@ -94,6 +99,7 @@ public class TrendController extends BaseController {
                 selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend")
     @ResponseBody
     public APIResponse getCatchmentTrend(
@@ -110,6 +116,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/app/v1/entity/user/catchment/{catchmentId}/trend")
     @ResponseBody
     public APIResponse getAppCatchmentTrend(
@@ -126,6 +133,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(response, getFilterFieldSet(selector)));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend-list")
     @ResponseBody
     public APIResponse getListCatchmentTrend(
@@ -144,6 +152,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend.csv")
     @ResponseBody
     public String getCsvCatchmentTrend(
@@ -160,6 +169,7 @@ public class TrendController extends BaseController {
                 userInfo)), selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/trend/current")
     @ResponseBody
     public APIResponse getCurrentTrend(
@@ -175,6 +185,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("app/v1/trend/current")
     @ResponseBody
     public APIResponse getAppCurrentTrend(
@@ -189,6 +200,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(response, getFilterFieldSet(selector)));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/trend-list/current")
     @ResponseBody
     public APIResponse getListCurrentTrend(
@@ -199,6 +211,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/current.csv")
     @ResponseBody
     public String getCsvCurrentTrend(
@@ -210,6 +223,7 @@ public class TrendController extends BaseController {
                 selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/current")
     @ResponseBody
     public APIResponse getCatchmentCurrentTrend(
@@ -226,6 +240,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/app/v1/entity/user/catchment/{catchmentId}/trend/current")
     @ResponseBody
     public APIResponse getAppCatchmentCurrentTrend(
@@ -242,6 +257,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(response, getFilterFieldSet(selector)));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/current.csv")
     @ResponseBody
     public String getCsvCatchmentCurrentTrend(
@@ -258,6 +274,7 @@ public class TrendController extends BaseController {
                 userInfo)), selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend-list/current")
     @ResponseBody
     public APIResponse getListCatchmentCurrentTrend(
@@ -275,6 +292,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/trend/hitherto")
     @ResponseBody
     public APIResponse getHithertoTrend(
@@ -290,6 +308,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("app/v1/trend/hitherto")
     @ResponseBody
     public APIResponse getAppHithertoTrend(
@@ -305,6 +324,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(response, getFilterFieldSet(selector)));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/trend-list/hitherto")
     @ResponseBody
     public APIResponse getListHithertoTrend(
@@ -320,6 +340,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/hitherto.csv")
     @ResponseBody
     public String getCsvHithertoTrend(
@@ -334,6 +355,7 @@ public class TrendController extends BaseController {
                 hithertoDurationSelector)), selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/hitherto")
     @ResponseBody
     public APIResponse getCatchmentHithertoTrend(
@@ -357,6 +379,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/app/v1/entity/user/catchment/{catchmentId}/trend/hitherto")
     @ResponseBody
     public APIResponse getAppCatchmentHithertoTrend(
@@ -376,6 +399,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(response, getFilterFieldSet(selector)));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/hitherto.csv")
     @ResponseBody
     public String getCsvCatchmentHithertoTrend(
@@ -394,6 +418,7 @@ public class TrendController extends BaseController {
                 userInfo)), selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend-list/hitherto")
     @ResponseBody
     public APIResponse getListCatchmentHithertoTrend(
@@ -413,6 +438,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/price-trend")
     public @ResponseBody
     APIResponse getPriceTrend(
@@ -427,6 +453,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/price-trend-list")
     @ResponseBody
     public APIResponse getListPriceTrend(
@@ -437,9 +464,9 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend.csv")
     public @ResponseBody
-
     String getCsvPriceTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
@@ -449,6 +476,7 @@ public class TrendController extends BaseController {
                 selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend")
     public @ResponseBody
     APIResponse getCatchmentPriceTrend(
@@ -465,6 +493,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend.csv")
     public @ResponseBody
     String getCsvCatchmentPriceTrend(
@@ -481,6 +510,7 @@ public class TrendController extends BaseController {
                 userInfo)), selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend-list")
     public @ResponseBody
     APIResponse getListCatchmentPriceTrend(
@@ -498,6 +528,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/price-trend/current")
     public @ResponseBody
     APIResponse getCurrentPriceTrend(
@@ -512,6 +543,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/price-trend-list/current")
     @ResponseBody
     public APIResponse getListCurrentPriceTrend(
@@ -522,6 +554,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend/current.csv")
     public @ResponseBody
     String getCsvCurrentPriceTrend(
@@ -533,6 +566,7 @@ public class TrendController extends BaseController {
                 selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/current")
     public @ResponseBody
     APIResponse getCatchmentCurrentPriceTrend(
@@ -554,6 +588,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/current.csv")
     public @ResponseBody
     String getCsvCatchmentCurrentPriceTrend(
@@ -570,6 +605,7 @@ public class TrendController extends BaseController {
                 userInfo)), selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend-list/current")
     public @ResponseBody
     APIResponse getListCatchmentCurrentPriceTrend(
@@ -587,6 +623,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/price-trend/hitherto")
     public @ResponseBody
     APIResponse getHithertoPriceTrend(
@@ -602,6 +639,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("data/v1/price-trend-list/hitherto")
     public @ResponseBody
     APIResponse getListHithertoPriceTrend(
@@ -617,6 +655,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend/hitherto")
     public @ResponseBody
     String getCsvHithertoPriceTrend(
@@ -631,6 +670,7 @@ public class TrendController extends BaseController {
                 hithertoDurationSelector)), selector);
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/hitherto")
     public @ResponseBody
     APIResponse getCatchmmentHithertoPriceTrend(
@@ -655,6 +695,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend-list/hitherto")
     public @ResponseBody
     APIResponse getListCatchmmentHithertoPriceTrend(
@@ -675,6 +716,7 @@ public class TrendController extends BaseController {
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 
+    @Intercepted.Trend
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/hitherto.csv")
     public @ResponseBody
     String getCsvCatchmmentHithertoPriceTrend(

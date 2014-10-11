@@ -136,7 +136,16 @@ public class Suburb extends BaseModel {
     @Transient
     @Field("SUBURB_COUPON_AVAILABLE")
     private Boolean                         isCouponAvailable;
+    
+    @Transient
+    @Field("SUBURB_LOCALITY_COUNT")
+    private Integer                         suburbLocalityCount;
+    
+    @Transient
+    @Field("SUBURB_PROPERTY_COUNT")
+    private Integer                         suburbPropertyCount;
 
+    
     public int getId() {
         return id;
     }
@@ -312,4 +321,21 @@ public class Suburb extends BaseModel {
     public void setSuburbTagLine(String suburbTagLine) {
         this.suburbTagLine = suburbTagLine;
     }
+
+    public Integer getSuburbLocalityCount() {
+        return suburbLocalityCount;
+    }
+
+    public void setSuburbLocalityCount(Integer suburbLocalityCount) {
+        this.suburbLocalityCount = suburbLocalityCount;
+    }
+
+    public Integer getSuburbPropertyCount() {
+        return suburbPropertyCount;
+    }
+
+    public void setSuburbPropertyCount(Integer suburbPropertyCount) {
+        this.suburbPropertyCount = suburbPropertyCount;
+    }
+    
 }

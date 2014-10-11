@@ -77,7 +77,7 @@ public class LeadOfferDaoImpl {
         List<Predicate> conditions = new ArrayList<>();
         conditions.add(cb.equal(c.get("agentId"), agentId));
 
-        cq.orderBy(cb.asc(leadTaskJoin.<Date> get("scheduledFor")), cb.asc(c.get("createdAt")));
+        cq.orderBy(cb.asc(leadTaskJoin.<Date> get("scheduledFor")), cb.desc(c.get("id")));
 
         if (statusIds != null && !statusIds.isEmpty()) {
             conditions.add(c.get("statusId").in(statusIds));

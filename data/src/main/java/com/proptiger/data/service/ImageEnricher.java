@@ -28,8 +28,10 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.MediaUtil;
+import com.proptiger.data.util.UtilityClass;
 
 @Service
 public class ImageEnricher {
@@ -470,32 +472,38 @@ public class ImageEnricher {
             }
             list.add(img);
         }
-        
-        TreeMap<Double, List<Image>> orderImgByCatPriority = new TreeMap<Double, List<Image>>();
+       
+        TreeMap<Integer, List<Image>> orderImgByCatPriority = new TreeMap<Integer, List<Image>>();
         Set<String> type = imgMapTypeImagesList.keySet();
         for(String imgType : type) {
             List<Image> imgList = imgMapTypeImagesList.get(imgType);
             Collections.sort(imgList, new Comparator<Image>() {
                 @Override
                 public int compare(Image o1, Image o2) {
-                    return o1.getPriority().compareTo(o2.getPriority());
+                    return UtilityClass.compareTo(o1.getPriority(), o2.getPriority());
                 }});
-            orderImgByCatPriority.put(getMeanPriorityOfCategory(imgList), imgList);
+            orderImgByCatPriority.put(imgList.size(), imgList);
         }
-        
+               
         List<Image> orderedImgList = new ArrayList<Image>();
-        for(Double d : orderImgByCatPriority.keySet()) {
-            orderedImgList.addAll(orderImgByCatPriority.get(d));
+        Integer typeCount = orderImgByCatPriority.size();
+        Integer imageCount = 100;
+       
+        for(Integer i : orderImgByCatPriority.keySet()) {
+            List<Image> imageList = orderImgByCatPriority.get(i);
+            Double maxImageCount = Math.ceil(imageCount/typeCount);
+            if (imageList.size() < maxImageCount) {
+                orderedImgList.addAll(imageList);
+                imageCount -= imageList.size();
+            }
+            else {
+                orderedImgList.addAll(imageList.subList(0, maxImageCount.intValue()));
+                imageCount -= maxImageCount.intValue();
+            }
+            typeCount--;
         }
+       
         return orderedImgList;
-    }
-
-    private Double getMeanPriorityOfCategory(List<Image> imgList) {
-        Double meanVal = 0.0;
-        for(Image img : imgList) {
-            meanVal += img.getPriority(); 
-        }
-        return meanVal/imgList.size();
     }
 
     public void setProjectAmenitiesImages(Project project) {
@@ -515,5 +523,18 @@ public class ImageEnricher {
             return;
         }
         project.setLandmarkImages(images);
+    }
+
+    public PaginatedResponse<List<Image>> getCityAmenityImages(List<LandMark> amenities) {
+        if (amenities == null || amenities.isEmpty()) {
+            return new PaginatedResponse<List<Image>>();
+        }
+        List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
+        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        if (images == null || images.isEmpty()) {
+            return new PaginatedResponse<List<Image>>();
+        }
+        List<Image> orderedImages = getImageListSortedOnPriority(images);
+        return new PaginatedResponse<List<Image>>(orderedImages, orderedImages.size());
     }
 }
