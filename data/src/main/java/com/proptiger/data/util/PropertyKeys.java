@@ -79,7 +79,7 @@ public final class PropertyKeys {
     public static final String MARKETPLACE_GCM_SEND_NEW_OFFER                      = "marketplace.gcm.send.new.offer";
     public static final String MARKETPLACE_SENDEMAIL_USING_SERVICE           = "marketplace.sendemail.using.service";
     public static final String MARKETPLACE_BROKERS_PER_CYCLE                 = "marketplace.number.of.brokers.per.cycle";
-    
+    public static final String MARKETPLACE_OFFER_EXPIRE_TIME                 = "marketplace.offer.expire.time";    
     
     public static final String CRM_URL                                       = "crm.url";
     public static final String CRM_MOVE_RESALE_LEAD_TO_PRIMARY               = "crm.move.resale.lead.to.primary";

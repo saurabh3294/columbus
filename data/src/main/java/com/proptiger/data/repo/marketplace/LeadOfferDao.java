@@ -86,6 +86,6 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("update LeadOffer LO set LO.expireFlag = 1 where LO.leadId in (?1)")
     void updateLeadOffers(List<Integer> leadIdList);
 
-    @Query("select LO.cycleId from LeadOffer LO where LO.leadId = ?1")
-    Long getMaxCycleId(int id);
+    @Query("select max(LO.cycleId) from LeadOffer LO where LO.leadId = ?1")
+    Integer getMaxCycleId(int id);
 }

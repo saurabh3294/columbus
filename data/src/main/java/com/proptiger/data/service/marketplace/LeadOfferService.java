@@ -435,6 +435,11 @@ public class LeadOfferService {
         offer.setLeadId(lead.getId());
         offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getId());
+        
+        Date expiryTime = new Date(
+                new Date().getTime() + PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_OFFER_EXPIRE_TIME)
+                        * 1000);        
+        offer.setExpireTime(expiryTime);        
         offer.setCycleId(cycleId);
         offer = leadOfferDao.save(offer);
         return offer;
@@ -890,7 +895,7 @@ public class LeadOfferService {
         return leadOffers;
     }
 
-    public Long getMaxCycleId(int id) {
+    public Integer getMaxCycleId(int id) {
         return leadOfferDao.getMaxCycleId(id);
     }
 }

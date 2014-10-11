@@ -67,51 +67,43 @@ public class CronService {
         }
     }
 
-    
     @Scheduled(initialDelay = 10000, fixedDelay = 1800000)
     public void manageLeadAssignmentWithCycle() {
         Date createdSince = new Date(
                 new Date().getTime() - PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_CRON_BUFFER)
                         * 1000);
         List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
-        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired();     
+        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired();
         Set<Integer> leadIds = new HashSet<Integer>();
-        
-        
-        for(Lead lead:leads)
-        {
-            leadIds.add(lead.getId());    
-        }
-        
-        for(Lead lead:leadsWithLeadOfferExpired)
-        {
+
+        for (Lead lead : leads) {
             leadIds.add(lead.getId());
         }
-        
+
+        for (Lead lead : leadsWithLeadOfferExpired) {
+            leadIds.add(lead.getId());
+        }
+
         List<Integer> leadIdList = new ArrayList<Integer>();
-        for(Integer leadId:leadIds)
-        {
+        for (Integer leadId : leadIds) {
             System.out.println(leadId);
             leadIdList.add(leadId);
         }
-        
-        if(!leadIds.isEmpty())
-        {
+
+        if (!leadIds.isEmpty()) {
             leadOfferDao.updateLeadOffers(leadIdList);
         }
-        
+
         for (Integer leadId : leadIdList) {
-            try {
+            //try {
                 leadService.manageLeadAuctionWithCycle(leadId);
-            }
-            catch (Exception e) {
-                logger.error("Error in lead assignment: " + e);
-            }
+            //}
+            //catch (Exception e) {
+                //logger.error("Error in lead assignment: " + e);
+            //}
         }
     }
-    
-    
-    
+
     @Scheduled(
             initialDelayString = "${marketplace.notification.initial.delay}",
             fixedDelayString = "${marketplace.notification.fixed.delay}")

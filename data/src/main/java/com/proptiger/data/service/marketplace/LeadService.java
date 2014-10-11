@@ -110,24 +110,21 @@ public class LeadService {
         else {
             int countBrokers = 0;
 
-            Long cycleId = leadOfferService.getMaxCycleId(lead.getId());
+            Integer cycleId = leadOfferService.getMaxCycleId(lead.getId());
             int cycleIdInt;
 
             if (cycleId == null) {
-                cycleId = (long) 0;
+                cycleId =  0;
             }
 
             if (cycleId > 0) {
-                cycleIdInt = (int) cycleId.intValue();
+                cycleIdInt = cycleId;
             }
             else {
                 cycleIdInt = 0;
             }
 
             for (Company company : brokerCompanies) {
-
-                System.out.println("anubhav");
-                
                 LeadOffer offer = leadOfferService.offerLeadToBroker(lead, company, cycleIdInt + 1);
 
                 if (offer != null) {
@@ -135,14 +132,6 @@ public class LeadService {
                     notificationService.sendLeadOfferNotification(offer.getId());
                 }
                 countBrokers++;
-                 
-                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
-                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
-                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
-                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
-                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
-                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
-                System.out.println(countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class));
                 
                 if (countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class)) 
                  {
@@ -292,7 +281,7 @@ public class LeadService {
         }
     }
 
-    @Transactional
+    
     public Lead createLead(Lead lead) {
         if (lead.getCityId() == 0) {
             throw new BadRequestException("CityId is mandatory");
