@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.model.marketplace.Lead;
+import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.LeadTaskService;
@@ -81,7 +82,22 @@ public class CronService {
         }
 
         for (Lead lead : leadsWithLeadOfferExpired) {
-            leadIds.add(lead.getId());
+            List<LeadOffer> offers = lead.getLeadOffers();                 
+            int claimedCount =0;
+            for(LeadOffer offer:offers)
+            {
+                if(offer.getMasterLeadOfferStatus().isClaimed())
+                {
+                    claimedCount++;
+                }
+            }
+            
+            if(!PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Integer.class)
+                .equals(claimedCount))
+            {
+                leadIds.add(lead.getId());
+            }
+            
         }
 
         List<Integer> leadIdList = new ArrayList<Integer>();
