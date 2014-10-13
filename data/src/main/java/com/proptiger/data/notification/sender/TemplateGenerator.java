@@ -4,7 +4,7 @@ import java.io.StringWriter;
 import java.util.Map;
 
 import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
+import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,9 @@ import com.proptiger.data.notification.service.NotificationTypeNotificationMediu
 public class TemplateGenerator {
 
     private static Logger                                    logger = LoggerFactory.getLogger(TemplateGenerator.class);
+
+    @Autowired
+    private VelocityEngine                                   velocityEngine;
 
     @Autowired
     private NotificationTypeNotificationMediumMappingService ntNmMappingService;
@@ -57,8 +60,7 @@ public class TemplateGenerator {
     private String populateTemplate(String template, Map<?, ?> dataMap, String logTag) {
         VelocityContext context = new VelocityContext(dataMap);
         StringWriter writer = new StringWriter();
-        Velocity.init();
-        Velocity.evaluate(context, writer, logTag, template);
+        velocityEngine.evaluate(context, writer, logTag, template);
         return writer.getBuffer().toString();
     }
 }
