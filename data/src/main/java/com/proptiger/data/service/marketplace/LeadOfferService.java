@@ -421,25 +421,35 @@ public class LeadOfferService {
         return leadOfferIds;
     }
 
-    public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId) {
+    public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId, Integer phaseId) {
         List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
+        Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(lead.getId(), phaseId);
         LeadOffer leadOffer = null;
         if (!agents.isEmpty()) {
-            leadOffer = createLeadOffer(lead, agents.get(0), cycleId);
+            leadOffer = createLeadOffer(lead, agents.get(0), cycleId, countLeadOfferInDB, phaseId);
         }
         return leadOffer;
     }
 
-    public LeadOffer createLeadOffer(Lead lead, CompanyUser agent, int cycleId) {
+    public LeadOffer createLeadOffer(Lead lead, CompanyUser agent, int cycleId, int countLeadOfferInDB, Integer phaseId) {
         LeadOffer offer = new LeadOffer();
         offer.setLeadId(lead.getId());
         offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getId());
-        
+
+        if (phaseId == null) {
+            phaseId = 1;
+        }
+
+        if (countLeadOfferInDB >= PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE)) {
+            phaseId = phaseId + 1;
+        }
+
+        offer.setPhaseId(phaseId);
         Date expiryTime = new Date(
-                new Date().getTime() + PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_OFFER_EXPIRE_TIME)
-                        * 1000);        
-        offer.setExpireTime(expiryTime);        
+                new Date().getTime() + PropertyReader
+                        .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_OFFER_EXPIRE_TIME) * 1000);
+        offer.setExpireTime(expiryTime);
         offer.setCycleId(cycleId);
         offer = leadOfferDao.save(offer);
         return offer;
@@ -674,8 +684,7 @@ public class LeadOfferService {
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
                     .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
-                    .setMailCC(leadOfferInDB.getAgent().getEmail())
-                    .setReplyTo(leadOfferInDB.getAgent().getEmail())
+                    .setMailCC(leadOfferInDB.getAgent().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail())
                     .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
             mailSender.sendMailUsingAws(mailDetails);
         }
@@ -879,7 +888,8 @@ public class LeadOfferService {
         String username = userService.getUserById(activeUser.getUserIdentifier()).getFullName();
 
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
-                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername()).setReplyTo(activeUser.getUsername())
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername())
+                .setReplyTo(activeUser.getUsername())
                 .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;

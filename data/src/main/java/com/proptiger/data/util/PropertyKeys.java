@@ -76,15 +76,16 @@ public final class PropertyKeys {
     public static final String MARKETPLACE_CRON_BUFFER                       = "marketplace.no.broker.claimed.cron.buffer";
     public static final String MARKETPLACE_MAX_PROPERTY_COUNT_WHILE_CLAIMING = "marketplace.max.property.count.while.claiming";
     public static final String MARKETPLACE_GCM_SEND_ALL                      = "marketplace.gcm.send.all";
-    public static final String MARKETPLACE_GCM_SEND_NEW_OFFER                      = "marketplace.gcm.send.new.offer";
+    public static final String MARKETPLACE_GCM_SEND_NEW_OFFER                = "marketplace.gcm.send.new.offer";
     public static final String MARKETPLACE_SENDEMAIL_USING_SERVICE           = "marketplace.sendemail.using.service";
     public static final String MARKETPLACE_BROKERS_PER_CYCLE                 = "marketplace.number.of.brokers.per.cycle";
-    public static final String MARKETPLACE_OFFER_EXPIRE_TIME                 = "marketplace.offer.expire.time";    
-    
+    public static final String MARKETPLACE_OFFER_EXPIRE_TIME                 = "marketplace.offer.expire.time";
+    public static final String MARKETPLACE_MAX_OFFERS_IN_PHASE               = "marketplace.max.offers.in.phase";
+
     public static final String CRM_URL                                       = "crm.url";
     public static final String CRM_MOVE_RESALE_LEAD_TO_PRIMARY               = "crm.move.resale.lead.to.primary";
 
     public static final String CALENDAR_WORKING_HOUR_START                   = "calendar.working.hour.start";
     public static final String CALENDAR_WORKING_HOUR_END                     = "calendar.working.hour.end";
-    public static final String ENABLE_OTP = "security.enable.otp";
+    public static final String ENABLE_OTP                                    = "security.enable.otp";
 }

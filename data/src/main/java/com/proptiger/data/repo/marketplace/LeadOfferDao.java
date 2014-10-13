@@ -88,4 +88,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
 
     @Query("select max(LO.cycleId) from LeadOffer LO where LO.leadId = ?1")
     Integer getMaxCycleId(int id);
+
+    @Query("select count(LO) from LeadOffer LO where LO.leadId = ?1 and LO.phaseId = ?2")
+    Long findByLeadIdAndPhaseId(int id, Integer phaseId);
 }

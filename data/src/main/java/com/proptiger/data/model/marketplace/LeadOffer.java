@@ -143,13 +143,22 @@ public class LeadOffer extends BaseModel {
     private User                     agent;
 
     @Column(name = "expire_flag")
-    private boolean expireFlag;
-    
-    
+    private boolean                  expireFlag;
+
     @Column(name = "expire_time")
-    private Date expireTime;
-    
-    
+    private Date                     expireTime;
+
+    @Column(name = "phase_id")
+    private int                      phaseId;
+
+    public int getPhaseId() {
+        return phaseId;
+    }
+
+    public void setPhaseId(int phaseId) {
+        this.phaseId = phaseId;
+    }
+
     public boolean isExpireFlag() {
         return expireFlag;
     }

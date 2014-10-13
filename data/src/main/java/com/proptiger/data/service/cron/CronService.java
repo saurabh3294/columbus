@@ -2,8 +2,10 @@ package com.proptiger.data.service.cron;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -78,26 +80,38 @@ public class CronService {
         Set<Integer> leadIds = new HashSet<Integer>();
 
         for (Lead lead : leads) {
+            System.out.println(lead.getId());
             leadIds.add(lead.getId());
         }
 
+        Map<Integer, Integer> maxPhaseIdMapLeadId = new HashMap<Integer, Integer>();
         for (Lead lead : leadsWithLeadOfferExpired) {
-            List<LeadOffer> offers = lead.getLeadOffers();                 
-            int claimedCount =0;
-            for(LeadOffer offer:offers)
-            {
-                if(offer.getMasterLeadOfferStatus().isClaimed())
-                {
+            List<LeadOffer> offers = lead.getLeadOffers();
+            int maxPhaseId = 0;
+            for (LeadOffer offer : offers) {
+                if (maxPhaseId < offer.getPhaseId()) {
+                    maxPhaseId = offer.getPhaseId();
+                }
+            }
+            maxPhaseIdMapLeadId.put(lead.getId(), maxPhaseId);
+        }
+
+        for (Lead lead : leadsWithLeadOfferExpired) {
+            List<LeadOffer> offers = lead.getLeadOffers();
+            int claimedCount = 0;
+            for (LeadOffer offer : offers) {
+                if (offer.getMasterLeadOfferStatus().isClaimed() && maxPhaseIdMapLeadId.get(offer.getLeadId()) == offer
+                        .getPhaseId()) {
                     claimedCount++;
                 }
             }
-            
-            if(!PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Integer.class)
-                .equals(claimedCount))
-            {
+
+            if (!PropertyReader.getRequiredPropertyAsType(
+                    PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM,
+                    Integer.class).equals(claimedCount) || lead.getRequestBrokerPhaseId() == maxPhaseIdMapLeadId
+                    .get(lead.getId()) + 1) {
                 leadIds.add(lead.getId());
             }
-            
         }
 
         List<Integer> leadIdList = new ArrayList<Integer>();
@@ -111,12 +125,13 @@ public class CronService {
         }
 
         for (Integer leadId : leadIdList) {
-            //try {
-                leadService.manageLeadAuctionWithCycle(leadId);
-            //}
-            //catch (Exception e) {
-                //logger.error("Error in lead assignment: " + e);
-            //}
+            // try {
+            leadService.manageLeadAuctionWithCycle(leadId, maxPhaseIdMapLeadId);
+            // }
+            /*
+             * catch (Exception e) { logger.error("Error in lead assignment: " +
+             * e); }
+             */
         }
     }
 

@@ -43,7 +43,7 @@ import com.proptiger.data.model.user.User;
 @JsonFilter("fieldFilter")
 public class Lead extends BaseModel {
 
-    private static final long     serialVersionUID = -6647164101899851831L;
+    private static final long     serialVersionUID      = -6647164101899851831L;
 
     @Id
     @Column(name = "id")
@@ -70,7 +70,7 @@ public class Lead extends BaseModel {
     private Integer               maxSize;
 
     @Column(name = "client_type")
-    private String                clientType = "Buyer";
+    private String                clientType            = "Buyer";
 
     @Column(name = "source_id")
     private int                   sourceId;
@@ -79,28 +79,31 @@ public class Lead extends BaseModel {
     private Integer               mergedLeadId;
 
     @Column(name = "transaction_type")
-    private String                transactionType = "Resale";
+    private String                transactionType       = "Resale";
 
     @Column(name = "next_action_time")
     private Date                  nextActionTime;
 
     @Column(name = "notes")
-    private String specialRequirements;
+    private String                specialRequirements;
 
     @Transient
-    private String derivedBedroomsString = "";
+    private String                derivedBedroomsString = "";
 
     @Transient
-    private int countAgentsClaimed = 99999999;
+    private int                   countAgentsClaimed    = 99999999;
 
     @Column(name = "created_at")
-    private Date                  createdAt        = new Date();
+    private Date                  createdAt             = new Date();
 
     @Column(name = "updated_at")
-    private Date                  updatedAt        = new Date();
+    private Date                  updatedAt             = new Date();
 
     @Column(name = "updated_by")
     private Integer               updatedBy;
+
+    @Column(name = "request_broker_phase_id")
+    private int                   requestBrokerPhaseId;
 
     @OneToMany(mappedBy = "leadId")
     private List<LeadOffer>       leadOffers;
@@ -111,6 +114,14 @@ public class Lead extends BaseModel {
 
     @OneToMany(mappedBy = "leadId")
     private List<LeadRequirement> requirements;
+
+    public int getRequestBrokerPhaseId() {
+        return requestBrokerPhaseId;
+    }
+
+    public void setRequestBrokerPhaseId(int requestBrokerPhaseId) {
+        this.requestBrokerPhaseId = requestBrokerPhaseId;
+    }
 
     public int getSourceId() {
         return sourceId;
@@ -269,7 +280,7 @@ public class Lead extends BaseModel {
 
     private void populateDerivedBedroomsString() {
         Set<Integer> bedrooms = new HashSet<>();
-        
+
         if (requirements != null) {
             for (LeadRequirement leadRequirement : requirements) {
                 if (leadRequirement.getBedroom() != null) {

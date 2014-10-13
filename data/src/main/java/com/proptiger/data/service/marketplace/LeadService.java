@@ -2,6 +2,7 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.slf4j.Logger;
@@ -85,11 +86,13 @@ public class LeadService {
             }
             else {
                 for (Company company : brokerCompanies) {
-                    LeadOffer offer = leadOfferService.offerLeadToBroker(lead, company, 1);
-                    if (offer != null) {
-                        isAssigned = true;
-                        notificationService.sendLeadOfferNotification(offer.getId());
-                    }
+                    // LeadOffer offer =
+                    // leadOfferService.offerLeadToBroker(lead, company, 1);
+                    /*
+                     * if (offer != null) { isAssigned = true;
+                     * notificationService
+                     * .sendLeadOfferNotification(offer.getId()); }
+                     */
                 }
             }
             if (!isAssigned) {
@@ -98,7 +101,7 @@ public class LeadService {
         }
     }
 
-    public void manageLeadAuctionWithCycle(int leadId) {
+    public void manageLeadAuctionWithCycle(int leadId, Map<Integer, Integer> maxPhaseIdMapLeadId) {
         Lead lead = leadDao.getLock(leadId);
 
         List<Company> brokerCompanies = getBrokersForLeadWithCycleExcludingAlreadyOffered(lead);
@@ -114,7 +117,7 @@ public class LeadService {
             int cycleIdInt;
 
             if (cycleId == null) {
-                cycleId =  0;
+                cycleId = 0;
             }
 
             if (cycleId > 0) {
@@ -124,19 +127,33 @@ public class LeadService {
                 cycleIdInt = 0;
             }
 
-            for (Company company : brokerCompanies) {
-                LeadOffer offer = leadOfferService.offerLeadToBroker(lead, company, cycleIdInt + 1);
+            Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(
+                    lead.getId(),
+                    maxPhaseIdMapLeadId.get(lead.getId()));
 
-                if (offer != null) {
-                    isAssigned = true;
-                    notificationService.sendLeadOfferNotification(offer.getId());
+            if ((countLeadOfferInDB < PropertyReader
+                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE) || (maxPhaseIdMapLeadId
+                    .get(lead.getId()) != null && maxPhaseIdMapLeadId.get(lead.getId()) == lead
+                    .getRequestBrokerPhaseId()))) {
+                for (Company company : brokerCompanies) {
+                    LeadOffer offer = leadOfferService.offerLeadToBroker(
+                            lead,
+                            company,
+                            cycleIdInt + 1,
+                            maxPhaseIdMapLeadId.get(lead.getId()));
+
+                    if (offer != null) {
+                        isAssigned = true;
+                        notificationService.sendLeadOfferNotification(offer.getId());
+                    }
+                    countBrokers++;
+
+                    if (countBrokers >= PropertyReader.getRequiredPropertyAsType(
+                            PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,
+                            Integer.class)) {
+                        break;
+                    }
                 }
-                countBrokers++;
-                
-                if (countBrokers >=  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,Integer.class)) 
-                 {
-                     break; 
-                 }
             }
         }
         if (!isAssigned) {
@@ -184,12 +201,11 @@ public class LeadService {
         else {
             brokerToConsider = brokers;
         }
-        
-        for(Company broker:brokerToConsider)
-        {
+
+        for (Company broker : brokerToConsider) {
             System.out.println(broker.getName());
         }
-        
+
         return brokerToConsider;
     }
 
@@ -281,7 +297,6 @@ public class LeadService {
         }
     }
 
-    
     public Lead createLead(Lead lead) {
         if (lead.getCityId() == 0) {
             throw new BadRequestException("CityId is mandatory");
