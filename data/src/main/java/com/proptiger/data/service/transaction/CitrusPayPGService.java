@@ -4,12 +4,12 @@
 package com.proptiger.data.service.transaction;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.hibernate.annotations.Synchronize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,6 @@ import com.citruspay.pg.net.RequestSignature;
 import com.citruspay.pg.util.CitruspayConstant;
 import com.google.gson.Gson;
 import com.proptiger.data.model.CouponCatalogue;
-import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.PaymentType;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
@@ -47,21 +46,14 @@ import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGPaymentStatus;
 import com.proptiger.data.model.transaction.thirdparty.EnquiryResponseCode;
 import com.proptiger.data.model.transaction.thirdparty.PaymentGatewayResponse;
 import com.proptiger.data.model.user.User;
-import com.proptiger.data.notification.enums.MediumType;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
-import com.proptiger.data.notification.enums.Tokens;
-import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
 import com.proptiger.data.service.CitrusPayPGTransactionService;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.CouponNotificationService;
-import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.Serializer;
 import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ProAPIException;
 
 /**
  * @author mandeep
@@ -490,11 +482,19 @@ public class CitrusPayPGService {
      * @param lastEnquiry
      */
     @Transactional
-    private void handleSuccessPayment(
+    private synchronized void handleSuccessPayment(
             Transaction transaction,
             TransactionStatus transactionStatus,
             PaymentStatus paymentStatus,
             Enquiry lastEnquiry) {
+        
+        // getting the latest transaction in the database.
+        transaction = transactionService.getTransaction(transaction.getId());
+        // Only Incomplete Transaction are allowed to proceed further.
+        if(transaction.getStatusId() != TransactionStatus.Incomplete.getId()){
+            return;
+        }
+        
         if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
 
             CouponCatalogue couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
@@ -504,6 +504,11 @@ public class CitrusPayPGService {
             // Coupon Inventory did not get updated.
             if (couponCatalogue == null) {
                 handleRefundByTransactionId(transaction, false);
+                /**
+                 * No need to process further. As transaction has been refunded.
+                 * Hence returning.
+                 */
+                return;
                 /*
                  * transactionStatus = TransactionStatus.Refunded; paymentStatus
                  * = PaymentStatus.Refunded; initiateRefund(transaction,
