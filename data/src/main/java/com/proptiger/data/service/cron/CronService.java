@@ -80,7 +80,6 @@ public class CronService {
         Set<Integer> leadIds = new HashSet<Integer>();
 
         for (Lead lead : leads) {
-            System.out.println(lead.getId());
             leadIds.add(lead.getId());
         }
 
@@ -119,7 +118,6 @@ public class CronService {
 
         List<Integer> leadIdList = new ArrayList<Integer>();
         for (Integer leadId : leadIds) {
-            System.out.println(leadId);
             leadIdList.add(leadId);
         }
 
@@ -128,13 +126,12 @@ public class CronService {
         }
 
         for (Integer leadId : leadIdList) {
-            // try {
+             try {
             leadService.manageLeadAuctionWithCycle(leadId, maxPhaseIdMapLeadId);
-            // }
-            /*
-             * catch (Exception e) { logger.error("Error in lead assignment: " +
-             * e); }
-             */
+             }
+            
+              catch (Exception e) { logger.error("Error in lead assignment: " + e); }
+             
         }
     }
 

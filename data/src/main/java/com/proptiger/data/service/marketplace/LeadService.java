@@ -201,11 +201,6 @@ public class LeadService {
         else {
             brokerToConsider = brokers;
         }
-
-        for (Company broker : brokerToConsider) {
-            System.out.println(broker.getName());
-        }
-
         return brokerToConsider;
     }
 
