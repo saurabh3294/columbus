@@ -153,7 +153,7 @@ public class TransactionService {
 
         return transactionDao.getRefundableTransactions(
                 DateUtil.addDays(new Date(), -1 * MAX_REFUND_PERIOD),
-                refundableTransactionStatus);
+                refundableTransactionStatus, DateUtil.addHours(new Date(), -4));
     }
     
     @Transactional
