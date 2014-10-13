@@ -48,4 +48,7 @@ public interface LeadDao extends JpaRepository<Lead, Integer> {
     @Query("update Lead L set L.requestBrokerPhaseId = 0 where L.id in (?1)")
     public void updateLeadRequestBrokerPhaseId(List<Integer> leadIdList);
 
+    @Query("select L from Lead L where L.id = ?1")
+    public Lead findById(int leadId);
+
 }

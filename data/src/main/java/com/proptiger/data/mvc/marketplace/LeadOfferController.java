@@ -21,6 +21,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.marketplace.LeadOfferService;
+import com.proptiger.data.service.marketplace.LeadService;
 import com.proptiger.data.util.Constants;
 
 @Controller

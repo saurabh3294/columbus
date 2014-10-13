@@ -493,4 +493,11 @@ public class LeadService {
     public List<Lead> getLeads(List<Integer> leadIds) {
         return leadDao.getLeads(leadIds);
     }
+
+    public void updateRequestMoreBrokers(int leadId) {
+        Lead leadInDB = leadDao.findById(leadId);
+        Integer maxPhaseId = leadOfferDao.getMaxPhaseId(leadId);
+        leadInDB.setRequestBrokerPhaseId(maxPhaseId);
+        leadDao.save(leadInDB);
+    }
 }
