@@ -1,6 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -101,6 +102,14 @@ public class LeadService {
         }
     }
 
+    
+    public void manageLeadAuctionWithBeforeCycle(int leadId)
+    {
+        Map<Integer,Integer> phaseIdMapLeadId = new HashMap<Integer,Integer>();
+        phaseIdMapLeadId.put(leadId,0);
+        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId);
+    }
+    
     public void manageLeadAuctionWithCycle(int leadId, Map<Integer, Integer> maxPhaseIdMapLeadId) {
         Lead lead = leadDao.getLock(leadId);
 
