@@ -524,7 +524,7 @@ public class Property extends BaseModel {
         return isPropertySoldOut;
     }
 
-    public void setIsPropertySoldOut(Boolean isPropertySoldOut) {
+    public void setIsPropertySoldOut(boolean isPropertySoldOut) {
         this.isPropertySoldOut = isPropertySoldOut;
     }
     
