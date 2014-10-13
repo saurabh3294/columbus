@@ -109,7 +109,10 @@ public class CronService {
             if (!PropertyReader.getRequiredPropertyAsType(
                     PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM,
                     Integer.class).equals(claimedCount) || lead.getRequestBrokerPhaseId() == maxPhaseIdMapLeadId
-                    .get(lead.getId()) + 1) {
+                    .get(lead.getId())) {
+                
+                    maxPhaseIdMapLeadId.put(lead.getId(), lead.getRequestBrokerPhaseId()+1);
+                
                 leadIds.add(lead.getId());
             }
         }
