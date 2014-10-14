@@ -41,7 +41,7 @@ public class NotificationTypeService {
         // Use defaults if no config is found.
         NotificationTypeConfig savedNTConfig = NotificationTypeConfig.getNotificationTypeConfigMap().get(configName);
         if (savedNTConfig == null) {
-            logger.error("NotificationType ID " + notificationType.getId()
+            logger.debug("NotificationType ID " + notificationType.getId()
                     + " do not have mapping of Notification Type Config. Using Defaults.");
             savedNTConfig = new NotificationTypeConfig();
         }

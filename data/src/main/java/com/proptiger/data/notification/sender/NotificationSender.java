@@ -33,26 +33,40 @@ public class NotificationSender {
         Integer numberOfSendNtGen = 0;
         List<NotificationGenerated> nGeneratedList = nGeneratedService.getScheduledAndReadyNotifications(medium);
         logger.info("NotificationSender : Number of Scheduled and Ready Notifications " + nGeneratedList.size());
-        for (NotificationGenerated nGenerated : nGeneratedList) {
-            try {
-                String template = templateGenerator.generatePopulatedTemplate(nGenerated);
 
-                if (sendAndUpdateNotificationGenerated(nGenerated, template)) {
+        for (NotificationGenerated nGenerated : nGeneratedList) {
+            NotificationStatus notificationStatus = NotificationStatus.Failed;
+            try {
+                if (sendNotificationGenerated(nGenerated)) {
+                    notificationStatus = NotificationStatus.Sent;
                     numberOfSendNtGen++;
                 }
             }
             catch (Exception e) {
-                logger.info("Send Notification failed for Notification ID " + nGenerated.getId());
-                e.printStackTrace();
+                logger.error("Send Notification failed for nGenerated id: " + nGenerated.getId()
+                        + " with Exception: "
+                        + e + " StackTrace: " + e.getStackTrace());
             }
+
+            if (NotificationStatus.Failed.equals(notificationStatus)) {
+                logger.error("Not able to send Notification for nGenerated id: " + nGenerated.getId()
+                        + " Marking its status as Failed.");
+            }
+
+            nGeneratedService.updateNotificationGeneratedStatusOnOldStatus(
+                    nGenerated.getId(),
+                    notificationStatus,
+                    nGenerated.getNotificationStatus());
         }
+
         return numberOfSendNtGen;
     }
 
-    public boolean sendAndUpdateNotificationGenerated(NotificationGenerated nGenerated, String template) {
+    public boolean sendNotificationGenerated(NotificationGenerated nGenerated) {
+
+        String template = templateGenerator.generatePopulatedTemplate(nGenerated);
+
         if (template == null) {
-            logger.info("Template is null so discarding it to send for notificationGenerated Id : " + nGenerated
-                    .getId());
             return false;
         }
 
@@ -63,35 +77,11 @@ public class NotificationSender {
         if (payload != null) {
             payload = payload.populatePayload(nGenerated);
         }
-        boolean isSent = config.getMediumSenderObject().send(
+        return config.getMediumSenderObject().send(
                 template,
                 userId,
                 nGenerated.getNotificationType().getName(),
                 payload);
-
-        // Sent NotificationGenerated logging handling will be done
-        // later.
-        // currently notification status of sent NG is marked as
-        // sent in DB.
-        /*
-         * sentNotificationLogService.save(new
-         * SentNotificationLog(ntGenerated.getId(), ntGenerated
-         * .getNotificationMedium().getId(),
-         * ntGenerated.getNotificationMessage().getForumUser() .getUserId(), new
-         * Date()));
-         */
-
-        NotificationStatus notificationStatus = NotificationStatus.Failed;
-        if (isSent) {
-            notificationStatus = NotificationStatus.Sent;
-        }
-
-        nGeneratedService.updateNotificationGeneratedStatusOnOldStatus(
-                nGenerated.getId(),
-                notificationStatus,
-                nGenerated.getNotificationStatus());
-
-        return isSent;
 
     }
 }

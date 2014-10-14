@@ -25,32 +25,39 @@ public class TemplateGenerator {
     private NotificationTypeNotificationMediumMappingService ntNmMappingService;
 
     public String generatePopulatedTemplate(NotificationGenerated nGenerated) {
-        String template = ntNmMappingService.getTemplate(nGenerated);
+        String template = ntNmMappingService.getTemplate(nGenerated.getNotificationType().getId(), nGenerated
+                .getNotificationMedium().getId());
         logger.debug("Template: " + template);
         Map<String, Object> payloadDataMap = nGenerated.getNotificationMessagePayload().getExtraAttributes();
         logger.debug("PayloadDataMap: " + payloadDataMap.toString());
 
         if (template == null || template.isEmpty()) {
-            logger.info("Mail Template is null or empty");
+            logger.error("Mail Template is null or empty for notificationGenerated id: " + nGenerated.getId());
             return null;
         }
 
         if (payloadDataMap == null || payloadDataMap.isEmpty()) {
-            logger.info("payLoad Data Map is null or empty");
+            logger.error("Payload Data Map is null or empty for notificationGenerated id: " + nGenerated.getId());
             return null;
         }
 
-        String populatedTemplate = populateTemplate(template, payloadDataMap, nGenerated.getNotificationType()
-                .getName());
+        String populatedTemplate = null;
+        try {
+            populatedTemplate = populateTemplate(template, payloadDataMap, nGenerated.getNotificationType().getName());
+        }
+        catch (Exception e) {
+            logger.error("Got exception: " + e
+                    + " while populating template via Velocity for Template: "
+                    + template
+                    + " and PayloadDataMap: "
+                    + payloadDataMap.toString());
+            throw e;
+        }
 
         if (populatedTemplate == null || populatedTemplate.isEmpty()) {
-            logger.info("Template token values not found in the payloadData map");
-            // TO DO
-            // if payloadDataMap does not contain any of the token value in the
-            // template
-            // then by default the respective information will be retrieved from
-            // DB and it's
-            // implementation will be added in phase 2.
+            logger.error("Velocity unable to populate template. Template: " + template
+                    + " and PayloadDataMap: "
+                    + payloadDataMap.toString());
             return null;
         }
 
@@ -60,7 +67,9 @@ public class TemplateGenerator {
     private String populateTemplate(String template, Map<?, ?> dataMap, String logTag) {
         VelocityContext context = new VelocityContext(dataMap);
         StringWriter writer = new StringWriter();
-        velocityEngine.evaluate(context, writer, logTag, template);
+        if (!velocityEngine.evaluate(context, writer, logTag, template)) {
+            return null;
+        }
         return writer.getBuffer().toString();
     }
 }
