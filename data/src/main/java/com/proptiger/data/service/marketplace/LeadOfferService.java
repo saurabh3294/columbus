@@ -46,6 +46,7 @@ import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
+import com.proptiger.data.service.cron.CronService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
@@ -116,7 +117,8 @@ public class LeadOfferService {
 
     @Autowired
     private PropertyReader               propertyReader;
-
+    
+    
     /**
      * 
      * @param integer
@@ -691,37 +693,54 @@ public class LeadOfferService {
     }
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
-        LeadOffer leadOfferinDB = leadOfferDao.findById(leadOfferId);
-        Integer maxPhaseId = leadOfferDao.getMaxPhaseId(leadOfferinDB.getId());
-        List<LeadOffer> allLeadOffers =  leadOfferDao.findByLeadId(leadOfferinDB.getLeadId());
+        LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
+        Integer maxPhaseId = leadOfferDao.getMaxPhaseId(leadOfferInDB.getLeadId());
+        List<LeadOffer> allLeadOffers =  leadOfferDao.findByLeadId(leadOfferInDB.getLeadId());
 
         Integer leadOfferCount = 0;
-        Integer declinedLeadOfferCount = 0;
+        Integer declinedLeadOfferCountInCycle = 0;
         Integer maxCycleId = 0;
+        Integer leadOfferCountInCycle = 0;
+        Integer allCountInCycle = 0;
         for(LeadOffer leadOffer:allLeadOffers)
         {
             if(leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId)
             {
                 leadOfferCount++;
             }
-            if(leadOffer.getStatusId() == LeadOfferStatus.Declined.getId() && leadOffer.getPhaseId() == maxPhaseId)
-            {
-               declinedLeadOfferCount++;
-            }
             if(leadOffer.getCycleId() > maxCycleId)
             {
                 maxCycleId = leadOffer.getCycleId();
             }
         }
+        
+        for(LeadOffer leadOffer:allLeadOffers)
+        {
+            if(leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId && leadOffer.getCycleId() == maxCycleId)
+            {
+                leadOfferCountInCycle++;
+            }
+            if(leadOffer.getStatusId() == LeadOfferStatus.Declined.getId() && leadOffer.getPhaseId() == maxPhaseId && leadOffer.getCycleId() == maxCycleId)
+            {
+               declinedLeadOfferCountInCycle++;
+            }
+            if(leadOffer.getCycleId() == maxCycleId)
+            {
+                allCountInCycle++;
+            }
+        }
 
         if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class)
                 .equals(leadOfferCount)) {
-            leadOfferDao.expireRestOfTheLeadOffers(leadOfferinDB.getLeadId());
+            leadOfferDao.expireRestOfTheLeadOffers(leadOfferInDB.getLeadId());
         }
-        
-        if(declinedLeadOfferCount + leadOfferCount == allLeadOffers.size())
+        else
         {
-           leadOfferDao.updateExpireTime(maxCycleId); 
+            if(declinedLeadOfferCountInCycle + leadOfferCountInCycle == allCountInCycle)
+            {
+               leadOfferDao.updateExpireTime(maxCycleId);
+               //leadService.manageLeadAuctionWithBeforeCycle(leadOfferInDB.getLeadId());    
+            }
         }
     }
 
