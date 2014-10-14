@@ -43,6 +43,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select distinct(LO) from LeadOffer LO join LO.masterLeadOfferStatus LOM where LO.leadId = ?1 and LOM.claimedFlag = true and LOM.openFlag = true")
     public List<LeadOffer> getLegitimateLeadOffersForDuplicateLeadNotifications(int leadId);
 
+    @Query("select LO from LeadOffer LO join LO.masterLeadOfferStatus MLOS where LO.leadId = ?1")
     public List<LeadOffer> findByLeadId(int leadId);
 
     @Modifying
@@ -94,4 +95,9 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
 
     @Query("select MAX(LO.phaseId) from LeadOffer LO where LO.leadId = ?1")
     Integer getMaxPhaseId(int leadId);
+
+    @Modifying
+    @Transactional
+    @Query("update LeadOffer LO set LO.expireTime = NOW() where LO.cycleId = ?1")
+    void updateExpireTime(Integer maxCycleId);
 }

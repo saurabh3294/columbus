@@ -691,12 +691,37 @@ public class LeadOfferService {
     }
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
-        LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
-        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId());
+        LeadOffer leadOfferinDB = leadOfferDao.findById(leadOfferId);
+        Integer maxPhaseId = leadOfferDao.getMaxPhaseId(leadOfferinDB.getId());
+        List<LeadOffer> allLeadOffers =  leadOfferDao.findByLeadId(leadOfferinDB.getLeadId());
+
+        Integer leadOfferCount = 0;
+        Integer declinedLeadOfferCount = 0;
+        Integer maxCycleId = 0;
+        for(LeadOffer leadOffer:allLeadOffers)
+        {
+            if(leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId)
+            {
+                leadOfferCount++;
+            }
+            if(leadOffer.getStatusId() == LeadOfferStatus.Declined.getId() && leadOffer.getPhaseId() == maxPhaseId)
+            {
+               declinedLeadOfferCount++;
+            }
+            if(leadOffer.getCycleId() > maxCycleId)
+            {
+                maxCycleId = leadOffer.getCycleId();
+            }
+        }
 
         if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class)
                 .equals(leadOfferCount)) {
-            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId());
+            leadOfferDao.expireRestOfTheLeadOffers(leadOfferinDB.getLeadId());
+        }
+        
+        if(declinedLeadOfferCount + leadOfferCount == allLeadOffers.size())
+        {
+           leadOfferDao.updateExpireTime(maxCycleId); 
         }
     }
 
