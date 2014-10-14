@@ -17,8 +17,6 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.security.MaxAllowedRequestCount;
 import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
 
 /**
  * Identifies crawling and return captcha in case of POST request and writes in
@@ -41,16 +39,18 @@ public class CrawlPreventionService {
     private SecurityUtilService     securityUtilService;
 
     /**
-     * 1. First it will identify if request contains answer of previous captcha.
-     * 2. Validates a request by identifying secret hash and server time sent by
-     * client. 3. If valid then identify crawling based on access count bucket
+     * 1. First check if request validation and captcha is disable property file
+     * or through IP whitelisting 2. Then it will identify if request contains
+     * answer of previous captcha. 3. Validates a request by identifying secret
+     * hash and server time sent by client. 4. If valid then identify crawling
+     * based on access count bucket and respond with captcha error if invalid
      * 
      * @param request
      * @param response
      * @return boolean
      */
     public boolean isValidRequest(HttpServletRequest request, HttpServletResponse response) {
-        if (!PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_CRAWL_PREVENTION_TEST_SERVER, Boolean.class)) {
+        if (securityUtilService.isReqValAndCaptchaDisabled(request)) {
             return true;
         }
         if (captchaService.isCaptchaRequest(request)) {
@@ -66,7 +66,9 @@ public class CrawlPreventionService {
         }
         boolean isValid = isValidRequestWithSecretHash(request, response);
         if (isValid) {
-            isValid = !isCrawlIdentified(request, response);
+            if (isCrawlIdentified(request, response)) {
+                isValid = false;
+            }
         }
         return isValid;
     }
@@ -103,9 +105,6 @@ public class CrawlPreventionService {
      */
     private boolean isCrawlIdentified(HttpServletRequest request, HttpServletResponse response) {
         boolean crawlIdentified = false;
-        if (securityUtilService.isCrawlCheckDisabled(request)) {
-            return false;
-        }
         for (MaxAllowedRequestCount maxAllowedRequestCount : MaxAllowedRequestCount.values()) {
             if (isSpecificCrawlingIdentified(maxAllowedRequestCount, request)) {
                 captchaService.writeCaptchaInResponse(response);
@@ -188,7 +187,26 @@ public class CrawlPreventionService {
     private boolean isValidRequestWithSecretHash(HttpServletRequest request, HttpServletResponse response) {
         securityUtilService.setTimeAndKeywordInHeader(response);
         boolean isValid = true;
-        if (securityUtilService.isReqValivationDisabled(request)) {
+        if (securityUtilService.isReqValivationEnabled(request)) {
+            Cache illegalAccessCache = redisCacheManager.getCache(Constants.CacheName.ILLEGAL_API_ACCESS);
+            String redisKey = securityUtilService.createKeyForSecretHash(request);
+            ValueWrapper redisValWrapper = illegalAccessCache.get(redisKey);
+            Integer illegalAccessCount = (Integer) (redisValWrapper != null
+                    ? illegalAccessCache.get(redisKey).get()
+                    : null);
+            /*
+             * probably first hit from the client, set access count to 1.
+             */
+            if (illegalAccessCount == null) {
+                illegalAccessCache.put(redisKey, 1);
+            }
+            else {
+                // not first request from user
+                isValid = isValidSubsequentRequest(request, response, illegalAccessCache, redisKey, illegalAccessCount);
+            }
+            return isValid;
+        }
+        else {
             /*
              * even if disabled, we are validating the request to show warning
              * message if needed and let request complete normally.
@@ -202,22 +220,6 @@ public class CrawlPreventionService {
             return true;
         }
 
-        Cache illegalAccessCache = redisCacheManager.getCache(Constants.CacheName.ILLEGAL_API_ACCESS);
-        String redisKey = securityUtilService.createKeyForSecretHash(request);
-        ValueWrapper redisValWrapper = illegalAccessCache.get(redisKey);
-        Integer illegalAccessCount = (Integer) (redisValWrapper != null ? illegalAccessCache.get(redisKey).get() : null);
-        /*
-         * probably first hit from the client, set access count to 1.
-         */
-        if (illegalAccessCount == null) {
-            illegalAccessCache.put(redisKey, 1);
-        }
-        else {
-            // not first request from user
-            isValid = isValidSubsequentRequest(request, response, illegalAccessCache, redisKey, illegalAccessCount);
-        }
-
-        return isValid;
     }
 
     /**
