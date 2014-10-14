@@ -31,7 +31,7 @@ public class SecurityUtilService {
      * @param response
      * @return
      */
-    public boolean isReqValivationDisabled(HttpServletRequest request) {
+    public boolean isReqValivationEnabled(HttpServletRequest request) {
         return PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_REQUEST_VALIDATION, Boolean.class);
     }
 
@@ -42,7 +42,7 @@ public class SecurityUtilService {
      * @param response
      */
     public void addWarningHeader(HttpServletResponse response) {
-        if(PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_REQ_VALIDATION_WARNING, Boolean.class)){
+        if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_REQ_VALIDATION_WARNING, Boolean.class)) {
             response.addHeader("Warn", Constants.Security.WARN_ILLEGAL_API_ACCESS_MSG);
             response.addHeader("Warn", "Send MD5 of (ip+sep+user-agent+sep+server-time+sep+api-secretword)");
         }
@@ -84,7 +84,7 @@ public class SecurityUtilService {
         }
         return true;
     }
-    
+
     /**
      * Generating MD5 encoded hash value, same sequence of values should be used
      * by client as well to access apis.
@@ -108,6 +108,7 @@ public class SecurityUtilService {
 
     /**
      * Check if user ip matches with any of the white listed IPs
+     * 
      * @param request
      * @return
      */
@@ -115,10 +116,24 @@ public class SecurityUtilService {
         boolean disabled = false;
         String userIp = request.getRemoteAddr();
         Set<String> whiteListIps = PropertyReader.getRequiredPropertyAsType(PropertyKeys.WHITELISTED_IP, Set.class);
-        if(whiteListIps != null && !whiteListIps.isEmpty()){
+        if (whiteListIps != null && !whiteListIps.isEmpty()) {
             disabled = whiteListIps.contains(userIp);
         }
         return disabled;
+    }
+
+    /**
+     * Check if request validation and captcha is disabled by verifying enable flag in
+     * property file and checking if user IP is whitelisted
+     * 
+     * @param request
+     * @return
+     */
+    public boolean isReqValAndCaptchaDisabled(HttpServletRequest request) {
+        if (!PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_CRAWL_PREVENTION, Boolean.class)) {
+            return true;
+        }
+        return isCrawlCheckDisabled(request);
     }
 
 }
