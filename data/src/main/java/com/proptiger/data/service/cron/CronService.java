@@ -55,21 +55,6 @@ public class CronService {
 
     private static Logger       logger = LoggerFactory.getLogger(CronService.class);
 
-    public void manageLeadAssignment() {
-        Date createdSince = new Date(
-                new Date().getTime() - PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_CRON_BUFFER)
-                        * 1000);
-        List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
-        for (Lead lead : leads) {
-            try {
-                leadService.manageLeadAuction(lead.getId());
-            }
-            catch (Exception e) {
-                logger.error("Error in lead assignment: " + e);
-            }
-        }
-    }
-
     @Scheduled(initialDelay = 10000, fixedDelay = 1800000)
     public void manageLeadAssignmentWithCycle() {
         Date createdSince = new Date(

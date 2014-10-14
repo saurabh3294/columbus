@@ -74,33 +74,8 @@ public class LeadService {
     @Autowired
     private CityService             cityService;
 
-    @Transactional
-    public void manageLeadAuction(int leadId) {
-        Lead lead = leadDao.getLock(leadId);
-
-        if (lead.getLeadOffers() != null && lead.getLeadOffers().isEmpty()) {
-            List<Company> brokerCompanies = getBrokersForLead(lead.getId());
-
-            boolean isAssigned = false;
-            if (brokerCompanies.isEmpty()) {
-                // XXX No broker found alert in future
-            }
-            else {
-                for (Company company : brokerCompanies) {
-                    // LeadOffer offer =
-                    // leadOfferService.offerLeadToBroker(lead, company, 1);
-                    /*
-                     * if (offer != null) { isAssigned = true;
-                     * notificationService
-                     * .sendLeadOfferNotification(offer.getId()); }
-                     */
-                }
-            }
-            if (!isAssigned) {
-                throw new ProAPIException("Error in Assigning lead id: " + leadId);
-            }
-        }
-    }
+    
+    
 
     
     public void manageLeadAuctionWithBeforeCycle(int leadId)
@@ -215,40 +190,9 @@ public class LeadService {
 
     @Async
     public void manageLeadAuctionAsync(int leadId) {
-        manageLeadAuction(leadId);
+        manageLeadAuctionWithBeforeCycle(leadId);
     }
 
-    /**
-     * gets all broker companies eligible to fulfil a lead
-     * 
-     * @param lead
-     * @return {@link Company} {@link List}
-     */
-    private List<Company> getBrokersForLead(int leadId) {
-        List<Company> brokers = new ArrayList<>();
-        Lead lead = leadDao.findOne(leadId);
-        List<Integer> localityIds = getLocalitiesForLead(lead.getId());
-        if (localityIds.size() == 0) {
-            throw new ProAPIException("No locality found in lead");
-        }
-        else {
-            brokers = companyService.getBrokersForLocalities(localityIds);
-        }
-        return brokers;
-    }
-
-    private List<Company> getBrokersForLeadWithCycle(int leadId) {
-        List<Company> brokers = new ArrayList<>();
-        Lead lead = leadDao.findOne(leadId);
-        List<Integer> localityIds = getLocalitiesForLead(lead.getId());
-        if (localityIds.size() == 0) {
-            throw new ProAPIException("No locality found in lead");
-        }
-        else {
-            brokers = companyService.getBrokersForLocalities(localityIds);
-        }
-        return brokers;
-    }
 
     /**
      * gets all localities for a particular lead
