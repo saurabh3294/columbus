@@ -32,7 +32,7 @@ public interface ProjectDiscussionDao extends PagingAndSortingRepository<Project
     @Query("SELECT pd.projectId FROM Project P , ProjectDiscussion pd " + "WHERE pd.projectId=p.projectId AND p.version='Website' AND pd.createdDate >= ?1"
             + " AND CASE ?2 WHEN 1 THEN p.locality.suburb.city.id  WHEN 2 THEN p.locality.suburb.id WHEN 3 THEN p.localityId END = ?3 "
             + " GROUP BY pd.projectId HAVING COUNT(*) > ?4 ORDER BY pd.createdDate DESC, COUNT(*) DESC , p.assignedPriority ASC")
-    public List<Integer> getRecentlyMo5stDiscussedProjects(
+    public List<Integer> getRecentlyMostDiscussedProjects(
             @Param Date date,
             @Param int localityType,
             @Param int cityId,

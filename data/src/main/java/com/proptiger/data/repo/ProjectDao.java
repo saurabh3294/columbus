@@ -34,9 +34,6 @@ public class ProjectDao extends ProjectSolrDao {
 
     @Autowired
     private ProjectDiscussionDao projectDiscussionDao;
-
-    @Autowired
-    private ProjectDiscussionDao projectDiscussionDao;
     
     @Autowired
     private EntityManagerFactory emf;

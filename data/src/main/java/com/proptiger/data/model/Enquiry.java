@@ -48,7 +48,7 @@ public class Enquiry extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long              id;
-    
+
     @Column(name = "NAME")
     private String            name;
 
@@ -71,6 +71,9 @@ public class Enquiry extends BaseModel {
 
     @Transient
     private List<Integer>     multipleProjectIds;
+
+    @Transient
+    private List<Integer>     multipleTypeIds;
 
     @Column(name = "PROJECT_NAME")
     private String            projectName;
@@ -106,8 +109,8 @@ public class Enquiry extends BaseModel {
     private String            ip;
 
     @Transient
-    private String           resaleAndLaunchFlag;                             
-    
+    private String            resaleAndLaunchFlag;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_DATE")
     private Date              createdDate;
@@ -170,7 +173,7 @@ public class Enquiry extends BaseModel {
     private String            gaTimespent;
 
     @Column(name = "GA_PPC")
-    private String               gaPpc;
+    private String            gaPpc;
 
     @Column(name = "PROCESSING_STATUS")
     @Enumerated(EnumType.STRING)
@@ -658,6 +661,14 @@ public class Enquiry extends BaseModel {
         this.multipleProjectIds = multipleProjectIds;
     }
 
+    public List<Integer> getMultipleTypeIds() {
+        return multipleTypeIds;
+    }
+
+    public void setMultipleTypeIds(List<Integer> multipleTypeIds) {
+        this.multipleTypeIds = multipleTypeIds;
+    }
+
     public Integer getTypeId() {
         return typeId;
     }
@@ -770,7 +781,7 @@ public class Enquiry extends BaseModel {
     public BeanstalkEnquiry createBeanstalkEnquiryObj() {
 
         BeanstalkEnquiry beanstalkEnquiry = new BeanstalkEnquiry();
-        
+
         beanstalkEnquiry.setId(this.getId());
         beanstalkEnquiry.setEnquiryId(this.getId());
         beanstalkEnquiry.setName(this.getName());
@@ -778,7 +789,7 @@ public class Enquiry extends BaseModel {
         beanstalkEnquiry.setCountry(this.getCountry());
         beanstalkEnquiry.setDeadReason("None");
         beanstalkEnquiry.setDescription(this.getQuery());
-        
+
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         beanstalkEnquiry.setEnquiryTime(format.format(this.getCreatedDate()));
@@ -795,15 +806,19 @@ public class Enquiry extends BaseModel {
         beanstalkEnquiry.setLocalityId(this.getLocalityId());
         beanstalkEnquiry.setPhone(this.getPhone());
         beanstalkEnquiry.setProjectId(this.getProjectId());
-        
-        if (this.getProjectId() != 0 && this.getProject() != null && this.getProject().getBuilder() != null && this.getProject().getBuilder().getName() != null) {
-            beanstalkEnquiry.setProjectName(this.getProject().getBuilder().getName().concat(" ")
-                    .concat(this.getProjectName().replace(this.getProject().getBuilder().getName(), "")));
+
+        if (this.getProjectId() != 0) {
+
+            if (this.getProject() != null && this.getProject().getBuilder() != null
+                    && this.getProject().getBuilder().getName() != null) {
+                beanstalkEnquiry.setProjectName(this.getProject().getBuilder().getName().concat(" ")
+                        .concat(this.getProjectName().replace(this.getProject().getBuilder().getName(), "")));
+            }
         }
         else {
             beanstalkEnquiry.setProjectName(this.getProjectName());
         }
-        
+
         beanstalkEnquiry.setCityName(this.getCityName());
         beanstalkEnquiry.setLocality(this.getLocalityName());
         beanstalkEnquiry.setQuery(this.getQuery());
@@ -827,7 +842,14 @@ public class Enquiry extends BaseModel {
         else {
             beanstalkEnquiry.setLeadTag("");
         }
-        return beanstalkEnquiry;
 
+        if (this.getMultipleTypeIds() != null && !this.getMultipleTypeIds().isEmpty()) {
+            beanstalkEnquiry.setMultipleTypeIds(this.getMultipleTypeIds().toString());
+        }
+        else {
+            beanstalkEnquiry.setMultipleTypeIds("");
+        }
+
+        return beanstalkEnquiry;
     }
 }

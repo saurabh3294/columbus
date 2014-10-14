@@ -94,8 +94,8 @@ public class GACookies {
                 || enquiry.getGaMedium().toLowerCase().trim().equals("externalmailer")
                 || enquiry.getGaMedium().toLowerCase().trim().equals("mailer external")
                 || enquiry.getGaMedium().toLowerCase().trim().equals("mailerexternal")
-                || enquiry.getGaMedium().toLowerCase().trim().equals("banner") || !enquiry.getGaSource().toLowerCase()
-                .trim().equals("banner_ad"))) {
+                || (enquiry.getGaMedium().toLowerCase().trim().equals("banner") && !enquiry.getGaSource().toLowerCase()
+                .trim().equals("banner_ad")))) {
             enquiry.setPpc(true);
             enquiry.setGaPpc(gaPpcActive);
         }

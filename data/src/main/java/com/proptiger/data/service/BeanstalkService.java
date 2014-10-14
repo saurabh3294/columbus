@@ -1,6 +1,9 @@
 package com.proptiger.data.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,6 +18,8 @@ import com.surftools.BeanstalkClientImpl.ClientImpl;
 @Service
 public class BeanstalkService {
     
+    private static Logger             logger = LoggerFactory.getLogger(BeanstalkService.class);
+
     @Autowired
     private PropertyReader          propertyReader;
 
@@ -36,9 +41,8 @@ public class BeanstalkService {
         Integer beanstalkPort = propertyReader.getRequiredPropertyAsType(PropertyKeys.BEANSTALK_PORT, Integer.class);
         String beanstalkQueue = propertyReader.getRequiredProperty(PropertyKeys.BEANSTALK_QUEUE_NAME);
         // TODO // change to production
-        // enquiry id not setting
         String beanstalkHost = propertyReader.getRequiredProperty(PropertyKeys.BEANSTALK_INTERNAL_SERVER);
-
+        
         try {
             Client client = new ClientImpl(beanstalkHost, beanstalkPort);
             client.useTube(beanstalkQueue);
@@ -48,10 +52,12 @@ public class BeanstalkService {
                 return true;
             }
             else {
+                logger.debug("Failed to write to Beanstalk");
                 return false;
             }
         }
         catch (Exception e) {
+            logger.debug("Failed to write to Beanstalk");
             return false;
         }
 

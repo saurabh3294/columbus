@@ -3,6 +3,7 @@ package com.proptiger.data.service;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,14 +32,19 @@ import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Enquiry;
+import com.proptiger.data.model.EnquiryAttributes;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
-import com.proptiger.data.pojo.response.PaginatedResponse;
-import com.proptiger.data.repo.LeadEnquiryDao;
+import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.UserContactNumber;
+import com.proptiger.data.model.user.UserDetails;
+import com.proptiger.data.repo.EnquiryAttributesDao;
+import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.LocalityDao;
-import com.proptiger.data.repo.ProjectDatabaseDao;
+import com.proptiger.data.repo.ProjectDiscussionDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SecurityContextUtils;
@@ -60,10 +66,16 @@ public class LeadEnquiryService {
     BeanstalkService                beanstalkService;
 
     @Autowired
-    LeadEnquiryDao                  leadEnquiryDao;
+    UserService                     userService;
 
     @Autowired
-    ProjectDatabaseDao              projectDatabaseDao;
+    EnquiryDao                      enquiryDao;
+
+    @Autowired
+    EnquiryAttributesDao            enquiryAttributesDao;
+
+    @Autowired
+    ProjectDiscussionDao            projectDiscussionDao;
 
     @Autowired
     LocalityDao                     localityDao;
@@ -76,6 +88,19 @@ public class LeadEnquiryService {
 
     @Autowired
     private PropertyReader          propertyReader;
+
+    List<String>                    servingCities = Arrays.asList(
+                                                          "Ahmedabad",
+                                                          "Banglore",
+                                                          "Chennai",
+                                                          "Delhi",
+                                                          "Faridabad",
+                                                          "Ghaziabad",
+                                                          "Gurgaon",
+                                                          "Kolkata",
+                                                          "Mumbai",
+                                                          "Noida",
+                                                          "Pune");
 
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request) {
 
@@ -131,14 +156,33 @@ public class LeadEnquiryService {
 
             SendEmailRequest(enquiry, projectNames);
         }
+
+        // updateUserDetails(enquiry);
         return leadResponse;
+    }
+
+    // TODO for single projectid
+    private void updateUserDetails(Enquiry enquiry) {
+
+        User user = userService.getUser(enquiry.getEmail());
+
+        if (user != null && user.getUserAuthProviderDetails() != null && !user.getUserAuthProviderDetails().isEmpty()) {
+            UserDetails newUser = new UserDetails();
+            UserContactNumber userContactNumber = new UserContactNumber();
+            userContactNumber.setContactNumber(enquiry.getPhone());
+            newUser.getContactNumbers().add(userContactNumber);
+            newUser.setId(user.getId());
+            // TODO
+            ActiveUser activeUser = null;
+            userService.updateUserDetails(newUser, activeUser);
+        }
     }
 
     private Enquiry generateAndWriteLead(Enquiry enquiry) {
 
         generateLeadData(enquiry);
 
-        Enquiry savedEnquiry = leadEnquiryDao.saveAndFlush(enquiry);
+        Enquiry savedEnquiry = enquiryDao.saveAndFlush(enquiry);
         enquiry.setId(savedEnquiry.getId());
         enquiry.setCreatedDate(savedEnquiry.getCreatedDate());
 
@@ -147,6 +191,7 @@ public class LeadEnquiryService {
             Boolean beanstalkResponse = beanstalkService.writeToBeanstalk(enquiry);
             if (!beanstalkResponse) {
                 enquiry.setProcessingStatus(ProcessingStatus.unsuccessful);
+                enquiry = enquiryDao.saveAndFlush(enquiry);
             }
         }
         return enquiry;
@@ -177,6 +222,9 @@ public class LeadEnquiryService {
         if ((enquiry.getPageName() != null) && !enquiry.getPageName().equals("CONTACT US")) {
             dataForTemplate = generateDataToMail(enquiry);
             emailReceiver = enquiry.getEmail();
+            if (!servingCities.contains(enquiry.getCityName())) {
+                dataForTemplate.setLeadMailFlag("non_serving_cities");
+            }
             mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LEAD_GENERATION, dataForTemplate);
             mailDetails = new MailDetails(mailBody).setMailTo(emailReceiver);
             mailSender.sendMailUsingAws(mailDetails);
@@ -199,7 +247,7 @@ public class LeadEnquiryService {
         leadMailData.setEnquiry(enquiry);
 
         if ((enquiry.getMultipleProjectIds() != null) && !enquiry.getMultipleProjectIds().isEmpty()) {
-            List<Project> projects = projectDatabaseDao.getProjectsOnId(enquiry.getMultipleProjectIds());
+            List<Project> projects = projectDiscussionDao.getProjectsOnId(enquiry.getMultipleProjectIds());
             leadMailData.setProjects(projects);
             leadMailData.setLeadMailFlag("leadAcceptanceResale");
             return leadMailData;
@@ -210,7 +258,7 @@ public class LeadEnquiryService {
                 && enquiry.getProjectName() != "") {
 
             if (enquiry.getProject() == null) {
-                Project projectDetails = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
+                Project projectDetails = projectDiscussionDao.getProjectOnId(enquiry.getProjectId());
                 leadMailData.getEnquiry().setProject(projectDetails);
             }
             leadMailData.setLeadMailFlag("google_buy_sell_client");
@@ -219,7 +267,7 @@ public class LeadEnquiryService {
         else if (enquiry.getProjectName() != null && enquiry.getProjectName() != "") {
 
             if (enquiry.getProject() == null) {
-                Project projectDetails = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
+                Project projectDetails = projectDiscussionDao.getProjectOnId(enquiry.getProjectId());
                 leadMailData.getEnquiry().setProject(projectDetails);
             }
             leadMailData.setLeadMailFlag("leadAcceptance");
@@ -415,7 +463,7 @@ public class LeadEnquiryService {
             enquiry.setHomeLoanType("");
         }
         if (enquiry.getProjectId() != 0) {
-            projectInfo = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
+            projectInfo = projectDiscussionDao.getProjectOnId(enquiry.getProjectId());
             if (projectInfo != null) {
                 enquiry.setProjectName(projectInfo.getName());
                 enquiry.setLocalityId(projectInfo.getLocalityId());
@@ -471,7 +519,7 @@ public class LeadEnquiryService {
         setSalesTypeInEnquiry(enquiry, projectInfo);
 
         // Set if user is registered
-        ActiveUser user = SecurityContextUtils.getLoggedInUser();
+        ActiveUser user = SecurityContextUtils.getActiveUser();
         if (user == null) {
             enquiry.setRegisteredUser("NO");
         }
@@ -531,9 +579,39 @@ public class LeadEnquiryService {
         }
     }
 
-    // TODO cookie autofill, facebook, tracker
+    // TODO cookie autofill, tracker
 
-    public PaginatedResponse<?> updateLeadEnquiry(Enquiry enquiry, HttpServletRequest request) {
-        return null;
+    public Enquiry updateLeadEnquiry(Enquiry enquiry, Long enquiryId, HttpServletRequest request) {
+
+        Enquiry savedEnquiry = enquiryDao.findOne(enquiryId);
+        if (enquiry.getMultipleProjectIds() != null && !enquiry.getMultipleProjectIds().isEmpty()) {
+            savedEnquiry.setMultipleProjectIds(enquiry.getMultipleProjectIds());
+            for (Integer projectId : savedEnquiry.getMultipleProjectIds()) {
+                Enquiry enquiryNew = savedEnquiry;
+                enquiryNew.setProjectId(projectId);
+                enquiryNew.setId(0);
+                enquiryNew = generateAndWriteLead(enquiryNew);
+            }
+        }
+
+        // failing at project
+        if (enquiry.getMultipleTypeIds() != null && !enquiry.getMultipleTypeIds().isEmpty()) {
+            savedEnquiry.setMultipleTypeIds(enquiry.getMultipleTypeIds());
+            for (Integer typeId : savedEnquiry.getMultipleTypeIds()) {
+                EnquiryAttributes enquiryAttributes = new EnquiryAttributes();
+                enquiryAttributes.setEnquiryId(savedEnquiry.getId());
+                enquiryAttributes.setTypeId(typeId);
+                enquiryAttributesDao.saveAndFlush(enquiryAttributes);
+            }
+
+            savedEnquiry = enquiryDao.saveAndFlush(savedEnquiry);
+
+            if (savedEnquiry.getProjectId() != 0) {
+                savedEnquiry.setProject(projectDiscussionDao.getProjectOnId(enquiry.getProjectId()));
+            }
+            beanstalkService.writeToBeanstalk(savedEnquiry);
+        }
+
+        return savedEnquiry;
     }
 }

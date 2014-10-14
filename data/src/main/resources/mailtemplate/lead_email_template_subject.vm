@@ -4,6 +4,9 @@ PropTiger | Seller’s Info for $leadgeneration.enquiry.cityName
 #elseif ($leadgeneration.enquiry.pageName == 'portfolio')
 PropTiger | Resale Listing Interest Confirmation
 
+#elseif ($leadgeneration.leadMailFlag == 'non_serving_cities')
+Proptiger | Area not served
+
 #else
 PropTiger | Requirement Confirmation
 #end

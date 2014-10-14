@@ -3,8 +3,12 @@ package com.proptiger.data.init;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+
 import com.proptiger.data.model.Enquiry;
+import com.proptiger.data.util.RegistrationUtils;
 
 public class LeadValidator {
 
@@ -32,10 +36,7 @@ public class LeadValidator {
             leadInvalidations.put("lead_email", "Please enter Email.");
         }
         else {
-            String emailPattern = "^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,3})$";
-            Pattern pattern = Pattern.compile(emailPattern);
-            Matcher matcher = pattern.matcher(enquiry.getEmail());
-            if (!matcher.matches()) {
+            if (!RegistrationUtils.validateEmail(enquiry.getEmail())) {
                 leadInvalidations.put("lead_email", "Please enter a valid Email.");
             }
         }

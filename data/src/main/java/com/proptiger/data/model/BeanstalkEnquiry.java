@@ -1,7 +1,5 @@
 package com.proptiger.data.model;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BeanstalkEnquiry {
@@ -80,6 +78,9 @@ public class BeanstalkEnquiry {
     
     @JsonProperty("application_type")
     private String applicationType;
+    
+    @JsonProperty("options_id")
+    private String multipleTypeIds;
 
     public long getEnquiryId() {
         return enquiryId;
@@ -304,4 +305,14 @@ public class BeanstalkEnquiry {
     public void setApplicationType(String applicationType) {
         this.applicationType = applicationType;
     }
+
+    public String getMultipleTypeIds() {
+        return multipleTypeIds;
+    }
+
+    public void setMultipleTypeIds(String multipleTypeIds) {
+        this.multipleTypeIds = multipleTypeIds;
+    }
+    
+    
 }
