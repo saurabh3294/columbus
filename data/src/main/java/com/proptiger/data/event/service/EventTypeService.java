@@ -42,7 +42,7 @@ public class EventTypeService {
                 + " in eventTypeConfig mapping");
 
         if (savedEventTypeConfig == null) {
-            logger.error("EventType " + eventType.getName()
+            logger.debug("EventType " + eventType.getName()
                     + " do not have mapping of Event Type Config. Using Defaults.");
             savedEventTypeConfig = new EventTypeConfig();
         }

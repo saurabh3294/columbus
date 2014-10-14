@@ -13,52 +13,44 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationTypeNotificationMediumMapping;
 import com.proptiger.data.notification.repo.NotificationTypeNotificationMediumMappingDao;
 
 @Service
 public class NotificationTypeNotificationMediumMappingService {
-    private static Logger           logger     = LoggerFactory.getLogger(NotificationTypeNotificationMediumMapping.class);
-    
+
+    private static Logger                                logger            = LoggerFactory
+                                                                                   .getLogger(NotificationTypeNotificationMediumMappingService.class);
+    private static final String                          DELIMITER         = ".";
+
     @Autowired
     private NotificationTypeNotificationMediumMappingDao nMappingDao;
-    
-    private Map<Integer, List<NotificationMedium>> typeMediumMapping = new HashMap<Integer, List<NotificationMedium>>();
-    private static Map<String, String> templatesMap;
+
+    private Map<Integer, List<NotificationMedium>>       typeMediumMapping = new HashMap<Integer, List<NotificationMedium>>();
+    private static Map<String, String>                   templatesMap      = new HashMap<String, String>();
 
     @PostConstruct
-    public void buildTypeMediumMapping(){
+    public void buildTypeMediumMappingAndTemplateMap() {
         Iterable<NotificationTypeNotificationMediumMapping> ib = findAll();
         Iterator<NotificationTypeNotificationMediumMapping> it = ib.iterator();
-        
+
         NotificationTypeNotificationMediumMapping mapping = null;
         List<NotificationMedium> notificationMediums = null;
-        while(it.hasNext()){
+        while (it.hasNext()) {
             mapping = it.next();
             notificationMediums = typeMediumMapping.get(mapping.getNotificationType().getId());
-            if(notificationMediums == null){
+            if (notificationMediums == null) {
                 notificationMediums = new ArrayList<NotificationMedium>();
             }
             notificationMediums.add(mapping.getNotificationMedium());
             typeMediumMapping.put(mapping.getNotificationType().getId(), notificationMediums);
+            templatesMap.put(mapping.getNotificationType().getId() + DELIMITER
+                    + mapping.getNotificationMedium().getId(), mapping.getSendTemplate());
         }
     }
-    
-    @PostConstruct
-    private void populateTemplatesMap() {
-        templatesMap = new HashMap<String, String>();
-        Iterable<NotificationTypeNotificationMediumMapping> ntNmMappings = nMappingDao.findAll();
-        Iterator<NotificationTypeNotificationMediumMapping> itNtNmMappings = ntNmMappings.iterator();
-        while (itNtNmMappings.hasNext()) {
-            NotificationTypeNotificationMediumMapping ntNmMapping = itNtNmMappings.next();
-            templatesMap.put(ntNmMapping.getNotificationType().getId() + "." + ntNmMapping.getNotificationMedium()
-                    .getId(), ntNmMapping.getSendTemplate());
-        }
-    }
-    
-    public Iterable<NotificationTypeNotificationMediumMapping> findAll(){
+
+    public Iterable<NotificationTypeNotificationMediumMapping> findAll() {
         return nMappingDao.findAll();
     }
 
@@ -70,23 +62,11 @@ public class NotificationTypeNotificationMediumMappingService {
         this.typeMediumMapping = typeMediumMapping;
     }
 
-    
-    
-    public String getTemplate(String ntType, String ntMediumType) {
+    public String getTemplate(Integer ntType, Integer ntMediumType) {
         if (ntType == null || ntMediumType == null) {
-            logger.info("Notification type or Notification Medium type is null");
+            logger.error("Notification type or Notification Medium type is null");
             return null;
         }
-        return templatesMap.get(ntType + ntMediumType);
-    }
-
-    public String getTemplate(NotificationGenerated ntGenerated) {
-        logger.debug(templatesMap.toString());
-        if (ntGenerated.getNotificationType().getId() == 0 || ntGenerated.getNotificationMedium().getId() == 0) {
-            logger.info("Notification type or Notification Medium type id is zero");
-            return null;
-        }
-        return templatesMap.get(ntGenerated.getNotificationType().getId() + "." +  ntGenerated.getNotificationMedium()
-                .getId());
+        return templatesMap.get(ntType + DELIMITER + ntMediumType);
     }
 }
