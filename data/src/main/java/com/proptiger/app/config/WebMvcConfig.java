@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.VelocityException;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -85,6 +86,7 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         VelocityEngineFactory factory = new VelocityEngineFactory();
         Properties props = new Properties();
         props.put("resource.loader", "class");
+        props.put(RuntimeConstants.RUNTIME_REFERENCES_STRICT, true);
         props.put("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
         factory.setVelocityProperties(props);
         return factory.createVelocityEngine();

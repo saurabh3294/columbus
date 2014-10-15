@@ -37,7 +37,7 @@ public class RawEventToEventTypeMappingService {
 
     @PostConstruct
     public void constructDbConfig() {
-        logger.info("Constructing RawEventToEventTypeMapping Config.");
+        logger.debug("Constructing RawEventToEventTypeMapping Config.");
         Iterable<RawEventToEventTypeMapping> listEventTypeMapping = getAllMappingOfRawEventsToEventType();
         Iterator<RawEventToEventTypeMapping> itEvenIterator = listEventTypeMapping.iterator();
         logger.debug(" DB RETRIEVE LIST Details : " + gson.toJson(listEventTypeMapping));
@@ -165,7 +165,7 @@ public class RawEventToEventTypeMappingService {
             }
         }
         logger.debug("ENDING ITERATING");
-        logger.info("RawEventToEventTypeMapping " + new Gson().toJson(dbRawEventTableConfigs));
+        logger.debug("RawEventToEventTypeMapping " + new Gson().toJson(dbRawEventTableConfigs));
 
     }
 

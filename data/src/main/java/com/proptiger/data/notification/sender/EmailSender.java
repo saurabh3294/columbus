@@ -34,8 +34,15 @@ public class EmailSender implements MediumSender {
     @Override
     public boolean send(String template, Integer userId, String typeName, NotificationSenderPayload payload) {
 
-        if (userId == null) {
-            logger.error("Found null User Id while sending email.");
+        if (userId == null || template == null || payload == null) {
+            logger.error("Found UserId: " + userId
+                    + " template: "
+                    + template
+                    + " payload: "
+                    + payload
+                    + " typeName: "
+                    + typeName
+                    + " while sending email.");
             return false;
         }
 
