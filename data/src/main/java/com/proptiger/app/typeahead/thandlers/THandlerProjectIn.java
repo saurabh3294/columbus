@@ -11,20 +11,6 @@ import com.proptiger.data.pojo.Selector;
 
 @Component
 public class THandlerProjectIn extends RootTHandler {
-
-    private String selectorCityFilter = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]}}";
-    
-    private String genericUrlProjectsIn               = "%s-real-estate";
-    private String genericUrlLuxuryProjectsIn         = "%s/luxury-projects";
-    private String genericUrlAffordableProjectsIn     = "%s/affordable-flats";
-    private String genericUrlUpcomingProjectsIn       = "%s/upcoming-flats-for-sale";    
-    
-    private String genericUrlNewProjectsIn            = "%s-real-estate/filters?projectStatus=launch";
-    private String genericUrlPreLaunchProjectsIn      = "%s-real-estate/filters?projectStatus=not launched,pre launch";
-    private String genericUrlUnderConstProjectsIn     = "%s-real-estate/filters?projectStatus=under construction";
-    private String genericUrlReadyToMoveProjectsIn    = "%s-real-estate/filters?projectStatus=ready for possession,occupied,completed";
-    
-    /* TODO :: ask to use filter usl or footer url if both are there */
     
     private String localityFilter = "locality=%s";
    
@@ -59,31 +45,31 @@ public class THandlerProjectIn extends RootTHandler {
         TemplateTypes templateType = this.getType();
         switch (templateType) {
             case ProjectsIn:
-                redirectUrl = String.format(genericUrlProjectsIn, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericUrlProjectsIn, city.toLowerCase());
                 break;
             case NewProjectsIn:
-                redirectUrl = String.format(genericUrlNewProjectsIn, city.toLowerCase());  /* TODO */
+                redirectUrl = String.format(URLGenerationConstants.GenericUrlNewProjectsIn, city.toLowerCase());  /* TODO */
                 break;
             case UpcomingProjectsIn:
-                redirectUrl = String.format(genericUrlUpcomingProjectsIn, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericUrlUpcomingProjectsIn, city.toLowerCase());
                 break;
             case PreLaunchProjectsIn:
-                redirectUrl = String.format(genericUrlPreLaunchProjectsIn, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericUrlPreLaunchProjectsIn, city.toLowerCase());
                 break;
             case UnderConstProjectsIn:
-                redirectUrl = String.format(genericUrlUnderConstProjectsIn, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericUrlUnderConstProjectsIn, city.toLowerCase());
                 break;
             case ReadyToMoveProjectsIn:
-                redirectUrl = String.format(genericUrlReadyToMoveProjectsIn, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericUrlReadyToMoveProjectsIn, city.toLowerCase());
                 break;
             case AffordableProjectsIn:
-                redirectUrl = String.format(genericUrlAffordableProjectsIn, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericUrlAffordableProjectsIn, city.toLowerCase());
                 break;
             case LuxuryProjectsIn:
-                redirectUrl = String.format(genericUrlLuxuryProjectsIn, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericUrlLuxuryProjectsIn, city.toLowerCase());
                 break;
             case TopProjectsIn:
-                redirectUrl = String.format(genericUrlProjectsIn, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericUrlProjectsIn, city.toLowerCase());
                 break;
             default:
                 break;
@@ -100,7 +86,9 @@ public class THandlerProjectIn extends RootTHandler {
     
     private List<Locality> getTopLocalities(String cityName)
     {
-        Selector selector = (new Gson()).fromJson(String.format(selectorCityFilter, cityName), Selector.class);
+        Selector selector = (new Gson()).fromJson(
+                String.format(URLGenerationConstants.ServiceSelectorGetLocalityByCity, cityName),
+                Selector.class);
         List<Locality> topLocalities = localityService.getLocalities(selector).getResults();
         return topLocalities;
     }
