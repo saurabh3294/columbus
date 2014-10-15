@@ -74,24 +74,23 @@ public class LeadService {
     @Autowired
     private CityService             cityService;
 
-    
-    public void manageLeadAuctionWithBeforeCycleForRequestBrokers(int leadId)
-    {
+    public void manageLeadAuctionWithBeforeCycleForRequestBrokers(int leadId) {
         Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
-        Map<Integer,Integer> phaseIdMapLeadId = new HashMap<Integer,Integer>();
-        phaseIdMapLeadId.put(leadId,maxPhaseIdForRequestMoreBrokers);
-        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId,maxPhaseIdForRequestMoreBrokers);
+        Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
+        phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers);
+        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers);
     }
 
-    
-    public void manageLeadAuctionWithBeforeCycle(int leadId)
-    {
-        Map<Integer,Integer> phaseIdMapLeadId = new HashMap<Integer,Integer>();
-        phaseIdMapLeadId.put(leadId,0);
-        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId,0);
+    public void manageLeadAuctionWithBeforeCycle(int leadId) {
+        Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
+        phaseIdMapLeadId.put(leadId, 0);
+        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, 0);
     }
-    
-    public void manageLeadAuctionWithCycle(int leadId, Map<Integer, Integer> maxPhaseIdMapLeadId,Integer maxPhaseIdForRequestMoreBrokers) {
+
+    public void manageLeadAuctionWithCycle(
+            int leadId,
+            Map<Integer, Integer> maxPhaseIdMapLeadId,
+            Integer maxPhaseIdForRequestMoreBrokers) {
         Lead lead = leadDao.getLock(leadId);
         lead.setRequestBrokerPhaseId(maxPhaseIdForRequestMoreBrokers);
         List<Company> brokerCompanies = getBrokersForLeadWithCycleExcludingAlreadyOffered(lead);
@@ -198,7 +197,6 @@ public class LeadService {
     public void manageLeadAuctionAsync(int leadId) {
         manageLeadAuctionWithBeforeCycle(leadId);
     }
-
 
     /**
      * gets all localities for a particular lead

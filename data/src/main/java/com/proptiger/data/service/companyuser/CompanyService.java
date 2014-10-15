@@ -40,7 +40,7 @@ public class CompanyService {
     }
 
     public List<Company> getCompanyFromUserId(List<Integer> agentIds) {
-       return companyUserDao.findByAgentId(agentIds);
-        
+        return companyUserDao.findByAgentId(agentIds);
+
     }
 }

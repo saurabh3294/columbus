@@ -39,21 +39,18 @@ public class LeadController extends BaseController {
         }
         return new APIResponse(createdLead);
     }
-    
-    
+
     @RequestMapping(value = "data/v1/entity/lead/{leadId}/request-more-brokers", method = RequestMethod.PUT)
     @ResponseBody
-    public APIResponse requestMoreBrokers(
-            @PathVariable int leadId) {
-            leadService.updateRequestMoreBrokers(leadId);
-            try {
-                leadService.manageLeadAuctionWithBeforeCycleForRequestBrokers(leadId);
-            }
-            catch (Exception e) {
-            }
+    public APIResponse requestMoreBrokers(@PathVariable int leadId) {
+        leadService.updateRequestMoreBrokers(leadId);
+        try {
+            leadService.manageLeadAuctionWithBeforeCycleForRequestBrokers(leadId);
+        }
+        catch (Exception e) {
+        }
         return new APIResponse();
     }
-    
 
     @RequestMapping(value = "data/v1/entity/lead/exists")
     @ResponseBody

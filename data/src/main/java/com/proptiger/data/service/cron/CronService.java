@@ -114,7 +114,7 @@ public class CronService {
 
         for (Integer leadId : leadIdList) {
             try {
-                leadService.manageLeadAuctionWithCycle(leadId, maxPhaseIdMapLeadId,0);
+                leadService.manageLeadAuctionWithCycle(leadId, maxPhaseIdMapLeadId, 0);
             }
 
             catch (Exception e) {
