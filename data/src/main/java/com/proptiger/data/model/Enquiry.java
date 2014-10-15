@@ -221,6 +221,12 @@ public class Enquiry extends BaseModel {
 
     @Transient
     private String            buySell;
+    
+    @Transient
+    private Boolean           trackingFlag  = false;
+    
+    @Transient
+    private String            redirectUrl;
 
     @ManyToOne
     @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
@@ -723,6 +729,22 @@ public class Enquiry extends BaseModel {
 
     public void setJsonDump(String jsonDump) {
         this.jsonDump = jsonDump;
+    }
+
+    public Boolean getTrackingFlag() {
+        return trackingFlag;
+    }
+
+    public void setTrackingFlag(Boolean trackingFlag) {
+        this.trackingFlag = trackingFlag;
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
     }
 
     @PrePersist
