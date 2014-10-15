@@ -43,7 +43,6 @@ public class LeadController extends BaseController {
     @RequestMapping(value = "data/v1/entity/lead/{leadId}/request-more-brokers", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse requestMoreBrokers(@PathVariable int leadId) {
-        leadService.updateRequestMoreBrokers(leadId);
         try {
             leadService.manageLeadAuctionWithBeforeCycleForRequestBrokers(leadId);
         }

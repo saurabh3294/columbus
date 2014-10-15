@@ -84,7 +84,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
 
     @Modifying
     @Transactional
-    @Query("update LeadOffer LO set LO.expireFlag = 1 where LO.leadId in (?1)")
+    @Query("update LeadOffer LO set LO.statusId = 2 where LO.leadId in (?1) and LO.statusId = 1")
     void updateLeadOffers(List<Integer> leadIdList);
 
     @Query("select max(LO.cycleId) from LeadOffer LO where LO.leadId = ?1")
@@ -96,8 +96,4 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select MAX(LO.phaseId) from LeadOffer LO where LO.leadId = ?1")
     Integer getMaxPhaseId(int leadId);
 
-    @Modifying
-    @Transactional
-    @Query("update LeadOffer LO set LO.expireTime = NOW() where LO.cycleId = ?1")
-    void updateExpireTime(Integer maxCycleId);
 }

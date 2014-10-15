@@ -141,12 +141,7 @@ public class LeadOffer extends BaseModel {
 
     @Transient
     private User                     agent;
-
-    @Column(name = "expire_flag")
-    private boolean                  expireFlag;
-
-    @Column(name = "expire_time")
-    private Date                     expireTime;
+    
 
     @Column(name = "phase_id")
     private int                      phaseId;
@@ -159,21 +154,6 @@ public class LeadOffer extends BaseModel {
         this.phaseId = phaseId;
     }
 
-    public boolean isExpireFlag() {
-        return expireFlag;
-    }
-
-    public void setExpireFlag(boolean expireFlag) {
-        this.expireFlag = expireFlag;
-    }
-
-    public Date getExpireTime() {
-        return expireTime;
-    }
-
-    public void setExpireTime(Date expireTime) {
-        this.expireTime = expireTime;
-    }
 
     public User getAgent() {
         return agent;
