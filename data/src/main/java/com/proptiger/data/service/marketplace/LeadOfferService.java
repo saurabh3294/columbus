@@ -117,8 +117,7 @@ public class LeadOfferService {
 
     @Autowired
     private PropertyReader               propertyReader;
-    
-    
+
     /**
      * 
      * @param integer
@@ -691,37 +690,32 @@ public class LeadOfferService {
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
         LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
         Integer maxPhaseId = leadOfferDao.getMaxPhaseId(leadOfferInDB.getLeadId());
-        List<LeadOffer> allLeadOffers =  leadOfferDao.findByLeadId(leadOfferInDB.getLeadId());
+        List<LeadOffer> allLeadOffers = leadOfferDao.findByLeadId(leadOfferInDB.getLeadId());
 
         Integer leadOfferCount = 0;
         Integer declinedLeadOfferCountInCycle = 0;
         Integer maxCycleId = 0;
         Integer leadOfferCountInCycle = 0;
         Integer allCountInCycle = 0;
-        for(LeadOffer leadOffer:allLeadOffers)
-        {
-            if(leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId)
-            {
+        for (LeadOffer leadOffer : allLeadOffers) {
+            if (leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId) {
                 leadOfferCount++;
             }
-            if(leadOffer.getCycleId() > maxCycleId)
-            {
+            if (leadOffer.getCycleId() > maxCycleId) {
                 maxCycleId = leadOffer.getCycleId();
             }
         }
-        
-        for(LeadOffer leadOffer:allLeadOffers)
-        {
-            if(leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId && leadOffer.getCycleId() == maxCycleId)
-            {
+
+        for (LeadOffer leadOffer : allLeadOffers) {
+            if (leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId
+                    && leadOffer.getCycleId() == maxCycleId) {
                 leadOfferCountInCycle++;
             }
-            if(leadOffer.getStatusId() == LeadOfferStatus.Declined.getId() && leadOffer.getPhaseId() == maxPhaseId && leadOffer.getCycleId() == maxCycleId)
-            {
-               declinedLeadOfferCountInCycle++;
+            if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId() && leadOffer.getPhaseId() == maxPhaseId
+                    && leadOffer.getCycleId() == maxCycleId) {
+                declinedLeadOfferCountInCycle++;
             }
-            if(leadOffer.getCycleId() == maxCycleId)
-            {
+            if (leadOffer.getCycleId() == maxCycleId) {
                 allCountInCycle++;
             }
         }
@@ -730,12 +724,10 @@ public class LeadOfferService {
                 .equals(leadOfferCount)) {
             leadOfferDao.expireRestOfTheLeadOffers(leadOfferInDB.getLeadId());
         }
-        else
-        {
-            if(declinedLeadOfferCountInCycle + leadOfferCountInCycle == allCountInCycle)
-            {
-               LeadService leadService = new LeadService(); 
-               leadService.manageLeadAuctionWithBeforeCycle(leadOfferInDB.getLeadId());    
+        else {
+            if (declinedLeadOfferCountInCycle + leadOfferCountInCycle == allCountInCycle) {
+                LeadService leadService = new LeadService();
+                leadService.manageLeadAuctionWithBeforeCycle(leadOfferInDB.getLeadId());
             }
         }
     }
@@ -945,7 +937,7 @@ public class LeadOfferService {
         return leadOffers;
     }
 
-    public Integer getMaxCycleIdAndPhaseId(int id,int phaseId) {
-        return leadOfferDao.getMaxCycleIdAndPhaseId(id,phaseId);
+    public Integer getMaxCycleIdAndPhaseId(int id, int phaseId) {
+        return leadOfferDao.getMaxCycleIdAndPhaseId(id, phaseId);
     }
 }

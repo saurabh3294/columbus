@@ -116,7 +116,10 @@ public class CronService {
 
         for (Integer leadId : leadIdList) {
             try {
-                leadService.manageLeadAuctionWithCycle(leadId, maxPhaseIdMapLeadId, maxPhaseIdMapLeadId.get(leadId)==null ? 0 : maxPhaseIdMapLeadId.get(leadId));
+                leadService.manageLeadAuctionWithCycle(
+                        leadId,
+                        maxPhaseIdMapLeadId,
+                        maxPhaseIdMapLeadId.get(leadId) == null ? 0 : maxPhaseIdMapLeadId.get(leadId));
             }
 
             catch (Exception e) {

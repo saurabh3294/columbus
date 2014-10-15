@@ -77,15 +77,14 @@ public class LeadService {
 
     public void manageLeadAuctionWithBeforeCycleForRequestBrokers(int leadId) {
         Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
-        
-        if(leadOfferDao.findByLeadIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers).equals(PropertyReader
-                .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE,Long.class)))
-        {
+
+        if (leadOfferDao.findByLeadIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers).equals(
+                PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE, Long.class))) {
             leadOfferDao.updateLeadOffers(Collections.singletonList(leadId));
             Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
-            phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers+1);
-            manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers+1);                
-            
+            phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers + 1);
+            manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers + 1);
+
         }
     }
 
@@ -99,7 +98,7 @@ public class LeadService {
             int leadId,
             Map<Integer, Integer> maxPhaseIdMapLeadId,
             Integer maxPhaseIdForRequestMoreBrokers) {
-        
+
         Lead lead = leadDao.getLock(leadId);
         lead.setRequestBrokerPhaseId(maxPhaseIdForRequestMoreBrokers);
         List<Company> brokerCompanies = getBrokersForLeadWithCycleExcludingAlreadyOffered(lead);
@@ -110,9 +109,9 @@ public class LeadService {
         }
         else {
             int countBrokers = 0;
-            Integer cycleId = leadOfferService.getMaxCycleIdAndPhaseId(lead.getId(),maxPhaseIdForRequestMoreBrokers);
+            Integer cycleId = leadOfferService.getMaxCycleIdAndPhaseId(lead.getId(), maxPhaseIdForRequestMoreBrokers);
             int cycleIdInt;
-            
+
             if (cycleId == null) {
                 cycleId = 0;
             }
