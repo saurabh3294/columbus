@@ -35,5 +35,10 @@ public interface GCMUserDao extends JpaRepository<GCMUser, Integer> {
     @Transactional
     @Query("DELETE FROM GCMUser WHERE gcmRegId = ?1")
     public void deleteByGcmRegId(String gcmRegId);
+    
+    @Modifying
+    @Transactional
+    @Query("UPDATE GCMUser SET gcmRegId = ?2 WHERE gcmRegId = ?1")
+    public void updateGCMRegId(String oldRegId, String newRegId);
 
 }

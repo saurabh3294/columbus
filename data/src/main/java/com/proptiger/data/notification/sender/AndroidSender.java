@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gcm.server.Message;
-import com.google.android.gcm.server.MulticastResult;
+import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
 import com.proptiger.data.enums.AndroidApplication;
 import com.proptiger.data.model.GCMUser;
@@ -110,7 +110,8 @@ public class AndroidSender implements MediumSender {
     }
 
     private boolean pushToAndroidDevice(String template, List<GCMUser> gcmUsersList, String typeName) {
-
+        Boolean isSent = Boolean.FALSE;
+        
         // Create a map of AppIdentifier to List of Reg Ids
         Map<AndroidApplication, List<String>> regIdMap = new HashMap<AndroidApplication, List<String>>();
         for (GCMUser gcmUser : gcmUsersList) {
@@ -142,18 +143,25 @@ public class AndroidSender implements MediumSender {
                         + " to regIds: "
                         + regIds);
 
-                MulticastResult result = sender.send(message, regIds, RETRY_COUNT);
-
-                if (result.getSuccess() == 0) {
-                    logger.error("Unable to send android notification to regIds: " + regIds
-                            + ". Got Result: "
-                            + result.toString());
-                    return false;
+                for (String regId : regIds) {
+                    Result result = sender.send(message, regId, RETRY_COUNT);
+                    if (result.getMessageId() == null) {
+                        logger.error("Unable to send android notification to regId: " + regId
+                                + ". Got Result: "
+                                + result.toString());
+                    }
+                    else {
+                        isSent = Boolean.TRUE;
+                        logger.info("Got Result " + result.toString()
+                                + " after sending android notification to regId: "
+                                + regId);
+                        String canonicalRegId = result.getCanonicalRegistrationId();
+                        if (canonicalRegId != null) {
+                            updateGCMRegistrationId(regId, canonicalRegId);
+                        }
+                    }
                 }
 
-                logger.info("Got Result " + result.toString()
-                        + " after sending android notification to regIds: "
-                        + regIds);
             }
             catch (IOException ioe) {
                 logger.error("Error while sending Push Notification.", ioe.getStackTrace().toString());
@@ -163,7 +171,11 @@ public class AndroidSender implements MediumSender {
             }
         }
 
-        return true;
+        if (isSent) {
+            return true;
+        }
+        
+        return false;
     }
 
     private Map<String, String> getDataMap(String template, String typeName) {
@@ -173,6 +185,16 @@ public class AndroidSender implements MediumSender {
         return dataMap;
     }
 
+    private void updateGCMRegistrationId(String regId, String canonicalRegId) {
+        List<GCMUser> gcmUsers = gcmUserService.findByGCMRegId(canonicalRegId);
+        if (gcmUsers != null && !gcmUsers.isEmpty()) {
+            gcmUserService.deleteGCMUser(regId);
+        }
+        else {
+            gcmUserService.updateGCMRegId(regId, canonicalRegId);
+        }
+    }
+
     public Map<String, String> getAndroidKeyMap() {
         return androidKeyMap;
     }
@@ -180,4 +202,5 @@ public class AndroidSender implements MediumSender {
     public void setAndroidKeyMap(Map<String, String> androidKeyMap) {
         this.androidKeyMap = androidKeyMap;
     }
+
 }
