@@ -90,17 +90,17 @@ public class LeadEnquiryService {
     private PropertyReader          propertyReader;
 
     List<String>                    servingCities = Arrays.asList(
-                                                          "Ahmedabad",
-                                                          "Banglore",
-                                                          "Chennai",
-                                                          "Delhi",
-                                                          "Faridabad",
-                                                          "Ghaziabad",
-                                                          "Gurgaon",
-                                                          "Kolkata",
-                                                          "Mumbai",
-                                                          "Noida",
-                                                          "Pune");
+                                                          "ahmedabad",
+                                                          "banglore",
+                                                          "chennai",
+                                                          "delhi",
+                                                          "faridabad",
+                                                          "ghaziabad",
+                                                          "gurgaon",
+                                                          "kolkata",
+                                                          "mumbai",
+                                                          "noida",
+                                                          "pune");
 
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request) {
 
@@ -134,23 +134,32 @@ public class LeadEnquiryService {
                 for (Integer projectId : enquiry.getMultipleProjectIds()) {
                     Enquiry enquiryNew = enquiry;
                     enquiryNew.setProjectId(projectId);
-                    enquiryNew = generateAndWriteLead(enquiryNew);
+                    enquiryNew = generateAndWriteLead(enquiryNew, request);
                     projectNames.add(enquiryNew.getProjectName());
                     enquiryIds.add(enquiryNew.getId());
                 }
             }
             else {
-                enquiry = generateAndWriteLead(enquiry);
+                enquiry = generateAndWriteLead(enquiry, request);
                 enquiryIds.add(enquiry.getId());
             }
+
+            if (enquiry.getUserMedium().equals("ppc") || enquiry.getUserMedium().equals("cpc")) {
+                enquiry.setTrackingFlag(true);
+            }
+
             if (enquiry.getPpc()) {
                 leadResponse.put("status", "success");
                 leadResponse.put("ppc", "TRUE");
+                leadResponse.put("tracking", enquiry.getTrackingFlag());
+                leadResponse.put("redirectUrl", enquiry.getRedirectUrl());
                 leadResponse.put("enquiryid", enquiryIds);
             }
             else {
                 leadResponse.put("status", "success");
                 leadResponse.put("ppc", "FALSE");
+                leadResponse.put("tracking", enquiry.getTrackingFlag());
+                leadResponse.put("redirectUrl", enquiry.getRedirectUrl());
                 leadResponse.put("enquiryid", enquiryIds);
             }
 
@@ -159,6 +168,28 @@ public class LeadEnquiryService {
 
         // updateUserDetails(enquiry);
         return leadResponse;
+    }
+
+    private void setRedirectUrl(Enquiry enquiry, HttpServletRequest request) {
+
+        if (enquiry.getPageName().equals("GOOGLE 4") || enquiry.getPageName().equals("GOOGLE 8")) {
+
+            if (enquiry.getProject() != null) {
+                enquiry.setRedirectUrl(request.getScheme() + "://"
+                        + request.getServerName()
+                        + "/"
+                        + enquiry.getProject().getURL());
+            }
+            else {
+                enquiry.setRedirectUrl(request.getScheme() + "://" + request.getServerName());
+            }
+        }
+        else {
+            enquiry.setRedirectUrl(enquiry.getHttpReferer());
+        }
+        System.out.println(enquiry.getRedirectUrl());
+        System.out.println(enquiry.getRedirectUrl());
+
     }
 
     // TODO for single projectid
@@ -178,10 +209,10 @@ public class LeadEnquiryService {
         }
     }
 
-    private Enquiry generateAndWriteLead(Enquiry enquiry) {
+    private Enquiry generateAndWriteLead(Enquiry enquiry, HttpServletRequest request) {
 
         generateLeadData(enquiry);
-
+        setRedirectUrl(enquiry, request);
         Enquiry savedEnquiry = enquiryDao.saveAndFlush(enquiry);
         enquiry.setId(savedEnquiry.getId());
         enquiry.setCreatedDate(savedEnquiry.getCreatedDate());
@@ -222,7 +253,7 @@ public class LeadEnquiryService {
         if ((enquiry.getPageName() != null) && !enquiry.getPageName().equals("CONTACT US")) {
             dataForTemplate = generateDataToMail(enquiry);
             emailReceiver = enquiry.getEmail();
-            if (!servingCities.contains(enquiry.getCityName())) {
+            if (!servingCities.contains(enquiry.getCityName().toLowerCase())) {
                 dataForTemplate.setLeadMailFlag("non_serving_cities");
             }
             mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LEAD_GENERATION, dataForTemplate);
@@ -590,7 +621,7 @@ public class LeadEnquiryService {
                 Enquiry enquiryNew = savedEnquiry;
                 enquiryNew.setProjectId(projectId);
                 enquiryNew.setId(0);
-                enquiryNew = generateAndWriteLead(enquiryNew);
+                enquiryNew = generateAndWriteLead(enquiryNew, request);
             }
         }
 
