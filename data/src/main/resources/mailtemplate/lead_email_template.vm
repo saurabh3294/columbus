@@ -665,7 +665,15 @@
                <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
                   Dear ${leadgeneration.enquiry.name}, <br /><br />
                   Thank you for showing your trust and choosing Proptiger as a property advisor. 
-                  You have shown interest in buying a property in <b> ${leadgeneration.enquiry.projectName} </b> at <b> ${leadgeneration.enquiry.localityName} </b>. 
+                  
+                  #if(${leadgeneration.enquiry.project})
+                  You have shown interest in buying a property in <b> ${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} </b> at <b> ${leadgeneration.enquiry.localityName} </b>. 
+                  #elseif(${leadgeneration.enquiry.locality.label})
+                  You have shown interest in buying a property in <b> ${leadgeneration.enquiry.locality.label} </b>. 
+                  #else
+                  You have shown interest in buying a property in <b> ${leadgeneration.enquiry.cityName} </b>. 
+                  #end
+                  
                   Unfortunately, Proptiger does not offer active assistance in <b> ${leadgeneration.enquiry.cityName} </b> as of now. We will get in touch with you, when we have initiated the services in the area. 
 				  <br /><br />
 				  Once again, thank you for showing interest in availing services of Proptiger.
@@ -674,7 +682,7 @@
                   Proptiger Team<br />
                   <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
                   <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
-                  <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
+                  <strong>Call:</strong> +91 92788 92788 (9AM to 7:30PM)<br /><br />
                   <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
                   notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
                </td>

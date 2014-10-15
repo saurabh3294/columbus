@@ -20,10 +20,6 @@ public class LeadValidator {
             leadInvalidations.put("lead_name", "Please enter Name.");
         }
 
-        if (enquiry.getLocalityName() == null) {
-            leadInvalidations.put("lead_locality", "Please select Locality");
-        }
-
         if (enquiry.getCityName() == null) {
             leadInvalidations.put("lead_city", "Please select a City");
         }

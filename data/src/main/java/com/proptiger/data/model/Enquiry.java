@@ -213,8 +213,8 @@ public class Enquiry extends BaseModel {
     @Column(name = "BUY_PERIOD")
     private String            buyPeriod;
 
-    @Transient
-    private String            json;
+    @Column(name = "JSON_DUMP")
+    private String            jsonDump;
 
     @Transient
     private String            leadMailFlag;
@@ -613,14 +613,6 @@ public class Enquiry extends BaseModel {
         this.propertyType = propertyType;
     }
 
-    public String getJson() {
-        return json;
-    }
-
-    public void setJson(String json) {
-        this.json = json;
-    }
-
     public String getLeadMailFlag() {
         return leadMailFlag;
     }
@@ -723,6 +715,14 @@ public class Enquiry extends BaseModel {
 
     public void setCity(City city) {
         this.city = city;
+    }
+    
+    public String getJsonDump() {
+        return jsonDump;
+    }
+
+    public void setJsonDump(String jsonDump) {
+        this.jsonDump = jsonDump;
     }
 
     @PrePersist
