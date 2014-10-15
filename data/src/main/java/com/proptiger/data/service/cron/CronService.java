@@ -62,7 +62,7 @@ public class CronService {
                         * 1000);
         List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
         int interval = PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_OFFER_EXPIRE_TIME);
-        Date expireTime = new Date(new Date().getTime() - interval*1000);
+        Date expireTime = new Date(new Date().getTime() - interval * 1000);
         List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired(expireTime);
         Set<Integer> leadIds = new HashSet<Integer>();
 
