@@ -37,16 +37,11 @@ public interface LeadDao extends JpaRepository<Lead, Integer> {
     @Query(nativeQuery = true, value = "select * from marketplace.leads where id = ?1 for update")
     public Lead getLock(int id);
 
-    @Query("select L from Lead L join fetch L.leadOffers LO join fetch LO.masterLeadOfferStatus MLOS where L.mergedLeadId is null and (LO.expireFlag = 0 or (L.requestBrokerPhaseId is not null and L.requestBrokerPhaseId > 0)) and LO.expireTime < NOW()")
+    @Query("select L from Lead L join fetch L.leadOffers LO join fetch LO.masterLeadOfferStatus MLOS where L.mergedLeadId is null and LO.expireFlag = 0 and LO.expireTime < NOW()")
     public List<Lead> getMergedLeadsWithOfferExpired();
 
     @Query("select L from Lead L join fetch L.requirements where L.id = ?1")
     public Lead findRequirementsByLeadId(int leadId);
-
-    @Modifying
-    @Transactional
-    @Query("update Lead L set L.requestBrokerPhaseId = 0 where L.id in (?1)")
-    public void updateLeadRequestBrokerPhaseId(List<Integer> leadIdList);
 
     @Query("select L from Lead L where L.id = ?1")
     public Lead findById(int leadId);

@@ -46,6 +46,11 @@ public class LeadController extends BaseController {
     public APIResponse requestMoreBrokers(
             @PathVariable int leadId) {
             leadService.updateRequestMoreBrokers(leadId);
+            try {
+                leadService.manageLeadAuctionWithBeforeCycleForRequestBrokers(leadId);
+            }
+            catch (Exception e) {
+            }
         return new APIResponse();
     }
     

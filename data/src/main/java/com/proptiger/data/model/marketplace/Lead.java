@@ -102,7 +102,7 @@ public class Lead extends BaseModel {
     @Column(name = "updated_by")
     private Integer               updatedBy;
 
-    @Column(name = "request_broker_phase_id")
+    @Transient
     private int                   requestBrokerPhaseId;
 
     @OneToMany(mappedBy = "leadId")
