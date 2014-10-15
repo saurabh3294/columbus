@@ -1,6 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,9 +81,11 @@ public class LeadService {
         if(leadOfferDao.findByLeadIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers).equals(PropertyReader
                 .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE,Long.class)))
         {
+            leadOfferDao.updateLeadOffers(Collections.singletonList(leadId));
             Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
-            phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers);
-            manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers);                
+            phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers+1);
+            manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers+1);                
+            
         }
     }
 
@@ -107,10 +110,9 @@ public class LeadService {
         }
         else {
             int countBrokers = 0;
-
-            Integer cycleId = leadOfferService.getMaxCycleId(lead.getId());
+            Integer cycleId = leadOfferService.getMaxCycleIdAndPhaseId(lead.getId(),maxPhaseIdForRequestMoreBrokers);
             int cycleIdInt;
-
+            
             if (cycleId == null) {
                 cycleId = 0;
             }

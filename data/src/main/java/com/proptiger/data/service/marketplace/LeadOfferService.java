@@ -945,7 +945,7 @@ public class LeadOfferService {
         return leadOffers;
     }
 
-    public Integer getMaxCycleId(int id) {
-        return leadOfferDao.getMaxCycleId(id);
+    public Integer getMaxCycleIdAndPhaseId(int id,int phaseId) {
+        return leadOfferDao.getMaxCycleIdAndPhaseId(id,phaseId);
     }
 }
