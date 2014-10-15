@@ -22,7 +22,7 @@ public class THandlerProjectIn extends RootTHandler {
     private String genericUrlNewProjectsIn            = "%s-real-estate/filters?projectStatus=launch";
     private String genericUrlPreLaunchProjectsIn      = "%s-real-estate/filters?projectStatus=not launched,pre launch";
     private String genericUrlUnderConstProjectsIn     = "%s-real-estate/filters?projectStatus=under construction";
-    private String genericUrlReadyToMoveProjectsIn    = "%s-real-estate/filters?projectStatus=ready for possession,occupied";
+    private String genericUrlReadyToMoveProjectsIn    = "%s-real-estate/filters?projectStatus=ready for possession,occupied,completed";
     
     /* TODO :: ask to use filter usl or footer url if both are there */
     

@@ -38,7 +38,7 @@ public class NLPSuggestionHandler {
 
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
-        QueryResponse response = typeaheadDao.getResponseV2(query, rows, queryFilters);
+        QueryResponse response = typeaheadDao.getResponseV4(query, rows, queryFilters);
         List<Typeahead> templateHits = response.getBeans(Typeahead.class);
 
         List<Typeahead> results = new ArrayList<Typeahead>();
@@ -56,7 +56,12 @@ public class NLPSuggestionHandler {
             setTemplateServices(thandler);
             resultsFirstHandler = thandler.getResults(query, templateHits.get(0), city, rows);
         }
-
+        
+        /* Populating template score as the score for all suggestions */
+        for(Typeahead t : resultsFirstHandler){
+        	t.setScore(templateHits.get(0).getScore());
+        }
+        
         if (templateHits.get(0).getScore() > scoreTheshold) {
             return resultsFirstHandler;
         }
@@ -67,13 +72,16 @@ public class NLPSuggestionHandler {
          */
         String templateText;
         RootTHandler rootTaTemplate;
+        Typeahead topResult;
         for (Typeahead t : templateHits) {
             templateText = t.getTemplateText().trim();
             rootTaTemplate = templateMap.getTemplate(templateText);
 
             if (rootTaTemplate != null) {
                 setTemplateServices(rootTaTemplate);
-                results.add(rootTaTemplate.getTopResult(query, t, city));
+                topResult = rootTaTemplate.getTopResult(query, t, city);
+                topResult.setScore(t.getScore());
+                results.add(topResult);
             }
             else {
                 logger.warn("No Template Handler found for typeahead template : " + templateText);

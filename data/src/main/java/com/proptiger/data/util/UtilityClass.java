@@ -2,11 +2,11 @@ package com.proptiger.data.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.beanutils.PropertyUtils;
 
 public class UtilityClass {
@@ -222,6 +222,41 @@ public class UtilityClass {
             int finalIndex = Math.min(list.size(), count);
             return (new ArrayList<T>(list.subList(0, finalIndex)));
         }
+    }
+    
+    /**
+     * Merges given lists into a single list removing duplicates based on the given comparator.
+     * Among duplicate objects the one thats found first during traversal will persist.
+     * Traversal is done according to the default ordering in the list.
+     * @param listOfLists
+     * @param comparator
+     * @return
+     */
+	public static <T> List<T> getMergedListRemoveDuplicates(
+			List<List<T>> listOfLists, Comparator<T> comparator) {
+		List<T> resultList = new ArrayList<T>();
+		for (List<T> list : listOfLists) {
+			for (T t : list) {
+				if (findInListByComparator(t, resultList, comparator) == -1) {
+					resultList.add(t);
+				}
+			}
+		}
+		return resultList;
+	}
+    
+    public static <T> Integer findInListByComparator(T tobj, List<T> list, Comparator<T> comparator){
+    	if(tobj == null || list == null || comparator == null){
+    		return null;
+    	}
+    	int ctr = 0;
+    	for(T t : list){
+    		if((comparator.compare(tobj, t)) == 0){
+    			return ctr;
+    		}
+    		ctr++;
+    	}
+    	return -1;
     }
 
     /**
