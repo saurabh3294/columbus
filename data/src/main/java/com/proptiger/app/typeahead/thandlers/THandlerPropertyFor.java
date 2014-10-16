@@ -12,16 +12,6 @@ import com.proptiger.data.pojo.Selector;
 
 public class THandlerPropertyFor extends RootTHandler {
 
-    private String genericURLPropForSale    = "%s/property-sale";
-    private String genericURLPropForResale    = "%s/property-sale/filters?listingType=true";
-
-//    private String genericURLApttForSale    = "%s/apartments-flats-sale";
-//    private String genericURLVillForSale    = "%s/villas-sale";
-//    private String genericURLPlotsForSale   = "%s/sites-plots-sale";
-//    private String genericURLNewApttForSale = "%s/new-apartments-for-sale";
-    
-    private String selectorCityFilter = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]}}";
-    
     private String localityFilter = "locality=%s";
 
     @Override
@@ -53,10 +43,10 @@ public class THandlerPropertyFor extends RootTHandler {
         TemplateTypes templateType = this.getType();
         switch (templateType) {
             case PropertyForSaleIn:
-                redirectUrl = String.format(genericURLPropForSale, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericURLPropertyForSale, city.toLowerCase());
                 break;
             case PropertyForResaleIn:
-                redirectUrl = String.format(genericURLPropForResale, city.toLowerCase());
+                redirectUrl = String.format(URLGenerationConstants.GenericURLPropertyForResale, city.toLowerCase());
                 break;
             default:
                 break;
@@ -73,7 +63,9 @@ public class THandlerPropertyFor extends RootTHandler {
     }
 
     private List<Locality> getTopLocalities(String cityName) {
-        Selector selector = (new Gson()).fromJson(String.format(selectorCityFilter, cityName), Selector.class);
+		Selector selector = (new Gson()).fromJson(String.format(
+				URLGenerationConstants.ServiceSelectorGetLocalityByCity,
+				cityName), Selector.class);
         List<Locality> topLocalities = localityService.getLocalities(selector).getResults();
         return topLocalities;
     }
