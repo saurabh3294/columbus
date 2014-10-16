@@ -83,21 +83,25 @@ public class LeadService {
             leadOfferDao.updateLeadOffers(Collections.singletonList(leadId));
             Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
             phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers + 1);
-            manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers + 1,1);
+            manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers + 1, 1);
 
         }
     }
 
     public void manageLeadAuctionWithBeforeCycle(int leadId) {
+        Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
         Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
-        phaseIdMapLeadId.put(leadId, 0);
-        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, 0, 0);
+        phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers == null ? 0 : maxPhaseIdForRequestMoreBrokers);
+        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers == null
+                ? 0
+                : maxPhaseIdForRequestMoreBrokers, 0);
     }
 
     public void manageLeadAuctionWithCycle(
             int leadId,
             Map<Integer, Integer> maxPhaseIdMapLeadId,
-            Integer maxPhaseIdForRequestMoreBrokers,int flagRequest) {
+            Integer maxPhaseIdForRequestMoreBrokers,
+            int flagRequest) {
 
         Lead lead = leadDao.getLock(leadId);
         lead.setRequestBrokerPhaseId(maxPhaseIdForRequestMoreBrokers);
@@ -145,7 +149,7 @@ public class LeadService {
                     if (countBrokers >= PropertyReader.getRequiredPropertyAsType(
                             PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,
                             Integer.class) || (countLeadOfferInDB + countBrokers >= PropertyReader
-                                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE))) {
+                            .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE))) {
                         break;
                     }
                 }

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -117,6 +118,18 @@ public class LeadOfferService {
 
     @Autowired
     private PropertyReader               propertyReader;
+
+    private LeadService                  leadService;
+
+    @Autowired
+    private ApplicationContext           applicationContext;
+
+    private LeadService getLeadService() {
+        if (leadService == null) {
+            leadService = applicationContext.getBean(LeadService.class);
+        }
+        return leadService;
+    }
 
     /**
      * 
@@ -726,7 +739,7 @@ public class LeadOfferService {
         }
         else {
             if (declinedLeadOfferCountInCycle + leadOfferCountInCycle == allCountInCycle) {
-                LeadService leadService = new LeadService();
+                getLeadService();
                 leadService.manageLeadAuctionWithBeforeCycle(leadOfferInDB.getLeadId());
             }
         }
