@@ -33,7 +33,7 @@ public class ProjectDao extends ProjectSolrDao {
     private ProjectDBDao         projectDBDao;
 
     @Autowired
-    private ProjectDiscussionDao projectDiscussionDao;
+    private ProjectDaoNew projectDaoNew;
 
     @Autowired
     private EntityManagerFactory emf;
@@ -48,21 +48,12 @@ public class ProjectDao extends ProjectSolrDao {
         return findActiveOrInactiveProjectById(projectId);
     }
 
-    public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
-        if (commentId == null) {
-            return projectDBDao.getProjectDiscussions(projectId);
-        }
-        else {
-            return projectDBDao.getChildrenProjectDiscussions(commentId);
-        }
-    }
-
     public List<Integer> getMostRecentlyDiscussedProjectInNWeeksOnLocation(
             Date date,
             int locationType,
             int locationId,
             int minCount) {
-        return projectDiscussionDao.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
+        return projectDaoNew.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
     }
 
     public List<Integer> getMostDiscussedProjectInNWeeksOnLocation(
@@ -70,7 +61,7 @@ public class ProjectDao extends ProjectSolrDao {
             int locationType,
             int locationId,
             int minCount) {
-        return projectDiscussionDao.getMostDiscussedProjects(date, locationType, locationId, minCount);
+        return projectDaoNew.getMostDiscussedProjects(date, locationType, locationId, minCount);
     }
 
     public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
@@ -97,6 +88,6 @@ public class ProjectDao extends ProjectSolrDao {
     }
 
     public Project findActiveOrInactiveProjectById(Integer id) {
-        return projectDiscussionDao.findByProjectIdAndVersion(id, DataVersion.Website);
+        return projectDaoNew.findByProjectIdAndVersion(id, DataVersion.Website);
     }
 }

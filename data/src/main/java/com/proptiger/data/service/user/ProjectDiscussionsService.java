@@ -2,11 +2,13 @@ package com.proptiger.data.service.user;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 import javax.persistence.Table;
 
@@ -16,20 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.user.ProjectCommentLikes;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.response.PaginatedResponse;
-import com.proptiger.data.repo.user.UserDao;
+import com.proptiger.data.repo.ProjectDBDao;
+import com.proptiger.data.repo.user.ProjectDiscussionsDao;
 import com.proptiger.data.repo.user.portfolio.ProjectCommentLikesDao;
-import com.proptiger.data.repo.user.portfolio.ProjectDiscussionsDao;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
@@ -66,7 +64,10 @@ public class ProjectDiscussionsService {
     private Caching                 caching;
     
     @Autowired
-    private UserDao userDao;
+    private ProjectDBDao         projectDBDao;
+    
+    @Autowired
+    private UserService userService;
 
     public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, ActiveUser activeUser) {
 
@@ -78,7 +79,7 @@ public class ProjectDiscussionsService {
             throw new IllegalArgumentException("Enter valid Project Id");
         }
 
-        User user = userDao.findById(activeUser.getUserIdentifier());
+        User user = userService.getUserById(activeUser.getUserIdentifier());
 
         projectDiscussion.setUserId(activeUser.getUserIdentifier());
         projectDiscussion.setAdminUserName(user.getFullName());
@@ -168,9 +169,11 @@ public class ProjectDiscussionsService {
 
         List<ProjectDiscussion> allComments = projectDiscussionDao
                 .getDiscussionsByProjectIdOrderByCreatedDateDesc(projectId);
-        if (allComments == null || allComments.size() < 1)
+        if (allComments.size() < 1){
             return new PaginatedResponse<>();
+        }
 
+        populateUserDetails(allComments);
         Map<Long, List<ProjectDiscussion>> parentChildComments = new HashMap<>();
         long parentId;
         List<ProjectDiscussion> projectDiscussionsList;
@@ -180,8 +183,8 @@ public class ProjectDiscussionsService {
             projectDiscussions = it.next();
             parentId = projectDiscussions.getParentId();
 
-            if (!projectDiscussions.getUser().getUsername().equals("proptiger")) {
-                projectDiscussions.setAdminUserName(projectDiscussions.getUser().getUsername());
+            if ("proptiger".equals(projectDiscussions.getUser().getUsername())) {
+                projectDiscussions.getUser().setUsername(projectDiscussions.getAdminUserName());
             }
 
             if (parentId > 0) {
@@ -218,6 +221,27 @@ public class ProjectDiscussionsService {
         return response;
     }
 
+    private void populateUserDetails(List<ProjectDiscussion> discussions) {
+        if(discussions != null && !discussions.isEmpty()){
+            Set<Integer> usersIds = new HashSet<>();   
+            for(ProjectDiscussion pd: discussions){
+                usersIds.add(pd.getUserId());
+            }
+            Map<Integer, User> userMap = userService.getUsers(usersIds);
+            Iterator<ProjectDiscussion> it = discussions.iterator();
+            while(it.hasNext()){
+                ProjectDiscussion pd = it.next();
+                User u = userMap.get(pd.getUserId());
+                if(u != null){
+                    pd.setUser(u.toForumUser());
+                }
+                else{
+                    it.remove();
+                }
+            }
+        }
+    }
+
     /**
      * Paging is being applied on the number of root comments to return in the response. Each root comments
      * can have infinite hierarchal structure of comments.
@@ -241,45 +265,31 @@ public class ProjectDiscussionsService {
 
         return new ArrayList<ProjectDiscussion>(comments.subList(paging.getStart(), pagingRows));
     }
+    
+    /**
+     * Returns all discussions for a project
+     * 
+     * @param projectId
+     * @param commentId
+     * @return
+     */
+    public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
+        List<ProjectDiscussion> discussions = null;
+        if (commentId == null) {
+            discussions = projectDiscussionDao.getProjectDiscussionsOrderByDiscussionIdDesc(projectId);
+        }
+        else {
+            discussions = projectDiscussionDao.getChildrenProjectDiscussions(commentId);
+        }
+        populateUserDetails(discussions);
+        for (ProjectDiscussion projectDiscussion : discussions) {
+            if ("proptiger".equals(projectDiscussion.getUser().getUsername())) {
+                projectDiscussion.getUser().setUsername(projectDiscussion.getAdminUserName());
+            }
+        }
 
-    @Deprecated
-    private boolean sendMailOnProjectComment(ForumUser forumUser, Project project, ProjectDiscussion projectDiscussion) {
-
-        String mailTo = propertyReader.getRequiredProperty("mail.project.comment.to.recipient");
-
-        String mailCC = propertyReader.getRequiredProperty("mail.project.comment.cc.recipient");
-
-        MailBody mailBody = mailBodyGenerator.generateMailBody(
-                MailTemplateDetail.ADD_NEW_PROJECT_COMMENT,
-                new ProjectDiscussionMailDTO(project, forumUser, projectDiscussion));
-        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailTo).setMailCC(mailCC);
-        return mailSender.sendMailUsingAws(mailDetails);
-
+        return discussions;
     }
-
-    public static class ProjectDiscussionMailDTO {
-        public Project           project;
-        public ForumUser         forumUser;
-        public ProjectDiscussion projectDiscussion;
-
-        public ProjectDiscussionMailDTO(Project project, ForumUser forumUser, ProjectDiscussion projectDiscussion) {
-            this.project = project;
-            this.forumUser = forumUser;
-            this.projectDiscussion = projectDiscussion;
-        }
-
-        public Project getProject() {
-            return project;
-        }
-
-        public ForumUser getForumUser() {
-            return forumUser;
-        }
-
-        public ProjectDiscussion getProjectDiscussion() {
-            return projectDiscussion;
-        }
-
-    }
+    
 
 }
