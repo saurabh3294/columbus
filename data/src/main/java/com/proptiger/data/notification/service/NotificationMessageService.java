@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.enums.Tokens;
@@ -170,7 +170,7 @@ public class NotificationMessageService {
             String fromEmail,
             List<String> ccList,
             List<String> bccList) {
-        
+
         NotificationType notiType = null;
         if (notificationType == null) {
             notiType = notiTypeService.findDefaultNotificationType();
@@ -254,14 +254,14 @@ public class NotificationMessageService {
                 .getNotificationMessageProcessorObject();
 
         if (NotificationTypeUserStrategy.OnlySubscribed.equals(notificationType.getUserStrategy())) {
-            List<ForumUser> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType);
+            List<User> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType);
             logger.debug("Found " + userList.size()
                     + " Subscribed users for NotificationType "
                     + notificationType.getName());
             nmPayloadMap = nmProcessor.getNotificationMessagePayloadBySubscribedUserList(userList, ntGenerated);
         }
         else if (NotificationTypeUserStrategy.MinusUnsubscribed.equals(notificationType.getUserStrategy())) {
-            List<ForumUser> unsubscribedUserList = userNTSubscriptionService
+            List<User> unsubscribedUserList = userNTSubscriptionService
                     .getUnsubscribedUsersByNotificationType(notificationType);
             logger.debug("Found " + unsubscribedUserList.size()
                     + " unsubscribed users for NotificationType "
