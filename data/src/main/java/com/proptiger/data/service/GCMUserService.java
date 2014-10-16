@@ -31,6 +31,10 @@ public class GCMUserService {
     public List<GCMUser> findByLoggedInUserId(Integer userId) {
         return gcmUserDao.findByUserIdAndLoginStatus(userId, Boolean.TRUE);
     }
+    
+    public List<GCMUser> findByGCMRegId(String gcmRegId) {
+        return gcmUserDao.findByGcmRegId(gcmRegId);
+    }
 
     public List<GCMUser> findAll() {
         return gcmUserDao.findAll();
@@ -44,7 +48,7 @@ public class GCMUserService {
             return null;
         }
 
-        List<GCMUser> gcmUsers = gcmUserDao.findByGcmRegId(gcmRegId);
+        List<GCMUser> gcmUsers = findByGCMRegId(gcmRegId);
 
         if (gcmUsers.size() > 1) {
             throw new MultipleGCMRegistrationIdFoundException(
@@ -76,6 +80,10 @@ public class GCMUserService {
         return gcmUserDao.save(persistedGCMUser);
     }
 
+    public void updateGCMRegId(String oldRegId, String newRegId) {
+        gcmUserDao.updateGCMRegId(oldRegId, newRegId);
+    }
+    
     public void deleteGCMUser(String gcmRegId) {
         gcmUserDao.deleteByGcmRegId(gcmRegId);
     }

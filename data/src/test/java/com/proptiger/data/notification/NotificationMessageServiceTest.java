@@ -12,7 +12,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.proptiger.data.mocker.NotificationMockerService;
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationMessage;
@@ -117,7 +117,7 @@ public class NotificationMessageServiceTest extends AbstractTest {
     @Test
     public void testGetNotificationMessagesForNotificationTypeGenerated() {
         NotificationTypeGenerated ntGenerated = notificationMockerService.getMockNotificationTypeGenerated();
-        List<ForumUser> userList = notificationMockerService.getMockUserList();
+        List<User> userList = notificationMockerService.getMockUserList();
         Integer propertyId = (Integer) ntGenerated.getNotificationTypePayload().getPrimaryKeyValue();
         List<PortfolioListing> portfolioListings = notificationMockerService.getMockPortfolioListings(propertyId);
         DefaultNotificationMessageProcessor nMessageProcessor = (DefaultNotificationMessageProcessor) ntGenerated

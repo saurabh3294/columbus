@@ -19,8 +19,6 @@ import com.proptiger.data.util.UtilityClass;
 /**
  * @author mukand
  * @author Hemendra
- * 
- * 
  */
 
 @Service
@@ -80,7 +78,31 @@ public class TypeaheadService {
 
         return consolidatedResults;
     }
+    
+    public List<Typeahead> getTypeaheadsV4(String query, int rows, List<String> filterQueries, String city) {
 
+        /* If any filters were passed in URL, return only normal results */
+        if(!filterQueries.isEmpty()){
+            return (typeaheadDao.getTypeaheadsV4(query, rows, filterQueries));
+        }
+
+        /* Get NLP based results */
+        List<Typeahead> nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, city, rows);
+
+        /* Get Normal Results matching the query String */
+        filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
+        filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
+        List<Typeahead> results = typeaheadDao.getTypeaheadsV4(query, rows, filterQueries);
+
+        /* Get recommendations type results */
+        List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
+
+        /* Consolidate results */
+        List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);
+
+        return consolidatedResults;
+    }
+    
     /* Consolidate results fetched using different methods. */
     private List<Typeahead> consolidateResults(
             int rows,
