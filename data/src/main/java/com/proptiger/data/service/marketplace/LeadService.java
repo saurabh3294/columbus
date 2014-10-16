@@ -104,7 +104,6 @@ public class LeadService {
             int flagRequest) {
 
         Lead lead = leadDao.getLock(leadId);
-        lead.setRequestBrokerPhaseId(maxPhaseIdForRequestMoreBrokers);
         List<Company> brokerCompanies = getBrokersForLeadWithCycleExcludingAlreadyOffered(lead);
 
         boolean isAssigned = false;
@@ -456,10 +455,4 @@ public class LeadService {
         return leadDao.getLeads(leadIds);
     }
 
-    public void updateRequestMoreBrokers(int leadId) {
-        Lead leadInDB = leadDao.findById(leadId);
-        Integer maxPhaseId = leadOfferDao.getMaxPhaseId(leadId);
-        leadInDB.setRequestBrokerPhaseId(maxPhaseId);
-        leadDao.save(leadInDB);
-    }
 }

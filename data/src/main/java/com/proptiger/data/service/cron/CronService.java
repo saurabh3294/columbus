@@ -94,13 +94,7 @@ public class CronService {
 
             if (!PropertyReader.getRequiredPropertyAsType(
                     PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM,
-                    Integer.class).equals(claimedCount) || lead.getRequestBrokerPhaseId() == maxPhaseIdMapLeadId
-                    .get(lead.getId())) {
-
-                if (lead.getRequestBrokerPhaseId() == maxPhaseIdMapLeadId.get(lead.getId())) {
-                    maxPhaseIdMapLeadId.put(lead.getId(), lead.getRequestBrokerPhaseId() + 1);
-                }
-
+                    Integer.class).equals(claimedCount)) {
                 leadIds.add(lead.getId());
             }
         }
@@ -115,16 +109,16 @@ public class CronService {
         }
 
         for (Integer leadId : leadIdList) {
-            try {
+            //try {
                 leadService.manageLeadAuctionWithCycle(
                         leadId,
                         maxPhaseIdMapLeadId,
                         maxPhaseIdMapLeadId.get(leadId) == null ? 0 : maxPhaseIdMapLeadId.get(leadId),0);
-            }
+            //}
 
-            catch (Exception e) {
-                logger.error("Error in lead assignment: " + e);
-            }
+            //catch (Exception e) {
+               // logger.error("Error in lead assignment: " + e);
+            //}
 
         }
     }

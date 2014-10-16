@@ -102,9 +102,6 @@ public class Lead extends BaseModel {
     @Column(name = "updated_by")
     private Integer               updatedBy;
 
-    @Transient
-    private int                   requestBrokerPhaseId;
-
     @OneToMany(mappedBy = "leadId")
     private List<LeadOffer>       leadOffers;
 
@@ -114,14 +111,6 @@ public class Lead extends BaseModel {
 
     @OneToMany(mappedBy = "leadId")
     private List<LeadRequirement> requirements;
-
-    public int getRequestBrokerPhaseId() {
-        return requestBrokerPhaseId;
-    }
-
-    public void setRequestBrokerPhaseId(int requestBrokerPhaseId) {
-        this.requestBrokerPhaseId = requestBrokerPhaseId;
-    }
 
     public int getSourceId() {
         return sourceId;
