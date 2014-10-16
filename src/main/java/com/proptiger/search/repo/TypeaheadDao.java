@@ -26,7 +26,7 @@ public class TypeaheadDao {
 	@Autowired
 	private SolrDao solrDao;
 
-	@Value("${test}")
+	@Value("${proptiger.url}")
 	private String coreApiUrl;
 
 	private float boostStart = 10f;

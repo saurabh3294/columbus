@@ -6,11 +6,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.app.typeahead.suggestions.EntitySuggestionHandler;
-import com.proptiger.app.typeahead.suggestions.NLPSuggestionHandler;
-import com.proptiger.data.model.Typeahead;
-import com.proptiger.data.repo.TypeaheadDao;
-import com.proptiger.data.util.UtilityClass;
+import com.proptiger.search.suggestions.EntitySuggestionHandler;
+import com.proptiger.search.suggestions.NLPSuggestionHandler;
+import com.proptiger.search.model.Typeahead;
+import com.proptiger.search.repo.TypeaheadDao;
+import com.proptiger.core.util.UtilityClass;
 
 /**
  * @author mukand
@@ -19,7 +19,7 @@ import com.proptiger.data.util.UtilityClass;
  * 
  */
 
-
+@Service
 public class TypeAheadService {
 	@Autowired
     private TypeaheadDao            typeaheadDao;
@@ -40,7 +40,11 @@ public class TypeAheadService {
      * @return List<Typeahead>
      */
     public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries) {
-        return typeaheadDao.getTypeaheads(query, rows, filterQueries);
+    	List<Typeahead> typeaheads = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
+    	for (Typeahead typeahead : typeaheads) {
+			typeahead.setScore(null);
+		}
+    	return typeaheads;
     }
 
     public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {

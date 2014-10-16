@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.annotations.Intercepted;
-import com.proptiger.data.model.Typeahead;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.TypeaheadService;
+import com.proptiger.core.annotations.Intercepted;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.search.model.Typeahead;
+import com.proptiger.search.service.TypeAheadService;
 
 /**
  * 
@@ -25,9 +26,10 @@ import com.proptiger.data.service.TypeaheadService;
  * @author rahul
  */
 
+@Controller
 public class TypeAheadController extends BaseController {
 	@Autowired
-    private TypeaheadService typeaheadService;
+    private TypeAheadService typeaheadService;
 
     private final String     defaultCityName = "Noida";
 

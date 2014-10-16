@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+	<appender name="columbus"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/var/log/proptiger/columbus/columbus.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>/var/log/proptiger/columbus/columbus-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<append>true</append>
+		<encoder>
+			<pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="org.springframework">
+		<level value="DEBUG" />
+	</logger>
+	<logger name="org.hibernate">
+		<level value="DEBUG" />
+	</logger>
+	<logger name="org.apache.http">
+		<level value="DEBUG" />
+	</logger>
+	<logger name="org.apache.shiro">
+		<level value="DEBUG" />
+	</logger>
+	<logger name="com.proptiger.data.service.CompositeAPIService">
+		<level value="DEBUG" />
+	</logger>
+	<logger name="com.proptiger.app.config.HttpSessionTracker">
+		<level value="DEBUG" />
+	</logger>
+	
+	<root level="INFO">
+		<appender-ref ref="dal" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>
