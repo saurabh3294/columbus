@@ -48,6 +48,8 @@ import com.proptiger.exception.ResourceAlreadyExistException;
 @Service
 public class ImageService extends MediaService {
     private static final String      HYPHON = "-";
+    private static final Long        FILE_SIZE_IN_BYTES = 500000L;
+    
     private static Logger            logger = LoggerFactory.getLogger(ImageService.class);
 
     @Autowired
@@ -309,6 +311,26 @@ public class ImageService extends MediaService {
 
             if (addWaterMark) {
                 applyWaterMark(processedFile, format);
+            }
+            else {
+                IMOperation imOps = new IMOperation();
+                imOps.strip();
+                
+                /*
+                 * 65 % Quality change if file size is less than or equal to 500 KB
+                 * else 20% Quality change.
+                 */
+                if (processedFile.length() <= FILE_SIZE_IN_BYTES) {
+                    imOps.quality(65.0);
+                }
+                else {
+                    imOps.quality(20.0);
+                }
+                imOps.interlace("Plane");
+                imOps.addImage();
+
+                MogrifyCmd command = new MogrifyCmd();
+                command.run(imOps, processedFile.getAbsolutePath());
             }
 
             String originalHash = MediaUtil.fileMd5Hash(originalFile);
