@@ -38,7 +38,6 @@ import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.City;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
@@ -56,7 +55,6 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.PropertyDao;
-import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.CityService;
@@ -70,6 +68,7 @@ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.user.LeadGenerationService;
 import com.proptiger.data.service.user.SubscriptionService;
+import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -142,7 +141,7 @@ public class PortfolioService {
     private ImageEnricher             imageEnricher;
     
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
 
     /**
      * Get portfolio object for a particular user id
@@ -787,27 +786,27 @@ public class PortfolioService {
      * @return
      */
     private boolean sendMail(Integer userId, PortfolioListing listing, MailType mailTypeEnum) {
-        ForumUser user = listing.getForumUser();
+        User user = userService.getUserById(listing.getUserId());
         String toStr = user.getEmail();
         MailBody mailBody = null;
         MailDetails mailDetails = null;
         switch (mailTypeEnum) {
             case LISTING_ADD_MAIL_TO_USER:
-                ListingAddMail listingAddMail = listing.createListingAddMailObject();
+                ListingAddMail listingAddMail = listing.createListingAddMailObject(user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING,
                         listingAddMail);
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_USER:
-                ListingLoanRequestMail listingLoanRequestMail = listing.createListingLoanRequestObj();
+                ListingLoanRequestMail listingLoanRequestMail = listing.createListingLoanRequestObj(user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_USER,
                         listingLoanRequestMail);
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
-                ListingLoanRequestMail listingLoanRequestMailInternal = listing.createListingLoanRequestObj();
+                ListingLoanRequestMail listingLoanRequestMailInternal = listing.createListingLoanRequestObj(user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL,
                         listingLoanRequestMailInternal);
@@ -815,7 +814,7 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
-                ListingResaleMail listingResaleMailInternal = listing.createListingResaleMailObj(websiteHost);
+                ListingResaleMail listingResaleMailInternal = listing.createListingResaleMailObj(websiteHost, user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL,
                         listingResaleMailInternal);
@@ -823,7 +822,7 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_USER:
-                ListingResaleMail listingResaleMailUser = listing.createListingResaleMailObj(websiteHost);
+                ListingResaleMail listingResaleMailUser = listing.createListingResaleMailObj(websiteHost, user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER,
                         listingResaleMailUser);
@@ -838,7 +837,7 @@ public class PortfolioService {
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
         User user = null;
         if (portfolioListing.getUserId() != null) {
-            user = userDao.findById(portfolioListing.getUserId());
+            user = userService.getUserById(portfolioListing.getUserId());
             if (user == null) {
                 throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
             }
@@ -918,7 +917,6 @@ public class PortfolioService {
             throw new PersistenceException("Sell your property request cannot be saved.");
         }
         
-        savePortfolioListing.setForumUser(user.createForumUser());
         sendMailOnSellYourProperty(savePortfolioListing);
         return savePortfolioListing;
     }

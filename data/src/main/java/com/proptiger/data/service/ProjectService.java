@@ -314,23 +314,6 @@ public class ProjectService {
             project.setProperties(properties);
         }
     }
-    /**
-     * Returns all discussions for a project
-     * 
-     * @param projectId
-     * @param commentId
-     * @return
-     */
-    public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
-        List<ProjectDiscussion> discussions = projectDao.getDiscussions(projectId, commentId);
-        for (ProjectDiscussion projectDiscussion : discussions) {
-            if ("proptiger".equals(projectDiscussion.getUser().getUsername())) {
-                projectDiscussion.getUser().setUsername(projectDiscussion.getAdminUserName());
-            }
-        }
-
-        return discussions;
-    }
 
     /**
      * This methods get popular projects for city/locality id provided in
@@ -475,24 +458,6 @@ public class ProjectService {
             }
         }
         return projects;
-    }
-
-    /**
-     * This method will return the total number of project discussions in the
-     * project.
-     * 
-     * @param projectId
-     * @return total project discussions.
-     */
-    @Deprecated
-    private Integer getTotalProjectDiscussionCount(int projectId) {
-
-        Integer totalProjectDiscussion = 0;
-        List<ProjectDiscussion> projectDiscussionList = getDiscussions(projectId, null);
-        if (projectDiscussionList != null)
-            totalProjectDiscussion = projectDiscussionList.size();
-
-        return totalProjectDiscussion;
     }
 
     /**

@@ -195,7 +195,7 @@ public class UserService {
      * and preferences and subscription details
      * 
      * @param userInfo
-     * @return {@link ForumUser}
+     * @return {@link CustomUser}
      */
     @Transactional
     public CustomUser getUserDetails(Integer userId, Application application) {
@@ -236,7 +236,7 @@ public class UserService {
      * Sets app specific details for user object
      * 
      * @param user
-     * @return {@link ForumUser}
+     * @return {@link CustomUser}
      */
     private CustomUser setAppDetails(CustomUser customUser, User user) {
         HashMap<Application, UserAppDetail> appDetailsMap = new HashMap<>();
@@ -766,16 +766,7 @@ public class UserService {
         return userDao.findByEmail(email);
     }
 
-    public Map<Integer, User> getUsers(List<Integer> clientIds) {
-        Map<Integer, User> users = new HashMap<>();
-        for (User user : userDao.findAll(clientIds)) {
-            users.put(user.getId(), user);
-        }
-
-        return users;
-    }
-
-    public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(List<Integer> clientIds) {
+    public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(Set<Integer> clientIds) {
         List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
         Map<Integer, Set<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
 
@@ -794,6 +785,17 @@ public class UserService {
 
     public User getUserById(int userId) {
         return userDao.findOne(userId);
+    }
+    
+    public Map<Integer, User> getUsers(Set<Integer> userIds){
+        Map<Integer, User> usersMap = new HashMap<>();
+        if(userIds != null && !userIds.isEmpty()){
+            List<User> users = userDao.findByIdIn(userIds);
+            for(User u: users){
+                usersMap.put(u.getId(), u);
+            }
+        }
+        return usersMap;
     }
     
     public UserContactNumber getTopPriorityContact(int userId) {

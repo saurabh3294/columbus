@@ -106,9 +106,7 @@ public class ProjectDiscussion extends BaseModel {
     @Column(name = "URL", nullable = true)
     private String                  url   = "";
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
-    @Fetch(FetchMode.JOIN)
+    @Transient
     private ForumUser               user;
 
     @Transient
