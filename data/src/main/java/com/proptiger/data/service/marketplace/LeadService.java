@@ -83,7 +83,7 @@ public class LeadService {
             leadOfferDao.updateLeadOffers(Collections.singletonList(leadId));
             Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
             phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers + 1);
-            manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers + 1);
+            manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers + 1,1);
 
         }
     }
@@ -91,13 +91,13 @@ public class LeadService {
     public void manageLeadAuctionWithBeforeCycle(int leadId) {
         Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
         phaseIdMapLeadId.put(leadId, 0);
-        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, 0);
+        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, 0, 0);
     }
 
     public void manageLeadAuctionWithCycle(
             int leadId,
             Map<Integer, Integer> maxPhaseIdMapLeadId,
-            Integer maxPhaseIdForRequestMoreBrokers) {
+            Integer maxPhaseIdForRequestMoreBrokers,int flagRequest) {
 
         Lead lead = leadDao.getLock(leadId);
         lead.setRequestBrokerPhaseId(maxPhaseIdForRequestMoreBrokers);
@@ -128,9 +128,7 @@ public class LeadService {
                     maxPhaseIdMapLeadId.get(lead.getId()));
 
             if ((countLeadOfferInDB < PropertyReader
-                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE) || (maxPhaseIdMapLeadId
-                    .get(lead.getId()) != null && maxPhaseIdMapLeadId.get(lead.getId()) == lead
-                    .getRequestBrokerPhaseId()))) {
+                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE) || flagRequest == 1)) {
                 for (Company company : brokerCompanies) {
                     LeadOffer offer = leadOfferService.offerLeadToBroker(
                             lead,
@@ -146,7 +144,8 @@ public class LeadService {
 
                     if (countBrokers >= PropertyReader.getRequiredPropertyAsType(
                             PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,
-                            Integer.class)) {
+                            Integer.class) || (countLeadOfferInDB + countBrokers >= PropertyReader
+                                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE))) {
                         break;
                     }
                 }

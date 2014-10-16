@@ -701,7 +701,7 @@ public class LeadOfferService {
             if (leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId) {
                 leadOfferCount++;
             }
-            if (leadOffer.getCycleId() > maxCycleId) {
+            if (leadOffer.getCycleId() > maxCycleId && leadOffer.getPhaseId() == maxPhaseId) {
                 maxCycleId = leadOffer.getCycleId();
             }
         }
