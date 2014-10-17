@@ -170,7 +170,10 @@ public class BuilderService {
 
         List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
-        updateProjectStatusCount(builders, builderSelector);
+        if (builderSelector != null && builderSelector.getFields() != null
+                && builderSelector.getFields().contains("projectStatusCount")) {
+            updateProjectStatusCount(builders, builderSelector);
+        }
         imageEnricher.setImagesOfBuilders(builders);
         PaginatedResponse<List<Builder>> paginatedResponse = new PaginatedResponse<>();
         paginatedResponse.setResults(builders);
