@@ -80,7 +80,7 @@ public class ImageService extends MediaService {
         taskExecutor = new SimpleAsyncTaskExecutor();
     }
 
-    private void applyWaterMark(File file, String format, boolean addWaterMark) throws IOException, InfoException {
+    private void applyWaterMark(File file, String format) throws IOException, InfoException {
         URL url = this.getClass().getClassLoader().getResource("watermark.png");
 
         Info info = new Info(file.getAbsolutePath());
@@ -96,19 +96,22 @@ public class ImageService extends MediaService {
         imOps.addImage();
         CompositeCmd cmd = new CompositeCmd();
 
-        File outputFile = File.createTempFile("outputImage", Image.DOT + format, tempDir);;
-        Files.copy(file, outputFile);
-        
-        if (addWaterMark) {
-            try {
-                cmd.run(imOps, url.getFile(), file.getAbsolutePath(), outputFile.getAbsolutePath());
-            }
-            catch (InterruptedException | IM4JavaException e) {
-                throw new RuntimeException("Could not watermark image", e);
-            }
-        }
+        File outputFile = File.createTempFile("outputImage", Image.DOT + format, tempDir);
+
         try {
-            imOps = new IMOperation();
+            cmd.run(imOps, url.getFile(), file.getAbsolutePath(), outputFile.getAbsolutePath());
+        }
+        catch (InterruptedException | IM4JavaException e) {
+            throw new RuntimeException("Could not watermark image", e);
+        }
+        
+        Files.copy(outputFile, file);
+        outputFile.delete();
+    }
+
+    private void applyQualityOptimization(File file) throws IOException {
+        try {
+            IMOperation imOps = new IMOperation();
             imOps.strip();
 
             imOps.quality(95.0);
@@ -117,14 +120,11 @@ public class ImageService extends MediaService {
             imOps.addImage();
 
             MogrifyCmd command = new MogrifyCmd();
-            command.run(imOps, outputFile.getAbsolutePath());
+            command.run(imOps, file.getAbsolutePath());
         }
         catch (InterruptedException | IM4JavaException e) {
             throw new RuntimeException("Could not apply quality change", e);
         }
-
-        Files.copy(outputFile, file);
-        outputFile.delete();
     }
 
     private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException,
@@ -315,8 +315,12 @@ public class ImageService extends MediaService {
                 File rgbFile = convertToRGB(processedFile, format);
                 Files.copy(rgbFile, processedFile);
             }
-
-            applyWaterMark(processedFile, format, addWaterMark);
+            
+            if (addWaterMark) {
+                applyWaterMark(processedFile, format);
+            }
+            
+            applyQualityOptimization(processedFile);
             
             String originalHash = MediaUtil.fileMd5Hash(originalFile);
             Image image = null;
