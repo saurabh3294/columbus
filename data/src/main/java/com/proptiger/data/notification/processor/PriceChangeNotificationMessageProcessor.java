@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
@@ -28,7 +28,7 @@ public class PriceChangeNotificationMessageProcessor extends NotificationMessage
 
     @Override
     public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
-            List<ForumUser> unsubscribedUserList,
+            List<User> unsubscribedUserList,
             NotificationTypeGenerated ntGenerated) {
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
@@ -36,24 +36,23 @@ public class PriceChangeNotificationMessageProcessor extends NotificationMessage
 
         logger.debug("Getting listing for listing id: " + listingId);
         Listing listing = listingService.getListingByListingId(listingId);
-        
+
         Integer propertyId = listing.getPropertyId();
-        
-        NotificationTypePayload newNTPayload = NotificationTypePayload.newInstance(ntGenerated.getNotificationTypePayload());
+
+        NotificationTypePayload newNTPayload = NotificationTypePayload.newInstance(ntGenerated
+                .getNotificationTypePayload());
         newNTPayload.setPrimaryKeyName("property_id");
         newNTPayload.setPrimaryKeyValue(propertyId);
 
         Map<Integer, NotificationMessagePayload> payloadMap = new HashMap<Integer, NotificationMessagePayload>();
-        
-        List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(
-                unsubscribedUserList,
-                propertyId);
-        
+
+        List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
+
         if (portfolioListings == null) {
             logger.debug("No portfolio listing found for property id : " + propertyId);
             return payloadMap;
         }
-               
+
         for (PortfolioListing portfolioListing : portfolioListings) {
             Double percentageDifference = getPercentageDifference(
                     portfolioListing.getBasePrice(),
@@ -63,8 +62,12 @@ public class PriceChangeNotificationMessageProcessor extends NotificationMessage
             Map<String, Object> userDataMap = new HashMap<String, Object>();
             userDataMap.put(Tokens.PortfolioPriceChange.ProjectName.name(), portfolioListing.getProjectName());
             userDataMap.put(Tokens.PortfolioPriceChange.PropertyName.name(), portfolioListing.getName());
-            userDataMap.put(Tokens.PortfolioPriceChange.AbsolutePercentageDifference.name(), Math.abs(percentageDifference));
-            userDataMap.put(Tokens.PortfolioPriceChange.PercentageChangeString.name(), getPercentageChangeString(percentageDifference));
+            userDataMap.put(
+                    Tokens.PortfolioPriceChange.AbsolutePercentageDifference.name(),
+                    Math.abs(percentageDifference));
+            userDataMap.put(
+                    Tokens.PortfolioPriceChange.PercentageChangeString.name(),
+                    getPercentageChangeString(percentageDifference));
 
             NotificationMessagePayload nmPayload = new NotificationMessagePayload();
             nmPayload.setExtraAttributes(userDataMap);

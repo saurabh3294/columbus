@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,7 +15,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
@@ -45,6 +45,7 @@ import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.model.user.User;
 
 /**
  * This is a model object corresponding to a addressable property
@@ -245,11 +246,6 @@ public class PortfolioListing extends BaseModel{
     @Column(name = "reason")
     @JsonIgnore
     public String                            reason;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
-    private ForumUser                        forumUser;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id", nullable = false, insertable = false, updatable = false)
@@ -514,14 +510,6 @@ public class PortfolioListing extends BaseModel{
         this.projectStatus = projectStatus;
     }
 
-    public ForumUser getForumUser() {
-        return forumUser;
-    }
-
-    public void setForumUser(ForumUser forumUser) {
-        this.forumUser = forumUser;
-    }
-
     public Integer getLocalityId() {
         return localityId;
     }
@@ -738,30 +726,30 @@ public class PortfolioListing extends BaseModel{
     
     /**
      * Creating listing loan request object details
+     * @param user 
      * 
      * @param listing
      * @return
      */
-    public ListingLoanRequestMail createListingLoanRequestObj() {
-        ForumUser forumUser = this.getForumUser();
+    public ListingLoanRequestMail createListingLoanRequestObj(User user) {
         ListingLoanRequestMail listingLoanRequestMail = new ListingLoanRequestMail();
         listingLoanRequestMail.setProjectCity(this.getCityName());
         listingLoanRequestMail.setProjectName(this.getProjectName());
-        listingLoanRequestMail.setUserName(this.getForumUser().getUsername());
-        listingLoanRequestMail.setEmail(forumUser.getEmail());
-        listingLoanRequestMail.setMobile(forumUser.getContact() + "");
+        listingLoanRequestMail.setUserName(user.getFullName());
+        listingLoanRequestMail.setEmail(user.getEmail());
+        listingLoanRequestMail.setMobile(user.getPriorityContactNumber());
         return listingLoanRequestMail;
     }
 
     /**
      * Creating listing resale mail object
+     * @param user 
      * 
      * @param listing
      * @return
      */
-    public ListingResaleMail createListingResaleMailObj(String websiteHost) {
+    public ListingResaleMail createListingResaleMailObj(String websiteHost, User user) {
         String url = websiteHost + this.getProperty().getURL();
-        ForumUser forumUser = this.getForumUser();
         ListingResaleMail listingResaleMail = new ListingResaleMail();
         listingResaleMail.setBuilder(this.getBuilderName());
         listingResaleMail.setLocality(this.getLocality());
@@ -769,9 +757,9 @@ public class PortfolioListing extends BaseModel{
         listingResaleMail.setProjectName(this.getProjectName());
         listingResaleMail.setPropertyLink(url.toString());
         listingResaleMail.setPropertyName(this.getName());
-        listingResaleMail.setUserName(forumUser.getUsername());
-        listingResaleMail.setEmail(forumUser.getEmail());
-        listingResaleMail.setMobile(forumUser.getContact() + "");
+        listingResaleMail.setUserName(user.getFullName());
+        listingResaleMail.setEmail(user.getEmail());
+        listingResaleMail.setMobile(user.getPriorityContactNumber());
         listingResaleMail.setListingSize(this.getListingSize());
         listingResaleMail.setMeasure(this.getProperty().getMeasure());
         listingResaleMail.setUnitName(this.getProperty().getUnitName());
@@ -779,16 +767,17 @@ public class PortfolioListing extends BaseModel{
     }
     /**
      * Creating listing add mail object
+     * @param user 
      * 
      * @param listing
      * @return
      */
-    public ListingAddMail createListingAddMailObject() {
+    public ListingAddMail createListingAddMailObject(User user) {
         ListingAddMail listingAddMail = new ListingAddMail();
         listingAddMail.setPropertyName(this.getName());
         listingAddMail.setPurchaseDate(this.getPurchaseDate());
         listingAddMail.setTotalPrice(this.getTotalPrice());
-        listingAddMail.setUserName(this.getForumUser().getUsername());
+        listingAddMail.setUserName(user.getFullName());
         return listingAddMail;
     }
 
