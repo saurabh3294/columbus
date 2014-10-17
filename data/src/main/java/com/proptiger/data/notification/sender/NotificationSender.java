@@ -80,7 +80,7 @@ public class NotificationSender {
         return config.getMediumSenderObject().send(
                 template,
                 userId,
-                nGenerated.getNotificationType().getName(),
+                nGenerated,
                 payload);
 
     }
