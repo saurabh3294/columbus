@@ -80,7 +80,7 @@ public class ImageService extends MediaService {
         taskExecutor = new SimpleAsyncTaskExecutor();
     }
 
-    private void applyWaterMark(File file, String format) throws IOException, InfoException {
+    private void applyWaterMark(File file, String format, boolean addWaterMark) throws IOException, InfoException {
         URL url = this.getClass().getClassLoader().getResource("watermark.png");
 
         Info info = new Info(file.getAbsolutePath());
@@ -96,11 +96,18 @@ public class ImageService extends MediaService {
         imOps.addImage();
         CompositeCmd cmd = new CompositeCmd();
 
-        File outputFile = File.createTempFile("outputImage", Image.DOT + format, tempDir);
-
+        File outputFile = File.createTempFile("outputImage", Image.DOT + format, tempDir);;
+        Files.copy(file, outputFile);
+        
+        if (addWaterMark) {
+            try {
+                cmd.run(imOps, url.getFile(), file.getAbsolutePath(), outputFile.getAbsolutePath());
+            }
+            catch (InterruptedException | IM4JavaException e) {
+                throw new RuntimeException("Could not watermark image", e);
+            }
+        }
         try {
-            cmd.run(imOps, url.getFile(), file.getAbsolutePath(), outputFile.getAbsolutePath());
-
             imOps = new IMOperation();
             imOps.strip();
 
@@ -113,7 +120,7 @@ public class ImageService extends MediaService {
             command.run(imOps, outputFile.getAbsolutePath());
         }
         catch (InterruptedException | IM4JavaException e) {
-            throw new RuntimeException("Could not watermark image", e);
+            throw new RuntimeException("Could not apply quality change", e);
         }
 
         Files.copy(outputFile, file);
@@ -309,27 +316,8 @@ public class ImageService extends MediaService {
                 Files.copy(rgbFile, processedFile);
             }
 
-            if (addWaterMark) {
-                applyWaterMark(processedFile, format);
-            }
-            else {
-                try {
-                    IMOperation imOps = new IMOperation();
-                    imOps.strip();
-                    
-                    imOps.quality(95.0);
-                    
-                    imOps.interlace("Plane");
-                    imOps.addImage();
-                    
-                    MogrifyCmd command = new MogrifyCmd();
-                    command.run(imOps, processedFile.getAbsolutePath());
-                }
-                catch (InterruptedException | IM4JavaException e) {
-                    throw new RuntimeException("Could not apply quality change", e);
-                }
-            }
-
+            applyWaterMark(processedFile, format, addWaterMark);
+            
             String originalHash = MediaUtil.fileMd5Hash(originalFile);
             Image image = null;
             Lock lock = locks.get(originalHash);
