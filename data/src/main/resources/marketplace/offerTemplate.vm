@@ -193,7 +193,7 @@ Best Regards, <br /><br />
  
 ${leadOffer.agent.fullName} <br />
 
-#if (!${leadOffer.agent.contactNumbers.isEmpty()})
+#if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()}))
 Phone: +91 ${leadOffer.agent.contactNumbers.iterator().next().contactNumber} |  
 #end
   ${leadOffer.agent.email}<br />
