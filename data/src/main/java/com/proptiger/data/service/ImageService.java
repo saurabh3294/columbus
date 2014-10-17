@@ -48,7 +48,6 @@ import com.proptiger.exception.ResourceAlreadyExistException;
 @Service
 public class ImageService extends MediaService {
     private static final String      HYPHON = "-";
-    private static final Long        FILE_SIZE_IN_BYTES = 500000L;
     
     private static Logger            logger = LoggerFactory.getLogger(ImageService.class);
 
@@ -127,7 +126,6 @@ public class ImageService extends MediaService {
         original.delete();
         amazonS3Util.uploadFile(image.getPath() + image.getWaterMarkName(), waterMark);
         createAndUploadMoreResolutions(image, waterMark, format);
-        deleteFileFromDisc(waterMark);
     }
 
     /**
@@ -161,6 +159,7 @@ public class ImageService extends MediaService {
                         amazonS3Util.uploadFile(
                                 image.getPath() + computeResizedImageName(image, imageResolution, null, format),
                                 resizedFile);
+                        deleteFileFromDisc(resizedFile);
 
                         // resize the image for optimal quality
                         if (qualityObject != null) {
@@ -172,6 +171,7 @@ public class ImageService extends MediaService {
                                             Image.OPTIMAL_SUFFIX,
                                             format),
                                     resizedFile);
+                            deleteFileFromDisc(resizedFile);
                         }
 
                     }
@@ -313,24 +313,21 @@ public class ImageService extends MediaService {
                 applyWaterMark(processedFile, format);
             }
             else {
-                IMOperation imOps = new IMOperation();
-                imOps.strip();
-                
-                /*
-                 * 65 % Quality change if file size is less than or equal to 500 KB
-                 * else 20% Quality change.
-                 */
-                if (processedFile.length() <= FILE_SIZE_IN_BYTES) {
-                    imOps.quality(65.0);
+                try {
+                    IMOperation imOps = new IMOperation();
+                    imOps.strip();
+                    
+                    imOps.quality(95.0);
+                    
+                    imOps.interlace("Plane");
+                    imOps.addImage();
+                    
+                    MogrifyCmd command = new MogrifyCmd();
+                    command.run(imOps, processedFile.getAbsolutePath());
                 }
-                else {
-                    imOps.quality(20.0);
+                catch (InterruptedException | IM4JavaException e) {
+                    throw new RuntimeException("Could not apply quality change", e);
                 }
-                imOps.interlace("Plane");
-                imOps.addImage();
-
-                MogrifyCmd command = new MogrifyCmd();
-                command.run(imOps, processedFile.getAbsolutePath());
             }
 
             String originalHash = MediaUtil.fileMd5Hash(originalFile);
