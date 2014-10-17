@@ -194,9 +194,9 @@ Best Regards, <br /><br />
 ${leadOffer.agent.fullName} <br />
 
 #if (!${leadOffer.agent.contactNumbers.isEmpty()})
-Phone: +91 ${leadOffer.agent.contactNumbers.iterator().next().contactNumber}  
+Phone: +91 ${leadOffer.agent.contactNumbers.iterator().next().contactNumber} |  
 #end
-|  ${leadOffer.agent.email}<br />
+  ${leadOffer.agent.email}<br />
  
  </td>
   </tr>
