@@ -34,7 +34,7 @@ public class EventTypeToNotificationTypeMappingService {
 
     @PostConstruct
     private void constuctMappingFromDB() {
-        Iterable<EventTypeToNotificationTypeMapping> ntMappingList = ntMappingDao.findAll();
+        Iterable<EventTypeToNotificationTypeMapping> ntMappingList = ntMappingDao.findAllMapping();
         Iterator<EventTypeToNotificationTypeMapping> iterator = ntMappingList.iterator();
 
         while (iterator.hasNext()) {

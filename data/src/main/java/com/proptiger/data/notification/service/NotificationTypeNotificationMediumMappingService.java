@@ -51,7 +51,7 @@ public class NotificationTypeNotificationMediumMappingService {
     }
 
     public Iterable<NotificationTypeNotificationMediumMapping> findAll() {
-        return nMappingDao.findAll();
+        return nMappingDao.findAllMapping();
     }
 
     public Map<Integer, List<NotificationMedium>> getTypeMediumMapping() {
