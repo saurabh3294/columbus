@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.proptiger.core.model.Builder;
+import com.proptiger.core.model.cms.Builder;
 import com.proptiger.search.model.Typeahead;
 import com.proptiger.core.pojo.Selector;
 

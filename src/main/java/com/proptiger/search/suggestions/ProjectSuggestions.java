@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.enums.UnitType;
-import com.proptiger.core.model.Property;
+import com.proptiger.core.model.cms.Property;
 import com.proptiger.search.model.Typeahead;
 import com.proptiger.search.repo.TypeaheadDao;
 

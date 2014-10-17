@@ -2,10 +2,12 @@ package com.proptiger.search.thandlers;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
+
 import com.google.gson.Gson;
-import com.proptiger.core.model.Locality;
+import com.proptiger.core.model.cms.Locality;
 import com.proptiger.search.model.Typeahead;
 import com.proptiger.core.pojo.Selector;
 
