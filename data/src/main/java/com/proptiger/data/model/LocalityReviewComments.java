@@ -22,6 +22,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -94,8 +95,7 @@ public class LocalityReviewComments extends BaseModel {
     @Column(name = "STATUS")
     private String            status;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
+    @Transient
     private ForumUser         forumUser;
 
     @OneToOne(fetch = FetchType.EAGER, optional = true)
@@ -228,6 +228,14 @@ public class LocalityReviewComments extends BaseModel {
 
     public void setLocality(Locality locality) {
         this.locality = locality;
+    }
+    
+    public ForumUser getForumUser() {
+        return forumUser;
+    }
+
+    public void setForumUser(ForumUser forumUser) {
+        this.forumUser = forumUser;
     }
 
     @PrePersist
