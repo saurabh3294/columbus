@@ -1,11 +1,11 @@
-package com.proptiger.search.thandlers;
+package com.proptiger.columbus.thandlers;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.util.StringUtils;
 
-import com.proptiger.search.model.Typeahead;
+import com.proptiger.columbus.model.Typeahead;
 
 public class THandlerProjectBudgetArea extends RootTHandler {
 

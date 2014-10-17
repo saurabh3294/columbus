@@ -1,4 +1,4 @@
-package com.proptiger.search.thandlers;
+package com.proptiger.columbus.thandlers;
 
 public enum TemplateTypes {
 

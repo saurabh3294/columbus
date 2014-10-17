@@ -1,19 +1,18 @@
-package com.proptiger.search.suggestions;
+package com.proptiger.columbus.suggestions;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
-import com.proptiger.search.model.Typeahead;
 
 @Component
-public class SuburbSuggestions {
+public class LocalitySuggestions {
 
-	private String templateId = "Typeahead-Suggestion-Suburb";
+	private String templateId = "Typeahead-Suggestion-Locality";
 
 	private String[][] suggestionTemplates = {
 			{ "Affordable apartments in %s", "affordable-flats-in-%s",
@@ -29,7 +28,7 @@ public class SuburbSuggestions {
 					"under-construction-property" } };
 
 	public List<Typeahead> getSuggestions(int id, String name,
-			String redirectUrl, String cityName, int count) {
+			String redirectUrl, String cityName, String localityName, int count) {
 		List<Typeahead> suggestions = new ArrayList<Typeahead>();
 		Typeahead obj;
 		for (String[] template : suggestionTemplates) {
@@ -38,23 +37,15 @@ public class SuburbSuggestions {
 			obj.setRedirectUrl(cityName.toLowerCase()
 					+ "/"
 					+ String.format(template[1],
-							makeSuburbRedirectUrl(redirectUrl)));
+							(localityName.replace(' ', '-') + "-" + id)
+									.toLowerCase()));
 			obj.setId(templateId + "-" + template[2]);
 			obj.setType(obj.getId());
 			obj.setIsSuggestion(true);
 			suggestions.add(obj);
 		}
+
 		Collections.shuffle(suggestions);
 		return UtilityClass.getFirstNElementsOfList(suggestions, 2);
-	}
-
-	/*
-	 * Hardcoded URL generation here. extracting form format ::
-	 * noida/property-sale-noida-expressway-10049
-	 */
-	/* TODO :: include suburb_id and suburb_name while solr indexing */
-	private String makeSuburbRedirectUrl(String redirectUrl) {
-		return (StringUtils.split(redirectUrl, '/')[1]
-				.substring("property-sale-".length()));
 	}
 }

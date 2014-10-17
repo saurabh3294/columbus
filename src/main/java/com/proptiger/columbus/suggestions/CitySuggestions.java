@@ -1,4 +1,4 @@
-package com.proptiger.search.suggestions;
+package com.proptiger.columbus.suggestions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
-import com.proptiger.search.model.Typeahead;
 
 @Component
 public class CitySuggestions {

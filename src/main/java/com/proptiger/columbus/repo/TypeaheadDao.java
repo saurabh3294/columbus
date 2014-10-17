@@ -1,4 +1,4 @@
-package com.proptiger.search.repo;
+package com.proptiger.columbus.repo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.UtilityClass;
-import com.proptiger.search.model.Typeahead;
 
 /**
  * 

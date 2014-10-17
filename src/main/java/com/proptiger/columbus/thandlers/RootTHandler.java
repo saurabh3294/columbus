@@ -1,10 +1,10 @@
-package com.proptiger.search.thandlers;
+package com.proptiger.columbus.thandlers;
 
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.proptiger.search.model.Typeahead;
+import com.proptiger.columbus.model.Typeahead;
 
 @Component
 public abstract class RootTHandler {

@@ -1,4 +1,4 @@
-package com.proptiger.search.mvc;
+package com.proptiger.columbus.mvc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.columbus.service.TypeAheadService;
 import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
-import com.proptiger.search.model.Typeahead;
-import com.proptiger.search.service.TypeAheadService;
 
 /**
  * 

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.proptiger.search.model;
+package com.proptiger.columbus.model;
 
 import javax.persistence.Transient;
 

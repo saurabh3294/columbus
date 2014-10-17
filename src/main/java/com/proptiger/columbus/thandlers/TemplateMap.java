@@ -1,4 +1,4 @@
-package com.proptiger.search.thandlers;
+package com.proptiger.columbus.thandlers;
 
 import java.util.HashMap;
 import org.slf4j.Logger;

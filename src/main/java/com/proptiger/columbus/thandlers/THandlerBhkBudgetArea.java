@@ -1,8 +1,8 @@
-package com.proptiger.search.thandlers;
+package com.proptiger.columbus.thandlers;
 
 import java.util.List;
 
-import com.proptiger.search.model.Typeahead;
+import com.proptiger.columbus.model.Typeahead;
 
 public class THandlerBhkBudgetArea extends RootTHandler {
 

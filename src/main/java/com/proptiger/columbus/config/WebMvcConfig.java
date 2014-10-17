@@ -1,4 +1,4 @@
-package com.proptiger.search.config;
+package com.proptiger.columbus.config;
 
 import java.io.IOException;
 import java.util.List;

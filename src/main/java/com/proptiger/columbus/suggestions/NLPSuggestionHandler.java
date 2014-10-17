@@ -1,4 +1,4 @@
-package com.proptiger.search.suggestions;
+package com.proptiger.columbus.suggestions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.search.thandlers.RootTHandler;
-import com.proptiger.search.thandlers.TemplateMap;
-import com.proptiger.search.model.Typeahead;
-import com.proptiger.search.repo.TypeaheadDao;
+import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.columbus.repo.TypeaheadDao;
+import com.proptiger.columbus.thandlers.RootTHandler;
+import com.proptiger.columbus.thandlers.TemplateMap;
 
 @Component
 public class NLPSuggestionHandler {

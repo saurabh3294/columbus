@@ -1,11 +1,11 @@
-package com.proptiger.search.thandlers;
+package com.proptiger.columbus.thandlers;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Builder;
-import com.proptiger.search.model.Typeahead;
 import com.proptiger.core.pojo.Selector;
 
 public class THandlerProjectsBy extends RootTHandler {
