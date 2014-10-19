@@ -115,6 +115,7 @@ $velocityUtility.roundToTwoDecimal($maxBudgetInLacs) Lacs.
   </tr>
   
   
+#if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()}))
   <tr>
     <td bgcolor="#f5f5f5" style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
     
@@ -138,6 +139,7 @@ $velocityUtility.roundToTwoDecimal($maxBudgetInLacs) Lacs.
     </td>
   </tr>
   
+#end
   <tr>
   <td>&nbsp;</td>
   </tr>

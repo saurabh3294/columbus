@@ -36,6 +36,7 @@ import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.service.user.ProjectDiscussionsService;
 import com.proptiger.data.util.UtilityClass;
 
 /**
@@ -67,6 +68,9 @@ public class ProjectDetailController extends BaseController {
 
     @Autowired
     private LocalityService        localityService;
+    
+    @Autowired
+    private ProjectDiscussionsService projectDiscussionsService;
 
     @RequestMapping(value = "app/v1/project-detail")
     public @ResponseBody
@@ -87,7 +91,7 @@ public class ProjectDetailController extends BaseController {
 
         // getting project discussions.
         int totalProjectDiscussion = 0;
-        List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
+        List<ProjectDiscussion> projectDiscussionList = projectDiscussionsService.getDiscussions(projectId, null);
         if (projectDiscussionList != null)
             totalProjectDiscussion = projectDiscussionList.size();
 
