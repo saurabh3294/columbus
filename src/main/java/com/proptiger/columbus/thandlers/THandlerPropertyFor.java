@@ -12,77 +12,83 @@ import com.proptiger.core.pojo.Selector;
 
 public class THandlerPropertyFor extends RootTHandler {
 
-    private String genericURLPropForSale    = "%s/property-sale";
-    private String genericURLPropForResale    = "%s/property-sale/filters?listingType=true";
+	private String localityFilter = "locality=%s";
 
-    private String selectorCityFilter = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]}}";
-    
-    private String localityFilter = "locality=%s";
+	@Override
+	public List<Typeahead> getResults(String query, Typeahead typeahead,
+			String city, int rows) {
 
-    @Override
-    public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
+		/* restrict results to top 2 localities for now */
+		rows = Math.min(rows, 3);
 
-        /* restrict results to top 2 localities for now */
-        rows = Math.min(rows, 3);
+		List<Typeahead> results = new ArrayList<Typeahead>();
 
-        List<Typeahead> results = new ArrayList<Typeahead>();
+		results.add(getTopResult(query, typeahead, city));
 
-        results.add(getTopResult(query, typeahead, city));
+		List<Locality> topLocalities = getTopLocalities(city);
+		String redirectURL;
+		for (Locality locality : topLocalities) {
+			redirectURL = getRedirectUrl(city);
+			redirectURL = addLocalityFilterToRedirectURL(redirectURL,
+					locality.getLabel());
+			results.add(getTypeaheadObjectByIdTextAndURL(this.getType()
+					.toString(), (this.getType().getText() + " " + locality
+					.getLabel()), redirectURL));
+			if (results.size() == rows) {
+				break;
+			}
+		}
 
-        List<Locality> topLocalities = getTopLocalities(city);
-        String redirectURL;
-        for (Locality locality : topLocalities) {
-            redirectURL = getRedirectUrl(city);
-            redirectURL = addLocalityFilterToRedirectURL(redirectURL, locality.getLabel());
-            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), (this.getType().getText() + " " + locality.getLabel()), redirectURL));
-            if (results.size() == rows) {
-                break;
-            }
-        }
+		return results;
+	}
 
-        return results;
-    }
+	private String getRedirectUrl(String city) {
+		String redirectUrl = "";
+		TemplateTypes templateType = this.getType();
+		switch (templateType) {
+		case PropertyForSaleIn:
+			redirectUrl = String.format(
+					URLGenerationConstants.GenericURLPropertyForSale,
+					city.toLowerCase());
+			break;
+		case PropertyForResaleIn:
+			redirectUrl = String.format(
+					URLGenerationConstants.GenericURLPropertyForResale,
+					city.toLowerCase());
+			break;
+		default:
+			break;
+		}
 
-    private String getRedirectUrl(String city) {
-        String redirectUrl = "";
-        TemplateTypes templateType = this.getType();
-        switch (templateType) {
-            case PropertyForSaleIn:
-                redirectUrl = String.format(genericURLPropForSale, city.toLowerCase());
-                break;
-            case PropertyForResaleIn:
-                redirectUrl = String.format(genericURLPropForResale, city.toLowerCase());
-                break;
-            default:
-                break;
-        }
-        
-        return redirectUrl;
-   }
-    
-    @Override
-    public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
-        String displayText = (this.getType().getText() + " " + city);
-        String redirectUrl = getRedirectUrl(city);
-        return (getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
-    }
+		return redirectUrl;
+	}
 
-    private List<Locality> getTopLocalities(String cityName) {
-        Selector selector = (new Gson()).fromJson(String.format(selectorCityFilter, cityName), Selector.class);
-        //List<Locality> topLocalities = localityService.getLocalities(selector).getResults();
-        List<Locality> topLocalities = new ArrayList<>();
-        return topLocalities;
-    }
-    
-    private String addLocalityFilterToRedirectURL(String redirectUrl, String localityLabel)
-    {
-        if(StringUtils.contains(redirectUrl, "?")){
-            redirectUrl += ("&" + String.format(localityFilter, localityLabel));
-        }
-        else{
-            redirectUrl += ("?" + String.format(localityFilter, localityLabel));
-        }
-        return redirectUrl;
-    }
+	@Override
+	public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
+		String displayText = (this.getType().getText() + " " + city);
+		String redirectUrl = getRedirectUrl(city);
+		return (getTypeaheadObjectByIdTextAndURL(this.getType().toString(),
+				displayText, redirectUrl));
+	}
+
+	private List<Locality> getTopLocalities(String cityName) {
+		Selector selector = (new Gson()).fromJson(String.format(
+				URLGenerationConstants.ServiceSelectorGetLocalityByCity,
+				cityName), Selector.class);
+		// List<Locality> topLocalities =
+		// localityService.getLocalities(selector).getResults();
+		// return topLocalities;
+		return null;
+	}
+
+	private String addLocalityFilterToRedirectURL(String redirectUrl,
+			String localityLabel) {
+		if (StringUtils.contains(redirectUrl, "?")) {
+			redirectUrl += ("&" + String.format(localityFilter, localityLabel));
+		} else {
+			redirectUrl += ("?" + String.format(localityFilter, localityLabel));
+		}
+		return redirectUrl;
+	}
 
 }

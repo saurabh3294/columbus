@@ -17,7 +17,7 @@ public class EntitySuggestionHandler {
 	private Logger logger = LoggerFactory
 			.getLogger(EntitySuggestionHandler.class);
 
-	private float suggestionScoreThreshold = 15.0f;
+	private float suggestionScoreThreshold = 20.0f;
 
 	@Autowired
 	private CitySuggestions citySuggestions;

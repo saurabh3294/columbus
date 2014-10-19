@@ -316,4 +316,9 @@ public class Typeahead extends BaseModel {
 	public void setIsSuggestion(Boolean isSuggestion) {
 		this.isSuggestion = isSuggestion;
 	}
+
+	@Override
+	public String toString() {
+		return (id + ":" + displayText + ":" + score);
+	}
 }
