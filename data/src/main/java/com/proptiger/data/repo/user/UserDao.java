@@ -1,5 +1,8 @@
 package com.proptiger.data.repo.user;
 
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -28,5 +31,7 @@ public interface UserDao extends JpaRepository<User, Integer>, UserCustomDao {
 
     @Query("select U from User U left join fetch U.contactNumbers CN left join fetch U.userAuthProviderDetails where U.id = ?1")
     public User findById(int id);
+
+    public List<User> findByIdIn(Set<Integer> userIds);
     
 }

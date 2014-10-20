@@ -48,6 +48,7 @@ import com.proptiger.exception.ResourceAlreadyExistException;
 @Service
 public class ImageService extends MediaService {
     private static final String      HYPHON = "-";
+    
     private static Logger            logger = LoggerFactory.getLogger(ImageService.class);
 
     @Autowired
@@ -99,8 +100,18 @@ public class ImageService extends MediaService {
 
         try {
             cmd.run(imOps, url.getFile(), file.getAbsolutePath(), outputFile.getAbsolutePath());
+        }
+        catch (InterruptedException | IM4JavaException e) {
+            throw new RuntimeException("Could not watermark image", e);
+        }
+        
+        Files.copy(outputFile, file);
+        outputFile.delete();
+    }
 
-            imOps = new IMOperation();
+    private void applyQualityOptimization(File file) throws IOException {
+        try {
+            IMOperation imOps = new IMOperation();
             imOps.strip();
 
             imOps.quality(95.0);
@@ -109,14 +120,11 @@ public class ImageService extends MediaService {
             imOps.addImage();
 
             MogrifyCmd command = new MogrifyCmd();
-            command.run(imOps, outputFile.getAbsolutePath());
+            command.run(imOps, file.getAbsolutePath());
         }
         catch (InterruptedException | IM4JavaException e) {
-            throw new RuntimeException("Could not watermark image", e);
+            throw new RuntimeException("Could not apply quality change", e);
         }
-
-        Files.copy(outputFile, file);
-        outputFile.delete();
     }
 
     private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException,
@@ -125,7 +133,6 @@ public class ImageService extends MediaService {
         original.delete();
         amazonS3Util.uploadFile(image.getPath() + image.getWaterMarkName(), waterMark);
         createAndUploadMoreResolutions(image, waterMark, format);
-        deleteFileFromDisc(waterMark);
     }
 
     /**
@@ -159,6 +166,7 @@ public class ImageService extends MediaService {
                         amazonS3Util.uploadFile(
                                 image.getPath() + computeResizedImageName(image, imageResolution, null, format),
                                 resizedFile);
+                        deleteFileFromDisc(resizedFile);
 
                         // resize the image for optimal quality
                         if (qualityObject != null) {
@@ -170,6 +178,7 @@ public class ImageService extends MediaService {
                                             Image.OPTIMAL_SUFFIX,
                                             format),
                                     resizedFile);
+                            deleteFileFromDisc(resizedFile);
                         }
 
                     }
@@ -306,11 +315,13 @@ public class ImageService extends MediaService {
                 File rgbFile = convertToRGB(processedFile, format);
                 Files.copy(rgbFile, processedFile);
             }
-
+            
             if (addWaterMark) {
                 applyWaterMark(processedFile, format);
             }
-
+            
+            applyQualityOptimization(processedFile);
+            
             String originalHash = MediaUtil.fileMd5Hash(originalFile);
             Image image = null;
             Lock lock = locks.get(originalHash);

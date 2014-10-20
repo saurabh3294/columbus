@@ -105,8 +105,7 @@ public class Lead extends BaseModel {
     @OneToMany(mappedBy = "leadId")
     private List<LeadOffer>       leadOffers;
 
-    @JoinColumn(insertable = false, updatable = false, name = "client_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Transient
     private User                  client;
 
     @OneToMany(mappedBy = "leadId")

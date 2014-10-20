@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.payload.EmailSenderPayload;
 import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 import com.proptiger.data.service.mail.AmazonMailSender;
@@ -32,8 +33,9 @@ public class EmailSender implements MediumSender {
     private UserService         userService;
 
     @Override
-    public boolean send(String template, Integer userId, String typeName, NotificationSenderPayload payload) {
-
+    public boolean send(String template, Integer userId,  NotificationGenerated nGenerated, NotificationSenderPayload payload) {
+        
+        String typeName = nGenerated.getNotificationType().getName();
         if (userId == null || template == null || payload == null) {
             logger.error("Found UserId: " + userId
                     + " template: "

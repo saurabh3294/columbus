@@ -62,7 +62,7 @@ public class SubscriberConfigService {
     }
     
     public Iterable<SubscriberConfig> findAllSubscriberConfig() {
-        return subscriberConfigDao.findAll();
+        return subscriberConfigDao.findAllMapping();
     }
     
     public Iterable<Subscriber> findAllSubscriber() {

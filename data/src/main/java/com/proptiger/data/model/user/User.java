@@ -268,13 +268,14 @@ public class User extends BaseModel {
         return  new WhoAmIDetail(this.fullName, getProfileImageUrl());
     }
 
-    public ForumUser createForumUser() {
+    public ForumUser toForumUser() {
         ForumUser forumUser = new ForumUser();
-        forumUser.setEmail(this.getEmail());
-        forumUser.setContact(Long.valueOf(this.getPriorityContactNumber()));
         forumUser.setUserId(this.getId());
         forumUser.setUsername(this.getFullName());
-        forumUser.setCountryId(this.getCountryId());
+        if(this.getCountryId() != null){
+            forumUser.setCountryId(this.getCountryId());    
+        }
+        forumUser.setImage("");
         return forumUser;
     }
 }

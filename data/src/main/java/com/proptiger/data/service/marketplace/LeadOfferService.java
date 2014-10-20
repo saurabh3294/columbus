@@ -198,7 +198,7 @@ public class LeadOfferService {
     private void enrichLeadOffers(List<LeadOffer> leadOffers, Set<String> fields, Integer userId) {
         if (fields != null && leadOffers != null && !leadOffers.isEmpty()) {
             if (fields.contains("client")) {
-                List<Integer> clientIds = extractClientIds(leadOffers);
+                Set<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
 
                 Map<Integer, Set<UserContactNumber>> contactNumbers = null;
@@ -375,8 +375,8 @@ public class LeadOfferService {
      * @return
      */
 
-    private List<Integer> extractClientIds(List<LeadOffer> leadOffers) {
-        List<Integer> clientIds = new ArrayList<Integer>();
+    private Set<Integer> extractClientIds(List<LeadOffer> leadOffers) {
+        Set<Integer> clientIds = new HashSet<Integer>();
         for (LeadOffer leadOffer : leadOffers) {
             clientIds.add(leadOffer.getLead().getClientId());
         }
