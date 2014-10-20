@@ -32,7 +32,7 @@ import com.proptiger.data.util.PropertyReader;
 public class IPBasedAPIAccessFilter implements Filter {
 
     //change API regex, for example /data/v1/entity/city.*
-    private final String              API_REGEX = "/data/v1/(coupon/.*|transaction/offline-coupon\\?.*)";
+    private final String              API_REGEX = "/data/v1/(coupon/.*|transaction/offline-coupon\\?.*|entity/lead/.*/request-more-brokers)";
     private RequestMatcher            requestMatcher;
     private Set<String>               whiteListIps;
     @Autowired
