@@ -261,10 +261,6 @@ public class ProjectService {
             project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectId(projectId));
         }
 
-        if (fields.contains("projectAmenitiesMarketplace")) {
-            project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectIdMarketplace(projectId));
-        }
-        
         /*
          * setting video links if needed.
          */
