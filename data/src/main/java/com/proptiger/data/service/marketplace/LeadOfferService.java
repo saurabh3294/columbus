@@ -777,6 +777,12 @@ public class LeadOfferService {
     }
 
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
+        
+        LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
+        if(leadOfferInDB.getAgentId() != userId)
+        {
+            throw new BadRequestException("you can only view listings offered by you for lead offers assigned to you");
+        }
         List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId,userId);
         populateOfferedFlag(leadOfferId, matchingListings, userId);
         return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
