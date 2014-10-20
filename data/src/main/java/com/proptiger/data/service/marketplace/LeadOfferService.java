@@ -777,7 +777,7 @@ public class LeadOfferService {
     }
 
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
-        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId);
+        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId,userId);
         populateOfferedFlag(leadOfferId, matchingListings, userId);
         return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
     }
