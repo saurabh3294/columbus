@@ -1,8 +1,9 @@
 package com.proptiger.columbus.thandlers;
 
 public class URLGenerationConstants {
-
-	public static String ServiceSelectorGetLocalityByCity = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]}}";
+	public static String Selector = "selector=";
+	public static String SelectorGetLocalityNamesByCityName = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]},\"fields\":[\"label\"]}";
+	public static String SelectorGetBuilderNamesByCityName = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]},\"fields\":[\"name\"]}";
 
 	public static String GenericURLPropertyForSale = "%s/property-sale";
 	public static String GenericURLPropertyForResale = "%s/resale-property";

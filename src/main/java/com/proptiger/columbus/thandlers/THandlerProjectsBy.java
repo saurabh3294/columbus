@@ -1,12 +1,17 @@
 package com.proptiger.columbus.thandlers;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Builder;
+import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.util.HttpRequestUtil;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 
 public class THandlerProjectsBy extends RootTHandler {
 
@@ -45,13 +50,17 @@ public class THandlerProjectsBy extends RootTHandler {
 	}
 
 	private List<Builder> getTopBuilders(String cityName) {
-		Selector selector = (new Gson()).fromJson(String.format(
-				URLGenerationConstants.ServiceSelectorGetLocalityByCity,
-				cityName), Selector.class);
-		// List<Builder> topBuilders =
-		// builderService.getTopBuilders(selector).getResults();
-		// return topBuilders;
-		return null;
+		List<Builder> topBuilders = HttpRequestUtil
+				.getInternalApiResultAsType(URI.create(PropertyReader
+						.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)
+						+ PropertyReader
+								.getRequiredPropertyAsString(PropertyKeys.BUILDER_API_URL)
+						+ "?"
+						+ URLGenerationConstants.Selector
+						+ String.format(
+								URLGenerationConstants.SelectorGetBuilderNamesByCityName,
+								cityName)));
+		return topBuilders;
 	}
 
 }

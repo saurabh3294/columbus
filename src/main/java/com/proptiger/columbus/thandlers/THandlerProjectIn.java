@@ -1,15 +1,17 @@
 package com.proptiger.columbus.thandlers;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.Gson;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
-import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.util.HttpRequestUtil;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 
 @Component
 public class THandlerProjectIn extends RootTHandler {
@@ -109,13 +111,17 @@ public class THandlerProjectIn extends RootTHandler {
 	}
 
 	private List<Locality> getTopLocalities(String cityName) {
-		Selector selector = (new Gson()).fromJson(String.format(
-				URLGenerationConstants.ServiceSelectorGetLocalityByCity,
-				cityName), Selector.class);
-		// List<Locality> topLocalities =
-		// localityService.getLocalities(selector).getResults();
-		// return topLocalities;
-		return null;
+		List<Locality> topLocalities = HttpRequestUtil
+				.getInternalApiResultAsType(URI.create(PropertyReader
+						.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)
+						+ PropertyReader
+								.getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
+						+ "?"
+						+ URLGenerationConstants.Selector
+						+ String.format(
+								URLGenerationConstants.SelectorGetLocalityNamesByCityName,
+								cityName)));
+		return topLocalities;
 	}
 
 	private String addLocalityFilterToRedirectURL(String redirectUrl,
