@@ -3,6 +3,7 @@
  */
 package com.proptiger.app.mvc;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.Locality;
@@ -34,6 +36,7 @@ import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.service.user.ProjectDiscussionsService;
 import com.proptiger.data.util.UtilityClass;
 
 /**
@@ -65,6 +68,9 @@ public class ProjectDetailController extends BaseController {
 
     @Autowired
     private LocalityService        localityService;
+    
+    @Autowired
+    private ProjectDiscussionsService projectDiscussionsService;
 
     @RequestMapping(value = "app/v1/project-detail")
     public @ResponseBody
@@ -78,13 +84,14 @@ public class ProjectDetailController extends BaseController {
         }
 
         List<Property> properties = propertyService.getPropertiesForProject(projectId);
+        propertyService.updateProjectsLifestyleScores(properties);
         ProjectSpecification projectSpecification = projectService.getProjectSpecificationsV2(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Builder builderDetails = builderService.getBuilderInfo(projectInfo.getBuilderId(), null);
 
         // getting project discussions.
         int totalProjectDiscussion = 0;
-        List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
+        List<ProjectDiscussion> projectDiscussionList = projectDiscussionsService.getDiscussions(projectId, null);
         if (projectDiscussionList != null)
             totalProjectDiscussion = projectDiscussionList.size();
 
@@ -132,7 +139,9 @@ public class ProjectDetailController extends BaseController {
          * Setting locality Ratings And Reviews
          */
         localityService.updateLocalityRatingAndReviewDetails(locality);
-
+        if (locality != null) {
+            localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
+        }
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -158,6 +167,7 @@ public class ProjectDetailController extends BaseController {
 
     @RequestMapping(value = { "app/v2/project-detail/{projectId}" })
     @ResponseBody
+    @DisableCaching
     public APIResponse getProjectDetailsV2(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
@@ -166,7 +176,10 @@ public class ProjectDetailController extends BaseController {
             projectSelector = new Selector();
         }
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-
+        
+        if (project != null ) {
+            projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
+        }
         /*
          * Setting project Specification if needed.
          */
@@ -180,7 +193,25 @@ public class ProjectDetailController extends BaseController {
 
     @RequestMapping(value = { "app/v3/project-detail/{projectId}" })
     @ResponseBody
+    @DisableCaching
     public APIResponse getProjectDetailsV3(
+            @PathVariable Integer projectId,
+            @RequestParam(required = false) String selector) throws Exception {
+        Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
+        if (projectSelector == null) {
+            projectSelector = new Selector();
+        }
+        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
+        if (project != null) {
+            projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
+        }
+        return new APIResponse(super.filterFields(project, projectSelector.getFields()));
+    }
+    
+    @RequestMapping(value = { "app/v4/project-detail/{projectId}" })
+    @ResponseBody
+    @DisableCaching
+    public APIResponse getProjectDetailsV4(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
         Selector projectSelector = super.parseJsonToObject(selector, Selector.class);

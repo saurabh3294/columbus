@@ -1,8 +1,12 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -19,10 +23,12 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetail;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LocalityReviewDao;
+import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -41,6 +47,9 @@ public class LocalityReviewService {
 
     @Autowired
     private LocalityService       localityService;
+    
+    @Autowired
+    private UserService userService;
 
     private static Logger         logger = LoggerFactory.getLogger(LocalityReviewService.class);
 
@@ -59,11 +68,11 @@ public class LocalityReviewService {
             key = "#localityId +'-'+{#noOfReviews != null ?#noOfReviews:'' }")
     public LocalityReviewRatingDetails getLocalityReviewRatingDetails(int localityId, Integer noOfReviews) {
         logger.debug("Get review and rating details of locality {}", localityId);
-        Long totalReviews = (long)0;
+        Long totalReviews = (long) 0;
         PaginatedResponse<List<LocalityReviewComments>> reviews = getLocalityReview(
                 null,
                 new FIQLSelector().addAndConditionToFilter("localityId==" + localityId));
-        if(reviews != null){
+        if (reviews != null) {
             totalReviews = reviews.getTotalCount();
         }
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
@@ -94,7 +103,25 @@ public class LocalityReviewService {
      * @return
      */
     public List<LocalityReviewCustomDetail> getLocalityReviewCustomDetails(int localityId, Pageable pageable) {
-        return localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
+        List<LocalityReviewComments> reviewComments = localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
+        List<LocalityReviewCustomDetail> customDetails = new ArrayList<>();
+        Set<Integer> userIds = new HashSet<Integer>();
+        for(LocalityReviewComments comments: reviewComments){
+            if(comments.getUserId() != null){
+                userIds.add(comments.getUserId());
+            }
+        }
+        Map<Integer, User> usersMap = userService.getUsers(userIds);
+        for (LocalityReviewComments c : reviewComments) {
+            User user = usersMap.get(c.getUserId());
+            customDetails.add(new LocalityReviewCustomDetail(
+                    c.getReview(),
+                    c.getReviewLabel(),
+                    user != null ? user.getFullName() : null,
+                    c.getCommenttime(),
+                    c.getUserName()));
+        }
+        return customDetails;
     }
 
     /**
@@ -136,6 +163,9 @@ public class LocalityReviewService {
                     locality,
                     distance[i],
                     distance[i + 1]);
+            if (localities.size() < 1) {
+                continue;
+            }
             localityIds.addAll(localityReviewDao.getTopReviewNearLocalitiesOnLocality(localities, minCount, pageable));
             pageable = new LimitOffsetPageRequest(0, limit - localityIds.size());
         }
@@ -184,6 +214,7 @@ public class LocalityReviewService {
             return createComment;
         }
     }
+
     /**
      * Validate fields of ReviewComment.
      * 
@@ -193,30 +224,63 @@ public class LocalityReviewService {
 
     }
 
-    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(Integer userId, FIQLSelector selector){
+    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(Integer userId, FIQLSelector selector) {
         PaginatedResponse<List<LocalityReviewComments>> response = new PaginatedResponse<List<LocalityReviewComments>>();
-        if(selector == null || selector.getFilters() == null){
+        if (selector == null || selector.getFilters() == null) {
             return response;
         }
-        else{
-            if(userId != null){
-                selector.addAndConditionToFilter("userId=="+userId);
+        else {
+            if (userId != null) {
+                selector.addAndConditionToFilter("userId==" + userId);
             }
-            //only active review
+            // only active review
             selector.addAndConditionToFilter("status==1");
             /*
-             * default sort is by  localityRatings.overallRating DESC, in case if sort is already there
-             * on some other field even though we are adding localityRatings.overallRating DESC to fetch
-             * rating details, as criteria builder does not houner Fetch.EAGER
+             * default sort is by localityRatings.overallRating DESC, in case if
+             * sort is already there on some other field even though we are
+             * adding localityRatings.overallRating DESC to fetch rating
+             * details, as criteria builder does not honor Fetch.EAGER
              */
-            if(selector.getSort() == null || selector.getSort().isEmpty()){
+            if (selector.getSort() == null || selector.getSort().isEmpty()) {
                 selector.addSortDESC("localityRatings.overallRating");
             }
-            else if(!selector.getSort().contains("localityRatings.overallRating")){
+            else if (!selector.getSort().contains("localityRatings.overallRating")) {
                 selector.addSortDESC("localityRatings.overallRating");
             }
             response = localityReviewDao.getLocalityReview(selector);
+            enrichReviewComments(response.getResults());
         }
         return response;
+    }
+
+    private void enrichReviewComments(List<LocalityReviewComments> results) {
+        if(results != null && !results.isEmpty()){
+            Set<Integer> userIds = new HashSet<Integer>();
+            for(LocalityReviewComments l: results){
+                userIds.add(l.getUserId());
+            }
+            Map<Integer, User> usersMap = userService.getUsers(userIds);
+            for(LocalityReviewComments l: results){
+                l.setForumUser(usersMap.get(l.getUserId()).toForumUser());;
+            }
+        }
+        
+    }
+
+    public void updateReviewAndRatingsByHalf(LocalityReviewRatingDetails reviewRatingDetails) {
+        if (reviewRatingDetails != null) {
+            if (reviewRatingDetails.getAverageRatings() != null) {
+                reviewRatingDetails.setAverageRatings(reviewRatingDetails.getAverageRatings() / 2);
+            }
+            if (reviewRatingDetails.getTotalUsersByRating() != null) {
+                Map<Double, Long> totalUsersByRatings = reviewRatingDetails.getTotalUsersByRating();
+                Map<Double, Long> newTotalUsersByRatings = new HashMap<Double, Long>();
+                Set<Entry<Double, Long>> entrySet = totalUsersByRatings.entrySet();
+                for (Entry<Double, Long> entry : entrySet) {
+                    newTotalUsersByRatings.put(entry.getKey() / 2, entry.getValue());
+                }
+                reviewRatingDetails.setTotalUsersByRating(newTotalUsersByRatings);
+            }
+        }
     }
 }

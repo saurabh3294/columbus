@@ -2,11 +2,11 @@ package com.proptiger.data.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.beanutils.PropertyUtils;
 
 public class UtilityClass {
@@ -24,6 +24,25 @@ public class UtilityClass {
         }
         else if (b != null) {
             c = Math.max(a, b);
+        }
+
+        return c;
+    }
+    
+    /**
+     * Returns non zero max of given 2 date - null otherwise
+     * 
+     * @param a
+     * @param b
+     * @return
+     */
+    public static Date max(Date a, Date b) {
+        Date c = a;
+        if (a == null) {
+            c = b;
+        }
+        else if (b != null) {
+            c = DateUtil.max(a, b);
         }
 
         return c;
@@ -47,7 +66,46 @@ public class UtilityClass {
 
         return c;
     }
+    
+    /**
+     * Returns non zero min of given 2 date - null otherwise
+     * 
+     * @param a
+     * @param b
+     * @return
+     */
+    public static Date min(Date a, Date b) {
+        Date c = a;
+        if (a == null) {
+            c = b;
+        }
+        else if (b != null) {
+            c = DateUtil.min(a, b);
+        }
 
+        return c;
+    }
+    
+    /**
+     * @return {@link Integer} non zero compare of given 2 integers - null otherwise
+     * 
+     * @param a
+     *            {@link Integer}
+     * @param b
+     *            {@link Integer}
+     * 
+     * @author Mukand Agarwal
+     */
+    public static Integer compareTo(Integer a, Integer b) {
+        if (a == null) {
+            return 1;
+        }
+        else if (b != null && b != 0) {
+            return a.compareTo(b);
+        }
+        return -1;
+    }
+    
     /**
      * @return {@link Integer} non zero min of given 2 integers - null otherwise
      * 
@@ -173,7 +231,8 @@ public class UtilityClass {
     /**
      * @param list
      * @param count
-     * @return first count elements of the list OR whole list if it has less N elements.
+     * @return first count elements of the list OR whole list if it has less N
+     *         elements.
      */
     public static <T> List<T> getFirstNElementsOfList(List<T> list, int count) {
         if (list == null) {
@@ -185,4 +244,55 @@ public class UtilityClass {
         }
     }
     
+    /**
+     * Merges given lists into a single list removing duplicates based on the given comparator.
+     * Among duplicate objects the one thats found first during traversal will persist.
+     * Traversal is done according to the default ordering in the list.
+     * @param listOfLists
+     * @param comparator
+     * @return
+     */
+	public static <T> List<T> getMergedListRemoveDuplicates(
+			List<List<T>> listOfLists, Comparator<T> comparator) {
+		List<T> resultList = new ArrayList<T>();
+		for (List<T> list : listOfLists) {
+			for (T t : list) {
+				if (findInListByComparator(t, resultList, comparator) == -1) {
+					resultList.add(t);
+				}
+			}
+		}
+		return resultList;
+	}
+    
+    public static <T> Integer findInListByComparator(T tobj, List<T> list, Comparator<T> comparator){
+    	if(tobj == null || list == null || comparator == null){
+    		return null;
+    	}
+    	int ctr = 0;
+    	for(T t : list){
+    		if((comparator.compare(tobj, t)) == 0){
+    			return ctr;
+    		}
+    		ctr++;
+    	}
+    	return -1;
+    }
+
+    /**
+     * 
+     * @param actualKey
+     * @return {@link Object} that can pe put in grouped response as key
+     */
+    public static Object getResponseGroupKey(Object actualKey) {
+        Object result = null;
+        if (actualKey instanceof Date) {
+            Date date = (Date) actualKey;
+            result = date.getTime();
+        }
+        else {
+            result = actualKey;
+        }
+        return result;
+    }
 }

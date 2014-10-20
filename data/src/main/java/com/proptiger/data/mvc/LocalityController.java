@@ -25,7 +25,6 @@ import com.proptiger.data.service.LocalityService;
  * @author Rajeev Pandey
  * 
  */
-@RequestMapping("data/v1/entity/locality")
 @Controller
 public class LocalityController extends BaseController {
     @Autowired
@@ -43,9 +42,22 @@ public class LocalityController extends BaseController {
      * @param selector
      * @return
      */
-    @RequestMapping(value = {"", "/top"})
+    @RequestMapping(value = {"data/v1/entity/locality", "data/v1/entity/locality/top"})
     @ResponseBody
     public APIResponse getLocalities(@RequestParam(required = false) String selector) {
+        Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+        PaginatedResponse<List<Locality>> localityList = localityService.getLocalitiesWithRatingsAndReviews(localitySelector);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(localityList.getResults());
+        return new APIResponse(
+                super.filterFields(localityList.getResults(), localitySelector.getFields()),
+                localityList.getTotalCount());
+    }
+    @RequestMapping(value = {"data/v2/entity/locality", "data/v2/entity/locality/top"})
+    @ResponseBody
+    public APIResponse getLocalitiesV2(@RequestParam(required = false) String selector) {
         Selector localitySelector = new Selector();
         if (selector != null) {
             localitySelector = super.parseJsonToObject(selector, Selector.class);
@@ -65,9 +77,31 @@ public class LocalityController extends BaseController {
      * @param selector
      * @return
      */
-    @RequestMapping(value = "/popular")
+    @RequestMapping(value = "data/v1/entity/locality/popular")
     @ResponseBody
     public APIResponse getPopularLocalitiesOfCity(
+            @RequestParam(required = false, value = "cityId") Integer cityId,
+            @RequestParam(required = false, value = "suburbId") Integer suburbId,
+            @RequestParam(required = false, value = "enquiryInWeeks", defaultValue = "8") Integer enquiryInWeeks,
+            @RequestParam(required = false) String selector) {
+        Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+        List<Locality> popularLocalities = localityService.getPopularLocalities(
+                cityId,
+                suburbId,
+                enquiryInWeeks,
+                localitySelector);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(popularLocalities);
+        return new APIResponse(
+                super.filterFields(popularLocalities, localitySelector.getFields()),
+                popularLocalities.size());
+    }
+
+    @RequestMapping(value = "data/v2/entity/locality/popular")
+    @ResponseBody
+    public APIResponse getPopularLocalitiesOfCityV2(
             @RequestParam(required = false, value = "cityId") Integer cityId,
             @RequestParam(required = false, value = "suburbId") Integer suburbId,
             @RequestParam(required = false, value = "enquiryInWeeks", defaultValue = "8") Integer enquiryInWeeks,
@@ -85,7 +119,6 @@ public class LocalityController extends BaseController {
                 super.filterFields(popularLocalities, localitySelector.getFields()),
                 popularLocalities.size());
     }
-
     /**
      * Get top localities for city id or suburb id
      * 
@@ -94,9 +127,25 @@ public class LocalityController extends BaseController {
      * @param selector
      * @return
      */
-    @RequestMapping(value = "/top-rated")
+    @RequestMapping(value = "data/v1/entity/locality/top-rated")
     @ResponseBody
     public APIResponse getTopLocalitiesOfCityOrSuburb(
+            @RequestParam(required = false, value = "cityId") Integer cityId,
+            @RequestParam(required = false, value = "suburbId") Integer suburbId,
+            @RequestParam(required = false, defaultValue = "4", value = "imageCount") Integer imageCount,
+            @RequestParam(required = false) String selector) {
+        Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+        List<Locality> result = localityService.getTopRatedLocalities(cityId, suburbId, localitySelector, imageCount);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(result);
+        return new APIResponse(super.filterFields(result, localitySelector.getFields()), result.size());
+    }
+    
+    @RequestMapping(value = "data/v2/entity/locality/top-rated")
+    @ResponseBody
+    public APIResponse getTopLocalitiesOfCityOrSuburbV2(
             @RequestParam(required = false, value = "cityId") Integer cityId,
             @RequestParam(required = false, value = "suburbId") Integer suburbId,
             @RequestParam(required = false, defaultValue = "4", value = "imageCount") Integer imageCount,
@@ -116,7 +165,7 @@ public class LocalityController extends BaseController {
      * @param localityId
      * @return
      */
-    @RequestMapping(value = "{localityId}/center")
+    @RequestMapping(value = "data/v1/entity/locality/{localityId}/center")
     @ResponseBody
     public APIResponse getCenter(@PathVariable int localityId) {
         return new APIResponse(localityService.computeCenter(localityId));
@@ -129,9 +178,28 @@ public class LocalityController extends BaseController {
      * @param selector
      * @return
      */
-    @RequestMapping(value = "{localityId}/top-rated")
+    @RequestMapping(value = "data/v1/entity/locality/{localityId}/top-rated")
     @ResponseBody
     public APIResponse getTopLocalitiesAroundLocality(@PathVariable Integer localityId, @RequestParam(
+            required = false,
+            defaultValue = "4",
+            value = "imageCount") Integer imageCount, @RequestParam(required = false) String selector) {
+        Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+        List<Locality> result = localityService.getTopRatedLocalitiesAroundLocality(
+                localityId,
+                localitySelector,
+                imageCount,
+                null);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(result);
+        return new APIResponse(super.filterFields(result, localitySelector.getFields()), result.size());
+    }
+
+    @RequestMapping(value = "data/v2/entity/locality/{localityId}/top-rated")
+    @ResponseBody
+    public APIResponse getTopLocalitiesAroundLocalityV2(@PathVariable Integer localityId, @RequestParam(
             required = false,
             defaultValue = "4",
             value = "imageCount") Integer imageCount, @RequestParam(required = false) String selector) {
@@ -147,14 +215,14 @@ public class LocalityController extends BaseController {
         return new APIResponse(super.filterFields(result, localitySelector.getFields()), result.size());
     }
 
-    @RequestMapping("/{localityId}/radius")
+    @RequestMapping("data/v1/entity/locality/{localityId}/radius")
     @ResponseBody
     @Deprecated
     public APIResponse getLocalityRadiusOnProject(@PathVariable int localityId) {
         return new APIResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
     }
 
-    @RequestMapping(value = "top-reviewed")
+    @RequestMapping(value = "data/v1/entity/locality/top-reviewed")
     @ResponseBody
     public APIResponse getTopReviewedLocality(
             @RequestParam String locationType,
@@ -172,11 +240,36 @@ public class LocalityController extends BaseController {
                 locationType,
                 locationId,
                 minReviewCount,
-                numberOfLocalities);
+                numberOfLocalities,
+                localitySelector);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(localities.getResults());
         return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }
 
-    @RequestMapping(value = "highest-return")
+    @RequestMapping(value = "data/v2/entity/locality/top-reviewed")
+    @ResponseBody
+    public APIResponse getTopReviewedLocalityV2(
+            @RequestParam String locationType,
+            @RequestParam int locationId,
+            @RequestParam(required = false, defaultValue = "2") int minReviewCount,
+            @RequestParam(required = false, defaultValue = "5") int numberOfLocalities,
+            @RequestParam(required = false) String selector) {
+
+        Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+
+        PaginatedResponse<List<Locality>> localities = localityService.getTopReviewedLocalities(
+                locationType,
+                locationId,
+                minReviewCount,
+                numberOfLocalities,
+                localitySelector);
+        return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
+    }
+    
+    @RequestMapping(value = "data/v1/entity/locality/highest-return")
     @ResponseBody
     public APIResponse getHighestReturnLocalities(
             @RequestParam String locationType,
@@ -193,7 +286,29 @@ public class LocalityController extends BaseController {
         PaginatedResponse<List<Locality>> localities = localityService.getHighestReturnLocalities(
                 locationType,
                 locationId,
-                numberOfLocalities, minimumPriceRise);
+                numberOfLocalities, minimumPriceRise, localitySelector);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(localities.getResults());
+        return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
+    }
+    
+    @RequestMapping(value = "data/v2/entity/locality/highest-return")
+    @ResponseBody
+    public APIResponse getHighestReturnLocalitiesV2(
+            @RequestParam String locationType,
+            @RequestParam int locationId,
+            @RequestParam(required = false, defaultValue = "5") int numberOfLocalities,
+            @RequestParam(required = false, defaultValue = "5") double minimumPriceRise,
+            @RequestParam(required = false) String selector) {
+
+        Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+
+        PaginatedResponse<List<Locality>> localities = localityService.getHighestReturnLocalities(
+                locationType,
+                locationId,
+                numberOfLocalities, minimumPriceRise, localitySelector);
 
         return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }

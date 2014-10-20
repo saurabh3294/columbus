@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.annotations.Intercepted;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
 import com.proptiger.data.mvc.BaseController;
@@ -32,7 +33,6 @@ import com.proptiger.data.service.PropertyService;
  * 
  */
 @Controller
-@RequestMapping(value = "app/v1/project-listing")
 public class ProjectListingController extends BaseController {
     @Autowired
     private PropertyService propertyService;
@@ -43,7 +43,8 @@ public class ProjectListingController extends BaseController {
     @Autowired
     private ProjectService  projectService;
 
-    @RequestMapping
+    @Intercepted.ProjectListing
+    @RequestMapping(value = "app/v1/project-listing")
     public @ResponseBody
     Object getProjectListings(
             @RequestParam(required = false) String selector,
@@ -56,7 +57,38 @@ public class ProjectListingController extends BaseController {
 
         PaginatedResponse<List<Project>> projects = propertyService
                 .getPropertiesGroupedToProjects(projectListingSelector);
+        
+        projectService.updateLifestyleScoresByHalf(projects.getResults());
+        Set<String> fields = projectListingSelector.getFields();
+        processFields(fields);
+        Map<String, Object> response = new HashMap<String, Object>();
+        response.put("items", super.filterFields(projects.getResults(), fields));
 
+        if (facets != null) {
+            response.put("facets", propertyService.getFacets(Arrays.asList(facets.split(",")), projectListingSelector));
+        }
+
+        if (stats != null) {
+            response.put("stats", propertyService.getStats(Arrays.asList(stats.split(",")), projectListingSelector));
+        }
+        return new APIResponse(response, projects.getTotalCount());
+    }
+    
+    @Intercepted.ProjectListing
+    @RequestMapping(value = "app/v2/project-listing")
+    public @ResponseBody
+    Object getProjectListingsV2(
+            @RequestParam(required = false) String selector,
+            @RequestParam(required = false) String facets,
+            @RequestParam(required = false) String stats) {
+        Selector projectListingSelector = super.parseJsonToObject(selector, Selector.class);
+        if (projectListingSelector == null) {
+            projectListingSelector = new Selector();
+        }
+
+        PaginatedResponse<List<Project>> projects = propertyService
+                .getPropertiesGroupedToProjects(projectListingSelector);
+        
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
         Map<String, Object> response = new HashMap<String, Object>();

@@ -17,6 +17,7 @@ import javax.persistence.Query;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -43,10 +44,12 @@ public class LocalityDaoImpl {
     private SolrDao              solrDao;
     @Autowired
     private EntityManagerFactory emf;
+    @Autowired
+    private SessionFactory       sessionFactory;
 
     public PaginatedResponse<List<Locality>> getLocalities(Selector selector) {
         SolrQuery solrQuery = createSolrQuery(selector);
-        
+        System.out.println(solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 
@@ -182,21 +185,33 @@ public class LocalityDaoImpl {
             paging = selector.getPaging();
         }
         EntityManager em = emf.createEntityManager();
+        /**
+         * spliting the query to union query in order to optimize the query
+         * time.
+         */
         Query query = em
                 .createNativeQuery(
-                        "select *, count(enquiry1_.ID) as ENQUIRY_COUNT from cms.locality locality0_ left outer join cms.suburb suburb0_ ON locality0_.SUBURB_ID = suburb0_.SUBURB_ID " + " left outer join  proptiger.ENQUIRY enquiry1_ ON (locality0_.LOCALITY_ID = enquiry1_.LOCALITY_ID AND "
+                        "(select *, locality0_.PRIORITY AS LOCALITY_PRIORITY, count(enquiry1_.ID) as ENQUIRY_COUNT from cms.locality locality0_ left outer join cms.suburb suburb0_ ON locality0_.SUBURB_ID = suburb0_.SUBURB_ID " + " left outer join  proptiger.ENQUIRY enquiry1_ ON (locality0_.LOCALITY_ID = enquiry1_.LOCALITY_ID AND "
+                                + " enquiry1_.CREATED_DATE >"
+                                + " \"" + dateString
+                                + "\")"
+                                + " where suburb0_.CITY_ID = "
+                                + " "
+                                + cityId
+                                + " AND locality0_.STATUS='Active' "
+                                + " group by locality0_.LOCALITY_ID ) "
+                                + " UNION "
+                                + "(select *, locality0_.PRIORITY AS LOCALITY_PRIORITY, count(enquiry1_.ID) as ENQUIRY_COUNT from cms.locality locality0_ left outer join cms.suburb suburb0_ ON locality0_.SUBURB_ID = suburb0_.SUBURB_ID "
+                                + " left outer join  proptiger.ENQUIRY enquiry1_ ON (locality0_.LOCALITY_ID = enquiry1_.LOCALITY_ID AND "
                                 + " enquiry1_.CREATED_DATE >"
                                 + " \""
                                 + dateString
                                 + "\")"
-                                + " where (suburb0_.CITY_ID = "
-                                + " "
-                                + cityId
-                                + " or locality0_.SUBURB_ID = "
+                                + " where locality0_.SUBURB_ID = "
                                 + " "
                                 + suburbId
-                                + ") AND locality0_.STATUS='Active' "
-                                + " group by locality0_.LOCALITY_ID order by ENQUIRY_COUNT DESC, locality0_.PRIORITY ASC"
+                                + " AND locality0_.STATUS='Active' "
+                                + " group by locality0_.LOCALITY_ID ) order by ENQUIRY_COUNT DESC, LOCALITY_PRIORITY ASC "
                                 + " LIMIT "
                                 + paging.getRows()
                                 + " OFFSET "
@@ -252,20 +267,30 @@ public class LocalityDaoImpl {
 
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
-        return getPaginatedResponse(queryResponse.getBeans(SolrResult.class), queryResponse);
+        PaginatedResponse<List<Locality>> results = getPaginatedResponse(
+                queryResponse.getBeans(SolrResult.class),
+                queryResponse);
+
+        if (results == null) {
+            results = new PaginatedResponse<List<Locality>>();
+            results.setResults(new ArrayList<Locality>());
+        }
+
+        return results;
     }
-    
+
     /**
-     * Get list of locality with total number of localities for given 
+     * Get list of locality with total number of localities for given
+     * 
      * @param selector
      * @return
      */
-    public PaginatedResponse<List<Locality>> getLocalities(FIQLSelector selector){
+    public PaginatedResponse<List<Locality>> getLocalities(FIQLSelector selector) {
         SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.LOCALITY);
         SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
         queryBuilder.buildQuery(selector);
         QueryResponse response = solrDao.executeQuery(solrQuery);
-        
+
         List<Locality> localities = new ArrayList<>();
         for (SolrResult r : response.getBeans(SolrResult.class)) {
             localities.add(r.getProject().getLocality());

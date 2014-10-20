@@ -22,6 +22,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -53,9 +54,13 @@ public class LocalityReviewComments extends BaseModel {
     @Column(name = "PROJECT_ID")
     private int               projectId;
 
+    /**
+     * Changing the type from int to Integer as Criteria query is adding cast in
+     * the sql query when it is int.
+     */
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
-    private int               localityId;
+    private Integer           localityId;
 
     @FieldMetaInfo(displayName = "Likes Count", description = "Likes Count")
     @Column(name = "LIKES_COUNT")
@@ -90,18 +95,22 @@ public class LocalityReviewComments extends BaseModel {
     @Column(name = "STATUS")
     private String            status;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
+    @Transient
     private ForumUser         forumUser;
 
-    @OneToOne(fetch = FetchType.EAGER, optional=true)
+    @OneToOne(fetch = FetchType.EAGER, optional = true)
     @JoinColumns({
             @JoinColumn(
                     name = "LOCALITY_ID",
                     referencedColumnName = "LOCALITY_ID",
                     insertable = false,
                     updatable = false),
-            @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false, nullable = true)})
+            @JoinColumn(
+                    name = "USER_ID",
+                    referencedColumnName = "USER_ID",
+                    insertable = false,
+                    updatable = false,
+                    nullable = true) })
     private LocalityRatings   localityRatings;
 
     @ManyToOne
@@ -133,11 +142,11 @@ public class LocalityReviewComments extends BaseModel {
         this.projectId = projectId;
     }
 
-    public int getLocalityId() {
+    public Integer getLocalityId() {
         return localityId;
     }
 
-    public void setLocalityId(int localityId) {
+    public void setLocalityId(Integer localityId) {
         this.localityId = localityId;
     }
 
@@ -219,6 +228,14 @@ public class LocalityReviewComments extends BaseModel {
 
     public void setLocality(Locality locality) {
         this.locality = locality;
+    }
+    
+    public ForumUser getForumUser() {
+        return forumUser;
+    }
+
+    public void setForumUser(ForumUser forumUser) {
+        this.forumUser = forumUser;
     }
 
     @PrePersist
@@ -324,5 +341,12 @@ public class LocalityReviewComments extends BaseModel {
             return totalRatings;
         }
 
+        public void setAverageRatings(Double averageRatings) {
+            this.averageRatings = averageRatings;
+        }
+
+        public void setTotalUsersByRating(Map<Double, Long> totalUsersByRating) {
+            this.totalUsersByRating = totalUsersByRating;
+        }
     }
 }

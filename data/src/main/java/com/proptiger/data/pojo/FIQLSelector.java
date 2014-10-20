@@ -6,32 +6,37 @@ package com.proptiger.data.pojo;
  */
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 
 import com.proptiger.exception.ProAPIException;
 
 public class FIQLSelector implements Cloneable, Serializable {
-    private static final long serialVersionUID         = 1L;
-    private String            fields;
-    private String            filters;
-    private String            group;
-    private String            sort;
-    private int               start                    = 0;
+    private static final long  serialVersionUID         = 1L;
+    private String             fields;
+    private String             filters;
+    private String             group;
+    private String             sort;
+    private int                start                    = 0;
 
-    private int               rows                     = 1000;
+    private int                rows                     = 1000;
 
-    private static final int  maxAllowedRows           = 500000;
+    private static final int   maxAllowedRows           = 500000;
 
-    private static String     monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
-    private static String     monthAlwaysTrueStatement = "month!=1970-01-01";
+    private static String      monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
+    private static String      monthAlwaysTrueStatement = "month!=1970-01-01";
 
-    public static String FIQLSortDescSymbol = "-";
-    
+    public static final String fieldSeperator           = ",";
+    public static final String FIQLSortDescSymbol       = "-";
+
     public String getFields() {
         return fields;
     }
@@ -172,18 +177,18 @@ public class FIQLSelector implements Cloneable, Serializable {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
-    public Set<String> getFieldSet() {
+    public LinkedHashSet<String> getFieldSet() {
         return (getTokenizedValuesAsSet(this.fields, ","));
     }
 
-    public Set<String> getGroupSet() {
+    public LinkedHashSet<String> getGroupSet() {
         return (getTokenizedValuesAsSet(this.group, ","));
     }
 
-    private Set<String> getTokenizedValuesAsSet(String line, String dlim) {
-        Set<String> result = new HashSet<>();
+    private LinkedHashSet<String> getTokenizedValuesAsSet(String line, String dlim) {
+        LinkedHashSet<String> result = new LinkedHashSet<>();
         if (line != null && !line.trim().isEmpty()) {
-            result = new HashSet<>(Arrays.asList(line.split(dlim)));
+            result = new LinkedHashSet<>(Arrays.asList(line.split(dlim)));
         }
         return result;
     }
@@ -203,6 +208,22 @@ public class FIQLSelector implements Cloneable, Serializable {
         }
     }
 
+    public Sort getSpringDataSort() {
+        List<Order> orders = new ArrayList<>();
+        List<String> fields = Arrays.asList(sort.split(fieldSeperator));
+        for (String field : fields) {
+            Order order;
+            if (field.startsWith(FIQLSortDescSymbol)) {
+                order = new Order(Direction.DESC, field.substring(1));
+            }
+            else {
+                order = new Order(Direction.ASC, field);
+            }
+            orders.add(order);
+        }
+        return new Sort(orders);
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -220,5 +241,26 @@ public class FIQLSelector implements Cloneable, Serializable {
     public boolean equals(Object obj) {
         return ToStringBuilder.reflectionToString(obj, ToStringStyle.SHORT_PREFIX_STYLE).equals(
                 ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE));
+    }
+
+    /**
+     * applies defaults in {@link FIQLSelector} for get task apis
+     * 
+     * @param selector
+     * @return
+     */
+    public FIQLSelector applyDefSort(String defaultSort) {
+
+        if (this.getSort() == null) {
+            this.setSort(defaultSort);
+        }
+        return this;
+    }
+
+    public FIQLSelector applyDefFields(String fields) {
+        if (this.getFields() == null) {
+            this.setFields(fields);
+        }
+        return this;
     }
 }

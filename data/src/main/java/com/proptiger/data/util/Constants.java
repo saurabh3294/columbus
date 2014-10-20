@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.proptiger.data.enums.ConstructionStatus;
+import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 
 /**
@@ -27,9 +28,10 @@ public class Constants {
     public static final int                  DEFAULT_NO_OF_ALL_ROWS    = 9999;
     public static final String               USERNAME                  = "username";
     public static final List<Source>         SOURCETYPE_LIST           = Arrays.asList(Source.portfolio, Source.backend);
+    public static final List<ListingStatus>  LISTINGSTATUS_LIST        = Arrays.asList(ListingStatus.ACTIVE, ListingStatus.INCOMPLETE);
     public static final int                  LIMIT_OF_COMPOSITE_APIs   = 15;
 
-    public static final String               APPLICATION_NAME_HEADER   = "applicationType";
+    public static final String               APPLICATION_TYPE_HEADER   = "applicationType";
     /**
      * Put all solr Dynamic Field generated in this class.
      */
@@ -153,7 +155,7 @@ public class Constants {
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_RESALE  = Arrays.asList(
                                                                                          ConstructionStatus.ReadyForPossession,
                                                                                          ConstructionStatus.Occupied);
-    public static final String                   USER_AGENT                      = "user-agent";
+    public static final String                   USER_AGENT                      = "User-Agent";
 
     public static class SeoPageTemplate {
         /* public static final String CITY_OVERVIEW_PAGE = "\"title\":"; */
@@ -166,6 +168,7 @@ public class Constants {
      * 
      */
     public static final class Security {
+        public static final String USER_VALIDATE_API = "app/v1/validate";
         public static final String COOKIE_NAME_JSESSIONID       = "JSESSIONID";
 
         public static final String LOGOUT_URL                   = "/app/v1/logout";
@@ -179,8 +182,6 @@ public class Constants {
         public static final String API_SECRET_KEY               = "api.sec.key";
 
         public static final String USER_API_REGEX               = ".*/user/.*";
-
-        public static final String AUTH_API_REGEX               = ".*/auth/.*";
 
         public static final String REMEMBER_ME_PARAMETER        = "rememberme";
 
@@ -208,5 +209,13 @@ public class Constants {
         public static final String HASH_SEPERATOR               = "#$$#";
 
         public static final String WARN_ILLEGAL_API_ACCESS_MSG  = "illegal api access, use with _shhkey and server-time header";
+
+        /**
+         * API regex that requires PRE_AUTH_USER authority to access
+         */
+        public static final String OTP_VALIDATE_API_REGEX       = "/app/v\\d*/otp.*";
+
+        public static final String USER_DETAIL_API_REGEX = "/app/v\\d*/user/details-by-email.*";
     }
+
 }

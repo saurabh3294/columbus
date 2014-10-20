@@ -14,6 +14,7 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -32,26 +33,19 @@ public class ProjectDao extends ProjectSolrDao {
     private ProjectDBDao         projectDBDao;
 
     @Autowired
-    private ProjectDatabaseDao   projectDatabaseDao;
+    private ProjectDaoNew projectDaoNew;
 
     @Autowired
     private EntityManagerFactory emf;
-
+    
+    @Deprecated
     public ProjectDB findByProjectId(int projectId) {
-        return projectDBDao.findByProjectId(projectId);
+        return projectDBDao.findByProjectIdAndVersion(projectId, DataVersion.Website);
     }
 
+    @Deprecated
     public Project findProjectByProjectId(int projectId) {
-        return projectDatabaseDao.findByProjectId(projectId);
-    }
-
-    public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
-        if (commentId == null) {
-            return projectDBDao.getProjectDiscussions(projectId);
-        }
-        else {
-            return projectDBDao.getChildrenProjectDiscussions(commentId);
-        }
+        return findActiveOrInactiveProjectById(projectId);
     }
 
     public List<Integer> getMostRecentlyDiscussedProjectInNWeeksOnLocation(
@@ -59,7 +53,7 @@ public class ProjectDao extends ProjectSolrDao {
             int locationType,
             int locationId,
             int minCount) {
-        return projectDatabaseDao.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
+        return projectDaoNew.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
     }
 
     public List<Integer> getMostDiscussedProjectInNWeeksOnLocation(
@@ -67,7 +61,7 @@ public class ProjectDao extends ProjectSolrDao {
             int locationType,
             int locationId,
             int minCount) {
-        return projectDatabaseDao.getMostDiscussedProjects(date, locationType, locationId, minCount);
+        return projectDaoNew.getMostDiscussedProjects(date, locationType, locationId, minCount);
     }
 
     public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
@@ -94,6 +88,6 @@ public class ProjectDao extends ProjectSolrDao {
     }
 
     public Project findActiveOrInactiveProjectById(Integer id) {
-        return projectDatabaseDao.findOne(id);
+        return projectDaoNew.findByProjectIdAndVersion(id, DataVersion.Website);
     }
 }

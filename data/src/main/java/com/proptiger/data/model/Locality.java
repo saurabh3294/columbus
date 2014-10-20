@@ -92,10 +92,10 @@ public class Locality extends BaseModel {
     @Column(name = "URL")
     @Field("LOCALITY_URL")
     private String                          url;
-    
+
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)
-    private   Status                        status;
+    private Status                          status;
 
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
@@ -239,14 +239,60 @@ public class Locality extends BaseModel {
     @FieldMetaInfo(displayName = "Locality view count", description = "Locality view count")
     @Field(value = "LOCALITY_VIEW_COUNT")
     private Integer                         localityViewCount;
-    
+
     @Transient
     @Field(value = "LOCALITY_SAFETY_SCORE")
-    private Double                         safetyScore;
-    
+    private Double                          safetyScore;
+
     @Transient
     @Field(value = "LOCALITY_LIVABILITY_SCORE")
-    private Float                         livabilityScore;
+    private Float                           livabilityScore;
+
+    @Transient
+    @Field(value = "LOCALITY_SAFETY_RANK")
+    private Integer                         localitySafetyRank;
+
+    @Transient
+    @Field(value = "LOCALITY_LIVABILITY_RANK")
+    private Integer                         localityLivabilityRank;
+
+    @Transient
+    private List<LandMark>                  landmarks;
+
+    @Transient
+    private List<Image>                     landmarkImages;
+
+    @Transient
+    @Field(value = "PROJECT_MAX_SAFETY_SCORE")
+    private Double                          projectMaxSafetyScore;
+
+    @Transient
+    @Field(value = "PROJECT_MIN_SAFETY_SCORE")
+    private Double                          projectMinSafetyScore;
+
+    @Transient
+    @Field(value = "PROJECT_MAX_LIVABILITY_SCORE")
+    private Double                          projectMaxLivabilityScore;
+
+    @Transient
+    @Field(value = "PROJECT_MIN_LIVABILITY_SCORE")
+    private Double                          projectMinLivabilityScore;
+
+    @Transient
+    @Field("LOCALITY_UNIT_TYPES")
+    @JsonIgnore
+    private List<String>                    propertyUnitTypes;
+
+    @Transient
+    private String                          localityTagLine;
+
+    @Transient
+    @Field("LOCALITY_COUPON_MAX_DISCOUNT")
+    private Integer                         maxDiscount;
+
+    @Transient
+    @Field("LOCALITY_COUPON_AVAILABLE")
+    private Boolean                         isCouponAvailable;
 
     public int getLocalityId() {
         return localityId;
@@ -632,5 +678,101 @@ public class Locality extends BaseModel {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Integer getLocalitySafetyRank() {
+        return localitySafetyRank;
+    }
+
+    public void setLocalitySafetyRank(Integer localitySafetyRank) {
+        this.localitySafetyRank = localitySafetyRank;
+    }
+
+    public Integer getLocalityLivabilityRank() {
+        return localityLivabilityRank;
+    }
+
+    public void setLocalityLivabilityRank(Integer localityLivabilityRank) {
+        this.localityLivabilityRank = localityLivabilityRank;
+    }
+
+    public List<LandMark> getLandmarks() {
+        return landmarks;
+    }
+
+    public void setLandmarks(List<LandMark> landmarks) {
+        this.landmarks = landmarks;
+    }
+
+    public List<Image> getLandmarkImages() {
+        return landmarkImages;
+    }
+
+    public void setLandmarkImages(List<Image> landmarkImages) {
+        this.landmarkImages = landmarkImages;
+    }
+
+    public Double getProjectMaxSafetyScore() {
+        return projectMaxSafetyScore;
+    }
+
+    public void setProjectMaxSafetyScore(Double projectMaxSafetyScore) {
+        this.projectMaxSafetyScore = projectMaxSafetyScore;
+    }
+
+    public Double getProjectMinSafetyScore() {
+        return projectMinSafetyScore;
+    }
+
+    public void setProjectMinSafetyScore(Double projectMinSafetyScore) {
+        this.projectMinSafetyScore = projectMinSafetyScore;
+    }
+
+    public Double getProjectMaxLivabilityScore() {
+        return projectMaxLivabilityScore;
+    }
+
+    public void setProjectMaxLivabilityScore(Double projectMaxLivabilityScore) {
+        this.projectMaxLivabilityScore = projectMaxLivabilityScore;
+    }
+
+    public Double getProjectMinLivabilityScore() {
+        return projectMinLivabilityScore;
+    }
+
+    public void setProjectMinLivabilityScore(Double projectMinLivabilityScore) {
+        this.projectMinLivabilityScore = projectMinLivabilityScore;
+    }
+
+    public List<String> getPropertyUnitTypes() {
+        return propertyUnitTypes;
+    }
+
+    public void setPropertyUnitTypes(List<String> propertyUnitTypes) {
+        this.propertyUnitTypes = propertyUnitTypes;
+    }
+
+    public String getLocalityTagLine() {
+        return localityTagLine;
+    }
+
+    public void setLocalityTagLine(String localityTagLine) {
+        this.localityTagLine = localityTagLine;
+    }
+
+    public Integer getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(Integer maxDiscount) {
+        this.maxDiscount = maxDiscount;
+    }
+
+    public Boolean getIsCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setIsCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
     }
 }

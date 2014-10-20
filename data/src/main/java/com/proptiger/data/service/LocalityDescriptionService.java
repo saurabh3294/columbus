@@ -46,7 +46,7 @@ public class LocalityDescriptionService {
     private LocalityRatingService   localityRatingService;
 
     @Autowired
-    private LandMarkService  localityAmenityService;
+    private LandMarkService         localityAmenityService;
 
     @Autowired
     private BuilderService          builderService;
@@ -117,25 +117,25 @@ public class LocalityDescriptionService {
                 Selector.class);
         List<Property> properties = propertyService.getProperties(propertySelector);
         map.put("properties", properties);
-        
+
         Selector selectorForMinPriceProject = new Gson().fromJson(
                 "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + locality.getLocalityId()
                         + "}}]},\"sort\":[{\"field\":\"minPricePerUnitArea\", \"sortOrder\":\"ASC\"}]}",
                 Selector.class);
         PaginatedResponse<List<Project>> minPricedProject = projectService.getProjects(selectorForMinPriceProject);
-        if(minPricedProject != null && !minPricedProject.getResults().isEmpty()){
+        if (minPricedProject != null && !minPricedProject.getResults().isEmpty()) {
             map.put("minPricedProject", minPricedProject.getResults().get(0));
         }
-       
+
         Selector selectorForMaxPriceProject = new Gson().fromJson(
                 "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + locality.getLocalityId()
-                + "}}]},\"sort\":[{\"field\":\"maxPricePerUnitArea\", \"sortOrder\":\"DESC\"}]}",
-        Selector.class);
+                        + "}}]},\"sort\":[{\"field\":\"maxPricePerUnitArea\", \"sortOrder\":\"DESC\"}]}",
+                Selector.class);
         PaginatedResponse<List<Project>> maxPricedProject = projectService.getProjects(selectorForMaxPriceProject);
-        if(maxPricedProject != null && !maxPricedProject.getResults().isEmpty()){
+        if (maxPricedProject != null && !maxPricedProject.getResults().isEmpty()) {
             map.put("maxPricedProject", maxPricedProject.getResults().get(0));
         }
-        
+
         return map;
     }
 

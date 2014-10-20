@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
@@ -15,19 +16,41 @@ import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
  */
 public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Integer> {
 
-    public List<PortfolioListing> findByUserIdAndDeletedFlagAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
+    @Query("SELECT PL FROM PortfolioListing PL LEFT JOIN fetch PL.otherPrices OP LEFT JOIN fetch PL.listingPaymentPlan LPP "
+         + " WHERE PL.userId = ?1 AND PL.sourceType IN ?2 AND PL.listingStatus IN ?3 ORDER BY PL.listingId DESC ")
+    public List<PortfolioListing> findByUserIdAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
             Integer userId,
-            Boolean deletedFlag,
             List<Source> sourceType,
-            List<ListingStatus> listingStatus, Pageable limitOffsetPageRequest);
+            List<ListingStatus> listingStatus,
+            Pageable limitOffsetPageRequest);
 
-    public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId, Boolean deletedFlag);
+    public PortfolioListing findByUserIdAndListingIdAndListingStatusIn(Integer userId, Integer listingId, List<ListingStatus> listingStatus);
 
-    public PortfolioListing findByUserIdAndNameAndProjectIdAndDeletedFlagAndSourceTypeIn(
+    /**
+     * This query should be used  by internal service and should not be exposed to users 
+     * @param listingId
+     * @param listingStatus
+     * @return
+     */
+    public PortfolioListing findByListingIdAndListingStatusIn(Integer listingId, List<ListingStatus> listingStatus);
+
+    
+    public PortfolioListing findByUserIdAndNameAndProjectIdAndListingStatusInAndSourceTypeIn(
             Integer userId,
             String name,
             Integer projectId,
-            Boolean deletedFlag,
+            List<ListingStatus> listingStatus,
+            List<Source> sourceType);
+
+    /**
+     * This query should be used  by internal service and should not be exposed to users 
+     * @param listingId
+     * @param listingStatus
+     * @return
+     */
+    public List<PortfolioListing> findByTypeIdAndListingStatusAndSourceTypeIn(
+            Integer typeId,
+            ListingStatus listingStatus,
             List<Source> sourceType);
 
 }

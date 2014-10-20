@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections.comparators.ComparatorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +22,10 @@ import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.init.comparator.GenericComparator;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.UtilityClass;
@@ -44,10 +47,17 @@ public class BuilderTrendService {
     @Autowired
     TrendDao                    trendDao;
 
-    @Value("${b2b.price-inventory.max.month}")
+    @Autowired
+    private B2BAttributeService b2bAttributeService;
+
+    @Value("${b2b.price-inventory.max.month.dblabel}")
+    private String              currentMonthDbLabel;
+
     private String              currentMonth;
 
-    @Value("${b2b.price-appreciation.duration}")
+    @Value("${b2b.price-appreciation.duration.dblabel}")
+    private String             appreciationDurationDbLabel;
+
     private Integer             appreciationDuration;
 
     private static final int    MAX_ROWS          = 5000;
@@ -59,6 +69,12 @@ public class BuilderTrendService {
     @Autowired
     private BuilderService      builderService;
 
+    @PostConstruct
+    private void initialize() {
+        currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
+        appreciationDuration = Integer.parseInt(b2bAttributeService.getAttributeByName(appreciationDurationDbLabel));
+    }
+    
     public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, ActiveUser userInfo) {
         FIQLSelector selector = new FIQLSelector();
         selector.addAndConditionToFilter("builderId==" + builderId);
@@ -74,23 +90,23 @@ public class BuilderTrendService {
         FIQLSelector fiqlSelector = getFIQLFromUserFIQL(userSelector);
         Date currentDate = DateUtil.parseYYYYmmddStringToDate(currentMonth);
         Date pastDate = DateUtil.shiftMonths(currentDate, -1 * appreciationDuration);
-        List<InventoryPriceTrend> inventoryPriceTrends = trendDao.getTrend(fiqlSelector);
+        List<Trend> inventoryPriceTrends = trendDao.getTrend(fiqlSelector);
 
         if (inventoryPriceTrends.size() != 0) {
             @SuppressWarnings("unchecked")
-            Map<Integer, Map<String, List<InventoryPriceTrend>>> localityUnitTypePricesMap = (Map<Integer, Map<String, List<InventoryPriceTrend>>>) UtilityClass
+            Map<Integer, Map<String, List<Trend>>> localityUnitTypePricesMap = (Map<Integer, Map<String, List<Trend>>>) UtilityClass
                     .groupFieldsAsPerKeys(
                             trendDao.getTrend(getFIQLForLocalityPrice(getLocalityDominantTypeFromList(inventoryPriceTrends))),
                             new ArrayList<String>(Arrays.asList("localityId", "unitType")));
 
             @SuppressWarnings("unchecked")
-            Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>> inventoryPriceTrendMap = (Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>>) UtilityClass
+            Map<Integer, Map<Date, Map<Integer, List<Trend>>>> inventoryPriceTrendMap = (Map<Integer, Map<Date, Map<Integer, List<Trend>>>>) UtilityClass
                     .groupFieldsAsPerKeys(
                             inventoryPriceTrends,
                             new ArrayList<String>(Arrays.asList("builderId", "month", "projectId")));
 
             @SuppressWarnings("unchecked")
-            Map<Integer, List<InventoryPriceTrend>> mappedDelayedProjects = (Map<Integer, List<InventoryPriceTrend>>) UtilityClass
+            Map<Integer, List<Trend>> mappedDelayedProjects = (Map<Integer, List<Trend>>) UtilityClass
                     .groupFieldsAsPerKeys(
                             trendDao.getTrend(getDelayedFIQLFromUserFiql(userSelector)),
                             Arrays.asList("builderId"));
@@ -99,15 +115,15 @@ public class BuilderTrendService {
                 BuilderTrend builderTrend = new BuilderTrend();
                 builderTrend.setBuilderId(builderId);
 
-                Map<Integer, List<InventoryPriceTrend>> currentMonthDetails = inventoryPriceTrendMap.get(builderId)
+                Map<Integer, List<Trend>> currentMonthDetails = inventoryPriceTrendMap.get(builderId)
                         .get(currentDate.getTime());
 
                 builderTrend.setProjectCount(currentMonthDetails.size());
 
                 for (Integer projectId : currentMonthDetails.keySet()) {
-                    List<InventoryPriceTrend> currentMonthProjectDetails = currentMonthDetails.get(projectId);
+                    List<Trend> currentMonthProjectDetails = currentMonthDetails.get(projectId);
 
-                    for (InventoryPriceTrend inventoryPriceTrend : currentMonthProjectDetails) {
+                    for (Trend inventoryPriceTrend : currentMonthProjectDetails) {
                         builderTrend.setBuilderName(inventoryPriceTrend.getBuilderName());
                         builderTrend.setBuilderHeadquarterCity(inventoryPriceTrend.getBuilderHeadquarterCity());
 
@@ -184,9 +200,9 @@ public class BuilderTrendService {
     }
 
     private void populatePastPriceComparision(
-            InventoryPriceTrend inventoryPriceTrend,
+            Trend inventoryPriceTrend,
             Date pastDate,
-            Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>> inventoryPriceTrendMap,
+            Map<Integer, Map<Date, Map<Integer, List<Trend>>>> inventoryPriceTrendMap,
             BuilderTrend builderTrend) {
         Integer builderId = inventoryPriceTrend.getBuilderId();
         Integer projectId = inventoryPriceTrend.getProjectId();
@@ -195,9 +211,9 @@ public class BuilderTrendService {
 
         if (inventoryPriceTrendMap.get(builderId).get(pastDate.getTime()) != null && inventoryPriceTrendMap
                 .get(builderId).get(pastDate.getTime()).get(projectId) != null) {
-            List<InventoryPriceTrend> pastMonthProjectDetails = inventoryPriceTrendMap.get(builderId)
+            List<Trend> pastMonthProjectDetails = inventoryPriceTrendMap.get(builderId)
                     .get(pastDate.getTime()).get(projectId);
-            for (InventoryPriceTrend pastIinventoryPriceTrend : pastMonthProjectDetails) {
+            for (Trend pastIinventoryPriceTrend : pastMonthProjectDetails) {
                 if (pastIinventoryPriceTrend.getUnitType().equals(unitType)) {
                     Object pastPriceObject = pastIinventoryPriceTrend.getExtraAttributes().get(WAVG_PRICE);
                     if (pastPriceObject != null) {
@@ -216,7 +232,7 @@ public class BuilderTrendService {
         }
     }
 
-    private void populateUnitTypeDetails(BuilderTrend builderTrend, InventoryPriceTrend inventoryPriceTrend) {
+    private void populateUnitTypeDetails(BuilderTrend builderTrend, Trend inventoryPriceTrend) {
         Map<String, Integer> unitTypeDetails = builderTrend.getUnitTypesDetails()
                 .get(inventoryPriceTrend.getUnitType());
         unitTypeDetails.put(BuilderTrend.PROJECT_COUNT_KEY, unitTypeDetails.get(BuilderTrend.PROJECT_COUNT_KEY) + 1);
@@ -248,9 +264,9 @@ public class BuilderTrendService {
     }
 
     private void populateLocalityPriceComparision(
-            Map<Integer, Map<String, List<InventoryPriceTrend>>> localityUnitTypePricesMap,
+            Map<Integer, Map<String, List<Trend>>> localityUnitTypePricesMap,
             BuilderTrend builderTrend,
-            InventoryPriceTrend inventoryPriceTrend) {
+            Trend inventoryPriceTrend) {
         Double currentPrice = Double.valueOf(inventoryPriceTrend.getExtraAttributes().get(WAVG_PRICE).toString());
         Double currentLocalityPrice = Double.valueOf(localityUnitTypePricesMap.get(inventoryPriceTrend.getLocalityId())
                 .get(inventoryPriceTrend.getUnitType()).get(0).getExtraAttributes().get(WAVG_PRICE).toString());
@@ -267,7 +283,7 @@ public class BuilderTrendService {
 
     private void populateDelayedProjectDetails(
             BuilderTrend builderTrend,
-            Map<Integer, List<InventoryPriceTrend>> mappedDelayedProjects) {
+            Map<Integer, List<Trend>> mappedDelayedProjects) {
         int builderId = builderTrend.getBuilderId();
         if (mappedDelayedProjects.containsKey(builderId)) {
             Map<String, Object> extraAttributes = mappedDelayedProjects.get(builderId).get(0).getExtraAttributes();
@@ -307,16 +323,16 @@ public class BuilderTrendService {
      *         for all projects in the supplied list
      */
 
-    private Map<Integer, Set<UnitType>> getLocalityDominantTypeFromList(List<InventoryPriceTrend> inventoryPriceTrends) {
+    private Map<Integer, Set<UnitType>> getLocalityDominantTypeFromList(List<Trend> inventoryPriceTrends) {
         Map<Integer, Set<UnitType>> result = new HashMap<>();
 
         @SuppressWarnings("unchecked")
-        Map<Boolean, List<InventoryPriceTrend>> isDominantSupplyGrouped = (Map<Boolean, List<InventoryPriceTrend>>) UtilityClass
+        Map<Boolean, List<Trend>> isDominantSupplyGrouped = (Map<Boolean, List<Trend>>) UtilityClass
                 .groupFieldsAsPerKeys(
                         inventoryPriceTrends,
                         new ArrayList<String>(Arrays.asList("isDominantProjectUnitType")));
         if (isDominantSupplyGrouped.get(true) != null) {
-            for (InventoryPriceTrend inventoryPriceTrend : isDominantSupplyGrouped.get(true)) {
+            for (Trend inventoryPriceTrend : isDominantSupplyGrouped.get(true)) {
                 Integer localityId = inventoryPriceTrend.getLocalityId();
                 UnitType unitType = inventoryPriceTrend.getUnitType();
                 if (result.containsKey(localityId)) {

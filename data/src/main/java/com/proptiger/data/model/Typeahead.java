@@ -105,6 +105,9 @@ public class Typeahead extends BaseModel {
     @Field(value = "LONGITUDE")
     private Double            longitude;
 
+    @Transient
+    private Boolean           isSuggestion     = false;
+    
     public String getId() {
         return id;
     }
@@ -304,5 +307,17 @@ public class Typeahead extends BaseModel {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
+    
+    public Boolean getIsSuggestion() {
+        return isSuggestion;
+    }
 
+    public void setIsSuggestion(Boolean isSuggestion) {
+        this.isSuggestion = isSuggestion;
+    }
+    
+    @Override
+    public String toString() {
+    	return (id + ":" + displayText + ":" + score);
+    }
 }

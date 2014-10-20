@@ -20,7 +20,7 @@ public class ImageResolutionModel extends BaseModel {
     @Column(name = "id")
     private int               id;
 
-    @Column(name = "label")
+    @Column(name = "resolution")
     private String            label;
 
     @Column(name = "width")

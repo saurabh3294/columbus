@@ -10,8 +10,9 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.SimpleTypeConverter;
-import org.springframework.beans.TypeConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
@@ -32,9 +33,11 @@ import org.springframework.stereotype.Component;
 @ManagedResource(objectName = "com.proptiger.data.init:name=propertyReaderMBean", description = "Property Reader")
 public class PropertyReader {
 
-    private TypeConverter       typeConverter;
-    private Logger              logger = LoggerFactory.getLogger(getClass());
-    private Map<String, String> propertyDataMap;
+    @Autowired
+    private static GenericConversionService conversionService;
+
+    private Logger                          logger = LoggerFactory.getLogger(getClass());
+    private static Map<String, String>      propertyDataMap;
 
     /**
      * Initializing the property key value map. Using Map as key value store so
@@ -44,7 +47,7 @@ public class PropertyReader {
      */
     @PostConstruct
     public void init() throws ConfigurationException {
-        typeConverter = new SimpleTypeConverter();
+        conversionService = new DefaultConversionService();
         propertyDataMap = new HashMap<String, String>();
         PropertiesConfiguration configurer = new PropertiesConfiguration("application.properties");
         Iterator<?> keysIt = configurer.getKeys();
@@ -78,14 +81,43 @@ public class PropertyReader {
      * @param requiredType
      * @return
      */
-    public <T> T getRequiredPropertyAsType(String key, Class<T> requiredType) {
+    public static <T> T getRequiredPropertyAsType(String key, Class<T> requiredType) {
         if (key != null) {
             String value = propertyDataMap.get(key);
             if (value != null) {
-                return typeConverter.convertIfNecessary(value, requiredType);
+                return conversionService.convert(value, requiredType);
             }
         }
         throw new IllegalStateException("required key" + key + " not found");
+    }
+
+    /**
+     * 
+     * @param key
+     * @return
+     */
+    public static int getRequiredPropertyAsInt(String key) {
+        return getRequiredPropertyAsType(key, Integer.class);
+    }
+
+    /**
+     * gets property as boolean
+     * 
+     * @param key
+     * @return
+     */
+    public static boolean getRequiredPropertyAsBoolean(String key) {
+        return getRequiredPropertyAsType(key, Boolean.class);
+    }
+
+    /**
+     * gets property as string
+     * 
+     * @param key
+     * @return
+     */
+    public static String getRequiredPropertyAsString(String key) {
+        return getRequiredPropertyAsType(key, String.class);
     }
 
     /**

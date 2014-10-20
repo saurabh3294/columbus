@@ -18,7 +18,7 @@ import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
-import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.trend.TrendService;
@@ -63,7 +63,7 @@ public class ProjectPriceTrendService {
         }
         HithertoDurationSelector hithertoSelector = new HithertoDurationSelector();
         hithertoSelector.setMonthDuration(noOfMonths);
-        PaginatedResponse<List<InventoryPriceTrend>> projectPriceTrends = trendService.getHithertoPaginatedTrend(
+        PaginatedResponse<List<Trend>> projectPriceTrends = trendService.getHithertoPaginatedTrend(
                 fiqlSelector,
                 null,
                 null,
@@ -72,16 +72,16 @@ public class ProjectPriceTrendService {
     }
 
     private List<ProjectPriceTrend> getMappedResults(
-            PaginatedResponse<List<InventoryPriceTrend>> inventoryPriceTrends,
+            PaginatedResponse<List<Trend>> inventoryPriceTrends,
             FIQLSelector fiqlSelector,
             List<ProjectPriceTrendInput> inputs) {
 
-        PaginatedResponse<Map<Integer, Map<Long, Map<Integer, List<InventoryPriceTrend>>>>> result = new PaginatedResponse<>();
+        PaginatedResponse<Map<Integer, Map<Long, Map<Integer, List<Trend>>>>> result = new PaginatedResponse<>();
         List<String> groupKeys = Arrays.asList(fiqlSelector.getGroup().split(","));
         result.setTotalCount(inventoryPriceTrends.getTotalCount());
 
         if (!groupKeys.isEmpty()) {
-            Map<Integer, Map<Long, Map<Integer, List<InventoryPriceTrend>>>> serviceResponse = (Map<Integer, Map<Long, Map<Integer, List<InventoryPriceTrend>>>>) UtilityClass
+            Map<Integer, Map<Long, Map<Integer, List<Trend>>>> serviceResponse = (Map<Integer, Map<Long, Map<Integer, List<Trend>>>>) UtilityClass
                     .groupFieldsAsPerKeys(inventoryPriceTrends.getResults(), groupKeys);
             result.setResults(serviceResponse);
         }
@@ -97,7 +97,7 @@ public class ProjectPriceTrendService {
      * @return
      */
     private List<ProjectPriceTrend> convertToInternalPriceTrend(
-            PaginatedResponse<Map<Integer, Map<Long, Map<Integer, List<InventoryPriceTrend>>>>> response,
+            PaginatedResponse<Map<Integer, Map<Long, Map<Integer, List<Trend>>>>> response,
             List<ProjectPriceTrendInput> inputs) {
         List<ProjectPriceTrend> projectPriceTrends = new ArrayList<>();
         for (ProjectPriceTrendInput priceTrendInput : inputs) {
@@ -106,27 +106,35 @@ public class ProjectPriceTrendService {
             projectPriceTrend.setTypeId(priceTrendInput.getTypeId());
             projectPriceTrend.setListingName(priceTrendInput.getListingName());
             projectPriceTrend.setProjectName(priceTrendInput.getProjectName());
-            Map<Long, Map<Integer, List<InventoryPriceTrend>>> projectPrices = response.getResults().get(
+            Map<Long, Map<Integer, List<Trend>>> projectPrices = response.getResults().get(
                     projectPriceTrend.getProjectId());
-            List<PriceDetail> priceDetails = new ArrayList<PriceDetail>();
 
-            Iterator<Long> priceDateItr = projectPrices.keySet().iterator();
-            while (priceDateItr.hasNext()) {
-                Long dateKey = priceDateItr.next();
-                Date effectiveDate = new Date(dateKey);
-
-                Object price = projectPrices.get(dateKey).get(priceTrendInput.getBedrooms()).get(0).getExtraAttributes()
-                        .get("wavgPricePerUnitAreaOnLtdSupply");
-                // Set price if price is not null, otherwise left null and populated in PortfolioPriceTrendService
-                if (price != null) {
-                    PriceDetail priceDetail = new PriceDetail();
-                    priceDetail.setPrice((double) price);
-                    priceDetail.setEffectiveDate(effectiveDate);
-                    priceDetails.add(priceDetail);
+            // Set prices if not null, otherwise left null and
+            // get populated in PortfolioPriceTrendService
+            if (projectPrices != null) {
+                List<PriceDetail> priceDetails = new ArrayList<PriceDetail>();
+                Iterator<Long> priceDateItr = projectPrices.keySet().iterator();
+                while (priceDateItr.hasNext()) {
+                    Long dateKey = priceDateItr.next();
+                    Date effectiveDate = new Date(dateKey);
+                    
+                    Object price = null;
+                    if(projectPrices.get(dateKey).get(priceTrendInput.getBedrooms()) != null) {
+                     price = projectPrices.get(dateKey).get(priceTrendInput.getBedrooms()).get(0)
+                            .getExtraAttributes().get("wavgPricePerUnitAreaOnLtdSupply");
+                    }
+                    
+                    // populated in PortfolioPriceTrendService
+                    if (price != null) {
+                        PriceDetail priceDetail = new PriceDetail();
+                        priceDetail.setPrice((double) price);
+                        priceDetail.setEffectiveDate(effectiveDate);
+                        priceDetails.add(priceDetail);
+                    }
                 }
-            }
-            if (priceDetails.size() > 0) {
-                projectPriceTrend.setPrices(priceDetails);
+                if (priceDetails.size() > 0) {
+                    projectPriceTrend.setPrices(priceDetails);
+                }
             }
             projectPriceTrends.add(projectPriceTrend);
         }
@@ -151,4 +159,4 @@ public class ProjectPriceTrendService {
             }
         }
     }
- }
+}

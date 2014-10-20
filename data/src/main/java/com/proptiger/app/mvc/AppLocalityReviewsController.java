@@ -21,15 +21,26 @@ import com.proptiger.data.service.LocalityReviewService;
  * @author mukand
  */
 @Controller
-@RequestMapping(value = "app/v1/locality-reviews")
 public class AppLocalityReviewsController {
     @Autowired
     private LocalityReviewService localityReviewService;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping("app/v1/locality-reviews")
     @ResponseBody
     @DisableCaching
     public APIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId, @RequestParam(
+            required = false) Integer numberOfReviews) {
+        LocalityReviewRatingDetails reviewRatingDetails = localityReviewService.getLocalityReviewRatingDetails(
+                localityId,
+                numberOfReviews);
+        localityReviewService.updateReviewAndRatingsByHalf(reviewRatingDetails);
+        return new APIResponse(reviewRatingDetails);
+    }
+    
+    @RequestMapping("app/v2/locality-reviews")
+    @ResponseBody
+    @DisableCaching
+    public APIResponse getLocalityReviewByLocalityIdV2(@RequestParam Integer localityId, @RequestParam(
             required = false) Integer numberOfReviews) {
         LocalityReviewRatingDetails reviewRatingDetails = localityReviewService.getLocalityReviewRatingDetails(
                 localityId,

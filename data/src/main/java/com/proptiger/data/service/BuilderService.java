@@ -170,6 +170,10 @@ public class BuilderService {
 
         List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
+        if (builderSelector != null && builderSelector.getFields() != null
+                && builderSelector.getFields().contains("projectStatusCount")) {
+            updateProjectStatusCount(builders, builderSelector);
+        }
         imageEnricher.setImagesOfBuilders(builders);
         PaginatedResponse<List<Builder>> paginatedResponse = new PaginatedResponse<>();
         paginatedResponse.setResults(builders);
@@ -179,6 +183,15 @@ public class BuilderService {
         }
 
         return paginatedResponse;
+    }
+
+    private void updateProjectStatusCount(List<Builder> builders, Selector selector) {
+        if (builders == null || builders.isEmpty()) {
+            return;
+        }
+        for(Builder builder: builders) {
+            builder.setProjectStatusCount(getProjectStatusCountMap(builder.getId(), selector));
+        }
     }
 
     private List<Builder> convertBuilder(SolrDocumentList result) {

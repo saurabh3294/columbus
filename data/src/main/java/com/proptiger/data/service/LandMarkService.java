@@ -6,6 +6,7 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -216,5 +217,21 @@ public class LandMarkService {
         Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
 
         return localityAmenityDao.getLocalityAmenitiesOnSelector(selector);
+    }
+
+    public List<Long> getIdListFromAmenities(List<LandMark> amenities) {
+        List<Long> amenityIds = new ArrayList<Long>();
+        for (LandMark amenity : amenities) {
+            amenityIds.add(new Long(amenity.getId()));
+        }
+        return amenityIds;
+    }
+
+    public Map<String, Integer> getAmenityTypeCount(Selector selector) {
+        return localityAmenityDao.getAmenitiesTypeCount(selector);
+    }
+
+    public List<LandMark> getAmenityListByGroupSelector(Selector selector) {
+        return localityAmenityDao.getAmenityListByGroupSelector(selector);
     }
 }

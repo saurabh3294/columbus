@@ -6,23 +6,37 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
+import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.model.CouponCatalogue;
+import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.FieldsMapLoader;
+import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -30,6 +44,8 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.PropertyReader;
+import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -39,18 +55,37 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PropertyService {
     @Autowired
-    private PropertyDao         propertyDao;
+    private PropertyDao            propertyDao;
 
     @Autowired
-    private ProjectService      projectService;
+    private ProjectService         projectService;
 
     @Autowired
-    private ImageEnricher       imageEnricher;
+    private ImageEnricher          imageEnricher;
 
     @Autowired
-    private SolrDao             solrDao;
+    private SolrDao                solrDao;
 
-    private static int ROWS_THRESHOLD = 200;
+    @Autowired
+    private EntityManagerFactory   emf;
+
+    // do not apply autowire.
+    private CouponCatalogueService couponCatalogueService;
+
+    @Autowired
+    private ApplicationContext     applicationContext;
+
+    private static int             ROWS_THRESHOLD = 200;
+    
+    public static String cdnImageUrl;
+    
+    @Autowired
+    private PropertyReader reader;
+    
+    @PostConstruct
+    private void init() {
+       cdnImageUrl = reader.getRequiredProperty("cdn.image.url");
+    }
 
     /**
      * Returns properties given a selector
@@ -61,6 +96,11 @@ public class PropertyService {
     public List<Property> getProperties(Selector propertyFilter) {
         List<Property> properties = propertyDao.getProperties(propertyFilter);
         imageEnricher.setPropertiesImages(properties);
+
+        Set<String> fields = propertyFilter.getFields();
+        if (fields != null && fields.contains("couponCatalogue")) {
+            setCouponCatalogueForProperties(properties);
+        }
 
         return properties;
     }
@@ -74,26 +114,25 @@ public class PropertyService {
      * @param propertyListingSelector
      * @return
      */
-    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector)
-    {
+    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         PaginatedResponse<List<Project>> projects = null;
 
-        if (propertyListingSelector != null && propertyListingSelector.getPaging() != null &&
-            propertyListingSelector.getPaging().getRows() > ROWS_THRESHOLD)
-        {
+        if (propertyListingSelector != null && propertyListingSelector.getPaging() != null
+                && propertyListingSelector.getPaging().getRows() > ROWS_THRESHOLD) {
             projects = new PaginatedResponse<>();
             projects.setResults(new ArrayList<Project>());
             int startOriginal = propertyListingSelector.getPaging().getStart();
-            int rowsOriginal  = propertyListingSelector.getPaging().getRows();
-            
+            int rowsOriginal = propertyListingSelector.getPaging().getRows();
+
             int remainingRowsToBeFetched = rowsOriginal;
             int rowsFetchedLast = ROWS_THRESHOLD;
             for (int start = startOriginal; remainingRowsToBeFetched > 0 && rowsFetchedLast == ROWS_THRESHOLD; start += ROWS_THRESHOLD) {
                 propertyListingSelector.getPaging().setStart(start);
                 propertyListingSelector.getPaging().setRows(Math.min(ROWS_THRESHOLD, remainingRowsToBeFetched));
-                PaginatedResponse<List<Project>> projectsLocal = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+                PaginatedResponse<List<Project>> projectsLocal = propertyDao
+                        .getPropertiesGroupedToProjects(propertyListingSelector);
                 projects.getResults().addAll(projectsLocal.getResults());
-                projects.setTotalCount(projectsLocal.getTotalCount());                
+                projects.setTotalCount(projectsLocal.getTotalCount());
                 rowsFetchedLast = projectsLocal.getResults().size();
                 remainingRowsToBeFetched -= ROWS_THRESHOLD;
             }
@@ -160,7 +199,14 @@ public class PropertyService {
     }
 
     public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
-        return propertyDao.getProperties(selector);
+        PaginatedResponse<List<Property>> response = propertyDao.getProperties(selector);
+
+        Set<String> fields = selector.getFieldSet();
+        if (fields != null && fields.contains("couponCatalogue")) {
+            setCouponCatalogueForProperties(response.getResults());
+        }
+
+        return response;
     }
 
     public Map<String, Map<String, Map<String, FieldStatsInfo>>> getAvgPricePerUnitAreaBHKWise(
@@ -258,5 +304,133 @@ public class PropertyService {
 
         return properties.get(0);
     }
-    
+
+    /**
+     * Tries to find a matching property from database based on other info
+     * provided from database, if found used in listing otherwise create a
+     * unverified property and used that while creating listing
+     * 
+     * @param listing
+     * @param userId
+     * @return
+     */
+    @Transactional
+    public Property createUnverifiedPropertyOrGetExisting(Listing listing, Integer userId) {
+        Property property = null;
+        OtherInfo otherInfo = listing.getOtherInfo();
+        if (otherInfo != null && otherInfo.getSize() > 0 && otherInfo.getBedrooms() > 0 && otherInfo.getProjectId() > 0) {
+            FIQLSelector selector = new FIQLSelector()
+                    .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
+                    .addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms())
+                    .addAndConditionToFilter("size==" + otherInfo.getSize())
+                    .addAndConditionToFilter("project.version==" + DataVersion.Website);
+
+            if (otherInfo.getBathrooms() > 0) {
+                selector.addAndConditionToFilter("bathrooms==" + otherInfo.getBathrooms());
+            }
+            PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+            if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
+                    && propertyWithMatchingCriteria.getResults().size() > 0) {
+                // matching property object found for the given other
+                // information
+                property = propertyWithMatchingCriteria.getResults().get(0);
+            }
+            else {
+                selector = new FIQLSelector().setGroup("unitType")
+                        .addAndConditionToFilter("projectId==" + otherInfo.getProjectId()).setRows(1)
+                        .addSortDESC("countPropertyId");
+
+                propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+                Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, propertyWithMatchingCriteria
+                        .getResults().get(0).getUnitType());
+                property = propertyDao.saveAndFlush(toCreate);
+            }
+        }
+        else {
+            throw new BadRequestException("Other info is invalid");
+        }
+        return property;
+    }
+
+    public void updateProjectsLifestyleScores(List<Property> properties) {
+        if (properties == null || properties.isEmpty()) {
+            return;
+        }
+        List<Project> projects = new ArrayList<Project>();
+        for (Property property : properties) {
+            projects.add(property.getProject());
+        }
+        projectService.updateLifestyleScoresByHalf(projects);
+    }
+
+    /**
+     * Get property objects from database using filters provided in fiql
+     * selector
+     * 
+     * @param selector
+     * @return
+     */
+    public PaginatedResponse<List<Property>> getPropertiesFromDB(FIQLSelector selector) {
+        PaginatedResponse<List<Property>> paginatedResponse = new PaginatedResponse<List<Property>>();
+        EntityManager entityManager = emf.createEntityManager();
+        AbstractQueryBuilder<Property> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Property.class);
+        builder.buildQuery(selector);
+        paginatedResponse.setResults(builder.retrieveResults());
+        entityManager.close();
+        return paginatedResponse;
+    }
+
+    /**
+     * This method will take the list of property object and return the list of
+     * property Ids.
+     * 
+     * @param properties
+     * @return
+     */
+    private List<Integer> getPropertyIdsFromProperties(List<Property> properties) {
+        List<Integer> propertyIds = new ArrayList<Integer>();
+
+        if (properties == null || properties.isEmpty())
+            return propertyIds;
+
+        for (Property property : properties) {
+            propertyIds.add(property.getPropertyId());
+        }
+
+        return propertyIds;
+    }
+
+    /**
+     * This method will take the list of properties and set the coupon catalogue
+     * for those properties.
+     * 
+     * @param properties
+     */
+    public void setCouponCatalogueForProperties(List<Property> properties) {
+        List<Integer> propertyIds = getPropertyIdsFromProperties(properties);
+
+        Map<Integer, CouponCatalogue> map = getCoupCatalogueService().getCouponCatalogueMapByPropertyIds(propertyIds);
+
+        CouponCatalogue couponCatalogue;
+        for (Property property : properties) {
+            couponCatalogue = map.get(property.getPropertyId());
+            if (couponCatalogue == null) {
+                // resetting them if they are coming from solr.
+                property.setCouponCatalogue(null);
+                property.setCouponAvailable(null);
+                continue;
+            }
+
+            property.setCouponCatalogue(map.get(property.getPropertyId()));
+            property.setCouponAvailable(true);
+        }
+    }
+
+    public CouponCatalogueService getCoupCatalogueService() {
+        if (couponCatalogueService == null) {
+            couponCatalogueService = applicationContext.getBean(CouponCatalogueService.class);
+        }
+
+        return couponCatalogueService;
+    }
 }

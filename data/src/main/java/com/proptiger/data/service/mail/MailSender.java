@@ -34,7 +34,7 @@ public class MailSender {
         try {
             amazonMailSender.sendMail(mailDetails);
         }
-        catch (MailException e) {
+        catch (Exception e) {
             return false;
         }
         return true;

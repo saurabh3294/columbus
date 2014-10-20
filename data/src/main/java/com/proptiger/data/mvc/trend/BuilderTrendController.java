@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.annotations.Intercepted;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
@@ -27,6 +28,7 @@ public class BuilderTrendController extends BaseController{
     @Autowired
     private BuilderTrendService builderTrendService;
 
+    @Intercepted.Trend
     @RequestMapping("app/v1/user/builder-trend/{builderId}")
     @ResponseBody
     public APIResponse getSingleBuilderTrend(
@@ -35,6 +37,7 @@ public class BuilderTrendController extends BaseController{
         return new APIResponse(builderTrendService.getBuilderTrendForSingleBuilder(builderId, userInfo));
     }
 
+    @Intercepted.Trend
     @RequestMapping("app/v1/user/builder-trend")
     @ResponseBody
     public APIResponse getBuilderTrendFromFIQL(

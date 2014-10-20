@@ -1,6 +1,7 @@
 package com.proptiger.data.model;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -8,12 +9,19 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.Status;
 import com.proptiger.data.util.DateUtil;
@@ -27,15 +35,18 @@ import com.proptiger.exception.ProAPIException;
 @Entity
 @Table(name = "cms.listing_prices")
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class ListingPrice extends BaseModel {
     private static final long serialVersionUID = 878870501041637665L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int               id;
 
     @Column(name = "listing_id")
     private int               listingId;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "listing_id", insertable = false, updatable = false)
     private Listing           listing;
@@ -47,11 +58,24 @@ public class ListingPrice extends BaseModel {
     private Date              effectiveDate;
 
     @Column(name = "price_per_unit_area")
-    private int               pricePerUnitArea;
+    private Integer               pricePerUnitArea;
+
+    @Column(name = "plot_cost_per_unit_area")
+    private Integer           plotCostPerUnitArea;
+
+    @Column(name = "construction_cost_per_unit_area")
+    private Integer           constructionCostPerUnitArea;
+
+    @Column(name = "price")
+    private Integer           price;
+
+    @Column(name = "other_charges")
+    private Integer           otherCharges;
 
     @Enumerated(EnumType.STRING)
     private Status            status;
 
+    @Column(name = "comment")
     private String            comment;
 
     @Column(name = "updated_by")
@@ -103,11 +127,11 @@ public class ListingPrice extends BaseModel {
         this.effectiveDate = effectiveDate;
     }
 
-    public int getPricePerUnitArea() {
+    public Integer getPricePerUnitArea() {
         return pricePerUnitArea;
     }
 
-    public void setPricePerUnitArea(int pricePerUnitArea) {
+    public void setPricePerUnitArea(Integer pricePerUnitArea) {
         this.pricePerUnitArea = pricePerUnitArea;
     }
 
@@ -135,24 +159,34 @@ public class ListingPrice extends BaseModel {
         this.updatedBy = updatedBy;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public Integer getPlotCostPerUnitArea() {
+        return plotCostPerUnitArea;
     }
 
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
+    public void setPlotCostPerUnitArea(Integer plotCostPerUnitArea) {
+        this.plotCostPerUnitArea = plotCostPerUnitArea;
     }
 
-    public Date getUpdatedAt() {
-        return updatedAt;
+    public Integer getConstructionCostPerUnitArea() {
+        return constructionCostPerUnitArea;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setConstructionCostPerUnitArea(Integer constructionCostPerUnitArea) {
+        this.constructionCostPerUnitArea = constructionCostPerUnitArea;
     }
 
-    public static long getSerialversionuid() {
-        return serialVersionUID;
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = new Date();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        Calendar cal = Calendar.getInstance();
+        this.createdAt = cal.getTime();
+        this.updatedAt = createdAt;
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        this.effectiveDate = cal.getTime();
     }
 
     public static class CustomCurrentListingPrice implements Serializable {
@@ -195,5 +229,21 @@ public class ListingPrice extends BaseModel {
         public void setEffectiveMonth(Date effectiveMonth) {
             this.effectiveMonth = effectiveMonth;
         }
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
+    }
+
+    public Integer getOtherCharges() {
+        return otherCharges;
+    }
+
+    public void setOtherCharges(Integer otherCharges) {
+        this.otherCharges = otherCharges;
     }
 }

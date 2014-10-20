@@ -63,23 +63,23 @@ public class ProjectPhaseService {
         return this.projectPhaseDao;
     }
 
-    public ProjectPhase getPhaseDetail(Integer projectId, Integer phaseId, DataVersion version) {
+    public ProjectPhase getPhaseDetail(Integer projectId, Integer phaseId, DataVersion version, String endMonth) {
         FIQLSelector selector = new FIQLSelector();
         selector.addAndConditionToFilter("phaseId==" + phaseId);
-        List<ProjectPhase> phases = getPhaseDetailsFromFiql(selector, projectId, version);
+        List<ProjectPhase> phases = getPhaseDetailsFromFiql(selector, projectId, version, endMonth);
         return phases.get(0);
     }
 
-    public List<ProjectPhase> getPhaseDetailsForProject(Integer projectId, DataVersion version) {
+    public List<ProjectPhase> getPhaseDetailsForProject(Integer projectId, DataVersion version, String endMonth) {
         FIQLSelector selector = new FIQLSelector();
-        return getPhaseDetailsFromFiql(selector, projectId, version);
+        return getPhaseDetailsFromFiql(selector, projectId, version, endMonth);
     }
 
-    private List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector, Integer projectId, DataVersion version) {
+    public List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector, Integer projectId, DataVersion version, String endMonth) {
         List<ProjectPhase> phases = populatePhaseMetaAttributes(populateSecondaryPrice(populatePrimaryPrice(populateProperties(populateAvailabilities(removeInvalidPhases(projectPhaseDao
                 .getFilteredPhases(selector.addAndConditionToFilter("status==" + Status.Active)
                         .addAndConditionToFilter("version==" + version)
-                        .addAndConditionToFilter("projectId==" + projectId))))))));
+                        .addAndConditionToFilter("projectId==" + projectId))), endMonth)))));
         if (phases.size() == 0) {
             throw new ResourceNotFoundException("PhaseId Not Found");
         }
@@ -107,10 +107,10 @@ public class ProjectPhaseService {
         return validPhases;
     }
 
-    private List<ProjectPhase> populateAvailabilities(List<ProjectPhase> phases) {
+    private List<ProjectPhase> populateAvailabilities(List<ProjectPhase> phases, String endMonth) {
         for (ProjectPhase phase : phases) {
             Set<Integer> supplyIds = phase.getSupplyIdsForActiveListing();
-            phase.setSumAvailability(projectAvailabilityDao.getSumCurrentAvailabilityFromSupplyIds(supplyIds));
+            phase.setSumAvailability(projectAvailabilityDao.getSumCurrentAvailabilityFromSupplyIds(supplyIds, endMonth));
         }
         return phases;
     }

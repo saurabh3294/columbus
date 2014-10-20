@@ -21,7 +21,7 @@ public class SolrResponseReader {
      * @param response
      * @return
      */
-    public Map<String, Map<String, Integer>> getFacetResults(NamedList<Object> response) {
+    public static Map<String, Map<String, Integer>> getFacetResults(NamedList<Object> response) {
         // Do not change Linked Hash Map as the order of inserted elements is
         // needed.
         Map<String, Map<String, Integer>> list = new LinkedHashMap<String, Map<String, Integer>>();

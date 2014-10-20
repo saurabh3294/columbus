@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -150,6 +151,57 @@ public class City extends BaseModel {
 
     @Transient
     private List<Locality>       localities;
+
+    @Transient
+    @Field(value = "LOCALITY_MAX_SAFETY_SCORE")
+    private Double               localityMaxSafetyScore;
+
+    @Transient
+    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")
+    private Double               localityMinSafetyScore;
+
+    @Transient
+    @Field(value = "LOCALITY_MAX_LIVABILITY_SCORE")
+    private Double               localityMaxLivabilityScore;
+
+    @Transient
+    @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
+    private Double               localityMinLivabilityScore;
+    
+    @Transient
+    @Field(value = "CITY_LOCALITY_COUNT")
+    private Integer              cityLocalityCount;
+    
+    @Transient
+    @Field(value = "CITY_POPULATION")
+    private Integer              cityPopulation;
+    
+    @Transient
+    @Field(value = "CITY_TAG_LINE")
+    private String               cityTagLine;
+    
+    @Transient
+    @Field(value = "CITY_PROPERTY_COUNT")
+    private Integer              cityPropertyCount;
+    
+
+	@Transient
+    @Field("CITY_COUPON_MAX_DISCOUNT")
+    private Integer              maxDiscount;
+
+    @Transient
+    @Field("CITY_COUPON_AVAILABLE")
+    private Boolean              isCouponAvailable;
+
+    @Transient
+    private List<LandMark>       completeAmenities;
+
+    @Transient
+    private Map<String, Integer> amenityTypeCount;
+    
+    @Transient
+    @Field("POPULATION_SURVEY_DATE")
+    private Date                populationSurveyDate;
 
     public Integer getId() {
         return id;
@@ -373,5 +425,109 @@ public class City extends BaseModel {
 
     public void setLocalities(List<Locality> localities) {
         this.localities = localities;
+    }
+
+    public Double getLocalityMaxSafetyScore() {
+        return localityMaxSafetyScore;
+    }
+
+    public void setLocalityMaxSafetyScore(Double localityMaxSafetyScore) {
+        this.localityMaxSafetyScore = localityMaxSafetyScore;
+    }
+
+    public Double getLocalityMinSafetyScore() {
+        return localityMinSafetyScore;
+    }
+
+    public void setLocalityMinSafetyScore(Double localityMinSafetyScore) {
+        this.localityMinSafetyScore = localityMinSafetyScore;
+    }
+
+    public Double getLocalityMaxLivabilityScore() {
+        return localityMaxLivabilityScore;
+    }
+
+    public void setLocalityMaxLivabilityScore(Double localityMaxLivabilityScore) {
+        this.localityMaxLivabilityScore = localityMaxLivabilityScore;
+    }
+
+    public Double getLocalityMinLivabilityScore() {
+        return localityMinLivabilityScore;
+    }
+
+    public void setLocalityMinLivabilityScore(Double localityMinLivabilityScore) {
+        this.localityMinLivabilityScore = localityMinLivabilityScore;
+    }
+
+    public Integer getCityLocalityCount() {
+        return cityLocalityCount;
+    }
+
+    public void setCityLocalityCount(Integer cityLocalityCount) {
+        this.cityLocalityCount = cityLocalityCount;
+    }
+
+    public Integer getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(Integer maxDiscount) {
+        this.maxDiscount = maxDiscount;
+    }
+
+    public Boolean getIsCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setIsCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
+    }
+
+    public Integer getCityPopulation() {
+        return cityPopulation;
+    }
+
+    public void setCityPopulation(Integer cityPopulation) {
+        this.cityPopulation = cityPopulation;
+    }
+
+    public String getCityTagLine() {
+        return cityTagLine;
+    }
+
+    public void setCityTagLine(String cityTagLine) {
+        this.cityTagLine = cityTagLine;
+    }
+    
+    public Integer getCityPropertyCount() {
+        return cityPropertyCount;
+    }
+
+    public void setCityPropertyCount(Integer cityPropertyCount) {
+        this.cityPropertyCount = cityPropertyCount;
+    }
+
+    public List<LandMark> getCompleteAmenities() {
+        return completeAmenities;
+    }
+
+    public void setCompleteAmenities(List<LandMark> completeAmenities) {
+        this.completeAmenities = completeAmenities;
+    }
+
+    public Map<String, Integer> getAmenityTypeCount() {
+        return amenityTypeCount;
+    }
+
+    public void setAmenityTypeCount(Map<String, Integer> amenityTypeCount) {
+        this.amenityTypeCount = amenityTypeCount;
+    }
+
+    public Date getPopulationSurveyDate() {
+        return populationSurveyDate;
+    }
+
+    public void setPopulationSurveyDate(Date populationSurveyDate) {
+        this.populationSurveyDate = populationSurveyDate;
     }
 }

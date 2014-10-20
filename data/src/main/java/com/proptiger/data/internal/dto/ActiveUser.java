@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.social.security.SocialUser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.data.enums.Application;
 
 /**
  * Active user details to hold principle and other authorities of user after
@@ -17,20 +18,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ActiveUser extends SocialUser {
     private static final long serialVersionUID = -3022788419586557079L;
     private Integer           userIdentifier;
+    //TODO should be removed once we define role for a user
     @JsonIgnore
-    public boolean            admin            = false;
-
+    private Application applicationType = Application.DEFAULT;
+    
     public ActiveUser(
-            Integer id,
+            Integer userId,
             String username,
             String password,
             boolean enabled,
             boolean accountNonExpired,
             boolean credentialsNonExpired,
             boolean accountNonLocked,
-            Collection<? extends GrantedAuthority> authorities) {
+            Collection<? extends GrantedAuthority> authorities,
+            Application applicationTyep) {
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
-        this.userIdentifier = id;
+        this.userIdentifier = userId;
+        this.applicationType = applicationTyep;
     }
 
     public Integer getUserIdentifier() {
@@ -46,4 +50,26 @@ public class ActiveUser extends SocialUser {
         return userIdentifier.toString();
     }
 
+    public Application getApplicationType() {
+        return applicationType;
+    }
+
+    public void setApplicationType(Application applicationType) {
+        this.applicationType = applicationType;
+    }
+
+    @Override
+    public int hashCode() {
+        return getUsername().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof ActiveUser){
+            return getUsername().equals(((ActiveUser)obj).getUsername());
+        }
+        return false;
+    }
+
+    
 }

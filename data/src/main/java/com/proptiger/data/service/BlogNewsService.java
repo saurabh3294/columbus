@@ -30,6 +30,8 @@ public class BlogNewsService {
 
     @Autowired
     private CityService cityService;
+    
+    private Pattern htmlTagPattern = Pattern.compile("(?s)<[^>]*>(\\s*<[^>]*>)*");
 
     /**
      * Get blog for city name
@@ -44,7 +46,7 @@ public class BlogNewsService {
             throw new IllegalArgumentException("Invalid content limit");
         }
         Paging paging = createPaging(selector);
-        List<String> cityNameList = Collections.singletonList(cityName);
+        List<String> cityNameList = Collections.singletonList(cityName + " Property");
         List<WordpressPost> list = blogNewsDao.findPublishedBlogByCity(cityNameList, paging);
         List<Long> postIdList = new ArrayList<Long>();
         for (WordpressPost post : list) {
@@ -119,14 +121,14 @@ public class BlogNewsService {
      */
     private void removeHtmlTagsFromPostContent(List<WordpressPost> list, int contentLimit) {
 
-        Pattern htmlTagPattern = Pattern.compile("(?s)<[^>]*>(\\s*<[^>]*>)*");
         for (WordpressPost post : list) {
             if (post.getPostExcerpt() != null && !post.getPostExcerpt().isEmpty()) {
                 post.setPostContent(post.getPostExcerpt());
             }
             else {
                 Matcher matcher = htmlTagPattern.matcher(post.getPostContent());
-                String contentWithoutHtmlTag = matcher.replaceAll("").substring(0, contentLimit);
+                int len = post.getPostContent().length() < contentLimit ? post.getPostContent().length(): contentLimit;
+                String contentWithoutHtmlTag = matcher.replaceAll("").substring(0, len);
                 post.setPostContent(contentWithoutHtmlTag);
             }
         }

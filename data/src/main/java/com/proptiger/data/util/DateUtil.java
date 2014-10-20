@@ -3,8 +3,12 @@ package com.proptiger.data.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +22,55 @@ import com.proptiger.exception.ProAPIException;
  */
 
 public class DateUtil {
-    private static Logger logger              = LoggerFactory.getLogger(DateUtil.class);
+    private static Logger   logger              = LoggerFactory.getLogger(DateUtil.class);
 
-    public static int     MonthCountInQuarter = 3;
-    public static int     MonthStartDate      = 1;
+    public static int       MonthCountInQuarter = 3;
+    public static int       MonthStartDate      = 1;
+
+    public static final int secondsInADay       = 86400;
+
+    public static Date addHours(Date baseDate, int hoursToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.HOUR, hoursToAdd);
+        return calendar.getTime();
+    }
+
+    public static Date addMinutes(Date baseDate, int minutesToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.MINUTE, minutesToAdd);
+        return calendar.getTime();
+    }
+
+    public static Date addSeconds(Date baseDate, int secondsToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.SECOND, secondsToAdd);
+        return calendar.getTime();
+    }
+
+    public static Date getFirstDayOfCurrentMonth(Date currentDate) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDate);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+
+        return cal.getTime();
+    }
+
+    public static Date getMaxDate(List<Date> dates) {
+        if (dates == null || dates.isEmpty()) {
+            return null;
+        }
+        Collections.sort(dates, new Comparator<Date>() {
+            @Override
+            public int compare(Date o1, Date o2) {
+                return o2.compareTo(o1);
+            }
+        });
+        return dates.get(0);
+    }
 
     /**
      * @return {@link Date} date in YYYY-dd-mm format
@@ -133,11 +182,148 @@ public class DateUtil {
             throw new ProAPIException("Unable to parse date", e);
         }
     }
-    
+
     public static Date addDays(Date baseDate, int daysToAdd) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(baseDate);
         calendar.add(Calendar.DAY_OF_YEAR, daysToAdd);
         return calendar.getTime();
+    }
+
+    /**
+     * 
+     * @param date
+     * @param timeToAddInSecond
+     * @return a new date with timeToAddInSecond seconds of working time added
+     *         in input date
+     */
+    public static Date getWorkingTimeAddedIntoDate(Date date, int timeToAddInSecond) {
+        int add = 1;
+        if (timeToAddInSecond < 0) {
+            add = -1;
+            timeToAddInSecond = add * timeToAddInSecond;
+        }
+
+        DateTime finalTime = new DateTime(date.getTime());
+        DateTime workingHourStartTime = finalTime.withTimeAtStartOfDay().plusSeconds(getWorkingTimeStartSeconds());
+        if (!isWorkingTime(finalTime)) {
+            if (workingHourStartTime.isAfter(finalTime)) {
+                finalTime = workingHourStartTime;
+            }
+            else {
+                finalTime = workingHourStartTime.plusDays(1);
+            }
+        }
+        if (workingHourStartTime.isAfter(finalTime)) {
+            finalTime = workingHourStartTime;
+        }
+
+        int workingSecondsInADay = getWorkingSecondsInADay();
+        int days = timeToAddInSecond / getWorkingSecondsInADay();
+
+        finalTime = finalTime.plusDays(add * days);
+        int secsInIncompleteDay = timeToAddInSecond % workingSecondsInADay;
+        finalTime = finalTime.plusSeconds(add * secsInIncompleteDay);
+
+        if (!isWorkingTime(finalTime)) {
+            finalTime = finalTime.plusSeconds(add * getNonWorkingSecondsInADay());
+        }
+
+        return new Date(finalTime.getMillis());
+    }
+
+    /**
+     * 
+     * @param date
+     * @param timeToAddInSecond
+     * @return a new date with timeToAddInSecond seconds of working time
+     *         subtracted in input date
+     */
+    public static Date getWorkingTimeSubtractedFromDate(Date date, int timeToAddInSecond) {
+        return getWorkingTimeAddedIntoDate(date, -1 * timeToAddInSecond);
+    }
+
+    /**
+     * 
+     * @return {@link Integer} no of working seconds in a day
+     */
+    private static int getWorkingSecondsInADay() {
+        return getWorkingTimeEndSeconds() - getWorkingTimeStartSeconds();
+    }
+
+    /**
+     * 
+     * @return {@link Integer} no of non-working seconds in a day
+     */
+    private static int getNonWorkingSecondsInADay() {
+        return secondsInADay - getWorkingSecondsInADay();
+    }
+
+    /**
+     * gives min of two dates... null if both are null.. other date if one is
+     * null
+     * 
+     * @param date1
+     * @param date2
+     * @return
+     */
+    public static Date min(Date date1, Date date2) {
+        Date minDate;
+        if (date1 == null) {
+            minDate = date2;
+        }
+        else if (date2 == null) {
+            minDate = date1;
+        }
+        else if (date1.after(date2)) {
+            minDate = date2;
+        }
+        else {
+            minDate = date1;
+        }
+        return minDate;
+    }
+
+    /**
+     * gives max of two dates... null if both are null.. other date if one is
+     * null
+     * 
+     * @param date1
+     * @param date2
+     * @return
+     */
+    public static Date max(Date date1, Date date2) {
+        Date maxDate;
+        if (date1 == null) {
+            maxDate = date2;
+        }
+        else if (date2 == null) {
+            maxDate = date1;
+        }
+        else if (min(date1, date2).equals(date1)) {
+            maxDate = date2;
+        }
+        else {
+            maxDate = date1;
+        }
+        return maxDate;
+    }
+
+    public static int getWorkingTimeStartSeconds() {
+        return PropertyReader.getRequiredPropertyAsInt(PropertyKeys.CALENDAR_WORKING_HOUR_START);
+    }
+
+    public static int getWorkingTimeEndSeconds() {
+        return PropertyReader.getRequiredPropertyAsInt(PropertyKeys.CALENDAR_WORKING_HOUR_END);
+    }
+
+    public static boolean isWorkingTime(Date date) {
+        DateTime dateTime = new DateTime(date);
+        return isWorkingTime(dateTime);
+    }
+
+    private static boolean isWorkingTime(DateTime date) {
+        int seconds = date.getSecondOfDay();
+        return seconds >= getWorkingTimeStartSeconds() && seconds < getWorkingTimeEndSeconds();
     }
 }

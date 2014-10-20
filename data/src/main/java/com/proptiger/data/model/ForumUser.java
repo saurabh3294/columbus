@@ -27,13 +27,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.model.user.Dashboard;
 
 /**
- * 
+ * Use User model instead of this 
  * @author mukand
  */
 @Entity
 @Table(name = "FORUM_USER")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
+@Deprecated
 public class ForumUser extends BaseModel {
     public static final String USER_STATUS_ACTIVE = "1";
 
@@ -261,24 +262,5 @@ public class ForumUser extends BaseModel {
     @PrePersist
     public void prePersist(){
         this.createdDate = new Date();
-    }
-    public static class WhoAmIDetail extends BaseModel{
-        private static final long serialVersionUID = 708536340494027592L;
-        private String userName;
-        private String imageUrl;
-        public WhoAmIDetail(String userName, String avatar) {
-            super();
-            this.userName = userName;
-            this.imageUrl = avatar;
-        }
-        public String getUserName() {
-            return userName;
-        }
-        public String getImageUrl() {
-            return imageUrl;
-        }
-        public void setImageUrl(String url) {
-            this.imageUrl = url;
-        }
     }
 }

@@ -4,14 +4,19 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.google.gson.Gson;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.util.Serializer;
+
 
 /**
  * @author mandeep
@@ -258,6 +263,9 @@ public class SolrResult extends BaseModel {
     @Field("RESALE_PRICE")
     private Double            resalePrice;
 
+    @Field("RESALE_PRICE_PER_UNIT_AREA")
+    private Double            resalePricePerUnitArea;
+
     @Field("geodist()")
     private Double            geoDistance;
 
@@ -326,31 +334,109 @@ public class SolrResult extends BaseModel {
 
     @Field("BUILDER_URL")
     private String            builderUrl;
-       
+
     @Field("BUILDER_LOCALITY_COUNT")
     private Integer           builderLocalityCount;
-    
+
     @Field("BUILDER_CITIES")
     private List<String>      builderCities;
-    
+
     @Field("BUILDER_IMAGE_ALTTEXT")
     private String            builderImgAltText;
-    
+
     @Field("BUILDER_IMAGE_TITLE")
     private String            builderImgTitle;
-    
+
     @Field("PROJECT_IMAGE_ALTTEXT")
     private String            projectImgAltText;
-    
+
     @Field("PROJECT_IMAGE_TITLE")
     private String            projectImgTitle;
-    
+
     @Field("PROJECT_LOCALITY_SCORE")
     private Float             projectLocalityScore;
-    
+
     @Field("PROJECT_SOCIETY_SCORE")
     private Float             projectSocietyScore;
+
+    @Field(value = "PROJECT_SAFETY_RANK")
+    private Integer           projectSafetyRank;
+
+    @Field(value = "PROJECT_LIVABILITY_RANK")
+    private Integer           projectLivabilityRank;
+
+    @Field(value = "LOCALITY_SAFETY_RANK")
+    private Integer           localitySafetyRank;
+
+    @Field(value = "LOCALITY_LIVABILITY_RANK")
+    private Integer           localityLivabilityRank;
+
+    @Field(value = "HAS_3D_IMAGES")
+    private boolean           hasProject3DImages;
+
+    @Field(value = "PROJECT_MAX_SAFETY_SCORE")
+    private Double            projectMaxSafetyScore;
+
+    @Field(value = "PROJECT_MIN_SAFETY_SCORE")
+    private Double            projectMinSafetyScore;
+
+    @Field(value = "PROJECT_MAX_LIVABILITY_SCORE")
+    private Double            projectMaxLivabilityScore;
+
+    @Field(value = "PROJECT_MIN_LIVABILITY_SCORE")
+    private Double            projectMinLivabilityScore;
+
+    @Field(value = "LOCALITY_MAX_SAFETY_SCORE")
+    private Double            localityMaxSafetyScore;
+
+    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")
+    private Double            localityMinSafetyScore;
+
+    @Field(value = "LOCALITY_MAX_LIVABILITY_SCORE")
+    private Double            localityMaxLivabilityScore;
+
+    @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
+    private Double            localityMinLivabilityScore;
+
+    @Field(value = "LOCALITY_UNIT_TYPES")
+    private List<String>      localityPropertyUnitTypes;
+
+    @Field(value = "CITY_LOCALITY_COUNT")
+    private Integer           cityLocalityCount;
     
+    @Field(value = "LOCALITY_TAG_LINE")
+    private String            localityTagLine;
+    
+    @Field(value = "PROPERTY_COUPON_AVAILABLE")
+    private Boolean isCouponAvailable;
+
+    @Field(value = "SUBURB_TAG_LINE")
+    private String            suburbTagLine;
+	
+    @Field(value = "CITY_POPULATION")
+    private Integer           cityPopulation;
+
+    @Field(value = "CITY_TAG_LINE")
+    private String            cityTagLine;
+
+    @Field(value = "CITY_PROPERTY_COUNT")
+    private Integer           cityPropertyCount;
+    
+    @Field(value = "SUBURB_LOCALITY_COUNT")
+    private Integer           suburbLocalityCount;
+    
+    @Field(value = "SUBURB_PROPERTY_COUNT")
+    private Integer           suburbPropertyCount;
+    
+    @Field(value ="POPULATION_SURVEY_DATE")
+    private Date              populationSurveyDate;
+    
+    @Field(value ="IS_PROPERTY_SOLD_OUT")
+    private boolean           isPropertySoldOut;
+    
+    @Field("PANORAMA_VIEW_PATH")
+    private String              panoramaViewPath;
+
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -570,7 +656,7 @@ public class SolrResult extends BaseModel {
         suburb.setCityId(cityId);
         city.setId(cityId);
         locality.setCityId(cityId);
-        
+
     }
 
     @Field("CITY")
@@ -747,6 +833,7 @@ public class SolrResult extends BaseModel {
     @Field("RESALE_PRICE_PER_UNIT_AREA")
     public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
         property.setResalePricePerUnitArea(resalePricePerUnitArea);
+        project.setResalePricePerUnitArea(resalePricePerUnitArea);
     }
 
     @Field("RESALE_PRICE")
@@ -1070,12 +1157,12 @@ public class SolrResult extends BaseModel {
     public void setBuilderUrl(String builderUrl) {
         builder.setUrl(builderUrl);
     }
-    
+
     @Field("BUILDER_LOCALITY_COUNT")
     public void setBuilderLocalityCount(Integer builderLocalityCount) {
         builder.setBuilderLocalityCount(builderLocalityCount);
-    } 
-    
+    }
+
     @Field("BUILDER_CITIES")
     public void setBuilderCities(List<String> builderCities) {
         builder.setBuilderCities(builderCities);
@@ -1088,14 +1175,14 @@ public class SolrResult extends BaseModel {
 
     @Field("BUILDER_IMAGE_TITLE")
     public void setBuilderImgTitle(String builderImgTitle) {
-       builder.setImageTitle(builderImgTitle);
+        builder.setImageTitle(builderImgTitle);
     }
 
     @Field("PROJECT_IMAGE_ALTTEXT")
     public void setProjectImgAltText(String projectImgAltText) {
         project.getMainImage().setAltText(projectImgAltText);
     }
-    
+
     @Field("PROJECT_IMAGE_TITLE")
     public void setProjectImgTitle(String projectImgTitle) {
         project.getMainImage().setTitle(projectImgTitle);
@@ -1110,9 +1197,193 @@ public class SolrResult extends BaseModel {
     public void setProjectStatus(String projectStatus) {
         project.setProjectStatus(projectStatus);
     }
-    
+
     @Field("PROJECT_SOCIETY_SCORE")
     public void setProjectSocietyScore(Float projectSocietyScore) {
         project.setProjectSocietyScore(projectSocietyScore);
+    }
+
+    @Field("PROJECT_SAFETY_RANK")
+    public void setProjectSafetyRank(Integer projectSafetyRank) {
+        project.setProjectSafetyRank(projectSafetyRank);
+    }
+
+    @Field("PROJECT_LIVABILITY_RANK")
+    public void setProjectLivabilityRank(Integer projectLivabilityRank) {
+        project.setProjectLivabilityRank(projectLivabilityRank);
+    }
+
+    @Field("LOCALITY_SAFETY_RANK")
+    public void setLocalitySafetyRank(Integer localitySafetyRank) {
+        locality.setLocalitySafetyRank(localitySafetyRank);
+    }
+
+    @Field("LOCALITY_LIVABILITY_RANK")
+    public void setLocalityLivabilityRank(Integer localityLivabilityRank) {
+        locality.setLocalityLivabilityRank(localityLivabilityRank);
+    }
+
+    @Field("IMAGE_TYPE_COUNT")
+    public void setImageTypeCount(String imageJson) {
+        Gson gson = new Gson();
+        Map<String, Number> object = new HashMap<String, Number>();
+        Map<String, Integer> imageTypeCount = new HashMap<String, Integer>();
+        object = (Map<String, Number>) gson.fromJson(imageJson, object.getClass());
+        for (Map.Entry<String, Number> entry : object.entrySet()) {
+            imageTypeCount.put(entry.getKey(), entry.getValue().intValue());
+        }
+        project.setImageTypeCount(imageTypeCount);
+        property.setImageTypeCount(imageTypeCount);
+    }
+
+    @Field("HAS_3D_IMAGES")
+    public void setHasProject3DImages(boolean hasProject3DImages) {
+        project.setHas3DImages(hasProject3DImages);
+    }
+
+    @Field(value = "PROJECT_MAX_SAFETY_SCORE")
+    public void setProjectMaxSafetyScore(Double projectMaxSafetyScore) {
+        locality.setProjectMaxSafetyScore(projectMaxSafetyScore);
+    }
+
+    @Field(value = "PROJECT_MIN_SAFETY_SCORE")
+    public void setProjectMinSafetyScore(Double projectMinSafetyScore) {
+        locality.setProjectMinSafetyScore(projectMinSafetyScore);
+    }
+
+    @Field(value = "PROJECT_MAX_LIVABILITY_SCORE")
+    public void setProjectMaxLivabilityScore(Double projectMaxLivabilityScore) {
+        locality.setProjectMaxLivabilityScore(projectMaxLivabilityScore);
+    }
+
+    @Field(value = "PROJECT_MIN_LIVABILITY_SCORE")
+    public void setProjectMinLivabilityScore(Double projectMinLivabilityScore) {
+        locality.setProjectMinLivabilityScore(projectMinLivabilityScore);
+    }
+
+    @Field(value = "LOCALITY_MAX_SAFETY_SCORE")
+    public void setLocalityMaxSafetyScore(Double projectMaxSafetyScore) {
+        city.setLocalityMaxSafetyScore(projectMaxSafetyScore);
+    }
+
+    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")
+    public void setLocalityMinSafetyScore(Double projectMinSafetyScore) {
+        city.setLocalityMinSafetyScore(projectMinSafetyScore);
+    }
+
+    @Field(value = "LOCALITY_MAX_LIVABILITY_SCORE")
+    public void setLocalityMaxLivabilityScore(Double projectMaxLivabilityScore) {
+        city.setLocalityMaxLivabilityScore(projectMaxLivabilityScore);
+    }
+
+    @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
+    public void setLocalityMinLivabilityScore(Double projectMinLivabilityScore) {
+        city.setLocalityMinLivabilityScore(projectMinLivabilityScore);
+    }
+
+    @Field(value = "CITY_LOCALITY_COUNT")
+    public void setCityLocalityCount(Integer cityLocalityCount) {
+        city.setCityLocalityCount(cityLocalityCount);
+    }
+
+    @Field(value = "CITY_POPULATION")
+    public void setCityPopulation(Integer cityPopulation) {
+        city.setCityPopulation(cityPopulation);
+    }
+
+    @Field(value = "CITY_TAG_LINE")
+    public void setCityTagLine(String cityTagLine) {
+        city.setCityTagLine(cityTagLine);
+    }
+
+    @Field(value = "LOCALITY_TAG_LINE")
+    public void setLocalityTagLine(String localityTagLine) {
+        locality.setLocalityTagLine(localityTagLine);
+    }
+
+    @Field(value = "LOCALITY_COUPON_MAX_DISCOUNT")
+    public void setLocalityCouponMaxDiscount(Integer couponMaxDiscount) {
+        locality.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "CITY_COUPON_MAX_DISCOUNT")
+    public void setCityCouponMaxDiscount(Integer couponMaxDiscount) {
+        city.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "SUBURB_COUPON_MAX_DISCOUNT")
+    public void setSuburbCouponMaxDiscount(Integer couponMaxDiscount) {
+        suburb.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "BUILDER_COUPON_MAX_DISCOUNT")
+    public void setBuilderCouponMaxDiscount(Integer couponMaxDiscount) {
+        builder.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "LOCALITY_COUPON_AVAILABLE")
+    public void setLocalityCouponAvailable(Boolean isCouponAvailable) {
+        locality.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "SUBURB_COUPON_AVAILABLE")
+    public void setSuburbCouponAvailable(Boolean isCouponAvailable) {
+        suburb.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "CITY_COUPON_AVAILABLE")
+    public void setCityCouponAvailable(Boolean isCouponAvailable) {
+        city.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "BUILDER_COUPON_AVAILABLE")
+    public void setBuilderCouponAvailable(Boolean isCouponAvailable) {
+        builder.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "COUPON_CATALOGUE_OBJECT")
+    public void setCouponCatalogueObject(String couponCatalogueObjectStr) {
+        CouponCatalogue couponCatalogue = Serializer.fromJson(couponCatalogueObjectStr, CouponCatalogue.class);
+        property.setCouponCatalogue(couponCatalogue);
+    }
+
+    @Field(value = "PROPERTY_COUPON_AVAILABLE")
+    public void setPropertyCouponAvailable(Boolean isCouponAvailable) {
+        property.setCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "SUBURB_TAG_LINE")
+    public void setSuburbTagLine(String suburbTagLine) {
+        suburb.setSuburbTagLine(suburbTagLine);
+    }
+
+    @Field(value = "CITY_PROPERTY_COUNT")
+    public void setCityPropertyCount(Integer cityPropertyCount) {
+        city.setCityPropertyCount(cityPropertyCount);
+    }
+
+    @Field(value = "SUBURB_LOCALITY_COUNT")
+    public void setSuburbLocalityCount(Integer suburbLocalityCount) {
+        suburb.setSuburbLocalityCount(suburbLocalityCount);
+    }
+    
+    @Field(value = "SUBURB_PROPERTY_COUNT")
+    public void setSuburbPropertyCount(Integer suburbPropertyCount) {
+        suburb.setSuburbPropertyCount(suburbPropertyCount);
+    }
+    
+    @Field(value ="POPULATION_SURVEY_DATE")
+    public void setPopulationSurveyDate(Date populationSurveyDate) {
+        city.setPopulationSurveyDate(populationSurveyDate);
+    }
+
+    @Field(value ="IS_PROPERTY_SOLD_OUT")
+    public void setIsPropertySoldOut(boolean isPropertySoldOut) {
+        property.setIsPropertySoldOut(isPropertySoldOut);
+    }
+
+    @Field("PANORAMA_VIEW_PATH")
+    public void setPanoramaViewPath(String panoramaViewPath) {
+        property.setPanoramaViewPath(panoramaViewPath);
     }
 }

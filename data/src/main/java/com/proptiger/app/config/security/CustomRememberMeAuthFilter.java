@@ -1,25 +1,15 @@
 package com.proptiger.app.config.security;
 
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
-import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.util.CacheClientUtil;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.SecurityContextUtils;
 
 /**
@@ -38,41 +28,10 @@ import com.proptiger.data.util.SecurityContextUtils;
  */
 public class CustomRememberMeAuthFilter extends RememberMeAuthenticationFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(CustomRememberMeAuthFilter.class);
+    private SessionAuthenticationStrategy sessionStrategy = new NullAuthenticatedSessionStrategy();
 
     public CustomRememberMeAuthFilter(AuthenticationManager authenticationManager, RememberMeServices rememberMeServices) {
         super(authenticationManager, rememberMeServices);
-    }
-
-    @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException,
-            ServletException {
-        if (SecurityContextUtils.getAuthentication() == null) {
-            HttpServletRequest request = ((HttpServletRequest) req);
-            String sessionId = null;
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie c : cookies) {
-                    if (c.getName().equals(Constants.PHPSESSID_KEY)) {
-                        sessionId = c.getValue();
-                        break;
-                    }
-                }
-            }
-            if (sessionId != null && !sessionId.isEmpty()) {
-                try {
-                    ActiveUser activeUser = CacheClientUtil.getUserInfoFromMemcache(sessionId);
-                    Authentication auth = SecurityContextUtils.autoLogin(activeUser);
-                    onSuccessfulAuthentication(request, (HttpServletResponse) res, auth);
-                }
-                catch (Exception e) {
-                    logger.error("Remembered user could not be found in memcache for PHPSESSID {}", sessionId);
-                }
-            }
-        }
-
-        super.doFilter(req, res, chain);
-
     }
 
     /*
@@ -86,5 +45,16 @@ public class CustomRememberMeAuthFilter extends RememberMeAuthenticationFilter {
             HttpServletResponse response,
             Authentication authResult) {
         SecurityContextUtils.putActiveUserInSession(request, authResult);
+        sessionStrategy.onAuthentication(authResult, request, response);
     }
+
+    public SessionAuthenticationStrategy getSessionStrategy() {
+        return sessionStrategy;
+    }
+
+    public void setSessionStrategy(SessionAuthenticationStrategy sessionStrategy) {
+        this.sessionStrategy = sessionStrategy;
+    }
+    
+    
 }

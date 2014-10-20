@@ -12,13 +12,16 @@ import com.proptiger.data.constants.ResponseCodes;
  * @author Rajeev Pandey
  * 
  */
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 public class APIResponse implements Serializable {
 
     private static final long serialVersionUID = -7809000164180146201L;
     private Long              totalCount;
     private String            statusCode;
+
+    @JsonInclude(Include.ALWAYS)
     private Object            data;
+
     private APIError          error;
 
     public APIResponse() {
