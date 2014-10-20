@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,7 @@ import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
+import com.proptiger.data.service.cron.CronService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
@@ -116,6 +118,18 @@ public class LeadOfferService {
 
     @Autowired
     private PropertyReader               propertyReader;
+
+    private LeadService                  leadService;
+
+    @Autowired
+    private ApplicationContext           applicationContext;
+
+    private LeadService getLeadService() {
+        if (leadService == null) {
+            leadService = applicationContext.getBean(LeadService.class);
+        }
+        return leadService;
+    }
 
     /**
      * 
@@ -421,21 +435,32 @@ public class LeadOfferService {
         return leadOfferIds;
     }
 
-    public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId) {
+    public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId, Integer phaseId) {
         List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
+        Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(lead.getId(), phaseId);
         LeadOffer leadOffer = null;
         if (!agents.isEmpty()) {
-            leadOffer = createLeadOffer(lead, agents.get(0));
+            leadOffer = createLeadOffer(lead, agents.get(0), cycleId, countLeadOfferInDB, phaseId);
         }
         return leadOffer;
     }
 
-    public LeadOffer createLeadOffer(Lead lead, CompanyUser agent) {
+    public LeadOffer createLeadOffer(Lead lead, CompanyUser agent, int cycleId, int countLeadOfferInDB, Integer phaseId) {
         LeadOffer offer = new LeadOffer();
         offer.setLeadId(lead.getId());
         offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getId());
-        offer.setCycleId(1);
+
+        if (phaseId == null) {
+            phaseId = 1;
+        }
+
+        if (countLeadOfferInDB >= PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE)) {
+            phaseId = phaseId + 1;
+        }
+
+        offer.setPhaseId(phaseId);
+        offer.setCycleId(cycleId);
         offer = leadOfferDao.save(offer);
         return offer;
     }
@@ -669,20 +694,54 @@ public class LeadOfferService {
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
                     .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
-                    .setMailCC(leadOfferInDB.getAgent().getEmail())
-                    .setReplyTo(leadOfferInDB.getAgent().getEmail())
+                    .setMailCC(leadOfferInDB.getAgent().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail())
                     .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
             mailSender.sendMailUsingAws(mailDetails);
         }
     }
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
-        LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
-        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId());
+        LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
+        Integer maxPhaseId = leadOfferDao.getMaxPhaseId(leadOfferInDB.getLeadId());
+        List<LeadOffer> allLeadOffers = leadOfferDao.findByLeadId(leadOfferInDB.getLeadId());
+
+        Integer leadOfferCount = 0;
+        Integer declinedLeadOfferCountInCycle = 0;
+        Integer maxCycleId = 0;
+        Integer leadOfferCountInCycle = 0;
+        Integer allCountInCycle = 0;
+        for (LeadOffer leadOffer : allLeadOffers) {
+            if (leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId) {
+                leadOfferCount++;
+            }
+            if (leadOffer.getCycleId() > maxCycleId && leadOffer.getPhaseId() == maxPhaseId) {
+                maxCycleId = leadOffer.getCycleId();
+            }
+        }
+
+        for (LeadOffer leadOffer : allLeadOffers) {
+            if (leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId
+                    && leadOffer.getCycleId() == maxCycleId) {
+                leadOfferCountInCycle++;
+            }
+            if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId() && leadOffer.getPhaseId() == maxPhaseId
+                    && leadOffer.getCycleId() == maxCycleId) {
+                declinedLeadOfferCountInCycle++;
+            }
+            if (leadOffer.getCycleId() == maxCycleId) {
+                allCountInCycle++;
+            }
+        }
 
         if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class)
                 .equals(leadOfferCount)) {
-            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId());
+            leadOfferDao.expireRestOfTheLeadOffers(leadOfferInDB.getLeadId());
+        }
+        else {
+            if (declinedLeadOfferCountInCycle + leadOfferCountInCycle == allCountInCycle) {
+                getLeadService();
+                leadService.manageLeadAuctionWithBeforeCycle(leadOfferInDB.getLeadId());
+            }
         }
     }
 
@@ -718,7 +777,13 @@ public class LeadOfferService {
     }
 
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
-        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId);
+        
+        LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
+        if(leadOfferInDB.getAgentId() != userId)
+        {
+            throw new BadRequestException("you can only view listings offered by you for lead offers assigned to you");
+        }
+        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId,userId);
         populateOfferedFlag(leadOfferId, matchingListings, userId);
         return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
     }
@@ -874,7 +939,8 @@ public class LeadOfferService {
         String username = userService.getUserById(activeUser.getUserIdentifier()).getFullName();
 
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
-                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername())
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername())
+                .setReplyTo(activeUser.getUsername())
                 .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
@@ -888,5 +954,9 @@ public class LeadOfferService {
             }
         }
         return leadOffers;
+    }
+
+    public Integer getMaxCycleIdAndPhaseId(int id, int phaseId) {
+        return leadOfferDao.getMaxCycleIdAndPhaseId(id, phaseId);
     }
 }

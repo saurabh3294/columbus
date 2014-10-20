@@ -38,4 +38,9 @@ public class CompanyService {
     public List<CompanyUser> getCompanyUsersForCompanies(Company company) {
         return companyUserDao.findByCompanyIdAndStatus(company.getId(), ActivationStatus.Active);
     }
+
+    public List<Company> getCompanyFromUserId(List<Integer> agentIds) {
+        return companyUserDao.findByAgentId(agentIds);
+
+    }
 }

@@ -27,7 +27,7 @@ public class CronController {
     @RequestMapping("/v1/lead-assign")
     public @ResponseBody
     APIResponse leadAssignCron() throws Exception {
-        cronService.manageLeadAssignment();
+        cronService.manageLeadAssignmentWithCycle();
         return new APIResponse();
     }
 

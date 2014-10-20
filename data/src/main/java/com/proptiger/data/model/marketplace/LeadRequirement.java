@@ -57,6 +57,14 @@ public class LeadRequirement extends BaseModel {
     @JoinColumn(name="lead_id" ,insertable=false, updatable=false)
     private Lead lead;
 
+    public Lead getLead() {
+        return lead;
+    }
+
+    public void setLead(Lead lead) {
+        this.lead = lead;
+    }
+
     @PrePersist
     public void validate() {
         if (localityId == null && projectId == null) {

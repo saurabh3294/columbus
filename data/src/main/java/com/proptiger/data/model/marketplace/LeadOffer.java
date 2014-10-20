@@ -142,6 +142,17 @@ public class LeadOffer extends BaseModel {
     @Transient
     private User                     agent;
 
+    @Column(name = "phase_id")
+    private int                      phaseId;
+
+    public int getPhaseId() {
+        return phaseId;
+    }
+
+    public void setPhaseId(int phaseId) {
+        this.phaseId = phaseId;
+    }
+
     public User getAgent() {
         return agent;
     }

@@ -146,7 +146,7 @@ public class ProjectDetailController extends BaseController {
         response.put("builderDetails", super.filterFields(builderDetails, null));
         response.put("properties", super.filterFields(properties, propertyFieldString));
         response.put("totalProjectDiscussions", totalProjectDiscussion);
-        response.put("projectAmenity", projectAmenityService.getCMSAmenitiesByProjectId(projectId));
+        response.put("projectAmenity", projectAmenityService.getCMSAmenitiesByProjectIdVerifiedOnly(projectId));
         response.put("neighborhood", listLocalityAmenity);
         response.put("locality", locality);
 
