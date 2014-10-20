@@ -52,6 +52,12 @@ public class ProjectAmenityService {
                 projectId));
     }
     
+    public List<ProjectCMSAmenity> getCMSAmenitiesByProjectIdMarketplace(int projectId) {
+        return projectCMSAmenityDao.findByProjectIdMarketplace(IdConverterForDatabase.getCMSDomainIdForDomainTypes(
+                DomainObject.project,
+                projectId));
+    }
+    
     public List<ProjectCMSAmenity> getCMSAmenitiesByProjectIdAndAmenityIds(int projectId, List<Integer> masterAmenitieIds) {
         if(masterAmenitieIds != null && masterAmenitieIds.size() > 0){
             Set<Integer> ids = new HashSet<>(masterAmenitieIds);
