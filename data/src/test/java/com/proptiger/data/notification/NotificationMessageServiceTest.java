@@ -1,5 +1,7 @@
 package com.proptiger.data.notification;
 
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -9,6 +11,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.proptiger.data.mocker.NotificationMockerService;
@@ -19,6 +22,7 @@ import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
+import com.proptiger.data.notification.repo.NotificationMessageDao;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.NotificationTypeService;
 import com.proptiger.data.notification.service.UserNotificationTypeSubscriptionService;
@@ -37,6 +41,13 @@ public class NotificationMessageServiceTest extends AbstractTest {
 
     @Autowired
     private NotificationMockerService  notificationMockerService;
+
+    @BeforeMethod
+    private void init() {
+        NotificationMessageDao notificationMessageDao = mock(NotificationMessageDao.class);
+        when(notificationMessageDao.saveAndFlush((NotificationMessage) anyObject())).then(returnsFirstArg());
+        nMessageService.setNotificationMessageDao(notificationMessageDao);
+    }
 
     @Test
     public void testCreateNotificationMessageForEmail() {
