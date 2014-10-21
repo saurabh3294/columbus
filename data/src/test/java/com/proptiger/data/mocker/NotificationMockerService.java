@@ -136,7 +136,7 @@ public class NotificationMockerService {
         return typeMediumMapping;
     }
 
-    private NotificationType getMockNotificationType(String notificationTypeName) {
+    public NotificationType getMockNotificationType(String notificationTypeName) {
         NotificationType notificationType = new NotificationType();
         notificationType.setId(random.nextInt(1000) + 1);
         notificationType.setName(notificationTypeName);
