@@ -30,7 +30,7 @@ public class OTPController extends BaseController{
 
     @RequestMapping(value = "app/v1/otp/validate", method = RequestMethod.POST)
     public void validateOTP(
-            @RequestBody String otp,
+            @RequestBody Object otp,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
             HttpServletRequest request,
             HttpServletResponse response) {
