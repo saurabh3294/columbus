@@ -6,9 +6,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.event.enums.DBOperation;
+import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
+import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.EventType;
+import com.proptiger.data.event.model.EventTypeConfig;
+import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 
@@ -38,11 +43,51 @@ public class EventMockerService {
         eventGenerated.setEventTypeUniqueKey("uniqueKey");
         return eventGenerated;
     }
+    
+    public RawDBEvent getMockInsertRawDBEvent() {       
+          
+        DBRawEventTableLog tableLog = new DBRawEventTableLog();
+        tableLog.setId(1);
+        tableLog.setHostName("hostName");
+        tableLog.setDateAttributeName("dateAttributeName");
+        tableLog.setDbName("dbName");
+        tableLog.setLastTransactionKeyValue(1L);
+        tableLog.setPrimaryKeyName("primaryKeyName");
+        tableLog.setTransactionKeyName("transactionKeyName");
+     
+        List<EventType> eventTypeList = new ArrayList<EventType>();
+        eventTypeList.add(getMockEventType());
+        
+        DBRawEventOperationConfig operationConfig = new DBRawEventOperationConfig();
+        operationConfig.setDbOperation(DBOperation.INSERT);
+        operationConfig.setListEventTypes(eventTypeList);
+        
+        RawDBEvent rawDBEvent = new RawDBEvent();
+        rawDBEvent.setDbRawEventTableLog(tableLog);
+        rawDBEvent.setDbRawEventOperationConfig(operationConfig);
+        rawDBEvent.setTransactionKeyValue(100);
+        rawDBEvent.setPrimaryKeyValue(500);
+        rawDBEvent.setTransactionDate(new Date());
+        return rawDBEvent;
+    }
 
     public EventType getMockEventType() {
+        EventTypeConfig config = new EventTypeConfig();
+        try {
+            config.setEventTypePayloadObject(config.getDataClassName().newInstance());
+        }
+        catch (InstantiationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         EventType eventType = new EventType();
         eventType.setId(356);
         eventType.setName(EVENT_TYPES.get(0));
+        eventType.setEventTypeConfig(config);
         return eventType;
     }
 
