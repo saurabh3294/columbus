@@ -125,7 +125,7 @@ public class OTPService {
     }
 
     @Transactional
-    public void validate(Object otp, ActiveUser activeUser, HttpServletRequest request, HttpServletResponse response) {
+    public void validate(String otp, ActiveUser activeUser, HttpServletRequest request, HttpServletResponse response) {
         Pageable pageable = new LimitOffsetPageRequest(0, 1, Direction.DESC, "id");
         List<UserOTP> userOTPs = userOTPDao.findLatestOTPByUserId(activeUser.getUserIdentifier(), pageable);
         if (userOTPs.isEmpty() || otp == null) {
