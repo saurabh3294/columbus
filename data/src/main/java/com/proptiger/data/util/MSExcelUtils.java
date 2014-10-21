@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.exception.ProAPIException;
 
 @Component
-public class ApachePoiUtils {
+public class MSExcelUtils {
 
     /**
      * 
@@ -20,8 +20,6 @@ public class ApachePoiUtils {
      * across a column.
      * 
      * @param workBookName
-     *            : If a workbook exists with this name, a sheet will be added
-     *            to it; otherwise a new workbook will be created.
      * @param sheetName
      *            : If a sheet with this name exists in the workbook then it
      *            will be overwritten, otherwise a new sheet will be added.
@@ -32,46 +30,15 @@ public class ApachePoiUtils {
      *            list-of-objects. Excess objects will be ignored and deficient
      *            lists will be packed will null values.
      */
-    public File exportToMsExcelSheet(
+    public Workbook exportToMsExcelSheet(
             String workBookName,
             String sheetName,
             List<Object[]> columnHeadings,
             List<List<Object>> data) throws ProAPIException {
-
-        File file = new File(workBookName);
-        FileOutputStream out = null;
-
-        /* Create a workbook if none exists */
-
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-                out = new FileOutputStream(file);
-            }
-            catch (IOException ex) {
-                throw new ProAPIException("Unable to create workbook.", ex);
-            }
-        }
-
-        Workbook workbook = getOrCreateHSSFWorkBook(workBookName);
-
-        Sheet sheet = getOrCreateSheet(workbook, sheetName);
         
-        fillDataInSheet(sheet, columnHeadings, data);
-
-        try {
-            workbook.write(out);
-            out.close();
-        }
-        catch (IOException ex) {
-            throw new ProAPIException("Unable to write out workbook.", ex);
-        }
-                
-        return file;
-    }
-
-    private void fillDataInSheet(Sheet sheet, List<Object[]> columnHeadings, List<List<Object>> data) {
-
+        Workbook workbook = new HSSFWorkbook();
+        Sheet sheet = workbook.createSheet(sheetName);
+        
         if (columnHeadings == null || columnHeadings.isEmpty()) {
             throw new ProAPIException("No column headings specified while creating sheet");
         }
@@ -103,8 +70,12 @@ public class ApachePoiUtils {
                 cell = row.createCell(colIndex);
                 cell.setCellType(getCellStyleFromClass((Class<?>) columnHeadings.get(colIndex)[1]));
                 cell.setCellValue(String.valueOf(obj));
+                colIndex++;
             }
+            rowIndex++;
         }
+        
+        return workbook;
     }
 
     private int getCellStyleFromClass(Class<?> clazz) {
@@ -119,11 +90,21 @@ public class ApachePoiUtils {
         }
     }
 
-    private Workbook getOrCreateHSSFWorkBook(String name) {
-        return (new HSSFWorkbook());
+    public File exportWorkBookToFile(Workbook workbook, String wbFileName) {
+        
+        FileOutputStream fileOutputStream = null;
+        File wbFile = new File(wbFileName);
+        try {
+            wbFile.createNewFile();
+            fileOutputStream = new FileOutputStream(wbFile);
+            workbook.write(fileOutputStream);
+            fileOutputStream.close();
+        }
+        catch (IOException ex) {
+            throw new ProAPIException("Unable to save workbook to file.", ex);
+        }
+        
+        return wbFile;
     }
 
-    private Sheet getOrCreateSheet(Workbook workbook, String sheetName) {
-        return workbook.createSheet(sheetName);
-    }
 }

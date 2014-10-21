@@ -1,13 +1,12 @@
 package com.proptiger.data.model.trend;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.proptiger.data.annotations.TrendReportColumn;
 
 public class CatchmentTrendReportElement {
 
@@ -25,7 +24,6 @@ public class CatchmentTrendReportElement {
 
     private String                                             completionDate;
 
-    @TrendReportColumn(name = "micromarket")
     private String                                             locality;
 
     private Double                                             latitude;
@@ -34,7 +32,7 @@ public class CatchmentTrendReportElement {
 
     private String                                             projectStatus;
 
-    private int                                                projectArea;
+    private Double                                             projectArea;
 
     private int                                                launchPrice;
 
@@ -120,11 +118,11 @@ public class CatchmentTrendReportElement {
         this.projectStatus = projectStatus;
     }
 
-    public int getProjectArea() {
+    public Double getProjectArea() {
         return projectArea;
     }
 
-    public void setProjectArea(int projectArea) {
+    public void setProjectArea(double projectArea) {
         this.projectArea = projectArea;
     }
 
@@ -172,7 +170,7 @@ public class CatchmentTrendReportElement {
         return bhkGroupedMap;
     }
 
-    public List<List<Object>> getReportRows(List<String> monthlist) {
+    public List<List<Object>> getReportRows(List<Date> monthlist) {
         List<List<Object>> reportRows = new ArrayList<List<Object>>();
         List<Object> commonData = Arrays.asList(new Object[]{projectName,
         builderName,
@@ -188,44 +186,44 @@ public class CatchmentTrendReportElement {
         bhk,
         bhkSizeRange,
         totalUnits,
-        launchedUnits,
-        bhk});
+        launchedUnits});
         
-        reportRows = Collections.nCopies(TypeOfData.values().length, commonData);
-        
-        for(List<Object> reportRow : reportRows){
-            reportRow = new ArrayList<Object>(reportRow);
-            for(TypeOfData tod : TypeOfData.values()){
-                reportRow.add(tod.name());
-                for(String month : monthlist){
-                    reportRow.add(bhkGroupedMap.get(tod).get(month));
-                }
+        List<Object> reportRow;
+        for (TypeOfData tod : TypeOfData.values()) {
+            reportRow = new ArrayList<Object>(commonData);
+            reportRow.add(tod.name());
+            for (Date month : monthlist) {
+                reportRow.add(bhkGroupedMap.get(tod).get(month));
             }
+            reportRows.add(reportRow);
         }
         
         return reportRows;
     }
 
-    public static List<Object[]> getReportColumns(List<String> monthList) {
+    public static List<Object[]> getReportColumns(List<Date> monthList) {
         Object[][] columns = {{"Project Name", String.class},
                 {"Builder Name", String.class},
                 {"Phase Name", String.class},
                 {"Launch Date", String.class},
                 {"Completion Date", String.class},
                 {"Locality", String.class},
-                {"Latitude", String.class},
-                {"Longitude", String.class},
+                {"Latitude", Double.class},
+                {"Longitude", Double.class},
                 {"Project Status", String.class},
-                {"Project Area", String.class},
-                {"Launch Price", String.class},
+                {"Project Area", Double.class},
+                {"Launch Price", Double.class},
                 {"BHK", String.class},
                 {"BHK Size Range", String.class},
-                {"Total Units", String.class},
+                {"Total Units", Integer.class},
+                {"Launched Units", Integer.class},
                 {"Type Of Data", String.class},
         };
         List<Object[]> columnList = new ArrayList<Object[]>(Arrays.asList(columns));
-        for(String month : monthList){
-            columnList.add(new Object[]{month, Integer.class});
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for(Date month: monthList){
+            columnList.add(new Object[]{sdf.format(month.getTime()), Double.class});
         }
         
         return columnList;

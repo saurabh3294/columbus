@@ -1,8 +1,9 @@
 package com.proptiger.data.mvc.trend;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,14 +25,14 @@ import com.proptiger.exception.ProAPIException;
 
 @Controller
 @RequestMapping
-public class TrendReportController extends BaseController{
+public class TrendReportController extends BaseController {
 
     @Autowired
     TrendReportService trendReportService;
-    
+
     @Autowired
-    TrendReportDao trendReportDao;
-    
+    TrendReportDao     trendReportDao;
+
     @RequestMapping("app/v1/trendreport/{catchmentId}")
     @ResponseBody
     public void getTrendReport(
@@ -39,18 +40,28 @@ public class TrendReportController extends BaseController{
             @PathVariable Integer catchmentId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             FIQLSelector selector) throws Exception {
-        
+
         File file = trendReportService.getCatchmentTrendReport(userInfo, catchmentId, selector);
-        FileReader fileReader = new FileReader(file);
-        
-        try{
-            IOUtils.copy(fileReader, response.getOutputStream());
-            response.setContentType("application/vnd.ms-excel");
-            response.setHeader("Content-Disposition", "attachment; filename=sampleName.xls");
-            response.flushBuffer();
-          } catch (IOException ex) {
-            throw new ProAPIException("IOError writing file to output stream");
-          }
+
+        makeHTTPServletResponse(response, file);
     }
 
+    private void makeHTTPServletResponse(HttpServletResponse response, File file) {
+        String fileName = file.getName();
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+        try {
+            OutputStream outStream = response.getOutputStream();
+            FileInputStream inputStream = new FileInputStream(file);
+            IOUtils.copy(inputStream, outStream);
+            response.flushBuffer();
+            inputStream.close();
+            outStream.close();
+        }
+        catch (IOException ex) {
+            throw new ProAPIException("IOError writing file to output stream");
+        }
+    }
 }
