@@ -4,11 +4,11 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gson.Gson;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Builder;
-import com.proptiger.core.model.cms.Locality;
-import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
@@ -51,15 +51,21 @@ public class THandlerProjectsBy extends RootTHandler {
 
 	private List<Builder> getTopBuilders(String cityName) {
 		List<Builder> topBuilders = HttpRequestUtil
-				.getInternalApiResultAsType(URI.create(PropertyReader
-						.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)
-						+ PropertyReader
-								.getRequiredPropertyAsString(PropertyKeys.BUILDER_API_URL)
-						+ "?"
-						+ URLGenerationConstants.Selector
-						+ String.format(
-								URLGenerationConstants.SelectorGetBuilderNamesByCityName,
-								cityName)));
+				.getInternalApiResultAsTypeList(
+						URI.create(UriComponentsBuilder
+								.fromUriString(
+										PropertyReader
+												.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)
+												+ PropertyReader
+														.getRequiredPropertyAsString(PropertyKeys.BUILDER_API_URL)
+												+ "?"
+												+ URLGenerationConstants.Selector
+												+ String.format(
+														URLGenerationConstants.SelectorGetBuilderNamesByCityName,
+														cityName)).build()
+								.encode().toString()),
+						new TypeToken<ArrayList<Builder>>() {
+						}.getType());
 		return topBuilders;
 	}
 

@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.util.HttpRequestUtil;
@@ -111,16 +113,23 @@ public class THandlerProjectIn extends RootTHandler {
 	}
 
 	private List<Locality> getTopLocalities(String cityName) {
+		URI uri = URI
+				.create(UriComponentsBuilder
+						.fromUriString(
+								PropertyReader
+										.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)
+										+ PropertyReader
+												.getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
+										+ "?"
+										+ URLGenerationConstants.Selector
+										+ String.format(
+												URLGenerationConstants.SelectorGetLocalityNamesByCityName,
+												cityName)).build().encode()
+						.toString());
 		List<Locality> topLocalities = HttpRequestUtil
-				.getInternalApiResultAsType(URI.create(PropertyReader
-						.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)
-						+ PropertyReader
-								.getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
-						+ "?"
-						+ URLGenerationConstants.Selector
-						+ String.format(
-								URLGenerationConstants.SelectorGetLocalityNamesByCityName,
-								cityName)));
+				.getInternalApiResultAsTypeList(uri,
+						new TypeToken<ArrayList<Locality>>() {
+						}.getType());
 		return topLocalities;
 	}
 

@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.util.HttpRequestUtil;
@@ -75,7 +77,7 @@ public class THandlerPropertyFor extends RootTHandler {
 
 	private List<Locality> getTopLocalities(String cityName) {
 		List<Locality> topLocalities = HttpRequestUtil
-				.getInternalApiResultAsType(URI.create(PropertyReader
+				.getInternalApiResultAsTypeList(URI.create(UriComponentsBuilder.fromUriString(PropertyReader
 						.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)
 						+ PropertyReader
 								.getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
@@ -83,7 +85,8 @@ public class THandlerPropertyFor extends RootTHandler {
 						+ URLGenerationConstants.Selector
 						+ String.format(
 								URLGenerationConstants.SelectorGetLocalityNamesByCityName,
-								cityName)));
+								cityName)).build().encode().toString()), new TypeToken<ArrayList<Locality>>() {
+								}.getType());
 		return topLocalities;
 	}
 

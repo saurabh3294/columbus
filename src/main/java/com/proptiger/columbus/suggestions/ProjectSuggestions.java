@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.core.enums.UnitType;
@@ -32,7 +33,9 @@ public class ProjectSuggestions {
 		List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
 		List<Property> propertyList = HttpRequestUtil
-				.getInternalApiResultAsType(getURIForPropertyAPI(id));
+				.getInternalApiResultAsTypeList(getURIForPropertyAPI(id),
+						new TypeToken<ArrayList<Property>>() {
+						}.getType());
 		if (propertyList == null || propertyList.isEmpty()) {
 			return suggestions;
 		}
