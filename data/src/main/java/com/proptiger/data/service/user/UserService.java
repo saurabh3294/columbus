@@ -46,7 +46,6 @@ import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Permission;
@@ -61,6 +60,7 @@ import com.proptiger.data.model.user.User.WhoAmIDetail;
 import com.proptiger.data.model.user.UserAttribute;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
+import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
@@ -99,17 +99,19 @@ import com.proptiger.exception.UnauthorizedException;
 public class UserService {
     private static final String TYPE = "type";
 
-    public enum UserCommunicationType{email, contact};
-    
-    private static final Object TOKEN = "token";
+    public enum UserCommunicationType {
+        email, contact
+    };
+
+    private static final Object              TOKEN  = "token";
 
     private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    private B2BAttributeService        b2bAttributeService;
+    private B2BAttributeService              b2bAttributeService;
 
     @Value("${b2b.price-inventory.max.month.dblabel}")
-    private String                     currentMonthDbLabel;
+    private String                           currentMonthDbLabel;
 
     private String                           currentMonth;
 
@@ -172,7 +174,7 @@ public class UserService {
 
     @Autowired
     private DashboardService                 dashboardService;
-	
+
     @Autowired
     private UserAttributeDao                 userAttributeDao;
 
@@ -180,7 +182,7 @@ public class UserService {
     private void initialize() {
         currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
     }
-    
+
     public boolean isRegistered(String email) {
         User user = userDao.findByEmail(email);
         if (user != null && user.isRegistered()) {
@@ -211,21 +213,21 @@ public class UserService {
         customUser.setFirstName(user.getFullName());
         customUser.setContactNumber(user.getPriorityContactNumber());
         customUser.setProfileImageUrl(user.getProfileImageUrl());
-        if(needDashboards){
+        if (needDashboards) {
             List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
             customUser.setDashboards(dashboards);
         }
-       
-        if(application.equals(Application.B2B)){
+
+        if (application.equals(Application.B2B)) {
             setAppDetails(customUser, user);
         }
         return customUser;
     }
-    
+
     @Transactional
-    public CustomUser getUserDetailsByEmail(String email){
+    public CustomUser getUserDetailsByEmail(String email) {
         User user = userDao.findByEmail(email);
-        if(user == null){
+        if (user == null) {
             throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, ResponseErrorMessages.EMAIL_NOT_REGISTERED);
         }
         CustomUser customUser = createCustomUserObj(user, Application.DEFAULT, false);
@@ -294,36 +296,36 @@ public class UserService {
         for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
             permission = subscriptionPermission.getPermission();
             objectTypeId = permission.getObjectTypeId();
-            if(objectTypeId == DomainObject.city.getObjectTypeId()){
+            if (objectTypeId == DomainObject.city.getObjectTypeId()) {
                 subscribedIdsCity.add(permission.getObjectId());
             }
-            else if(objectTypeId == DomainObject.locality.getObjectTypeId()){
+            else if (objectTypeId == DomainObject.locality.getObjectTypeId()) {
                 subscribedIdsLocality.add(permission.getObjectId());
             }
         }
-        
+
         /* Populating UserType */
-        
-        if(subscribedIdsCity.isEmpty() && subscribedIdsLocality.isEmpty()){
+
+        if (subscribedIdsCity.isEmpty() && subscribedIdsLocality.isEmpty()) {
             return userAppSubscription;
         }
-        else if(subscribedIdsCity.isEmpty()){
+        else if (subscribedIdsCity.isEmpty()) {
             userAppSubscription.setUserType(DomainObject.locality.toString());
         }
-        else{
+        else {
             userAppSubscription.setUserType(DomainObject.city.toString());
         }
-        
+
         /* Populating Locality List */
-        
+
         List<Locality> localityList = getLocalityListByCityIdList(subscribedIdsCity);
-        
-        if(!subscribedIdsLocality.isEmpty()){
+
+        if (!subscribedIdsLocality.isEmpty()) {
             localityList.addAll(localityService.findByLocalityIdList(subscribedIdsLocality).getResults());
         }
-        
+
         if (!localityList.isEmpty()) {
-            
+
             @SuppressWarnings("unchecked")
             Map<Integer, List<Locality>> cityGroupedLocalities = (Map<Integer, List<Locality>>) UtilityClass
                     .groupFieldsAsPerKeys(localityList, Arrays.asList("cityId"));
@@ -355,7 +357,7 @@ public class UserService {
         }
         return userAppSubscription;
     }
-    
+
     private List<Locality> getLocalityListByCityIdList(List<Integer> subscribedIdsCity) {
 
         if (subscribedIdsCity.isEmpty()) {
@@ -368,7 +370,7 @@ public class UserService {
 
         return (localityService.getLocalities(new Gson().fromJson(json, Selector.class)).getResults());
     }
-    
+
     /**
      * Get if user have already enquired a entity
      * 
@@ -501,10 +503,10 @@ public class UserService {
         if (user == null) {
             user = userDao.saveAndFlush(toCreate);
         }
-        else if(user.isRegistered()){
+        else if (user.isRegistered()) {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
         }
-        else if(!user.isRegistered()){
+        else if (!user.isRegistered()) {
             user.setRegistered(true);
             user = userDao.saveAndFlush(user);
         }
@@ -663,8 +665,7 @@ public class UserService {
      * @return
      */
     private void patchUser(User user) {
-        
-        
+
         // checking and creating user attributes.
         createUserAttributes(user);
         updateContactNumbers(user);
@@ -805,9 +806,11 @@ public class UserService {
         }
         return contacts.get(0);
     }
-    
+
     /**
-     * This method will return the attributes of the user based on the attribute value provided.
+     * This method will return the attributes of the user based on the attribute
+     * value provided.
+     * 
      * @param userId
      * @param attributeValue
      * @return
@@ -817,22 +820,24 @@ public class UserService {
     }
 
     public void enrichUserDetails(User user) {
-        user.setContactNumbers(new HashSet<UserContactNumber>(contactNumberDao.findByUserIdOrderByPriorityAsc(user.getId())));
+        user.setContactNumbers(new HashSet<UserContactNumber>(contactNumberDao.findByUserIdOrderByPriorityAsc(user
+                .getId())));
         user.setAttributes(userAttributeDao.findByUserId(user.getId()));
     }
 
     /**
      * Mark user communication type as verified for valid token and email
+     * 
      * @param type
      * @param token
      */
     public void validateUserCommunicationDetails(UserCommunicationType type, String token) {
         ForumUserToken userToken = forumUserTokenDao.findByToken(token);
         Calendar cal = Calendar.getInstance();
-        if(userToken == null){
+        if (userToken == null) {
             throw new BadRequestException("Invalid token");
         }
-        if(userToken.getExpirationDate().before(cal.getTime())){
+        if (userToken.getExpirationDate().before(cal.getTime())) {
             throw new BadRequestException("Token expired");
         }
         User user = userDao.findById(userToken.getUserId());
@@ -847,30 +852,64 @@ public class UserService {
                 // do nothing
                 break;
         }
-        //set verified as true
+        // set verified as true
         userDao.save(user);
-        //delete the token
+        // delete the token
         forumUserTokenDao.delete(userToken);
     }
-    
-    public static class UserRegisterMailTemplate{
+
+    public static class UserRegisterMailTemplate {
         private String fullName;
         private String email;
         private String emailValidationLink;
-        public UserRegisterMailTemplate(String userName, String email, String validationLink){
+
+        public UserRegisterMailTemplate(String userName, String email, String validationLink) {
             this.fullName = userName;
             this.email = email;
             this.emailValidationLink = validationLink;
         }
+
         public String getFullName() {
             return fullName;
         }
+
         public String getEmail() {
             return email;
         }
+
         public String getEmailValidationLink() {
             return emailValidationLink;
         }
+
+    }
+
+    public User updateUserDetails(UserDetails user, ActiveUser activeUser) {
         
+        user.setId(activeUser.getUserIdentifier());
+        User originalUser = getUserById(user.getId());
+
+        if (user.getFullName() != null) {
+            originalUser.setFullName(user.getFullName());
+        }
+        if(user.getOldPassword() != null && user.getPassword() != null && user.getConfirmPassword() != null) {
+            
+            ChangePassword changePassword = new ChangePassword();
+            changePassword.setOldPassword(user.getOldPassword());
+            changePassword.setNewPassword(user.getPassword());
+            changePassword.setConfirmNewPassword(user.getConfirmPassword());
+            
+            changePassword(activeUser, changePassword);
+            
+            originalUser.setPassword(changePassword.getNewPassword());
+        }
+        if (user.getCountryId() != null) {
+            originalUser.setCountryId(user.getCountryId());
+        }
+        if (user.getContactNumbers() != null && !user.getContactNumbers().isEmpty()) {
+            updateContactNumbers(user);
+        }
+        
+        originalUser = userDao.saveAndFlush(originalUser);
+        return originalUser;
     }
 }

@@ -342,7 +342,7 @@ public class ProjectDB extends BaseModel {
 
     @PostLoad
     public void postLoad() {
-        this.projectStatus = projectStatusMaster.getDisplay_name();
+        this.projectStatus = projectStatusMaster.getDisplayName();
     }
 
     public String getProjectUrl() {

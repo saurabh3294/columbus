@@ -17,7 +17,6 @@ import org.springframework.stereotype.Repository;
 import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
-import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;

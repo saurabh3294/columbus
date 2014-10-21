@@ -217,5 +217,4 @@ public class Constants {
 
         public static final String USER_DETAIL_API_REGEX = "/app/v\\d*/user/details-by-email.*";
     }
-
 }

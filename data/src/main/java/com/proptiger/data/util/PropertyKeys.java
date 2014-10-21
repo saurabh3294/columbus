@@ -7,6 +7,7 @@ package com.proptiger.data.util;
  * 
  */
 public final class PropertyKeys {
+
     public static final String POPULAR_LOCALITY_THRESHOLD_COUNT              = "popular.locality.threshold.count";
     public static final String RADIUS_THREE_FOR_TOP_LOCALITY                 = "radius.three.for.top.locality";
     public static final String RADIUS_TWO_FOR_TOP_LOCALITY                   = "radius.two.for.top.locality";
@@ -85,4 +86,11 @@ public final class PropertyKeys {
     public static final String CALENDAR_WORKING_HOUR_START                   = "calendar.working.hour.start";
     public static final String CALENDAR_WORKING_HOUR_END                     = "calendar.working.hour.end";
     public static final String ENABLE_OTP = "security.enable.otp";
+    
+    public static final String BEANSTALK_PORT                             = "beanstalk.port";
+    public static final String BEANSTALK_PRODUCTION_SERVER                = "beanstalk.prod.server";
+    public static final String BEANSTALK_INTERNAL_SERVER                  = "beanstalk.internal.server";
+    public static final String BEANSTALK_QUEUE_NAME                       = "beanstalk.queue.name";
+    public static final String MAIL_LEAD_INTERNAL_RECIPIENT               = "mail.lead.internal.recipient";
+
 }

@@ -35,5 +35,11 @@ public interface ProjectDaoNew extends PagingAndSortingRepository<Project, Integ
             @Param int localityType,
             @Param int cityId,
             @Param long minCount);
-
+    
+    @Query("SELECT P FROM Project P left join fetch P.projectStatusMaster PM left join fetch P.builder B left join fetch P.locality L left join fetch L.suburb S left join fetch S.city C where P.projectId = ?1 AND P.version = 'Website' ")
+    public Project getProjectOnId(Integer projectId);
+    
+    @Query("SELECT P FROM Project P left join fetch P.builder B where P.projectId IN ?1 AND P.version = 'Website' ")
+    public List<Project> getProjectsOnId(List<Integer> projectId);
+    
 }

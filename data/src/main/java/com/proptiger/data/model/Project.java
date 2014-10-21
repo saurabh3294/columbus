@@ -306,6 +306,9 @@ public class Project extends BaseModel {
     @FieldMetaInfo(displayName = "PROJECT STATUS", description = "PROJECT STATUS")
     @Field(value = "PROJECT_STATUS")
     private String                  projectStatus;
+    
+    @Transient
+    private boolean                 forceResale  = false;
 
     @Transient
     @Field(value = "IS_RESALE")
@@ -808,9 +811,17 @@ public class Project extends BaseModel {
         this.projectStatus = projectStatus;
     }
 
+    public boolean isForceResale() {
+        return forceResale;
+    }
+
+    public void setForceResale(boolean forceResale) {
+        this.forceResale = forceResale;
+    }
+
     @PostLoad
     public void postLoad() {
-        this.projectStatus = projectStatusMaster.getDisplay_name();
+        this.projectStatus = projectStatusMaster.getDisplayName();
     }
 
     public boolean isIsResale() {

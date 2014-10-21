@@ -74,7 +74,8 @@ public class City extends BaseModel {
     @Field(value = "CENTER_LONGITUDE")
     private Double               centerLongitude;
 
-    @Column(name = "DISPLAY_PRIORITY")
+ //   @Column(name = "DISPLAY_PRIORITY")
+    @Transient
     @Field(value = "DISPLAY_PRIORITY")
     @FieldMetaInfo(displayName = "Display Priority", description = "Display Priority")
     private Integer              displayPriority;
@@ -106,11 +107,13 @@ public class City extends BaseModel {
     @Field("CITY_PRICE_RISE_TIME")
     private Integer              avgPriceRiseMonths;
 
-    @Column(name = "MIN_ZOOM_LEVEL")
+    @Transient
+    //@Column(name = "MIN_ZOOM_LEVEL")
     @Field("CITY_MIN_ZOOM_LEVEL")
     private Integer              minZoomLevel;
 
-    @Column(name = "MAX_ZOOM_LEVEL")
+//    @Column(name = "MAX_ZOOM_LEVEL")
+    @Transient
     @Field("CITY_MAX_ZOOM_LEVEL")
     private Integer              maxZoomLevel;
 
