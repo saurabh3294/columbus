@@ -23,7 +23,7 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.Gson;
-import com.proptiger.data.annotations.ExcludeFromBeanCopy;
+import com.proptiger.core.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.image.ObjectMediaType;
 import com.proptiger.data.util.MediaUtil;
 

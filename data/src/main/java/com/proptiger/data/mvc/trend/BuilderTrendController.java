@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.annotations.Intercepted;
+import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;

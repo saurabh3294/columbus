@@ -21,7 +21,7 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.proptiger.data.annotations.ExcludeFromBeanCopy;
+import com.proptiger.core.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.util.MediaUtil;
 

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.annotations.Intercepted;
+import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
 import com.proptiger.data.mvc.BaseController;
