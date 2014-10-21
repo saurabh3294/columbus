@@ -44,7 +44,7 @@ public class CatchmentTrendReportElement {
 
     private int                                                launchedUnits;
 
-    private Map<TypeOfData, Map<String, Object>> bhkGroupedMap = new HashMap<TypeOfData, Map<String, Object>>();
+    private Map<TypeOfData, Map<Date, Object>> bhkGroupedMap = new HashMap<TypeOfData, Map<Date, Object>>();
 
     public String getProjectName() {
         return projectName;
@@ -166,7 +166,7 @@ public class CatchmentTrendReportElement {
         this.launchedUnits = launchedUnits;
     }
 
-    public Map<TypeOfData, Map<String, Object>> getBhkGroupedMap() {
+    public Map<TypeOfData, Map<Date, Object>> getBhkGroupedMap() {
         return bhkGroupedMap;
     }
 

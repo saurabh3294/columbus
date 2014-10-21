@@ -3,6 +3,7 @@ package com.proptiger.data.repo.trend;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -175,17 +176,17 @@ public class TrendReportDao {
 
         /* Filling BHK Grouped Map */
 
-        String month = trend.getMonth().toString();
+        Date month = trend.getMonth();
         Integer sales = trend.getUnitsSold();
         Integer availableInventory = trend.getInventory();
         Integer price = trend.getPricePerUnitArea();
 
-        Map<TypeOfData, Map<String, Object>> bhkGroupedMap = ctrElem.getBhkGroupedMap();
+        Map<TypeOfData, Map<Date, Object>> bhkGroupedMap = ctrElem.getBhkGroupedMap();
 
         if (bhkGroupedMap.isEmpty()) {
-            bhkGroupedMap.put(TypeOfData.Sales, new HashMap<String, Object>());
-            bhkGroupedMap.put(TypeOfData.AvailableInventory, new HashMap<String, Object>());
-            bhkGroupedMap.put(TypeOfData.Price, new HashMap<String, Object>());
+            bhkGroupedMap.put(TypeOfData.Sales, new HashMap<Date, Object>());
+            bhkGroupedMap.put(TypeOfData.AvailableInventory, new HashMap<Date, Object>());
+            bhkGroupedMap.put(TypeOfData.Price, new HashMap<Date, Object>());
         }
 
         bhkGroupedMap.get(TypeOfData.Sales).put(month, sales);
