@@ -767,17 +767,6 @@ public class UserService {
         return userDao.findByEmail(email);
     }
 
-    public Map<Integer, User> getUsers(Set<Integer> userIds) {
-        Map<Integer, User> usersMap = new HashMap<>();
-        if (userIds != null && !userIds.isEmpty()) {
-            List<User> users = userDao.findByIdIn(userIds);
-            for (User u : users) {
-                usersMap.put(u.getId(), u);
-            }
-        }
-        return usersMap;
-    }
-
     public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(Set<Integer> clientIds) {
         List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
         Map<Integer, Set<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
@@ -797,6 +786,17 @@ public class UserService {
 
     public User getUserById(int userId) {
         return userDao.findOne(userId);
+    }
+
+    public Map<Integer, User> getUsers(Set<Integer> userIds) {
+        Map<Integer, User> usersMap = new HashMap<>();
+        if (userIds != null && !userIds.isEmpty()) {
+            List<User> users = userDao.findByIdIn(userIds);
+            for (User u : users) {
+                usersMap.put(u.getId(), u);
+            }
+        }
+        return usersMap;
     }
 
     public UserContactNumber getTopPriorityContact(int userId) {
@@ -880,7 +880,6 @@ public class UserService {
         public String getEmailValidationLink() {
             return emailValidationLink;
         }
-
     }
 
     public User updateUserDetails(UserDetails user, ActiveUser activeUser) {
