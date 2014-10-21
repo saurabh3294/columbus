@@ -2,7 +2,7 @@ package com.proptiger.exception;
 
 import org.springframework.security.core.AuthenticationException;
 
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
 
 /**
  * @author Rajeev Pandey

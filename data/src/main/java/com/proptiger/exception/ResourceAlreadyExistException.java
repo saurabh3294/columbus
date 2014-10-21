@@ -1,6 +1,6 @@
 package com.proptiger.exception;
 
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
 
 public class ResourceAlreadyExistException extends ProAPIException {
 

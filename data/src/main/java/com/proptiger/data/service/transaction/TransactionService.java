@@ -13,7 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.PaymentType;

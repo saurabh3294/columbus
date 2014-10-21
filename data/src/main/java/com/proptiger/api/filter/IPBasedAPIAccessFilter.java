@@ -18,7 +18,7 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.proptiger.app.config.security.CustomAccessDeniedHandler;
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 

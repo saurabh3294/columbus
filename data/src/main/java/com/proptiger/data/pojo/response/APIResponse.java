@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
 
 /**
  * This class represents a response that will handle error and success scenario

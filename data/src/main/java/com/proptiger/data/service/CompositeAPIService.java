@@ -46,7 +46,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.URLUtil;
 import com.proptiger.exception.BadRequestException;

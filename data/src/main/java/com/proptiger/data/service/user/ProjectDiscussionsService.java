@@ -17,7 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;

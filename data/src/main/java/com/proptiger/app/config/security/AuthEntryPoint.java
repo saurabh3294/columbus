@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
 
 /**
  * The Entry Point will not redirect to any sort of Login - it will return the

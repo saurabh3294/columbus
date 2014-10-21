@@ -10,7 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.data.enums.security.UserRole;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.service.APIAccessDetailPersistentService;

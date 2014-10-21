@@ -1,6 +1,6 @@
 package com.proptiger.exception;
 
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
 
 /**
  * This is a wrapper over RuntimeException. To make code cleaner, for all non

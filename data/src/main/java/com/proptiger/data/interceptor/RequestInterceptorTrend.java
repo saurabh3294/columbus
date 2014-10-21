@@ -9,8 +9,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.service.ApplicationNameService;

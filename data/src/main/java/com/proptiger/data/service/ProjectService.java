@@ -22,7 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.enums.mail.MailTemplateDetail;

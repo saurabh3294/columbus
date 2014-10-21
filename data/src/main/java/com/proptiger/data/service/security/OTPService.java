@@ -17,8 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.app.config.security.AuthSuccessHandler;
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.data.enums.Application;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.mail.MailBody;

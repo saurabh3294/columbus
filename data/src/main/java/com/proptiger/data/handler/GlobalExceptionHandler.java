@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.proptiger.app.config.security.ResponseErrorWriter;
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ConstraintViolationException;

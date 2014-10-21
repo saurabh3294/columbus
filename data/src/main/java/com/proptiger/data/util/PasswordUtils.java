@@ -5,8 +5,8 @@ import java.security.SecureRandom;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.crypto.codec.Base64;
 
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.exception.BadRequestException;
 

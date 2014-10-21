@@ -1,6 +1,6 @@
 package com.proptiger.exception;
 
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
 
 public class ResourceNotFoundException extends ProAPIException {
     private static final long serialVersionUID = 1L;
