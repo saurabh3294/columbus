@@ -39,7 +39,6 @@ import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.LandMarkTypes;
 import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.LocalityRatings;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;

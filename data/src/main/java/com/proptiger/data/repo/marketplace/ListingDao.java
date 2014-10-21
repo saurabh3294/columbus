@@ -2,7 +2,6 @@ package com.proptiger.data.repo.marketplace;
 
 import java.util.List;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,7 +9,6 @@ import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.Status;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.ListingPrice;
-import com.proptiger.data.pojo.FIQLSelector;
 
 /**
  * @author Rajeev Pandey

@@ -35,7 +35,6 @@ import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
-import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;

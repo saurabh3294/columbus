@@ -1,7 +1,5 @@
 package com.proptiger.data.service.marketplace;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.Company;
@@ -27,7 +24,6 @@ import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.BadRequestException;

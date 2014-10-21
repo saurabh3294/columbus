@@ -3,6 +3,7 @@ package com.proptiger.app.typeahead.suggestions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.model.Typeahead;

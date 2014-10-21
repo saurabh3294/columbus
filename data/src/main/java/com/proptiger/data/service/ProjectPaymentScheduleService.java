@@ -11,7 +11,6 @@ import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.sun.tools.javac.code.Attribute.Array;
 
 /**
  * @author Rajeev Pandey

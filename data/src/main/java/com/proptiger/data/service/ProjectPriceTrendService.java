@@ -22,9 +22,7 @@ import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.trend.TrendService;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.UtilityClass;
-import com.sun.tools.classfile.ConstantPool.CONSTANT_String_info;
 
 /**
  * This class is responsible to get price trend for project

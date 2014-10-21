@@ -10,8 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.data.redis.cache.DefaultRedisCachePrefix;
-import org.springframework.data.redis.cache.RedisCachePrefix;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;

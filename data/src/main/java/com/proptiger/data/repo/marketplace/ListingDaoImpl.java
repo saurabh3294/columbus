@@ -1,6 +1,5 @@
 package com.proptiger.data.repo.marketplace;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -8,7 +7,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 
 import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.Status;
@@ -17,7 +15,6 @@ import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * @author Rajeev Pandey

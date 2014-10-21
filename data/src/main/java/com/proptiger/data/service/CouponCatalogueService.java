@@ -22,7 +22,6 @@ import com.proptiger.data.model.user.UserAttribute;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.CouponCatalogueDao;
-import com.proptiger.data.service.transaction.PaymentService;
 import com.proptiger.data.service.transaction.TransactionService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.exception.BadRequestException;

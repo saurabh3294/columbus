@@ -1,6 +1,7 @@
 package com.proptiger.app.typeahead.thandlers;
 
 import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -46,7 +46,6 @@ import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Permission;

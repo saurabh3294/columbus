@@ -2,8 +2,10 @@ package com.proptiger.app.typeahead.thandlers;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
+
 import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Typeahead;

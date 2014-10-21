@@ -9,8 +9,8 @@ import javax.persistence.Enumerated;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.user.DashboardWidgetMapping;
 import com.proptiger.data.model.user.Dashboard.DashboardType;
+import com.proptiger.data.model.user.DashboardWidgetMapping;
 
 /**
  * This POJO acts as a data transfer object for Dashboard object

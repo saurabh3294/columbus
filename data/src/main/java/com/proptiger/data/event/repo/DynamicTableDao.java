@@ -18,7 +18,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.Serializer;
 
 @Repository
 @Transactional(value = "hibernateTransactionManager")

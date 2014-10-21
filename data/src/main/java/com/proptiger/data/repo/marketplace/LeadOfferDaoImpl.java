@@ -27,7 +27,6 @@ import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * @author Rajeev Pandey

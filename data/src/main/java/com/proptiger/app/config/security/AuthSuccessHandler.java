@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.mvc.UserController;
 import com.proptiger.data.service.security.OTPService;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SecurityContextUtils;
 
 /**

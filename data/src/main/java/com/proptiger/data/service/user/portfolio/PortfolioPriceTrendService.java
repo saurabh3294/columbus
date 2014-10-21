@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.sqs.model.EmptyBatchRequestException;
 import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.enums.resource.ResourceType;
