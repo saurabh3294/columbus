@@ -140,7 +140,7 @@ public class OTPService {
             respondWithOTP(activeUser);
             throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.OTP_EXPIRED);
         }
-        if (otp.equals(userOTPs.get(0).getOtp())) {
+        if (otp.equals(userOTPs.get(0).getOtp().toString())) {
             SecurityContextUtils.grantUserAuthorityToActiveUser();
             clearUserOTP(activeUser);
             try {
