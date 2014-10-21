@@ -5,12 +5,12 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.sf.uadetector.ReadableUserAgent;
 import net.sf.uadetector.UserAgentStringParser;
@@ -19,6 +19,7 @@ import net.sf.uadetector.service.UADetectorServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.enums.lead.ProcessingStatus;
 import com.proptiger.data.enums.lead.ProjectStatus;
@@ -32,16 +33,16 @@ import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Enquiry;
+import com.proptiger.data.model.Enquiry.LeadEnquiryResponse;
 import com.proptiger.data.model.EnquiryAttributes;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.repo.EnquiryAttributesDao;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.LocalityDao;
-import com.proptiger.data.repo.ProjectDiscussionDao;
+import com.proptiger.data.repo.ProjectDaoNew;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
@@ -75,7 +76,7 @@ public class LeadEnquiryService {
     EnquiryAttributesDao            enquiryAttributesDao;
 
     @Autowired
-    ProjectDiscussionDao            projectDiscussionDao;
+    ProjectDaoNew                   projectDaoNew;
 
     @Autowired
     LocalityDao                     localityDao;
@@ -102,9 +103,8 @@ public class LeadEnquiryService {
                                                           "noida",
                                                           "pune");
 
-    public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request) {
+    public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
 
-        Map<String, Object> leadResponse = new LinkedHashMap<String, Object>();
         HashMap<String, String> leadInvalidations = new HashMap<String, String>();
 
         if (enquiry.getCountryId() != null) {
@@ -117,6 +117,7 @@ public class LeadEnquiryService {
         LeadValidator leadValidator = new LeadValidator();
         leadInvalidations = leadValidator.validateLead(enquiry);
 
+        LeadEnquiryResponse leadResponse = null;
         if (!leadInvalidations.isEmpty()) {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, leadInvalidations.toString());
         }
@@ -142,37 +143,43 @@ public class LeadEnquiryService {
             else {
                 enquiry = generateAndWriteLead(enquiry, request);
                 enquiryIds.add(enquiry.getId());
+//                updateUserDetails(enquiry, userInfo);
             }
 
             if (enquiry.getUserMedium().equals("ppc") || enquiry.getUserMedium().equals("cpc")) {
                 enquiry.setTrackingFlag(true);
             }
 
-            if (enquiry.getPpc()) {
-                leadResponse.put("status", "success");
-                leadResponse.put("ppc", "TRUE");
-                leadResponse.put("tracking", enquiry.getTrackingFlag());
-                leadResponse.put("redirectUrl", enquiry.getRedirectUrl());
-                leadResponse.put("enquiryid", enquiryIds);
-            }
-            else {
-                leadResponse.put("status", "success");
-                leadResponse.put("ppc", "FALSE");
-                leadResponse.put("tracking", enquiry.getTrackingFlag());
-                leadResponse.put("redirectUrl", enquiry.getRedirectUrl());
-                leadResponse.put("enquiryid", enquiryIds);
-            }
+            leadResponse = new LeadEnquiryResponse(enquiry, enquiryIds);
 
             SendEmailRequest(enquiry, projectNames);
         }
-
-        // updateUserDetails(enquiry);
+        
+        createAutofillCookie(enquiry, response, request);
         return leadResponse;
+    }
+
+    private void createAutofillCookie(Enquiry enquiry, HttpServletResponse response, HttpServletRequest request) {
+
+        Map<String, Object> enquiryMap = new HashMap<String, Object>();
+        enquiryMap.put("name", enquiry.getName());
+        enquiryMap.put("email", enquiry.getEmail());
+        enquiryMap.put("phone", enquiry.getPhone());
+        enquiryMap.put("country", enquiry.getCountryId());
+        
+        Gson gson = new Gson();
+        String enquiryJson = gson.toJson(enquiryMap);
+              
+        Long currentTime = System.currentTimeMillis()/1000L;
+        Cookie enquiryCookie = new Cookie("enquiry_info", enquiryJson);
+        enquiryCookie.setMaxAge(currentTime.intValue() +(3600*24*7));
+        enquiryCookie.setPath("/");
+        response.addCookie(enquiryCookie);
     }
 
     private void setRedirectUrl(Enquiry enquiry, HttpServletRequest request) {
 
-        if (enquiry.getPageName().equals("GOOGLE 4") || enquiry.getPageName().equals("GOOGLE 8")) {
+        if (enquiry.getPageName().contains("GOOGLE")) {
 
             if (enquiry.getProject() != null) {
                 enquiry.setRedirectUrl(request.getScheme() + "://"
@@ -187,25 +194,21 @@ public class LeadEnquiryService {
         else {
             enquiry.setRedirectUrl(enquiry.getHttpReferer());
         }
-        System.out.println(enquiry.getRedirectUrl());
-        System.out.println(enquiry.getRedirectUrl());
 
     }
 
-    // TODO for single projectid
-    private void updateUserDetails(Enquiry enquiry) {
+    private void updateUserDetails(Enquiry enquiry, ActiveUser userInfo) {
 
         User user = userService.getUser(enquiry.getEmail());
 
-        if (user != null && user.getUserAuthProviderDetails() != null && !user.getUserAuthProviderDetails().isEmpty()) {
-            UserDetails newUser = new UserDetails();
+        if ((user != null && user.getUserAuthProviderDetails() != null) && !user.getUserAuthProviderDetails().isEmpty()) {
+            User newUser = new User();
             UserContactNumber userContactNumber = new UserContactNumber();
             userContactNumber.setContactNumber(enquiry.getPhone());
             newUser.getContactNumbers().add(userContactNumber);
-            newUser.setId(user.getId());
-            // TODO
-            ActiveUser activeUser = null;
-            userService.updateUserDetails(newUser, activeUser);
+            newUser.setId(newUser.getId());
+            userService.updateContactNumbers(newUser);
+//            userService.updateUserDetails(newUser, userInfo);
         }
     }
 
@@ -278,7 +281,7 @@ public class LeadEnquiryService {
         leadMailData.setEnquiry(enquiry);
 
         if ((enquiry.getMultipleProjectIds() != null) && !enquiry.getMultipleProjectIds().isEmpty()) {
-            List<Project> projects = projectDiscussionDao.getProjectsOnId(enquiry.getMultipleProjectIds());
+            List<Project> projects = projectDaoNew.getProjectsOnId(enquiry.getMultipleProjectIds());
             leadMailData.setProjects(projects);
             leadMailData.setLeadMailFlag("leadAcceptanceResale");
             return leadMailData;
@@ -289,7 +292,7 @@ public class LeadEnquiryService {
                 && enquiry.getProjectName() != "") {
 
             if (enquiry.getProject() == null) {
-                Project projectDetails = projectDiscussionDao.getProjectOnId(enquiry.getProjectId());
+                Project projectDetails = projectDaoNew.getProjectOnId(enquiry.getProjectId());
                 leadMailData.getEnquiry().setProject(projectDetails);
             }
             leadMailData.setLeadMailFlag("google_buy_sell_client");
@@ -298,7 +301,7 @@ public class LeadEnquiryService {
         else if (enquiry.getProjectName() != null && enquiry.getProjectName() != "") {
 
             if (enquiry.getProject() == null) {
-                Project projectDetails = projectDiscussionDao.getProjectOnId(enquiry.getProjectId());
+                Project projectDetails = projectDaoNew.getProjectOnId(enquiry.getProjectId());
                 leadMailData.getEnquiry().setProject(projectDetails);
             }
             leadMailData.setLeadMailFlag("leadAcceptance");
@@ -371,6 +374,10 @@ public class LeadEnquiryService {
         else {
             enquiry.setHttpReferer("");
         }
+
+        if (request.getHeader("IP") != null) {
+            enquiry.setIp(request.getHeader("IP"));
+        }
         if (enquiry.getResaleAndLaunchFlag() == null) {
             enquiry.setResaleAndLaunchFlag(request.getParameter("resaleNlaunchFlg"));
         }
@@ -404,14 +411,11 @@ public class LeadEnquiryService {
                     e.printStackTrace();
                 }
 
-                if (request.getHeader("IP") != null) {
-                    enquiry.setIp(request.getHeader("IP"));
-                }
-                else {
-                    if (c.getName().equals("USER_IP")) {
+                if (c.getName().equals("USER_IP") && enquiry.getIp() == null) {
+                    if (c.getValue() != null) {
                         enquiry.setIp(c.getValue());
                     }
-                    else {
+                    else if (request.getRemoteAddr() != null) {
                         enquiry.setIp(request.getRemoteAddr());
                     }
                 }
@@ -460,6 +464,9 @@ public class LeadEnquiryService {
         if (enquiry.getCampaign() == null) {
             enquiry.setCampaign("");
         }
+        if (enquiry.getIp() == null) {
+            enquiry.setIp("");
+        }
 
         return cookieMap;
     }
@@ -494,7 +501,7 @@ public class LeadEnquiryService {
             enquiry.setHomeLoanType("");
         }
         if (enquiry.getProjectId() != 0) {
-            projectInfo = projectDiscussionDao.getProjectOnId(enquiry.getProjectId());
+            projectInfo = projectDaoNew.getProjectOnId(enquiry.getProjectId());
             if (projectInfo != null) {
                 enquiry.setProjectName(projectInfo.getName());
                 enquiry.setLocalityId(projectInfo.getLocalityId());
@@ -610,8 +617,6 @@ public class LeadEnquiryService {
         }
     }
 
-    // TODO cookie autofill, tracker
-
     public Enquiry updateLeadEnquiry(Enquiry enquiry, Long enquiryId, HttpServletRequest request) {
 
         Enquiry savedEnquiry = enquiryDao.findOne(enquiryId);
@@ -625,7 +630,6 @@ public class LeadEnquiryService {
             }
         }
 
-        // failing at project
         if (enquiry.getMultipleTypeIds() != null && !enquiry.getMultipleTypeIds().isEmpty()) {
             savedEnquiry.setMultipleTypeIds(enquiry.getMultipleTypeIds());
             for (Integer typeId : savedEnquiry.getMultipleTypeIds()) {
@@ -638,7 +642,7 @@ public class LeadEnquiryService {
             savedEnquiry = enquiryDao.saveAndFlush(savedEnquiry);
 
             if (savedEnquiry.getProjectId() != 0) {
-                savedEnquiry.setProject(projectDiscussionDao.getProjectOnId(enquiry.getProjectId()));
+                savedEnquiry.setProject(projectDaoNew.getProjectOnId(enquiry.getProjectId()));
             }
             beanstalkService.writeToBeanstalk(savedEnquiry);
         }

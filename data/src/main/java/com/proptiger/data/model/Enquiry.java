@@ -221,10 +221,10 @@ public class Enquiry extends BaseModel {
 
     @Transient
     private String            buySell;
-    
+
     @Transient
-    private Boolean           trackingFlag  = false;
-    
+    private Boolean           trackingFlag     = false;
+
     @Transient
     private String            redirectUrl;
 
@@ -722,7 +722,7 @@ public class Enquiry extends BaseModel {
     public void setCity(City city) {
         this.city = city;
     }
-    
+
     public String getJsonDump() {
         return jsonDump;
     }
@@ -873,5 +873,74 @@ public class Enquiry extends BaseModel {
         }
 
         return beanstalkEnquiry;
+    }
+
+    public static class LeadEnquiryResponse extends BaseModel {
+
+        private static final long serialVersionUID = 7983229078588335314L;
+        private String            status;
+        private Boolean           ppc;
+        private Boolean           tracking;
+        private String            redirectUrl;
+        private List<Long>     enquiryIds;
+
+        public LeadEnquiryResponse(Enquiry enquiry, List<Long> enquiryIds) {
+            super();
+            if (enquiry.getPpc()) {
+                this.status = "success";
+                this.ppc = true;
+                this.tracking = enquiry.getTrackingFlag();
+                this.redirectUrl = enquiry.getRedirectUrl();
+                this.enquiryIds = enquiryIds;
+            }
+            else {
+                this.status = "success";
+                this.ppc = false;
+                this.tracking = enquiry.getTrackingFlag();
+                this.redirectUrl = enquiry.getRedirectUrl();
+                this.enquiryIds = enquiryIds;
+
+            }
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public Boolean getPpc() {
+            return ppc;
+        }
+
+        public void setPpc(Boolean ppc) {
+            this.ppc = ppc;
+        }
+
+        public Boolean getTracking() {
+            return tracking;
+        }
+
+        public void setTracking(Boolean tracking) {
+            this.tracking = tracking;
+        }
+
+        public String getRedirectUrl() {
+            return redirectUrl;
+        }
+
+        public void setRedirectUrl(String redirectUrl) {
+            this.redirectUrl = redirectUrl;
+        }
+
+        public List<Long> getEnquiryIds() {
+            return enquiryIds;
+        }
+
+        public void setEnquiryIds(List<Long> enquiryIds) {
+            this.enquiryIds = enquiryIds;
+        }
     }
 }

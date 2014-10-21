@@ -671,7 +671,7 @@ public class UserService {
         updateContactNumbers(user);
     }
 
-    private void updateContactNumbers(User user) {
+    public void updateContactNumbers(User user) {
         Set<UserContactNumber> contactNumbers = user.getContactNumbers();
 
         if (contactNumbers == null || contactNumbers.isEmpty()) {
@@ -767,6 +767,17 @@ public class UserService {
         return userDao.findByEmail(email);
     }
 
+    public Map<Integer, User> getUsers(Set<Integer> userIds) {
+        Map<Integer, User> usersMap = new HashMap<>();
+        if (userIds != null && !userIds.isEmpty()) {
+            List<User> users = userDao.findByIdIn(userIds);
+            for (User u : users) {
+                usersMap.put(u.getId(), u);
+            }
+        }
+        return usersMap;
+    }
+
     public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(Set<Integer> clientIds) {
         List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
         Map<Integer, Set<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
@@ -787,18 +798,7 @@ public class UserService {
     public User getUserById(int userId) {
         return userDao.findOne(userId);
     }
-    
-    public Map<Integer, User> getUsers(Set<Integer> userIds){
-        Map<Integer, User> usersMap = new HashMap<>();
-        if(userIds != null && !userIds.isEmpty()){
-            List<User> users = userDao.findByIdIn(userIds);
-            for(User u: users){
-                usersMap.put(u.getId(), u);
-            }
-        }
-        return usersMap;
-    }
-    
+
     public UserContactNumber getTopPriorityContact(int userId) {
         List<UserContactNumber> contacts = contactNumberDao.findByUserIdOrderByPriorityAsc(userId);
         if (contacts.isEmpty()) {
@@ -884,22 +884,22 @@ public class UserService {
     }
 
     public User updateUserDetails(UserDetails user, ActiveUser activeUser) {
-        
+
         user.setId(activeUser.getUserIdentifier());
         User originalUser = getUserById(user.getId());
 
         if (user.getFullName() != null) {
             originalUser.setFullName(user.getFullName());
         }
-        if(user.getOldPassword() != null && user.getPassword() != null && user.getConfirmPassword() != null) {
-            
+        if (user.getOldPassword() != null && user.getPassword() != null && user.getConfirmPassword() != null) {
+
             ChangePassword changePassword = new ChangePassword();
             changePassword.setOldPassword(user.getOldPassword());
             changePassword.setNewPassword(user.getPassword());
             changePassword.setConfirmNewPassword(user.getConfirmPassword());
-            
+
             changePassword(activeUser, changePassword);
-            
+
             originalUser.setPassword(changePassword.getNewPassword());
         }
         if (user.getCountryId() != null) {
@@ -908,7 +908,7 @@ public class UserService {
         if (user.getContactNumbers() != null && !user.getContactNumbers().isEmpty()) {
             updateContactNumbers(user);
         }
-        
+
         originalUser = userDao.saveAndFlush(originalUser);
         return originalUser;
     }

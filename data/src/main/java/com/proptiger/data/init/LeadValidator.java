@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import com.proptiger.data.model.Enquiry;
@@ -16,7 +15,7 @@ public class LeadValidator {
 
         HashMap<String, String> leadInvalidations = new HashMap<String, String>();
 
-        if (enquiry.getName() == null) {
+        if (enquiry.getName() == null || enquiry.getName() == "") {
             leadInvalidations.put("lead_name", "Please enter Name.");
         }
 
@@ -28,7 +27,7 @@ public class LeadValidator {
             leadInvalidations.put("lead_country", "Please select Country");
         }
 
-        if (enquiry.getEmail() == null) {
+        if (enquiry.getEmail() == null || enquiry.getEmail() == "") {
             leadInvalidations.put("lead_email", "Please enter Email.");
         }
         else {

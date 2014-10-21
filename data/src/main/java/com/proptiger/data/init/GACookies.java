@@ -1,12 +1,8 @@
 package com.proptiger.data.init;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang.time.DurationFormatUtils;
-
 import com.proptiger.data.model.Enquiry;
 
 public class GACookies {
@@ -63,8 +59,6 @@ public class GACookies {
 
         if (cookieMap.get("USER_NETWORK") != null) {
             enquiry.setGaNetwork(cookieMap.get("USER_NETWORK").toLowerCase().trim());
-            // TODO logging
-            // logMsg(TRACE, "in lead.php network is: " .$ga_network);
         }
         else {
             enquiry.setGaNetwork("");
