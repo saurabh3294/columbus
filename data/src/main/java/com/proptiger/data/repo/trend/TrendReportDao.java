@@ -58,7 +58,7 @@ public class TrendReportDao {
         Catchment catchment = catchmentList.get(0);
         List<Integer> projectIdList = catchment.getProjectIds();
         Map<Integer, AdditionalInfo> mapPidToAdditionInfo = getAdditionalInfo(projectIdList);
-
+        
         /** Step 2 : Fetch Information from TREND APIs **/
 
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
@@ -196,10 +196,13 @@ public class TrendReportDao {
         /* Populating additional info */
 
         AdditionalInfo additionalInfo = mapPidToAdditionInfo.get(projectId);
-        ctrElem.setBhkSizeRange(additionalInfo.getBhkSizeRangeString(bedrooms));
-        ctrElem.setLatitude(additionalInfo.laitude);
-        ctrElem.setLongitude(additionalInfo.longitude);
-        ctrElem.setProjectArea(additionalInfo.projectArea);
+        if(additionalInfo != null){
+            ctrElem.setBhkSizeRange(additionalInfo.getBhkSizeRangeString(bedrooms));
+            ctrElem.setLatitude(additionalInfo.laitude);
+            ctrElem.setLongitude(additionalInfo.longitude);
+            ctrElem.setProjectArea(additionalInfo.projectArea);
+        }
+
         ctrElem.setLaunchPrice(0);
 
         return ctrElem;

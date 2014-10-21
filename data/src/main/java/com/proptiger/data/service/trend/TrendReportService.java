@@ -124,7 +124,7 @@ public class TrendReportService {
 
         List<Date> monthList = new ArrayList<Date>();
         Date month = new Date(startMonth.getTime());
-        while (month.compareTo(endMonth) > 0) {
+        while (month.compareTo(endMonth) <= 0) {
             monthList.add(month);
             month = DateUtil.shiftMonths(month, 1);
         }
