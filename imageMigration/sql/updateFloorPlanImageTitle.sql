@@ -17,5 +17,5 @@ update Image i, ImageType it, ObjectType ot, RESI_PROJECT_TYPES rpt set title = 
 /* Property Floor Plan */
 update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 2 AND IT.type = "floorPlan") JOIN RESI_PROJECT_TYPES RPT ON (RPT.type_id=I.object_id) JOIN RESI_PROJECT RP ON (RP.project_id = RPT.project_id) set I.title = CONCAT_WS(" ", RPT.UNIT_NAME, IF(RPT.SIZE>0, CONCAT_WS(" ", RPT.SIZE, RPT.MEASURE), ""));
 
-update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 2 AND IT.type = "floorPlan") JOIN RESI_PROJECT_TYPES RPT ON (RPT.type_id=I.object_id) JOIN RESI_PROJECT RP ON (RP.project_id = RPT.project_id) set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, "Floor Plan", I.title);
+update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 2 AND IT.type = "floorPlan") JOIN RESI_PROJECT_TYPES RPT ON (RPT.type_id=I.object_id) JOIN RESI_PROJECT RP ON (RP.project_id = RPT.project_id) set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, IF( LOCATE("Floor Plan", I.title)=0, "Floor Plan", ""), I.title);
 
