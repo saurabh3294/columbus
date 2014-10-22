@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.MediaType;
 import com.proptiger.core.model.proptiger.Media;
 import com.proptiger.core.model.proptiger.ObjectMediaType;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
-import com.proptiger.data.enums.MediaType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.repo.MediaDao;
 import com.proptiger.data.repo.MediaTypeDao;

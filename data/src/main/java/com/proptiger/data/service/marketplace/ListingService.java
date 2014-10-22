@@ -17,15 +17,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.EntityType;
 import com.proptiger.core.enums.ListingCategory;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.Status;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.ListingAmenity;
 import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.core.model.cms.Property;
-import com.proptiger.data.enums.EntityType;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;

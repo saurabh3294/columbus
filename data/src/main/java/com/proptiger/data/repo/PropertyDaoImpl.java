@@ -27,11 +27,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.repo.SolrDao;
-import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;

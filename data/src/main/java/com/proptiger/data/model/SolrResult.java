@@ -12,6 +12,7 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.google.gson.Gson;
+import com.proptiger.core.enums.DataType;
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.core.model.cms.Builder;
 import com.proptiger.core.model.cms.City;
@@ -21,7 +22,6 @@ import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.model.proptiger.Image;
-import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.util.Serializer;
 

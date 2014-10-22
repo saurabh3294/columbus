@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.EntityType;
 import com.proptiger.core.enums.Status;
+import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.ListingPrice.CustomCurrentListingPrice;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.data.enums.ConstructionStatus;
-import com.proptiger.data.enums.EntityType;
-import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.ProjectPhase.CustomCurrentPhaseSecondaryPrice;
 import com.proptiger.data.pojo.FIQLSelector;

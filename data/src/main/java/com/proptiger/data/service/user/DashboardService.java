@@ -13,12 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.WidgetDisplayStatus;
 import com.proptiger.core.model.proptiger.Dashboard;
 import com.proptiger.core.model.proptiger.Dashboard.DashboardType;
 import com.proptiger.core.model.proptiger.DashboardWidgetMapping;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.internal.dto.DashboardDto;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.user.DashboardDao;

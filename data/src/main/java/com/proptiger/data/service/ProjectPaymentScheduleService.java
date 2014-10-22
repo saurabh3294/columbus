@@ -6,8 +6,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.exception.ResourceNotAvailableException;

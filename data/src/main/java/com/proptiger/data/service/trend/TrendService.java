@@ -25,8 +25,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.UnitType;
 import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
-import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.FIQLSelector.FIQLOperator;

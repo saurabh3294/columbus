@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Suburb;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;

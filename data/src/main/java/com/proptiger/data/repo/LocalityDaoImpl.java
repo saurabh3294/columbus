@@ -22,9 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.core.enums.DocumentType;
+import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.repo.SolrDao;
-import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.SolrQueryBuilder;

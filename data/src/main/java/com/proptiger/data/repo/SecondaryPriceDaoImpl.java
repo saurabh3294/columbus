@@ -10,7 +10,7 @@ import javax.persistence.Table;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.proptiger.data.enums.UnitType;
+import com.proptiger.core.enums.UnitType;
 import com.proptiger.data.model.ProjectPhase.CustomCurrentPhaseSecondaryPrice;
 import com.proptiger.data.model.SecondaryPrice;
 import com.proptiger.data.util.DateUtil;

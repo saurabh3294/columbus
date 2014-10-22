@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.model.proptiger.Bank;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.repo.BankDao;
 import com.proptiger.data.repo.ProjectBanksDao;
 import com.proptiger.data.util.Constants;

@@ -8,8 +8,6 @@ import javax.persistence.Enumerated;
 
 import com.proptiger.core.model.proptiger.Dashboard.DashboardType;
 import com.proptiger.core.model.proptiger.DashboardWidgetMapping;
-import com.proptiger.data.enums.DataType;
-import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
@@ -20,26 +18,20 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @ResourceMetaInfo(name = "Dashboard")
 public class DashboardDto {
-    @FieldMetaInfo(displayName = "Dashboard Id", description = "Dashboard Id")
     private Integer                      id;
 
-    @FieldMetaInfo(displayName = "Dashboard Name", description = "Dashboard Name")
     private String                       name;
     
     @Column(name = "dashboard_type")
     @Enumerated(EnumType.STRING)
     private DashboardType                       dashboardType = DashboardType.PORTFOLIO ;   // whether portfolio or b2b where portfolio is default 
 
-    @FieldMetaInfo(displayName = "Total Rows", description = "Total Rows")
     private int                          totalRow;
 
-    @FieldMetaInfo(displayName = "Total Columns", description = "Total Columns")
     private int                          totalColumn;
 
-    @FieldMetaInfo(displayName = "User Id", description = "User Id")
     private Integer                      userId;
 
-    @FieldMetaInfo(dataType = DataType.ARRAY, displayName = "Widgets", description = "Widgets")
     private List<DashboardWidgetMapping> widgets;
 
     /**

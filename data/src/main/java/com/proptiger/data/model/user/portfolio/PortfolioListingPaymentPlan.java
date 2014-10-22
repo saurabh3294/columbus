@@ -17,8 +17,8 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.core.enums.DataType;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.enums.DataType;
 import com.proptiger.data.enums.portfolio.PaymentPlan;
 import com.proptiger.data.enums.portfolio.PaymentSource;
 import com.proptiger.data.enums.portfolio.PaymentStatus;

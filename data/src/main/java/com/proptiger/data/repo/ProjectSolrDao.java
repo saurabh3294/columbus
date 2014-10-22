@@ -26,9 +26,9 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.core.enums.DocumentType;
+import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.repo.SolrDao;
-import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Selector;

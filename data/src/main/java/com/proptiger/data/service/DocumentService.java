@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.MediaType;
 import com.proptiger.core.model.proptiger.Media;
-import com.proptiger.data.enums.MediaType;
 import com.proptiger.exception.ProAPIException;
 
 @Service

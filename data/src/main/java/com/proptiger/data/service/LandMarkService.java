@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
-import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LandMarkDao;

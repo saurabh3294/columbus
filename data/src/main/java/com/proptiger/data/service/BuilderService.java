@@ -22,12 +22,12 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DocumentType;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.model.cms.Builder;
 import com.proptiger.core.repo.SolrDao;
-import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.enums.filter.Operator;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;

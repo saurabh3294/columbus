@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.MediaType;
 import com.proptiger.core.model.proptiger.AudioAttributes;
 import com.proptiger.core.model.proptiger.Media;
-import com.proptiger.data.enums.MediaType;
 import com.proptiger.data.repo.AudioAttributeDao;
 import com.proptiger.exception.ProAPIException;
 

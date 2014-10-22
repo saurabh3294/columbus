@@ -4,7 +4,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.proptiger.core.model.proptiger.MediaType;
 
-
 /**
  * Dao object for media types
  * 
@@ -13,7 +12,7 @@ import com.proptiger.core.model.proptiger.MediaType;
  */
 
 public interface MediaTypeDao extends PagingAndSortingRepository<MediaType, Integer> {
-    public MediaType findByName(com.proptiger.data.enums.MediaType mediaTypeName);
+    public MediaType findByName(com.proptiger.core.enums.MediaType mediaTypeName);
 
-    public Integer getMediaTypeIdFromMediaTypeName(com.proptiger.data.enums.MediaType mediaTypeName);
+    public Integer getMediaTypeIdFromMediaTypeName(com.proptiger.core.enums.MediaType mediaTypeName);
 }
