@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.proptiger.data.enums.DomainObject;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ImageService;

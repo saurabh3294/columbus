@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.model.Suburb;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.SuburbDao;
 import com.proptiger.data.util.Constants;

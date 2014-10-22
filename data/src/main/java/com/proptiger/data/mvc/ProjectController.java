@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.model.cms.Project;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;

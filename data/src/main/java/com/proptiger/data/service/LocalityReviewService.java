@@ -18,12 +18,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.proptiger.LocalityRatings.LocalityRatingDetails;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetail;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
-import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.response.PaginatedResponse;
@@ -264,7 +264,6 @@ public class LocalityReviewService {
                 l.setForumUser(usersMap.get(l.getUserId()).toForumUser());;
             }
         }
-        
     }
 
     public void updateReviewAndRatingsByHalf(LocalityReviewRatingDetails reviewRatingDetails) {

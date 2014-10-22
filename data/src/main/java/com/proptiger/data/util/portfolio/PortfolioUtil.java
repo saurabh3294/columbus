@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.enums.portfolio.ReturnType;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.user.portfolio.OverallReturn;
 import com.proptiger.data.model.user.portfolio.Portfolio;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;

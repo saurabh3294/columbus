@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
-import com.proptiger.data.model.City;
+import com.proptiger.core.model.cms.City;
 import com.proptiger.data.model.WordpressPost;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;

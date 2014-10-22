@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.data.enums.portfolio.ListingStatus;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.Subscription;
 import com.proptiger.data.model.user.portfolio.Portfolio;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;

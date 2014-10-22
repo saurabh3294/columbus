@@ -66,6 +66,13 @@
 				</dependencies>
 			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.springframework.build</groupId>
+				<artifactId>aws-maven</artifactId>
+				<version>5.0.0.RELEASE</version>
+			</extension>
+		</extensions>
 	</build>
 	<dependencies>
 		<dependency>
@@ -333,11 +340,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.fge</groupId>
-			<artifactId>json-schema-validator</artifactId>
-			<version>2.0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.fge</groupId>
 			<artifactId>json-patch</artifactId>
 			<version>1.5</version>
 		</dependency>
@@ -419,7 +421,7 @@
 		<dependency>
 			<groupId>com.proptiger</groupId>
 			<artifactId>midl-core</artifactId>
-			<version>0.0.2</version>
+			<version>test</version>
 		</dependency>
 	</dependencies>
 	<repositories>
@@ -435,6 +437,11 @@
 		<repository>
 			<id>spring-maven-snapshot</id>
 			<url>http://repo.springsource.org/libs-snapshot</url>
+		</repository>
+		<repository>
+			<id>proptiger-maven-repo</id>
+			<name>S3 Release Repository</name>
+			<url>s3://proptiger-maven-repo/release</url>
 		</repository>
 	</repositories>
 </project>

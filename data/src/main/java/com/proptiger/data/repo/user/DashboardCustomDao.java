@@ -2,7 +2,7 @@ package com.proptiger.data.repo.user;
 
 import java.util.List;
 
-import com.proptiger.data.model.user.Dashboard;
+import com.proptiger.core.model.proptiger.Dashboard;
 import com.proptiger.data.pojo.FIQLSelector;
 
 public interface DashboardCustomDao {

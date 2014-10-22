@@ -32,7 +32,8 @@ import com.citruspay.pg.model.Refund;
 import com.citruspay.pg.net.RequestSignature;
 import com.citruspay.pg.util.CitruspayConstant;
 import com.google.gson.Gson;
-import com.proptiger.data.model.CouponCatalogue;
+import com.proptiger.core.model.cms.CouponCatalogue;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.PaymentType;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
@@ -44,7 +45,6 @@ import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGPaymentRespons
 import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGPaymentStatus;
 import com.proptiger.data.model.transaction.thirdparty.EnquiryResponseCode;
 import com.proptiger.data.model.transaction.thirdparty.PaymentGatewayResponse;
-import com.proptiger.data.model.user.User;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;

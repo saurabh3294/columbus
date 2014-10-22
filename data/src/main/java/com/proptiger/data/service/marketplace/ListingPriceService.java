@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.Status;
-import com.proptiger.data.model.Listing;
-import com.proptiger.data.model.ListingPrice;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.Status;
+import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.data.repo.ListingPriceDao;
 import com.proptiger.exception.BadRequestException;
 

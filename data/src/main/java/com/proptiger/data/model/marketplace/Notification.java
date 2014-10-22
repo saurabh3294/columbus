@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 import com.proptiger.core.annotations.ExcludeFromBeanCopy;
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.exception.ProAPIException;
 
 /**

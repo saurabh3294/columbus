@@ -1,8 +1,8 @@
 package com.proptiger.data.model.user.portfolio;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.enums.portfolio.ReturnType;
-import com.proptiger.data.model.BaseModel;
 
 /**
  * @author Rajeev Pandey

@@ -27,10 +27,10 @@ import org.springframework.social.security.provider.SocialAuthenticationService;
 import org.springframework.util.Assert;
 
 import com.proptiger.app.config.security.ModifiableHttpServletRequest;
+import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Custom social authentication filter hack request to change for service

@@ -17,14 +17,14 @@ import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.security.SocialUser;
 
-import com.proptiger.data.enums.Application;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.Application;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.service.ApplicationNameService;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.enums.AuthProvider;
-import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.user.UserDao;
-import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Connection repository to find already estabilished connections with provider

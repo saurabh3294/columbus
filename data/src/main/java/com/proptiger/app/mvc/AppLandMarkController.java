@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.proptiger.core.constants.ResponseCodes;
-import com.proptiger.data.model.LandMark;
+import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.response.APIResponse;

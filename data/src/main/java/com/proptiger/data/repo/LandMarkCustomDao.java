@@ -3,7 +3,7 @@ package com.proptiger.data.repo;
 import java.util.List;
 import java.util.Map;
 
-import com.proptiger.data.model.LandMark;
+import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.data.pojo.Selector;
 
 public interface LandMarkCustomDao {

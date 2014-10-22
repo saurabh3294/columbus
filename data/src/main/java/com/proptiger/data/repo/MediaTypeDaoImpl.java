@@ -2,7 +2,8 @@ package com.proptiger.data.repo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.proptiger.data.model.MediaType;
+import com.proptiger.core.model.proptiger.MediaType;
+
 
 /**
  * 

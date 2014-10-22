@@ -1,6 +1,7 @@
 package com.proptiger.data.controller;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;

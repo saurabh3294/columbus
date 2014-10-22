@@ -13,12 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.model.cms.CouponCatalogue;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.model.user.UserAttribute;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
-import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.transaction.Transaction;
-import com.proptiger.data.model.user.User;
-import com.proptiger.data.model.user.UserAttribute;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.CouponCatalogueDao;

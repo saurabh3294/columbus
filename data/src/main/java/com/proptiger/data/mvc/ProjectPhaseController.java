@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.enums.DataVersion;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.ProjectPhaseService;
 

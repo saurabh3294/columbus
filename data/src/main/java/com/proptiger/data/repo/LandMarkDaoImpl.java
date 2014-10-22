@@ -16,9 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.proptiger.data.enums.DocumentType;
+import com.proptiger.core.enums.DocumentType;
+import com.proptiger.core.model.cms.LandMark;
+import com.proptiger.core.repo.SolrDao;
 import com.proptiger.data.enums.SortOrder;
-import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.LandMarkResult;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Paging;

@@ -8,8 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsChecker;
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
-import com.proptiger.data.enums.Application;
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.Application;
 import com.proptiger.data.service.user.UserSubscriptionService;
 import com.proptiger.exception.AuthenticationExceptionImpl;
 

@@ -26,8 +26,8 @@ import com.drew.lang.GeoLocation;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
-import com.proptiger.data.model.Media;
-import com.proptiger.data.model.image.Image;
+import com.proptiger.core.model.proptiger.Image;
+import com.proptiger.core.model.proptiger.Media;
 import com.proptiger.exception.ProAPIException;
 
 /**

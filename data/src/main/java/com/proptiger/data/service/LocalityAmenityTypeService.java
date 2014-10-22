@@ -7,7 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.LandMarkTypes;
+import com.proptiger.core.model.cms.LandMarkTypes;
 import com.proptiger.data.repo.LocalityAmenityTypeDao;
 
 /**

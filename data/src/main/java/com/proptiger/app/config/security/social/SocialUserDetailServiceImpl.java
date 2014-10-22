@@ -9,12 +9,12 @@ import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.social.security.SocialUserDetailsService;
 
-import com.proptiger.data.enums.Application;
-import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.Application;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.service.ApplicationNameService;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.repo.user.UserDao;
-import com.proptiger.data.service.ApplicationNameService;
-import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Social user details service

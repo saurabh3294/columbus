@@ -2,7 +2,7 @@ package com.proptiger.data.repo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.proptiger.data.model.ObjectType;
+import com.proptiger.core.model.proptiger.ObjectType;
 
 public class ObjectTypeDaoImpl {
     @Autowired

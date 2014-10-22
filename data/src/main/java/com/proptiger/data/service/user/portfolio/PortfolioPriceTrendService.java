@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.model.cms.Project;
 import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.enums.resource.ResourceType;
@@ -27,7 +28,6 @@ import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
-import com.proptiger.data.model.Project;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
 import com.proptiger.data.pojo.FIQLSelector;

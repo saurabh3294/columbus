@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.annotations.Intercepted;
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.mvc.BaseController;

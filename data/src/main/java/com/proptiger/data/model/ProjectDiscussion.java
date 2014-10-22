@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.proptiger.ForumUser;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.util.ReplySerializer;
 

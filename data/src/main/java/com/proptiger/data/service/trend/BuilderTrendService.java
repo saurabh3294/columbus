@@ -17,11 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.data.dto.external.trend.BuilderTrend;
 import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.init.comparator.GenericComparator;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;

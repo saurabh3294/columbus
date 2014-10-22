@@ -16,8 +16,8 @@ import org.springframework.social.security.SocialUserDetailsService;
 import org.springframework.social.security.SpringSocialConfigurer;
 
 import com.proptiger.app.config.security.AuthSuccessHandler;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.PropertyReader;
 
 /**
  * Spring social filter configuration that will intercept provider login

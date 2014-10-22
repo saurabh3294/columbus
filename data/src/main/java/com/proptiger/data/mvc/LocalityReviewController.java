@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;

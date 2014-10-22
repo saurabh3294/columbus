@@ -1,7 +1,7 @@
 package com.proptiger.data.enums.security;
 
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 
 /**
  * Enum that hold value for allowable request count per request method in a time

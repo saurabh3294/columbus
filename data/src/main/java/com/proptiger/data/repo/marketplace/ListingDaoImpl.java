@@ -8,9 +8,9 @@ import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.Status;
-import com.proptiger.data.model.Listing;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.Status;
+import com.proptiger.core.model.cms.Listing;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;

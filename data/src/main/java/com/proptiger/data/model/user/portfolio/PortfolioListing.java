@@ -30,6 +30,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.proptiger.Bank;
+import com.proptiger.core.model.proptiger.Image;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.enums.portfolio.LoanStatus;
@@ -40,11 +45,6 @@ import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
 import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.Bank;
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.model.image.Image;
-import com.proptiger.data.model.user.User;
 
 /**
  * This is a model object corresponding to a addressable property

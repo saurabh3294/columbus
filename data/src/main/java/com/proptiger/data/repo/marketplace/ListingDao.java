@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.Status;
-import com.proptiger.data.model.Listing;
-import com.proptiger.data.model.ListingPrice;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.Status;
+import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.cms.ListingPrice;
 
 /**
  * @author Rajeev Pandey

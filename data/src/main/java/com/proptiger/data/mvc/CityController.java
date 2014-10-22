@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.annotations.Intercepted;
-import com.proptiger.data.model.City;
+import com.proptiger.core.model.cms.City;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.CityService;

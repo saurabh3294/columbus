@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.annotations.Intercepted;
+import com.proptiger.core.model.cms.Locality;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.Locality;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;

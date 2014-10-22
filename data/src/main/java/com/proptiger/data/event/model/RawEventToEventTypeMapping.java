@@ -14,8 +14,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.event.enums.DBOperation;
-import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "notification.raw_event_to_event_type_mapping")

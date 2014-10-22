@@ -22,7 +22,6 @@ import com.proptiger.data.service.BlogNewsService;
  */
 @Controller
 public class BlogNewsController extends BaseController {
-
     @Autowired
     private BlogNewsService blogNewsService;
 

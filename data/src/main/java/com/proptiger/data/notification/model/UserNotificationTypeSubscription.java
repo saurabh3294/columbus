@@ -9,8 +9,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.SubscriptionType;
 
 @Entity

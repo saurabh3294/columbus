@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.TableAttributes;
+import com.proptiger.core.model.cms.TableAttributes;
 import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.util.Constants;
 

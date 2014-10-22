@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.enums.portfolio.PaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 

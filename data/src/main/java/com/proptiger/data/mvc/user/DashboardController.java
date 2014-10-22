@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.model.proptiger.Dashboard;
+import com.proptiger.core.model.proptiger.DashboardWidgetMapping;
 import com.proptiger.data.internal.dto.DashboardDto;
-import com.proptiger.data.model.user.Dashboard;
-import com.proptiger.data.model.user.DashboardWidgetMapping;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;

@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.annotations.Intercepted;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Project.NestedProperties;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Project.NestedProperties;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;

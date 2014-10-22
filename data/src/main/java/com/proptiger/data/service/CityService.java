@@ -8,13 +8,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
-import com.proptiger.data.enums.DomainObject;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.cms.City;
+import com.proptiger.core.model.cms.LandMark;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
-import com.proptiger.data.model.City;
-import com.proptiger.data.model.LandMark;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.PaginatedResponse;

@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.external.dto.CustomUser;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.meta.DisableCaching;
@@ -25,7 +26,6 @@ import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
 import com.proptiger.data.service.user.UserService.UserCommunicationType;
-import com.proptiger.data.util.Constants;
 
 /**
  * APIs to find whether a user have already enquired about a entity

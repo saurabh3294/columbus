@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.model.ProjectDB;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.model.cms.ProjectDB;
 
 /**
  * 

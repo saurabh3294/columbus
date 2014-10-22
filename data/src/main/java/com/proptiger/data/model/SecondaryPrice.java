@@ -9,6 +9,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.enums.UnitType;
 
 /**

@@ -27,8 +27,12 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.proptiger.ForumUser;
+import com.proptiger.core.model.proptiger.LocalityRatings;
+import com.proptiger.core.model.proptiger.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 
 /**
  * This class represents review comments for locality

@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.constants.ResponseCodes;
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.model.GCMUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.GCMUserService;
-import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * @author Sahil Garg

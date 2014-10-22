@@ -12,11 +12,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.Permission;
-import com.proptiger.data.model.SubscriptionPermission;
-import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.proptiger.Permission;
+import com.proptiger.core.model.proptiger.SubscriptionPermission;
+import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
 import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.SubscriptionPermissionDao;

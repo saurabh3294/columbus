@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.proptiger.data.model.user.Dashboard;
-import com.proptiger.data.model.user.Dashboard.DashboardType;
+import com.proptiger.core.model.proptiger.Dashboard;
+import com.proptiger.core.model.proptiger.Dashboard.DashboardType;
 
 /**
  * Dashboard repository class to provide CRUD operations for Dashboard resource

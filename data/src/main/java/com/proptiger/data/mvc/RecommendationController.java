@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Property;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.RecommendationService;

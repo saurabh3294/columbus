@@ -27,16 +27,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.Striped;
-import com.proptiger.data.enums.DomainObject;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.proptiger.Image;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.enums.MediaType;
-import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.image.ImageQuality;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.MediaUtil;
-import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**

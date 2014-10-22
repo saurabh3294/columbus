@@ -17,13 +17,13 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.enums.portfolio.PaymentPlan;
 import com.proptiger.data.enums.portfolio.PaymentSource;
 import com.proptiger.data.enums.portfolio.PaymentStatus;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.BaseModel;
 
 /**
  * Payment plan model

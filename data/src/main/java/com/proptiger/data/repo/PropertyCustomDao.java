@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Property;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;

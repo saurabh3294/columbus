@@ -27,8 +27,8 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.user.User;
 
 /**
  * @author Anubhav

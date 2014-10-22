@@ -7,8 +7,8 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.data.internal.dto.RegisterUser;
-import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.exception.BadRequestException;
 
 /**

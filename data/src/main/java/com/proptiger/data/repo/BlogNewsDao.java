@@ -14,7 +14,7 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.app.config.AppRepositoryConfig;
+import com.proptiger.core.config.AppRepositoryConfig;
 import com.proptiger.data.model.WordpressPost;
 import com.proptiger.data.pojo.Paging;
 

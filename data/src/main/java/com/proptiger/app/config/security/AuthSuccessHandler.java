@@ -14,10 +14,10 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.mvc.UserController;
 import com.proptiger.data.service.security.OTPService;
-import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Auth success handler to manage session and response after authentication. It

@@ -7,10 +7,10 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.model.cms.CompanyCoverage;
+import com.proptiger.core.model.cms.Locality;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
-import com.proptiger.data.model.CompanyCoverage;
-import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.companyuser.CompanyUserDao;
