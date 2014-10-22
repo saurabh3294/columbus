@@ -310,7 +310,7 @@ public class TrendReportDao {
             }
             else {
                 Collections.sort(bhkSizeList);
-                return (bhkSizeList.get(0) + "-" + bhkSizeList.get(bhkSizeList.size() - 1));
+                return (bhkSizeList.get(0).intValue() + "-" + bhkSizeList.get(bhkSizeList.size() - 1).intValue());
             }
         }
     }
