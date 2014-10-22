@@ -44,7 +44,7 @@ public interface ResponseErrorMessages {
     static String PASSWORD_RECOVERY_MAIL_SENT         = "Password recovery mail sent";
     static String CAPTCHA_REQUIRED                    = "Captcha Required";
     static String SESSION_EXPIRED_DUPLICATE_LOGIN     = "Session expired, duplicate login";
-    static String OTP_REQUIRED                        = "one time password required";
+    static String OTP_REQUIRED                        = "Please enter OTP sent on your registered email";
     static String WRONG_OTP                           = "Wrong OTP";
     static String OTP_EXPIRED                         = "OTP expired, sent new OTP";
     
