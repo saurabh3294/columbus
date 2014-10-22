@@ -53,38 +53,48 @@ public class TrendReportService {
     }
 
     public File getCatchmentTrendReport(ActiveUser userInfo, Integer catchmentId, FIQLSelector selector) {
+        
+        /** Generate a sorted list of months given in FIQL Selector **/
         List<Date> sortedMonthList = getMonthList(selector);
         if (sortedMonthList == null || sortedMonthList.isEmpty()) {
             throw new ProAPIException(TrendReportService.ERR_MSG_InvalidTimePeriod);
         }
 
+        /** Fetch CatchmentTrendReportElement list from Dao **/
         List<CatchmentTrendReportElement> ctreList = trendReportDao.getCatchmentTrendReport(
                 catchmentId,
                 selector,
-                userInfo);
-        List<List<Object>> reportData = new ArrayList<List<Object>>();
-
+                userInfo,
+                sortedMonthList);
+        
+        /** Get Report-Header column names **/
         List<Object[]> reportColumns = CatchmentTrendReportElement.getReportColumns(sortedMonthList);
 
+        /** Get Report-Data **/
+        List<List<Object>> reportData = new ArrayList<List<Object>>();
         for (CatchmentTrendReportElement ctre : ctreList) {
             reportData.addAll(ctre.getReportRows(sortedMonthList));
         }
 
-        /* Export to file */
-
+        /** Format report data as MS-Excel Workbook */
         String reportFileName = trendReportDir + "/trend_report_" + System.currentTimeMillis() + ".xls";
         String sheetName = WorkbookUtil.createSafeSheetName(workSheetName);
-
         Workbook msExcelWorkbook = msExcelUtils.exportToMsExcelSheet(
                 reportFileName,
                 sheetName,
                 reportColumns,
                 reportData);
+        
+        /** Export WorkBook to report data to File*/
         File reportFile = msExcelUtils.exportWorkBookToFile(msExcelWorkbook, reportFileName);
-
         return reportFile;
     }
 
+    /**
+     * Returns a sorted list of months based on conditions specified in FIQL Selector.
+     * @param selector FIQL-Selector
+     * @return
+     */
     private List<Date> getMonthList(FIQLSelector selector) {
 
         /* Parsing FIQL Selector to get start and end months */

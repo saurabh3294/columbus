@@ -1,5 +1,6 @@
 package com.proptiger.data.model.trend;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,41 +9,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CatchmentTrendReportElement {
+public class CatchmentTrendReportElement implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static enum TypeOfData {
-        Sales, AvailableInventory, Price
+        Sales, AvailableInventory, Price, LtdSupply
     }
 
-    private String                                             projectName;
+    private String                             projectName;
 
-    private String                                             builderName;
+    private String                             builderName;
 
-    private String                                             phaseName;
+    private String                             phaseName;
 
-    private String                                             launchDate;
+    private String                             launchDate;
 
-    private String                                             completionDate;
+    private String                             completionDate;
 
-    private String                                             locality;
+    private String                             locality;
 
-    private Double                                             latitude;
+    private Double                             latitude;
 
-    private Double                                             longitude;
+    private Double                             longitude;
 
-    private String                                             projectStatus;
+    private String                             projectStatus;
 
-    private Double                                             projectArea;
+    private Double                             projectArea;
 
-    private int                                                launchPrice;
+    private int                                launchPrice;
 
-    private int                                                bhk;
+    private int                                bhk;
 
-    private String                                             bhkSizeRange;
+    private String                             bhkSizeRange;
 
-    private int                                                totalUnits;
+    private int                                totalUnits;
 
-    private int                                                launchedUnits;
+    private int                                launchedUnits;
+
+    private String                             projectBhkSizeRange;
 
     private Map<TypeOfData, Map<Date, Object>> bhkGroupedMap = new HashMap<TypeOfData, Map<Date, Object>>();
 
@@ -122,7 +127,7 @@ public class CatchmentTrendReportElement {
         return projectArea;
     }
 
-    public void setProjectArea(double projectArea) {
+    public void setProjectArea(Double projectArea) {
         this.projectArea = projectArea;
     }
 
@@ -165,31 +170,45 @@ public class CatchmentTrendReportElement {
     public void setLaunchedUnits(int launchedUnits) {
         this.launchedUnits = launchedUnits;
     }
+    
+    public String getProjectBhkSizeRange() {
+        return projectBhkSizeRange;
+    }
+
+    public void setProjectBhkSizeRange(String projectBhkSizeRange) {
+        this.projectBhkSizeRange = projectBhkSizeRange;
+    }
 
     public Map<TypeOfData, Map<Date, Object>> getBhkGroupedMap() {
         return bhkGroupedMap;
     }
 
+    private String getBhkDisplay(int bhk) {
+        return ((bhk == -1) ? "ALL" : String.valueOf(bhk));
+    }
+
     public List<List<Object>> getReportRows(List<Date> monthlist) {
         List<List<Object>> reportRows = new ArrayList<List<Object>>();
-        List<Object> commonData = Arrays.asList(new Object[]{projectName,
-        builderName,
-        phaseName,
-        launchDate,
-        completionDate,
-        locality,
-        latitude,
-        longitude,
-        projectStatus,
-        projectArea,
-        launchPrice,
-        bhk,
-        bhkSizeRange,
-        totalUnits,
-        launchedUnits});
-        
+        List<Object> commonData = Arrays.asList(new Object[] {
+                projectName,
+                builderName,
+                phaseName,
+                launchDate,
+                completionDate,
+                locality,
+                latitude,
+                longitude,
+                projectStatus,
+                projectArea,
+                launchPrice,
+                getBhkDisplay(bhk),
+                bhkSizeRange,
+                totalUnits,
+                launchedUnits });
+
         List<Object> reportRow;
-        for (TypeOfData tod : TypeOfData.values()) {
+        TypeOfData[] todValues = { TypeOfData.Sales, TypeOfData.AvailableInventory, TypeOfData.Price };
+        for (TypeOfData tod : todValues) {
             reportRow = new ArrayList<Object>(commonData);
             reportRow.add(tod.name());
             for (Date month : monthlist) {
@@ -197,35 +216,35 @@ public class CatchmentTrendReportElement {
             }
             reportRows.add(reportRow);
         }
-        
+
         return reportRows;
     }
 
     public static List<Object[]> getReportColumns(List<Date> monthList) {
-        Object[][] columns = {{"Project Name", String.class},
-                {"Builder Name", String.class},
-                {"Phase Name", String.class},
-                {"Launch Date", String.class},
-                {"Completion Date", String.class},
-                {"Locality", String.class},
-                {"Latitude", Double.class},
-                {"Longitude", Double.class},
-                {"Project Status", String.class},
-                {"Project Area", Double.class},
-                {"Launch Price", Double.class},
-                {"BHK", String.class},
-                {"BHK Size Range", String.class},
-                {"Total Units", Integer.class},
-                {"Launched Units", Integer.class},
-                {"Type Of Data", String.class},
-        };
+        Object[][] columns = {
+                { "Project Name", String.class },
+                { "Builder Name", String.class },
+                { "Phase Name", String.class },
+                { "Launch Date", String.class },
+                { "Completion Date", String.class },
+                { "Locality", String.class },
+                { "Latitude", Double.class },
+                { "Longitude", Double.class },
+                { "Project Status", String.class },
+                { "Project Area", Double.class },
+                { "Launch Price", Double.class },
+                { "BHK", String.class },
+                { "BHK Size Range", String.class },
+                { "Total Units", Integer.class },
+                { "Launched Units", Integer.class },
+                { "Type Of Data", String.class }, };
         List<Object[]> columnList = new ArrayList<Object[]>(Arrays.asList(columns));
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        for(Date month: monthList){
-            columnList.add(new Object[]{sdf.format(month.getTime()), Double.class});
+        for (Date month : monthList) {
+            columnList.add(new Object[] { sdf.format(month.getTime()), Double.class });
         }
-        
+
         return columnList;
     }
 

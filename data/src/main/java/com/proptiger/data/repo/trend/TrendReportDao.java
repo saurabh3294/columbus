@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -45,7 +46,8 @@ public class TrendReportDao {
     public List<CatchmentTrendReportElement> getCatchmentTrendReport(
             Integer catchmentId,
             FIQLSelector selector,
-            ActiveUser userInfo) {
+            ActiveUser userInfo,
+            List<Date> sortedMonthList) {
 
         List<Catchment> catchmentList = catchmentService.getCatchment(new FIQLSelector()
                 .addAndConditionToFilter("id==" + catchmentId));
@@ -53,19 +55,20 @@ public class TrendReportDao {
             throw new ProAPIException("Invalid Catchment ID");
         }
 
-        /** Step 1 : Fetch Information from Other APIs */
+        /** Fetch Information from Other APIs **/
 
         Catchment catchment = catchmentList.get(0);
         List<Integer> projectIdList = catchment.getProjectIds();
         Map<Integer, AdditionalInfo> mapPidToAdditionInfo = getAdditionalInfo(projectIdList);
-        
-        /** Step 2 : Fetch Information from TREND APIs **/
+
+        /** Fetch Information from TREND APIs **/
 
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
         List<Trend> trendList = trendService.getTrend(selector);
-        List<CatchmentTrendReportElement> ctrElemList = new ArrayList<CatchmentTrendReportElement>();
 
-        /* Get trend list as grouped map */
+        //DebugUtils.exportToNewDebugFile(DebugUtils.getAsListOfStrings(trendList));
+
+        /** Get trend list as a grouped map **/
 
         String[] groupFields = { "projectId", "phaseId", "bedrooms" };
         Map<Integer, Object> projectGroupedTrend = null;
@@ -74,7 +77,10 @@ public class TrendReportDao {
                 trendList,
                 Arrays.asList(groupFields));
 
-        /* Get Report Element List */
+        /** Generate a list of CatchmentReportElement objects from the above grouped map **/
+
+        List<CatchmentTrendReportElement> ctrElemList = new ArrayList<CatchmentTrendReportElement>();
+        List<CatchmentTrendReportElement> ctrElemListTemp = new ArrayList<CatchmentTrendReportElement>();
 
         CatchmentTrendReportElement ctrElem;
         for (int projectId : groupedTrendList.keySet()) {
@@ -88,12 +94,151 @@ public class TrendReportDao {
                             bedrooms,
                             (List<Trend>) phaseGroupedTrend.get(bedrooms),
                             mapPidToAdditionInfo);
-                    ctrElemList.add(ctrElem);
+                    ctrElemListTemp.add(ctrElem);
                 }
+                addElementsForBhkWiseTotals(ctrElemListTemp, sortedMonthList);
+                ctrElemList.addAll(ctrElemListTemp);
+                ctrElemListTemp.clear();
             }
         }
 
         return ctrElemList;
+    }
+
+    private void addElementsForBhkWiseTotals(List<CatchmentTrendReportElement> ctrElemList, List<Date> sortedMonthList) {
+
+        CatchmentTrendReportElement ctrElem = (CatchmentTrendReportElement) SerializationUtils
+                .clone(ctrElemList.get(0));
+
+        Map<TypeOfData, Map<Date, Object>> bhkGroupedMap = ctrElem.getBhkGroupedMap();
+
+        if (bhkGroupedMap.isEmpty()) {
+            for (TypeOfData tod : TypeOfData.values()) {
+                bhkGroupedMap.put(tod, new HashMap<Date, Object>());
+            }
+        }
+
+        /* Summing Month wise data for each type of data. */
+
+        int monthWiseSum = 0;
+        Integer temp;
+        for (TypeOfData tod : TypeOfData.values()) {
+            for (Date month : sortedMonthList) {
+                for (CatchmentTrendReportElement ctre : ctrElemList) {
+                    temp = (Integer) (ctre.getBhkGroupedMap().get(tod).get(month));
+                    monthWiseSum += (temp != null ? temp.intValue() : 0);
+                }
+                bhkGroupedMap.get(tod).put(month, monthWiseSum);
+            }
+        }
+
+        /* Special weighted average for price */
+
+        Integer price, ltdSupply;
+        int wavgPriceOnLtdSupply = 0, sumLtdSupply = 0;
+        for (Date month : sortedMonthList) {
+            for (CatchmentTrendReportElement ctre : ctrElemList) {
+                price = (Integer) (ctre.getBhkGroupedMap().get(TypeOfData.Price).get(month));
+                ltdSupply = (Integer) (ctre.getBhkGroupedMap().get(TypeOfData.Price).get(month));
+                if (price != null && ltdSupply != null) {
+                    wavgPriceOnLtdSupply += price * ltdSupply;
+                    sumLtdSupply += ltdSupply;
+                }
+            }
+            wavgPriceOnLtdSupply = ((sumLtdSupply == 0) ? 0 : (wavgPriceOnLtdSupply / sumLtdSupply));
+            bhkGroupedMap.get(TypeOfData.Price).put(month, wavgPriceOnLtdSupply);
+        }
+
+        /* Combining BHK-Range */
+        
+        ctrElem.setBhkSizeRange(ctrElem.getProjectBhkSizeRange());
+
+        /* Summing other common data */
+
+        ctrElem.setBhk(-1);
+        int sumTotalUnits = 0;
+        int sumLaunchedUnits = 0;
+        for (CatchmentTrendReportElement ctre : ctrElemList) {
+            sumTotalUnits += ctre.getTotalUnits();
+            sumLaunchedUnits += ctre.getLaunchedUnits();
+        }
+        ctrElem.setLaunchedUnits(sumLaunchedUnits);
+        ctrElem.setTotalUnits(sumTotalUnits);
+
+        ctrElemList.add(ctrElem);
+    }
+
+    /* This methods assumes that property list is sorted size-wise */
+    private Map<Integer, List<Double>> getProjectBhkSizeRangeMap(Project project) {
+        Map<Integer, List<Double>> map = new HashMap<Integer, List<Double>>();
+        List<Property> propertyList = project.getProperties();
+        int bedrooms;
+        for (Property property : propertyList) {
+            bedrooms = property.getBedrooms();
+            if (!map.containsKey(bedrooms)) {
+                map.put(bedrooms, new ArrayList<Double>());
+            }
+            map.get(bedrooms).add(property.getSize());
+        }
+        return map;
+    }
+
+    private CatchmentTrendReportElement getCatchmentTrendReportElement(
+            int projectId,
+            int phaseId,
+            int bedrooms,
+            List<Trend> trendList,
+            Map<Integer, AdditionalInfo> mapPidToAdditionInfo) {
+
+        CatchmentTrendReportElement ctrElem = new CatchmentTrendReportElement();
+
+        Trend trend = trendList.get(0);
+        ctrElem.setProjectName(trend.getProjectName());
+        ctrElem.setBuilderName(trend.getBuilderName());
+        ctrElem.setPhaseName(trend.getPhaseName());
+        ctrElem.setLaunchDate(trend.getLaunchDate().toString());
+        ctrElem.setCompletionDate(trend.getCompletionDate().toString());
+        ctrElem.setLocality(trend.getLocalityName());
+        ctrElem.setProjectStatus(trend.getConstructionStatus());
+        ctrElem.setTotalUnits(trend.getLtdSupply());
+        ctrElem.setLaunchedUnits(trend.getLtdLaunchedUnit());
+        ctrElem.setBhk(trend.getBedrooms());
+
+        /* Filling BHK Grouped Map */
+
+        Map<TypeOfData, Map<Date, Object>> bhkGroupedMap = ctrElem.getBhkGroupedMap();
+
+        if (bhkGroupedMap.isEmpty()) {
+            for (TypeOfData tod : TypeOfData.values()) {
+                bhkGroupedMap.put(tod, new HashMap<Date, Object>());
+            }
+        }
+
+        /* Filling Month-Wise data in a BHK-grouped-map. */
+
+        Date month;
+        for (Trend t : trendList) {
+            month = t.getMonth();
+            bhkGroupedMap.get(TypeOfData.Sales).put(month, t.getUnitsSold());
+            bhkGroupedMap.get(TypeOfData.AvailableInventory).put(month, t.getInventory());
+            bhkGroupedMap.get(TypeOfData.Price).put(month, t.getPricePerUnitArea());
+            bhkGroupedMap.get(TypeOfData.LtdSupply).put(month, t.getLtdSupply());
+        }
+
+        /* Populating additional info */
+
+        AdditionalInfo additionalInfo = mapPidToAdditionInfo.get(projectId);
+        if (additionalInfo != null) {
+            ctrElem.setBhkSizeRange(additionalInfo.getBhkSizeRangeString(bedrooms));
+            ctrElem.setLatitude(additionalInfo.laitude);
+            ctrElem.setLongitude(additionalInfo.longitude);
+            ctrElem.setProjectArea(additionalInfo.projectArea);
+        }
+        ctrElem.setProjectBhkSizeRange(additionalInfo.getProjectBhkSizeRange());
+
+        ctrElem.setLaunchPrice(0);
+
+        return ctrElem;
     }
 
     private Map<Integer, AdditionalInfo> getAdditionalInfo(List<Integer> projectIdList) {
@@ -138,76 +283,6 @@ public class TrendReportDao {
         return mapPidToAdditionInfo;
     }
 
-    /* This methods assumes that property list is sorted size-wise */
-    private Map<Integer, List<Double>> getProjectBhkSizeRangeMap(Project project) {
-        Map<Integer, List<Double>> map = new HashMap<Integer, List<Double>>();
-        List<Property> propertyList = project.getProperties();
-        int bedrooms;
-        for (Property property : propertyList) {
-            bedrooms = property.getBedrooms();
-            if (!map.containsKey(bedrooms)) {
-                map.put(bedrooms, new ArrayList<Double>());
-            }
-            map.get(bedrooms).add(property.getSize());
-        }
-        return map;
-    }
-
-    private CatchmentTrendReportElement getCatchmentTrendReportElement(
-            int projectId,
-            int phaseId,
-            int bedrooms,
-            List<Trend> trendList,
-            Map<Integer, AdditionalInfo> mapPidToAdditionInfo) {
-
-        CatchmentTrendReportElement ctrElem = new CatchmentTrendReportElement();
-
-        Trend trend = trendList.get(0);
-        ctrElem.setProjectName(trend.getProjectName());
-        ctrElem.setBuilderName(trend.getBuilderName());
-        ctrElem.setPhaseName(trend.getPhaseName());
-        ctrElem.setLaunchDate(trend.getLaunchDate().toString());
-        ctrElem.setCompletionDate(trend.getCompletionDate().toString());
-        ctrElem.setLocality(trend.getLocalityName());
-        ctrElem.setProjectStatus(trend.getConstructionStatus());
-        ctrElem.setTotalUnits(trend.getLtdSupply());
-        ctrElem.setLaunchedUnits(trend.getLtdLaunchedUnit());
-        ctrElem.setBhk(trend.getBedrooms());
-
-        /* Filling BHK Grouped Map */
-
-        Date month = trend.getMonth();
-        Integer sales = trend.getUnitsSold();
-        Integer availableInventory = trend.getInventory();
-        Integer price = trend.getPricePerUnitArea();
-
-        Map<TypeOfData, Map<Date, Object>> bhkGroupedMap = ctrElem.getBhkGroupedMap();
-
-        if (bhkGroupedMap.isEmpty()) {
-            bhkGroupedMap.put(TypeOfData.Sales, new HashMap<Date, Object>());
-            bhkGroupedMap.put(TypeOfData.AvailableInventory, new HashMap<Date, Object>());
-            bhkGroupedMap.put(TypeOfData.Price, new HashMap<Date, Object>());
-        }
-
-        bhkGroupedMap.get(TypeOfData.Sales).put(month, sales);
-        bhkGroupedMap.get(TypeOfData.AvailableInventory).put(month, availableInventory);
-        bhkGroupedMap.get(TypeOfData.Price).put(month, price);
-
-        /* Populating additional info */
-
-        AdditionalInfo additionalInfo = mapPidToAdditionInfo.get(projectId);
-        if(additionalInfo != null){
-            ctrElem.setBhkSizeRange(additionalInfo.getBhkSizeRangeString(bedrooms));
-            ctrElem.setLatitude(additionalInfo.laitude);
-            ctrElem.setLongitude(additionalInfo.longitude);
-            ctrElem.setProjectArea(additionalInfo.projectArea);
-        }
-
-        ctrElem.setLaunchPrice(0);
-
-        return ctrElem;
-    }
-
     @SuppressWarnings("unused")
     private class AdditionalInfo {
         int                        projectId;
@@ -218,16 +293,25 @@ public class TrendReportDao {
         Map<Integer, List<Double>> mapPidToBhkRange;
 
         public String getBhkSizeRangeString(int bedrooms) {
-            List<Double> bhkSizeList = this.mapPidToBhkRange.get(bedrooms);
-            String bhkSizeRange;
+            return getRangeAsString(this.mapPidToBhkRange.get(bedrooms));
+        }
+
+        public String getProjectBhkSizeRange() {
+            List<Double> bhkSizeList = new ArrayList<Double>();
+            for (int bedrooms : mapPidToBhkRange.keySet()) {
+                bhkSizeList.addAll(mapPidToBhkRange.get(bedrooms));
+            }
+            return getRangeAsString(bhkSizeList);
+        }
+
+        private String getRangeAsString(List<Double> bhkSizeList) {
             if (bhkSizeList == null || bhkSizeList.isEmpty()) {
-                bhkSizeRange = "-NA-";
+                return ("-NA-");
             }
             else {
                 Collections.sort(bhkSizeList);
                 return (bhkSizeList.get(0) + "-" + bhkSizeList.get(bhkSizeList.size() - 1));
             }
-            return bhkSizeRange;
         }
     }
 
