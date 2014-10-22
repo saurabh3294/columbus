@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.repo.trend.TrendReportDao;
+import com.proptiger.data.service.trend.TrendReportAggregator;
 import com.proptiger.data.service.trend.TrendReportService;
 import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ProAPIException;
@@ -31,7 +31,7 @@ public class TrendReportController extends BaseController {
     TrendReportService trendReportService;
 
     @Autowired
-    TrendReportDao     trendReportDao;
+    TrendReportAggregator     trendReportDao;
 
     @RequestMapping("app/v1/trendreport/{catchmentId}")
     @ResponseBody

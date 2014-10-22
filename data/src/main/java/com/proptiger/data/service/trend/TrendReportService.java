@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.repo.trend.TrendReportDao;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.MSExcelUtils;
 import com.proptiger.exception.ProAPIException;
@@ -30,7 +29,7 @@ import com.proptiger.exception.ProAPIException;
 public class TrendReportService {
 
     @Autowired
-    TrendReportDao        trendReportDao;
+    TrendReportAggregator        trendReportDao;
 
     @Autowired
     MSExcelUtils          msExcelUtils;

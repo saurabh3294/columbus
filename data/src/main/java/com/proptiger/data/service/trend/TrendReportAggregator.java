@@ -1,4 +1,4 @@
-package com.proptiger.data.repo.trend;
+package com.proptiger.data.service.trend;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.internal.dto.ActiveUser;
@@ -25,13 +25,12 @@ import com.proptiger.data.model.trend.CatchmentTrendReportElement.TypeOfData;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.service.trend.TrendService;
 import com.proptiger.data.service.user.CatchmentService;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
 
-@Repository
-public class TrendReportDao {
+@Component
+public class TrendReportAggregator {
 
     @Autowired
     private TrendService     trendService;
@@ -196,8 +195,8 @@ public class TrendReportDao {
         ctrElem.setProjectName(trend.getProjectName());
         ctrElem.setBuilderName(trend.getBuilderName());
         ctrElem.setPhaseName(trend.getPhaseName());
-        ctrElem.setLaunchDate(trend.getLaunchDate().toString());
-        ctrElem.setCompletionDate(trend.getCompletionDate().toString());
+        ctrElem.setLaunchDate(trend.getLaunchDate());
+        ctrElem.setCompletionDate(trend.getCompletionDate());
         ctrElem.setLocality(trend.getLocalityName());
         ctrElem.setProjectStatus(trend.getConstructionStatus());
         ctrElem.setTotalUnits(trend.getLtdSupply());

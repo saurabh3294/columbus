@@ -23,9 +23,9 @@ public class CatchmentTrendReportElement implements Serializable {
 
     private String                             phaseName;
 
-    private String                             launchDate;
+    private Date                               launchDate;
 
-    private String                             completionDate;
+    private Date                               completionDate;
 
     private String                             locality;
 
@@ -75,19 +75,19 @@ public class CatchmentTrendReportElement implements Serializable {
         this.phaseName = phaseName;
     }
 
-    public String getLaunchDate() {
+    public Date getLaunchDate() {
         return launchDate;
     }
 
-    public void setLaunchDate(String launchDate) {
+    public void setLaunchDate(Date launchDate) {
         this.launchDate = launchDate;
     }
 
-    public String getCompletionDate() {
+    public Date getCompletionDate() {
         return completionDate;
     }
 
-    public void setCompletionDate(String completionDate) {
+    public void setCompletionDate(Date completionDate) {
         this.completionDate = completionDate;
     }
 
@@ -170,7 +170,7 @@ public class CatchmentTrendReportElement implements Serializable {
     public void setLaunchedUnits(int launchedUnits) {
         this.launchedUnits = launchedUnits;
     }
-    
+
     public String getProjectBhkSizeRange() {
         return projectBhkSizeRange;
     }
@@ -188,13 +188,14 @@ public class CatchmentTrendReportElement implements Serializable {
     }
 
     public List<List<Object>> getReportRows(List<Date> monthlist) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         List<List<Object>> reportRows = new ArrayList<List<Object>>();
         List<Object> commonData = Arrays.asList(new Object[] {
                 projectName,
                 builderName,
                 phaseName,
-                launchDate,
-                completionDate,
+                sdf.format(launchDate),
+                sdf.format(completionDate),
                 locality,
                 latitude,
                 longitude,
