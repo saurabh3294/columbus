@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.internal.dto.UserWishListDto;
 import com.proptiger.data.model.UserWishlist;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserWishListService;
-import com.proptiger.data.util.Constants;
 
 /**
  * @author Rajeev Pandey

@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * This class is responsible to create locality description from various set of

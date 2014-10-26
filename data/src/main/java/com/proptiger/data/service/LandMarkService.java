@@ -18,12 +18,12 @@ import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.Selector;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.repo.LandMarkDao;
 import com.proptiger.data.repo.LocalityDao;
-import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.UtilityClass;
 
 /**
  * 

@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.ProjectCMSAmenity;
 import com.proptiger.core.model.proptiger.ProjectAmenity;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.repo.ProjectAmenityDao;
 import com.proptiger.data.repo.ProjectCMSAmenityDao;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
 
 /**

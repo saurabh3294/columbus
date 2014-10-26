@@ -26,16 +26,16 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.UnitType;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.FIQLSelector.FIQLOperator;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
 import com.proptiger.data.model.trend.Trend;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.FIQLSelector.FIQLOperator;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.user.CatchmentService;
-import com.proptiger.data.util.UtilityClass;
-import com.proptiger.exception.ProAPIException;
 
 /**
  * @author Azitabh Ajit

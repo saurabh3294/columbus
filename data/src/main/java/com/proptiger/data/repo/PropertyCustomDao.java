@@ -7,10 +7,10 @@ import org.apache.solr.client.solrj.SolrQuery;
 
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 
 /**
  * @author Rajeev Pandey

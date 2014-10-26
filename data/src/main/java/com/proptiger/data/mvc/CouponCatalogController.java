@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.CouponCatalogueService;
 
 @Controller

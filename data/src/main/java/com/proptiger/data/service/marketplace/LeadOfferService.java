@@ -17,10 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.LeadOfferStatus;
@@ -39,8 +44,6 @@ import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
@@ -51,9 +54,6 @@ import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 

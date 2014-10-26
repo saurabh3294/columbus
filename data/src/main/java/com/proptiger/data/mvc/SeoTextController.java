@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.model.URLDetail;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.SeoPageService;
 import com.proptiger.data.service.URLService;
 

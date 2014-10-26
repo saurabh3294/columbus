@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.meta.ResourceModelMeta;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.MetaService;
 
 /**

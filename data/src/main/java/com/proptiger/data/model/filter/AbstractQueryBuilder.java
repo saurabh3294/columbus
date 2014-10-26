@@ -14,11 +14,11 @@ import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverter;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.util.LongToDateConverter;
+import com.proptiger.core.util.StringToDateConverter;
 import com.proptiger.data.enums.filter.Operator;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.util.LongToDateConverter;
-import com.proptiger.data.util.StringToDateConverter;
 
 /**
  * This class provides methods to build data store query. Individual data store

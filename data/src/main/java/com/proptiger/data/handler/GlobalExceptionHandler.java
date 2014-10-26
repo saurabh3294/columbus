@@ -17,17 +17,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.proptiger.app.config.security.ResponseErrorWriter;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ConstraintViolationException;
-import com.proptiger.exception.DuplicateNameResourceException;
-import com.proptiger.exception.DuplicateResourceException;
-import com.proptiger.exception.InvalidResourceException;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceAlreadyExistException;
-import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.exception.ResourceNotFoundException;
-import com.proptiger.exception.UnauthorizedException;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ConstraintViolationException;
+import com.proptiger.core.exception.DuplicateNameResourceException;
+import com.proptiger.core.exception.DuplicateResourceException;
+import com.proptiger.core.exception.InvalidResourceException;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.ResourceAlreadyExistException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.exception.ResourceNotFoundException;
+import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.pojo.response.APIResponse;
 
 /**
  * This class is a global exception handler, based on type of exception it

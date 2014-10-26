@@ -10,12 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.data.model.Subscription;
 import com.proptiger.data.model.user.SubscriptionType;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.user.SubscriptionDao;
 import com.proptiger.data.repo.user.SubscriptionTypeDao;
-import com.proptiger.exception.BadRequestException;
 
 @Service
 public class SubscriptionService {

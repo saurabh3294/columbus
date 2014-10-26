@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import com.proptiger.core.annotations.ExcludeFromBeanCopy;
 import com.proptiger.core.enums.Status;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.core.pojo.FIQLSelector;
 
 /**
  * BebUserSelection model object

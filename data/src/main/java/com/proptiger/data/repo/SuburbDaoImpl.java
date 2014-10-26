@@ -14,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.core.model.cms.Suburb;
+import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
-import com.proptiger.data.pojo.Selector;
 
 /**
  * @author mandeep

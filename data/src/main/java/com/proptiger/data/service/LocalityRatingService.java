@@ -18,16 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.util.concurrent.Striped;
+import com.proptiger.core.exception.ConstraintViolationException;
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.proptiger.LocalityRatings;
 import com.proptiger.core.model.proptiger.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.core.model.proptiger.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.core.model.proptiger.LocalityRatings.LocalityRatingUserCount;
+import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.repo.LocalityRatingDao;
-import com.proptiger.data.util.Constants;
-import com.proptiger.exception.ConstraintViolationException;
-import com.proptiger.exception.ProAPIException;
 
 /**
  * Service class to provide CRUD operations over locality ratings

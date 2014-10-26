@@ -5,15 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.proptiger.core.enums.ListingStatus;
+import com.proptiger.core.enums.ReturnType;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.proptiger.Image;
-import com.proptiger.data.enums.portfolio.ListingStatus;
-import com.proptiger.data.enums.portfolio.ReturnType;
-import com.proptiger.data.model.user.portfolio.OverallReturn;
+import com.proptiger.core.model.proptiger.OverallReturn;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.proptiger.PortfolioListingPrice;
 import com.proptiger.data.model.user.portfolio.Portfolio;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
-import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
 
 /**
  * Portfolio Utility methods. reference

@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.LocalityService;
 
 /**

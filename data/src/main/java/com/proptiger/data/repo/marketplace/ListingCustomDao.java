@@ -5,8 +5,8 @@ import java.util.List;
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.Status;
 import com.proptiger.core.model.cms.Listing;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 
 /**
  * @author Rajeev Pandey

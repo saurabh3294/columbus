@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.LocalityReviewService;
 
 /**

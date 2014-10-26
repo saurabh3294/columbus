@@ -32,6 +32,7 @@ import com.citruspay.pg.model.Refund;
 import com.citruspay.pg.net.RequestSignature;
 import com.citruspay.pg.util.CitruspayConstant;
 import com.google.gson.Gson;
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
@@ -52,7 +53,6 @@ import com.proptiger.data.service.CitrusPayPGTransactionService;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.CouponNotificationService;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * @author mandeep

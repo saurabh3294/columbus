@@ -42,8 +42,8 @@ import org.springframework.web.filter.GenericFilterBean;
 import com.proptiger.api.filter.IPBasedAPIAccessFilter;
 import com.proptiger.app.config.security.social.CustomSpringSocialConfigurer;
 import com.proptiger.core.enums.security.UserRole;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.service.security.OTPService;
-import com.proptiger.data.util.Constants;
 
 /**
  * Application security configurations. Define url regex and handlers to handle

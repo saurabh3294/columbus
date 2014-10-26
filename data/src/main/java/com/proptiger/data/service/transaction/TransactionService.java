@@ -14,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.PaymentType;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
@@ -27,8 +29,6 @@ import com.proptiger.data.service.CitrusPayPGTransactionService;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.CouponNotificationService;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * @author mandeep

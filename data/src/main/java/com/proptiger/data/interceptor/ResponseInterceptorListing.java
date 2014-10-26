@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.DomainObject;
-import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserSubscriptionService;
 
 /**

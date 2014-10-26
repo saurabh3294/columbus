@@ -7,8 +7,8 @@ import org.springframework.security.crypto.codec.Base64;
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.data.internal.dto.ChangePassword;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * Password utility to validate new and old passwords

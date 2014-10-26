@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.model.trend.Graph;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.trend.UserGraphService;
-import com.proptiger.data.util.Constants;
 
 @Controller
 @RequestMapping

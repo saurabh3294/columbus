@@ -23,10 +23,10 @@ import com.proptiger.core.model.cms.ProjectDB;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.proptiger.Bank;
 import com.proptiger.core.model.proptiger.Image;
-import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.MediaUtil;
-import com.proptiger.data.util.UtilityClass;
 
 @Service
 public class ImageEnricher {

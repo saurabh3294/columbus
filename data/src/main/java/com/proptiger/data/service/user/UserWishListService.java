@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.exception.ResourceAlreadyExistException;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.data.internal.dto.UserWishListDto;
 import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.repo.user.UserWishListDao;
 import com.proptiger.data.service.ProjectService;
-import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
  * @author Rajeev Pandey

@@ -25,19 +25,19 @@ import com.proptiger.core.enums.DocumentType;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.Builder;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.SortBy;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.repo.SolrDao;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.BuilderDao;
-import com.proptiger.data.util.Constants;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 

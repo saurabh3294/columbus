@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
-import com.proptiger.exception.APIException;
+import com.proptiger.core.exception.APIException;
 
 /**
  * Handle authenication failure case.

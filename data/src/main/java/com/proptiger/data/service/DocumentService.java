@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.enums.MediaType;
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.proptiger.Media;
-import com.proptiger.exception.ProAPIException;
 
 @Service
 public class DocumentService extends MediaService {

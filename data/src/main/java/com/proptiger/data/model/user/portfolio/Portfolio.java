@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.proptiger.core.enums.DataType;
+import com.proptiger.core.model.proptiger.OverallReturn;
+import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 

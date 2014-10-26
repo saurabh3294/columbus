@@ -8,9 +8,9 @@ import javax.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.proptiger.core.model.proptiger.Dashboard;
+import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
-import com.proptiger.data.pojo.FIQLSelector;
 
 public class DashboardDaoImpl {
     @Autowired

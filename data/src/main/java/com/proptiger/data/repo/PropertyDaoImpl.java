@@ -31,21 +31,21 @@ import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.SortBy;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.repo.SolrDao;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.FieldsMapLoader;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.pojo.response.PaginatedResponse;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.SolrResponseReader;
-import com.proptiger.data.util.UtilityClass;
 
 /**
  * @author mandeep

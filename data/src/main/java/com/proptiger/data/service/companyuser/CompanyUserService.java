@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.CompanyCoverage;
 import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.data.model.companyuser.CompanyUser;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.companyuser.CompanyUserDao;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * Service class to get agent related details

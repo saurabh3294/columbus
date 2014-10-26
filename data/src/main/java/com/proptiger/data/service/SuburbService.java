@@ -14,9 +14,9 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Suburb;
-import com.proptiger.data.pojo.Selector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.repo.SuburbDao;
-import com.proptiger.data.util.Constants;
 
 /**
  * @author mandeep

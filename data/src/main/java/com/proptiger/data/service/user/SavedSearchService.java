@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.exception.ResourceAlreadyExistException;
 import com.proptiger.data.model.user.SavedSearch;
 import com.proptiger.data.repo.user.SavedSearchDao;
-import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
  * @author Rajeev Pandey

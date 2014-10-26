@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.service.user.UserSubscriptionService;
-import com.proptiger.exception.UnauthorizedException;
 
 /**
  * This class appends the subscription permissions for logged in user to the
@@ -29,9 +29,6 @@ public class RequestInterceptorTrend {
     @Autowired
     private UserSubscriptionService    userSubscriptionService;
 
-    // @Pointcut(value =
-    // "execution(* com.proptiger.data.mvc.trend.TrendController.get*Trend(..)) || execution(* com.proptiger.data.mvc.trend.BuilderTrendController.get*(..))")
-    
     @Pointcut("@annotation(com.proptiger.core.annotations.Intercepted.Trend)")
     public void addSubscriptionPermissionsToSelectorPointCut() {
     }

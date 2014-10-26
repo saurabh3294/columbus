@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
-import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.APIResponse;
 
 @Controller
 @RequestMapping("data/v1/log")

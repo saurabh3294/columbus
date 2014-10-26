@@ -21,6 +21,7 @@ import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.Application;
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.model.proptiger.CompanySubscription;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
 import com.proptiger.core.repo.APIAccessLogDao;
@@ -36,7 +37,6 @@ import com.proptiger.data.repo.CompanyIPDao;
 import com.proptiger.data.repo.user.UserOTPDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.user.UserSubscriptionService;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * Service class to handle generation/validation of one time password.

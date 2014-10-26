@@ -23,11 +23,12 @@ import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.ProjectDB;
 import com.proptiger.core.model.cms.ProjectSpecification;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.LandMarkService;
@@ -37,7 +38,6 @@ import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.user.ProjectDiscussionsService;
-import com.proptiger.data.util.UtilityClass;
 
 /**
  * @author mandeep

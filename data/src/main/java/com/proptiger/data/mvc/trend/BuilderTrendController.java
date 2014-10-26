@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.dto.internal.ActiveUser;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.service.trend.BuilderTrendService;
-import com.proptiger.data.util.Constants;
 
 /**
  * Controller for custom builder trend

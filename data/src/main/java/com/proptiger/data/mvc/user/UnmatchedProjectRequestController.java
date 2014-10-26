@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UnmatchedProjectRequestService;
-import com.proptiger.data.util.Constants;
 
 /**
  * This class handles the request for project that is not in proptiger database,

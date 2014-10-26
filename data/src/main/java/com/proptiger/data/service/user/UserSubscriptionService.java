@@ -17,13 +17,13 @@ import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.proptiger.Permission;
 import com.proptiger.core.model.proptiger.SubscriptionPermission;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.model.trend.Trend;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.service.LocalityService;
-import com.proptiger.data.util.Constants;
 
 @Service
 public class UserSubscriptionService {

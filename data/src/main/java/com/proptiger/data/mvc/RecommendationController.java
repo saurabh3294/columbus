@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
-import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.RecommendationService;
 

@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserAttribute;
@@ -24,8 +26,6 @@ import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.CouponCatalogueDao;
 import com.proptiger.data.service.transaction.TransactionService;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 @Service
 public class CouponCatalogueService {

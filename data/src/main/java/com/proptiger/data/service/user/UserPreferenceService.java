@@ -8,15 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.ResourceAlreadyExistException;
+import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.model.user.UserPreference;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.repo.user.DashboardDao;
 import com.proptiger.data.repo.user.UserPreferenceDao;
 import com.proptiger.data.util.UserPreferenceProcessor;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceAlreadyExistException;
-import com.proptiger.exception.UnauthorizedException;
 
 /**
  * B2b User Detail Service Class

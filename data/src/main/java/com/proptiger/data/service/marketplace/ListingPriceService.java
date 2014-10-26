@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.Status;
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.data.repo.ListingPriceDao;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * @author Rajeev Pandey

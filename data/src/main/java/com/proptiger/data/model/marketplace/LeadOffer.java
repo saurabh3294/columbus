@@ -28,10 +28,10 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.model.MasterLeadOfferStatus;
-import com.proptiger.data.util.DateUtil;
 
 /**
  * @author mandeep

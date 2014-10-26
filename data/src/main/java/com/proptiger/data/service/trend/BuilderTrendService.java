@@ -18,18 +18,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.ConstructionStatus;
 import com.proptiger.core.enums.UnitType;
+import com.proptiger.core.exception.ResourceNotFoundException;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.dto.external.trend.BuilderTrend;
-import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.init.comparator.GenericComparator;
 import com.proptiger.data.model.trend.Trend;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.BuilderService;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.UtilityClass;
-import com.proptiger.exception.ResourceNotFoundException;
 
 /**
  * Service for custom builder trend

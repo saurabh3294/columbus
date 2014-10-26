@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.core.model.cms.City;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.Selector;
 import com.proptiger.data.model.WordpressPost;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.BlogNewsDao;
 
 /**

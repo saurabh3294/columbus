@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * @author Rajeev Pandey

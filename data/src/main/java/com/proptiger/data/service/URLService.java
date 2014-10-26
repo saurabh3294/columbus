@@ -18,22 +18,22 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.Builder;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Suburb;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.init.NullAwareBeanUtilsBean;
 import com.proptiger.data.model.RedirectUrlMap;
 import com.proptiger.data.model.URLDetail;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.repo.RedirectUrlMapDao;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PageType;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 

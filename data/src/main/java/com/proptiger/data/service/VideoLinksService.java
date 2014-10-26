@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.VideoLinks;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.repo.VideoLinksDao;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
 
 @Service

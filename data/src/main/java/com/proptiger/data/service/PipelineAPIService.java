@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
-import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.util.URLUtil;
 
 @Service

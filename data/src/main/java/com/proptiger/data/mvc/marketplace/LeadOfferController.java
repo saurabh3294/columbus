@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.model.marketplace.LeadOffer;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.marketplace.LeadOfferService;
-import com.proptiger.data.util.Constants;
 
 @Controller
 public class LeadOfferController extends BaseController {

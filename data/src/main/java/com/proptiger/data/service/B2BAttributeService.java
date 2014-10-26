@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.data.model.B2BAttribute;
 import com.proptiger.data.repo.B2BAttributeDao;
-import com.proptiger.exception.ProAPIException;
 
 @Service
 public class B2BAttributeService {

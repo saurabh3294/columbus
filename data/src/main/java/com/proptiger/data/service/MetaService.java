@@ -20,13 +20,13 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.enums.DataType;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.meta.FieldMetaData;
 import com.proptiger.data.model.meta.ResourceModelMeta;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * This class will provide the meta information of all classes annotated with
