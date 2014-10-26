@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.service.user.portfolio.PortfolioPriceTrendService;
-import com.proptiger.data.util.DateUtil;
 
 public class PortfolioPriceTrendServiceTest extends AbstractTest {
     @Autowired

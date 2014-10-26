@@ -22,9 +22,6 @@ import org.springframework.web.client.RestTemplate;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.proptiger.app.typeahead.suggestions.NLPSuggestionHandler;
-import com.proptiger.app.typeahead.thandlers.TemplateTypes;
-import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.service.AbstractTest;
 import com.proptiger.data.util.URLUtil;
 

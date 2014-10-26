@@ -14,9 +14,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.mocker.NotificationMockerService;
-import com.proptiger.data.model.user.User;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
