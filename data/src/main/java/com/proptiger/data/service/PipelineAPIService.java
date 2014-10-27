@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.URLUtil;
 
 @Service
 public class PipelineAPIService {
