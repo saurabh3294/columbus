@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.google.gson.Gson;
+import com.proptiger.core.model.BaseModel;
 
 @Entity
 @Table(name = "seo_footer")

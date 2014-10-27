@@ -13,7 +13,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.notification.enums.MediumType;
 
 @Entity

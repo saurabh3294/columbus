@@ -17,8 +17,8 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Property;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;

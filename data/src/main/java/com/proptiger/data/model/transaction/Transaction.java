@@ -21,9 +21,9 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
-import com.proptiger.data.model.user.User;
 
 /**
  * @author mandeep

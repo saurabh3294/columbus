@@ -16,12 +16,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.ResourceNotFoundException;
+import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.MasterLeadOfferStatus;
 import com.proptiger.data.model.MasterLeadTask;
@@ -31,9 +41,7 @@ import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.LeadTaskStatusReason;
 import com.proptiger.data.model.marketplace.TaskOfferedListingMapping;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.MasterLeadTaskDao;
@@ -46,14 +54,6 @@ import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
 import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.marketplace.NotificationService;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.data.util.SecurityContextUtils;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceNotFoundException;
-import com.proptiger.exception.UnauthorizedException;
 
 /**
  * 

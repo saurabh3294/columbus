@@ -3,7 +3,7 @@ package com.proptiger.data.init;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
-import com.proptiger.data.annotations.ExcludeFromBeanCopy;
+import com.proptiger.core.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.filter.FieldsMapLoader;
 
 public class ExclusionAwareBeanUtilsBean extends NullAwareBeanUtilsBean {

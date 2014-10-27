@@ -3,7 +3,7 @@ package com.proptiger.data.notification.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.model.payload.EmailSenderPayload;
 import com.proptiger.data.notification.model.payload.NotificationSenderPayload;

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.APIResponse;
 
 /**
  * Utility class to write error message on response object using PrintWriter

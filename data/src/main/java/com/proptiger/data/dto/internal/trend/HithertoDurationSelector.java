@@ -1,6 +1,7 @@
 package com.proptiger.data.dto.internal.trend;
 
-import com.proptiger.data.util.DateUtil;
+import com.proptiger.core.util.DateUtil;
+
 
 /**
  * This class functions as a selector for duration in Hitherto-Trends. The

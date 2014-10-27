@@ -5,8 +5,8 @@ package com.proptiger.data.repo;
 
 import java.io.File;
 
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.model.image.Image;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.proptiger.Image;
 
 /**
  * @author mandeep

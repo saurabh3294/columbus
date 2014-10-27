@@ -20,9 +20,9 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
-import com.proptiger.data.annotations.ExcludeFromBeanCopy;
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.exception.ProAPIException;
+import com.proptiger.core.annotations.ExcludeFromBeanCopy;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.model.BaseModel;
 
 /**
  * 

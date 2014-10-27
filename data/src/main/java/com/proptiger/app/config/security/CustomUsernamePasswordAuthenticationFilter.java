@@ -9,17 +9,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.service.security.OTPService;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.exception.AuthenticationExceptionImpl;
 
 /**

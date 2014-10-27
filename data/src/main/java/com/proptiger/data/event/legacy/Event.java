@@ -3,7 +3,7 @@
  */
 package com.proptiger.data.event.legacy;
 
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 /**
  * H

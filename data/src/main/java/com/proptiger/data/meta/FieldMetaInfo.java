@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.proptiger.data.enums.DataType;
+import com.proptiger.core.enums.DataType;
 
 /**
  * A program element annotated with FieldMetaInfo is one that will be parsed to
