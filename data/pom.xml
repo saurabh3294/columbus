@@ -426,7 +426,7 @@
 		<dependency>
 			<groupId>com.proptiger</groupId>
 			<artifactId>midl-core</artifactId>
-			<version>test</version>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 	<repositories>
