@@ -23,40 +23,46 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.enums.ResidentialFlag;
+import com.proptiger.core.dto.internal.mail.ListingAddMail;
+import com.proptiger.core.dto.internal.mail.ListingLoanRequestMail;
+import com.proptiger.core.dto.internal.mail.ListingResaleMail;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ListingStatus;
+import com.proptiger.core.enums.ResidentialFlag;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.ResourceTypeField;
+import com.proptiger.core.exception.ConstraintViolationException;
+import com.proptiger.core.exception.DuplicateNameResourceException;
+import com.proptiger.core.exception.InvalidResourceException;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.cms.City;
+import com.proptiger.core.model.cms.ListingPrice;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.proptiger.Image;
+import com.proptiger.core.model.proptiger.OverallReturn;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.proptiger.PortfolioListing.Source;
+import com.proptiger.core.model.proptiger.PortfolioListingPaymentPlan;
+import com.proptiger.core.model.proptiger.PortfolioListingPrice;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.enums.mail.MailType;
-import com.proptiger.data.enums.portfolio.ListingStatus;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
-import com.proptiger.data.enums.resource.ResourceTypeField;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
-import com.proptiger.data.internal.dto.mail.ListingAddMail;
-import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
-import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.model.City;
-import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.ListingPrice;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectPaymentSchedule;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.model.image.Image;
-import com.proptiger.data.model.user.User;
-import com.proptiger.data.model.user.portfolio.OverallReturn;
 import com.proptiger.data.model.user.portfolio.Portfolio;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
-import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
-import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
-import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.PropertyDao;
-import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.CityService;
@@ -70,15 +76,8 @@ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.user.LeadGenerationService;
 import com.proptiger.data.service.user.SubscriptionService;
-import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.portfolio.PortfolioUtil;
-import com.proptiger.exception.ConstraintViolationException;
-import com.proptiger.exception.DuplicateNameResourceException;
-import com.proptiger.exception.InvalidResourceException;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * This class provides CRUD operations over a property listing that is a
@@ -142,7 +141,7 @@ public class PortfolioService {
     private ImageEnricher             imageEnricher;
     
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
 
     /**
      * Get portfolio object for a particular user id
@@ -787,27 +786,27 @@ public class PortfolioService {
      * @return
      */
     private boolean sendMail(Integer userId, PortfolioListing listing, MailType mailTypeEnum) {
-        ForumUser user = listing.getForumUser();
+        User user = userService.getUserById(listing.getUserId());
         String toStr = user.getEmail();
         MailBody mailBody = null;
         MailDetails mailDetails = null;
         switch (mailTypeEnum) {
             case LISTING_ADD_MAIL_TO_USER:
-                ListingAddMail listingAddMail = listing.createListingAddMailObject();
+                ListingAddMail listingAddMail = listing.createListingAddMailObject(user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING,
                         listingAddMail);
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_USER:
-                ListingLoanRequestMail listingLoanRequestMail = listing.createListingLoanRequestObj();
+                ListingLoanRequestMail listingLoanRequestMail = listing.createListingLoanRequestObj(user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_USER,
                         listingLoanRequestMail);
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
-                ListingLoanRequestMail listingLoanRequestMailInternal = listing.createListingLoanRequestObj();
+                ListingLoanRequestMail listingLoanRequestMailInternal = listing.createListingLoanRequestObj(user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL,
                         listingLoanRequestMailInternal);
@@ -815,7 +814,7 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
-                ListingResaleMail listingResaleMailInternal = listing.createListingResaleMailObj(websiteHost);
+                ListingResaleMail listingResaleMailInternal = listing.createListingResaleMailObj(websiteHost, user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL,
                         listingResaleMailInternal);
@@ -823,7 +822,7 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_USER:
-                ListingResaleMail listingResaleMailUser = listing.createListingResaleMailObj(websiteHost);
+                ListingResaleMail listingResaleMailUser = listing.createListingResaleMailObj(websiteHost, user);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER,
                         listingResaleMailUser);
@@ -838,7 +837,7 @@ public class PortfolioService {
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
         User user = null;
         if (portfolioListing.getUserId() != null) {
-            user = userDao.findById(portfolioListing.getUserId());
+            user = userService.getUserById(portfolioListing.getUserId());
             if (user == null) {
                 throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
             }
@@ -918,7 +917,6 @@ public class PortfolioService {
             throw new PersistenceException("Sell your property request cannot be saved.");
         }
         
-        savePortfolioListing.setForumUser(user.createForumUser());
         sendMailOnSellYourProperty(savePortfolioListing);
         return savePortfolioListing;
     }

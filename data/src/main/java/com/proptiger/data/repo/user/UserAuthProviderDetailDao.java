@@ -2,7 +2,7 @@ package com.proptiger.data.repo.user;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.proptiger.data.model.user.UserAuthProviderDetail;
+import com.proptiger.core.model.user.UserAuthProviderDetail;
 
 /**
  * 

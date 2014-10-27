@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectError;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ProjectService;
@@ -106,13 +106,6 @@ public class ProjectController extends BaseController {
      * APIResponse(super.filterFields(response.getResult(),
      * fieldsString), response.getTotalResultCount()); }
      */
-
-    @RequestMapping("data/v1/entity/project/{projectId}/discussions")
-    @ResponseBody
-    public APIResponse getDiscussions(@RequestParam(required = false) Long commentId, @PathVariable int projectId) {
-        List<ProjectDiscussion> comments = projectService.getDiscussions(projectId, commentId);
-        return new APIResponse(super.filterFields(comments, null));
-    }
 
     /*
      * The Request Mapping url has to be changed to
@@ -194,27 +187,6 @@ public class ProjectController extends BaseController {
         return new APIResponse(super.filterFields(projects, propRequestParam.getFields()), projectCount);
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/data/v2/entity/project/{projectId}/discussions", method = RequestMethod.GET)
-    @DisableCaching
-    public APIResponse getProjectComments(
-            @PathVariable int projectId,
-            @RequestParam(required = false) String selector) {
-
-        Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
-        if (propRequestParam == null) {
-            propRequestParam = new Selector();
-        }
-
-        Set<String> fields = propRequestParam.getFields();
-        PaginatedResponse<List<ProjectDiscussion>> projectComments = projectDiscussionsService.getProjectComments(
-                projectId,
-                propRequestParam.getPaging());
-
-        return new APIResponse(
-                super.filterFields(projectComments.getResults(), fields),
-                projectComments.getTotalCount());
-    }
 
     @RequestMapping(value = "/data/v1/entity/project/highest-return")
     @ResponseBody

@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.proptiger.core.model.cms.Company;
 import com.proptiger.data.enums.ActivationStatus;
-import com.proptiger.data.model.Company;
 import com.proptiger.data.model.companyuser.CompanyUser;
 
 /**

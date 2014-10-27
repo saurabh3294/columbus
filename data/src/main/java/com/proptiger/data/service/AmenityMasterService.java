@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.AmenityMaster;
+import com.proptiger.core.model.cms.AmenityMaster;
 import com.proptiger.data.repo.AmenityMasterDao;
 
 /**

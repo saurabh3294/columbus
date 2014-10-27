@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.exception.ConstraintViolationException;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
@@ -23,9 +26,6 @@ import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.service.marketplace.LeadService;
 import com.proptiger.data.service.marketplace.NotificationService;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.exception.ConstraintViolationException;
 
 /**
  * 

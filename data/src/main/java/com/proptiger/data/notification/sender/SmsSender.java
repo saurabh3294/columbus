@@ -10,7 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.proptiger.data.model.user.UserContactNumber;
+import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 import com.proptiger.data.service.user.UserService;
 
@@ -42,7 +43,7 @@ public class SmsSender implements MediumSender {
     private UserService         userService;
 
     @Override
-    public boolean send(String template, Integer userId, String typeName, NotificationSenderPayload payload) {
+    public boolean send(String template, Integer userId, NotificationGenerated nGenerated, NotificationSenderPayload payload) {
         
         if (userId == null) {
             logger.error("Found null User Id while sending SMS.");

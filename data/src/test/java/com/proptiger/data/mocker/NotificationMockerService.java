@@ -8,8 +8,8 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.user.User;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.enums.Tokens;
@@ -97,6 +97,21 @@ public class NotificationMockerService {
         return new NotificationMessage(userId, payload, notiType);
     }
 
+    public NotificationMessage getMockNotificationMessageForTemplateMap(
+            Map<String, Object> templateMap,
+            String fromEmail,
+            List<String> ccList,
+            List<String> bccList) {
+        Integer userId = 1211884;
+        NotificationType notiType = getMockNotificationType();
+        NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplateMap(
+                templateMap,
+                fromEmail,
+                ccList,
+                bccList);
+        return new NotificationMessage(userId, payload, notiType);
+    }
+
     public NotificationMessage getMockNotificationMessage() {
         Integer userId = 241221;
         NotificationType notiType = getMockNotificationType();
@@ -163,6 +178,20 @@ public class NotificationMockerService {
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setNotificationTypePayload(getMockNotificationTypePayload());
         payload.setExtraAttributes(templateMap);
+        return payload;
+    }
+
+    private NotificationMessagePayload getMockNotificationMessagePayloadWithTemplateMap(
+            Map<String, Object> templateMap,
+            String fromEmail,
+            List<String> ccList,
+            List<String> bccList) {
+        NotificationMessagePayload payload = new NotificationMessagePayload();
+        payload.setNotificationTypePayload(getMockNotificationTypePayload());
+        payload.setExtraAttributes(templateMap);
+        payload.setCcList(ccList);
+        payload.setBccList(bccList);
+        payload.setFromEmail(fromEmail);
         return payload;
     }
 

@@ -20,6 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -42,13 +48,7 @@ import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SerializationUtils;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.UnauthorizedException;
 import com.rits.cloning.Cloner;
 
 /**

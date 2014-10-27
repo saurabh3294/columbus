@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 @Entity
 @Table(name = "subscription_type")

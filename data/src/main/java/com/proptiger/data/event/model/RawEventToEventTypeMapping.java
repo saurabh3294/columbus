@@ -13,46 +13,41 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.event.enums.DBOperation;
-import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "notification.raw_event_to_event_type_mapping")
-public class RawEventToEventTypeMapping extends BaseModel{
+public class RawEventToEventTypeMapping extends BaseModel {
 
     /**
      * 
      */
-    private static final long serialVersionUID = 8620987853665861856L;
+    private static final long  serialVersionUID = 8620987853665861856L;
 
     @Column(name = "id")
     @Id
-    private int         id;
-    
+    private int                id;
+
     @Column(name = "db_operation")
     @Enumerated(EnumType.STRING)
-    private DBOperation dbOperation;
+    private DBOperation        dbOperation;
 
     @Column(name = "attribute_name")
-    private String      attributeName;
-    
-    @Column(name = "event_type_id", insertable = false, updatable = false)
-    private Integer eventTypeId;
+    private String             attributeName;
 
-    //@OneToOne(fetch = FetchType.EAGER)
-    //@JoinColumn(name = "event_type_id", insertable = false, updatable = false)
-    @Transient
-    private EventType   eventType;
-    
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
+    private EventType          eventType;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "raw_event_table_id")
     private DBRawEventTableLog dbRawEventTableLog;
-    
+
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+    private Date               createdDate;
 
     public int getId() {
         return id;
@@ -92,14 +87,6 @@ public class RawEventToEventTypeMapping extends BaseModel{
 
     public void setDbRawEventTableLog(DBRawEventTableLog dbRawEventTableLog) {
         this.dbRawEventTableLog = dbRawEventTableLog;
-    }
-
-    public Integer getEventTypeId() {
-        return eventTypeId;
-    }
-
-    public void setEventTypeId(Integer eventTypeId) {
-        this.eventTypeId = eventTypeId;
     }
 
     public Date getCreatedDate() {

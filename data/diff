@@ -1,0 +1,1474 @@
+diff --git a/data/pom.xml b/data/pom.xml
+index 48f9ed2..cac4ccf 100644
+--- a/data/pom.xml
++++ b/data/pom.xml
+@@ -66,6 +66,13 @@
+ 				</dependencies>
+ 			</plugin>
+ 		</plugins>
++		<extensions>
++			<extension>
++				<groupId>org.springframework.build</groupId>
++				<artifactId>aws-maven</artifactId>
++				<version>5.0.0.RELEASE</version>
++			</extension>
++		</extensions>
+ 	</build>
+ 	<dependencies>
+ 		<dependency>
+@@ -419,7 +426,7 @@
+ 		<dependency>
+ 			<groupId>com.proptiger</groupId>
+ 			<artifactId>midl-core</artifactId>
+-			<version>0.0.2</version>
++			<version>test</version>
+ 		</dependency>
+ 	</dependencies>
+ 	<repositories>
+@@ -436,5 +443,10 @@
+ 			<id>spring-maven-snapshot</id>
+ 			<url>http://repo.springsource.org/libs-snapshot</url>
+ 		</repository>
++		<repository>
++			<id>proptiger-maven-repo</id>
++			<name>S3 Release Repository</name>
++			<url>s3://proptiger-maven-repo/release</url>
++		</repository>
+ 	</repositories>
+ </project>
+diff --git a/data/src/main/java/com/proptiger/api/filter/IPBasedAPIAccessFilter.java b/data/src/main/java/com/proptiger/api/filter/IPBasedAPIAccessFilter.java
+index 3f84c47..f85c910 100644
+--- a/data/src/main/java/com/proptiger/api/filter/IPBasedAPIAccessFilter.java
++++ b/data/src/main/java/com/proptiger/api/filter/IPBasedAPIAccessFilter.java
+@@ -19,8 +19,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
+ 
+ import com.proptiger.app.config.security.CustomAccessDeniedHandler;
+ import com.proptiger.core.constants.ResponseErrorMessages;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ 
+ /**
+  * This filter blocks a request coming from non white listed IP for API regex
+diff --git a/data/src/main/java/com/proptiger/app/config/security/AuthSuccessHandler.java b/data/src/main/java/com/proptiger/app/config/security/AuthSuccessHandler.java
+index 1ffbefe..2c8e8c2 100644
+--- a/data/src/main/java/com/proptiger/app/config/security/AuthSuccessHandler.java
++++ b/data/src/main/java/com/proptiger/app/config/security/AuthSuccessHandler.java
+@@ -14,7 +14,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
+ import com.fasterxml.jackson.databind.ObjectMapper;
+ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.mvc.UserController;
+ import com.proptiger.data.service.security.OTPService;
+ import com.proptiger.data.util.SecurityContextUtils;
+diff --git a/data/src/main/java/com/proptiger/app/config/security/CustomConcurrentSessionControlAuthenticationStrategy.java b/data/src/main/java/com/proptiger/app/config/security/CustomConcurrentSessionControlAuthenticationStrategy.java
+index 03df370..92b848c 100644
+--- a/data/src/main/java/com/proptiger/app/config/security/CustomConcurrentSessionControlAuthenticationStrategy.java
++++ b/data/src/main/java/com/proptiger/app/config/security/CustomConcurrentSessionControlAuthenticationStrategy.java
+@@ -4,8 +4,8 @@ import org.springframework.security.core.Authentication;
+ import org.springframework.security.core.session.SessionRegistry;
+ import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
+ 
+-import com.proptiger.data.enums.Application;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.enums.Application;
+ 
+ /**
+  * This class decides the no of session creation for a user depending on for
+diff --git a/data/src/main/java/com/proptiger/app/config/security/CustomUsernamePasswordAuthenticationFilter.java b/data/src/main/java/com/proptiger/app/config/security/CustomUsernamePasswordAuthenticationFilter.java
+index 10604cd..ea2cd12 100644
+--- a/data/src/main/java/com/proptiger/app/config/security/CustomUsernamePasswordAuthenticationFilter.java
++++ b/data/src/main/java/com/proptiger/app/config/security/CustomUsernamePasswordAuthenticationFilter.java
+@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
+ 
+ import com.proptiger.core.constants.ResponseCodes;
+ import com.proptiger.core.constants.ResponseErrorMessages;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.service.security.OTPService;
+ import com.proptiger.data.util.SecurityContextUtils;
+ import com.proptiger.exception.AuthenticationExceptionImpl;
+diff --git a/data/src/main/java/com/proptiger/app/config/security/PostAuthenticationCheck.java b/data/src/main/java/com/proptiger/app/config/security/PostAuthenticationCheck.java
+index 38e3ba1..061abd4 100644
+--- a/data/src/main/java/com/proptiger/app/config/security/PostAuthenticationCheck.java
++++ b/data/src/main/java/com/proptiger/app/config/security/PostAuthenticationCheck.java
+@@ -8,8 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsChecker;
+ 
+ import com.proptiger.core.constants.ResponseCodes;
+ import com.proptiger.core.constants.ResponseErrorMessages;
+-import com.proptiger.data.enums.Application;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.enums.Application;
+ import com.proptiger.data.service.user.UserSubscriptionService;
+ import com.proptiger.exception.AuthenticationExceptionImpl;
+ 
+diff --git a/data/src/main/java/com/proptiger/app/config/security/UserDetailManagerService.java b/data/src/main/java/com/proptiger/app/config/security/UserDetailManagerService.java
+index 5e3fa53..666d244 100644
+--- a/data/src/main/java/com/proptiger/app/config/security/UserDetailManagerService.java
++++ b/data/src/main/java/com/proptiger/app/config/security/UserDetailManagerService.java
+@@ -8,11 +8,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
+ import org.springframework.security.core.userdetails.UsernameNotFoundException;
+ import org.springframework.stereotype.Service;
+ 
+-import com.proptiger.data.enums.Application;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.enums.Application;
++import com.proptiger.core.service.ApplicationNameService;
+ import com.proptiger.data.model.user.User;
+ import com.proptiger.data.repo.user.UserDao;
+-import com.proptiger.data.service.ApplicationNameService;
+ import com.proptiger.data.util.SecurityContextUtils;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/app/config/security/social/CustomJdbcUsersConnectionRepository.java b/data/src/main/java/com/proptiger/app/config/security/social/CustomJdbcUsersConnectionRepository.java
+index a17b5b8..61c7b42 100644
+--- a/data/src/main/java/com/proptiger/app/config/security/social/CustomJdbcUsersConnectionRepository.java
++++ b/data/src/main/java/com/proptiger/app/config/security/social/CustomJdbcUsersConnectionRepository.java
+@@ -17,12 +17,12 @@ import org.springframework.social.connect.ConnectionSignUp;
+ import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
+ import org.springframework.social.security.SocialUser;
+ 
+-import com.proptiger.data.enums.Application;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.enums.Application;
++import com.proptiger.core.service.ApplicationNameService;
+ import com.proptiger.data.enums.AuthProvider;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.model.user.User;
+ import com.proptiger.data.repo.user.UserDao;
+-import com.proptiger.data.service.ApplicationNameService;
+ import com.proptiger.data.service.user.UserService;
+ import com.proptiger.data.util.SecurityContextUtils;
+ 
+diff --git a/data/src/main/java/com/proptiger/app/config/security/social/CustomSocialAuthFilter.java b/data/src/main/java/com/proptiger/app/config/security/social/CustomSocialAuthFilter.java
+index f5dead0..f67278f 100644
+--- a/data/src/main/java/com/proptiger/app/config/security/social/CustomSocialAuthFilter.java
++++ b/data/src/main/java/com/proptiger/app/config/security/social/CustomSocialAuthFilter.java
+@@ -27,9 +27,9 @@ import org.springframework.social.security.provider.SocialAuthenticationService;
+ import org.springframework.util.Assert;
+ 
+ import com.proptiger.app.config.security.ModifiableHttpServletRequest;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.util.Constants;
+ import com.proptiger.data.util.DateUtil;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.data.util.SecurityContextUtils;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/app/config/security/social/CustomSpringSocialConfigurer.java b/data/src/main/java/com/proptiger/app/config/security/social/CustomSpringSocialConfigurer.java
+index a50d3af..0b9a108 100644
+--- a/data/src/main/java/com/proptiger/app/config/security/social/CustomSpringSocialConfigurer.java
++++ b/data/src/main/java/com/proptiger/app/config/security/social/CustomSpringSocialConfigurer.java
+@@ -16,8 +16,8 @@ import org.springframework.social.security.SocialUserDetailsService;
+ import org.springframework.social.security.SpringSocialConfigurer;
+ 
+ import com.proptiger.app.config.security.AuthSuccessHandler;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.util.Constants;
+-import com.proptiger.data.util.PropertyReader;
+ 
+ /**
+  * Spring social filter configuration that will intercept provider login
+diff --git a/data/src/main/java/com/proptiger/app/config/security/social/SocialUserDetailServiceImpl.java b/data/src/main/java/com/proptiger/app/config/security/social/SocialUserDetailServiceImpl.java
+index 16d32ef..8b09d8a 100644
+--- a/data/src/main/java/com/proptiger/app/config/security/social/SocialUserDetailServiceImpl.java
++++ b/data/src/main/java/com/proptiger/app/config/security/social/SocialUserDetailServiceImpl.java
+@@ -9,11 +9,11 @@ import org.springframework.social.security.SocialUser;
+ import org.springframework.social.security.SocialUserDetails;
+ import org.springframework.social.security.SocialUserDetailsService;
+ 
+-import com.proptiger.data.enums.Application;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.enums.Application;
++import com.proptiger.core.service.ApplicationNameService;
+ import com.proptiger.data.model.user.User;
+ import com.proptiger.data.repo.user.UserDao;
+-import com.proptiger.data.service.ApplicationNameService;
+ import com.proptiger.data.util.SecurityContextUtils;
+ 
+ /**
+@@ -53,4 +53,4 @@ public class SocialUserDetailServiceImpl implements SocialUserDetailsService {
+         return socialUser;
+     }
+ 
+-}
++}
+\ No newline at end of file
+diff --git a/data/src/main/java/com/proptiger/cache/mvc/LeadTaskController.java b/data/src/main/java/com/proptiger/cache/mvc/LeadTaskController.java
+index 6c78cce..cdaf8dc 100644
+--- a/data/src/main/java/com/proptiger/cache/mvc/LeadTaskController.java
++++ b/data/src/main/java/com/proptiger/cache/mvc/LeadTaskController.java
+@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.external.dto.LeadTaskDto;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.meta.DisableCaching;
+ import com.proptiger.data.model.marketplace.LeadTask;
+ import com.proptiger.data.mvc.BaseController;
+diff --git a/data/src/main/java/com/proptiger/data/enums/security/MaxAllowedRequestCount.java b/data/src/main/java/com/proptiger/data/enums/security/MaxAllowedRequestCount.java
+index 8fa61a8..84247e8 100644
+--- a/data/src/main/java/com/proptiger/data/enums/security/MaxAllowedRequestCount.java
++++ b/data/src/main/java/com/proptiger/data/enums/security/MaxAllowedRequestCount.java
+@@ -1,7 +1,7 @@
+ package com.proptiger.data.enums.security;
+ 
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ 
+ /**
+  * Enum that hold value for allowable request count per request method in a time
+diff --git a/data/src/main/java/com/proptiger/data/external/dto/CustomUser.java b/data/src/main/java/com/proptiger/data/external/dto/CustomUser.java
+index e428692..0cde95b 100644
+--- a/data/src/main/java/com/proptiger/data/external/dto/CustomUser.java
++++ b/data/src/main/java/com/proptiger/data/external/dto/CustomUser.java
+@@ -11,7 +11,7 @@ import java.util.Set;
+ 
+ import org.apache.commons.lang.time.DateUtils;
+ 
+-import com.proptiger.data.enums.Application;
++import com.proptiger.core.enums.Application;
+ import com.proptiger.data.enums.SubscriptionSection;
+ import com.proptiger.data.model.Company;
+ import com.proptiger.data.model.UserPreference;
+diff --git a/data/src/main/java/com/proptiger/data/interceptor/RequestInterceptorTrend.java b/data/src/main/java/com/proptiger/data/interceptor/RequestInterceptorTrend.java
+index f75b123..4b8e5c3 100644
+--- a/data/src/main/java/com/proptiger/data/interceptor/RequestInterceptorTrend.java
++++ b/data/src/main/java/com/proptiger/data/interceptor/RequestInterceptorTrend.java
+@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
+ 
+ import com.proptiger.core.constants.ResponseCodes;
+ import com.proptiger.core.constants.ResponseErrorMessages;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.service.ApplicationNameService;
+ import com.proptiger.data.pojo.FIQLSelector;
+-import com.proptiger.data.service.ApplicationNameService;
+ import com.proptiger.data.service.user.UserSubscriptionService;
+ import com.proptiger.data.util.SecurityContextUtils;
+ import com.proptiger.exception.UnauthorizedException;
+@@ -32,7 +32,7 @@ public class RequestInterceptorTrend {
+     // @Pointcut(value =
+     // "execution(* com.proptiger.data.mvc.trend.TrendController.get*Trend(..)) || execution(* com.proptiger.data.mvc.trend.BuilderTrendController.get*(..))")
+     
+-    @Pointcut("@annotation(com.proptiger.data.annotations.Intercepted.Trend)")
++    @Pointcut("@annotation(com.proptiger.core.annotations.Intercepted.Trend)")
+     public void addSubscriptionPermissionsToSelectorPointCut() {
+     }
+ 
+diff --git a/data/src/main/java/com/proptiger/data/interceptor/ResponseInterceptorListing.java b/data/src/main/java/com/proptiger/data/interceptor/ResponseInterceptorListing.java
+index d20d37a..a4623cf 100644
+--- a/data/src/main/java/com/proptiger/data/interceptor/ResponseInterceptorListing.java
++++ b/data/src/main/java/com/proptiger/data/interceptor/ResponseInterceptorListing.java
+@@ -15,8 +15,8 @@ import org.springframework.core.annotation.Order;
+ import org.springframework.security.core.context.SecurityContextHolder;
+ import org.springframework.stereotype.Component;
+ 
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.enums.DomainObject;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.pojo.response.APIResponse;
+ import com.proptiger.data.service.user.UserSubscriptionService;
+ 
+@@ -53,14 +53,9 @@ public class ResponseInterceptorListing {
+     @Autowired
+     private static Logger logger               = LoggerFactory.getLogger(ResponseInterceptorListing.class);
+ 
+-    // "@annotation(com.proptiger.data.annotations.Intercepted))"
+-    
+     @SuppressWarnings("unchecked")
+-//    @AfterReturning(
+-//            pointcut = "execution(java.lang.Object com.proptiger.app.mvc.ProjectListingController.getProjectListings(..))",
+-//            returning = "retVal")
+     @AfterReturning(
+-            pointcut = "@annotation(com.proptiger.data.annotations.Intercepted.ProjectListing)",
++            pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.ProjectListing)",
+             returning = "retVal")
+     public void filterResponseProjectListings(Object retVal) throws Throwable {
+ 
+@@ -84,11 +79,8 @@ public class ResponseInterceptorListing {
+     }
+ 
+     @SuppressWarnings("unchecked")
+-//    @AfterReturning(
+-//            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.app.mvc.AppLocalityController.getLocalityListingData(..))",
+-//            returning = "retVal")
+     @AfterReturning(
+-            pointcut = "@annotation(com.proptiger.data.annotations.Intercepted.LocalityListing)",
++            pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.LocalityListing)",
+             returning = "retVal")
+     public void filterResponseLocalityListings(Object retVal) throws Throwable {
+         Object data = getApiResponseData(retVal);
+@@ -111,11 +103,8 @@ public class ResponseInterceptorListing {
+     }
+ 
+     @SuppressWarnings("unchecked")
+-//    @AfterReturning(
+-//            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.data.mvc.CityController.getCities(..))",
+-//            returning = "retVal")
+     @AfterReturning(
+-            pointcut = "@annotation(com.proptiger.data.annotations.Intercepted.CityListing))",
++            pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.CityListing))",
+             returning = "retVal")
+     public void filterResponseCityListings(Object retVal) throws Throwable {
+         Object data = getApiResponseData(retVal);
+@@ -134,11 +123,8 @@ public class ResponseInterceptorListing {
+     }
+ 
+     @SuppressWarnings("unchecked")
+-//    @AfterReturning(
+-//            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.data.mvc.TypeaheadController.*(..))",
+-//            returning = "retVal")
+     @AfterReturning(
+-            pointcut = "@annotation(com.proptiger.data.annotations.Intercepted.TypeaheadListing))",
++            pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.TypeaheadListing))",
+             returning = "retVal")
+     public void filterTypeAhead(Object retVal) throws Throwable {
+         Object data = getApiResponseData(retVal);
+diff --git a/data/src/main/java/com/proptiger/data/model/UserPreference.java b/data/src/main/java/com/proptiger/data/model/UserPreference.java
+index 0ba58d1..1667545 100644
+--- a/data/src/main/java/com/proptiger/data/model/UserPreference.java
++++ b/data/src/main/java/com/proptiger/data/model/UserPreference.java
+@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
+ import com.fasterxml.jackson.databind.JsonNode;
+ import com.github.fge.jsonschema.util.JsonLoader;
+ import com.proptiger.core.annotations.ExcludeFromBeanCopy;
+-import com.proptiger.data.enums.Application;
++import com.proptiger.core.enums.Application;
+ 
+ /**
+  * B2b User Detail Model
+diff --git a/data/src/main/java/com/proptiger/data/model/marketplace/LeadOffer.java b/data/src/main/java/com/proptiger/data/model/marketplace/LeadOffer.java
+index 6769393..5183426 100644
+--- a/data/src/main/java/com/proptiger/data/model/marketplace/LeadOffer.java
++++ b/data/src/main/java/com/proptiger/data/model/marketplace/LeadOffer.java
+@@ -25,13 +25,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
+ import com.fasterxml.jackson.annotation.JsonInclude;
+ import com.fasterxml.jackson.annotation.JsonInclude.Include;
+ import com.fasterxml.jackson.annotation.JsonManagedReference;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.model.BaseModel;
+ import com.proptiger.data.model.Listing;
+ import com.proptiger.data.model.MasterLeadOfferStatus;
+ import com.proptiger.data.model.user.User;
+ import com.proptiger.data.util.DateUtil;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ 
+ /**
+  * @author mandeep
+diff --git a/data/src/main/java/com/proptiger/data/mvc/BlogNewsController.java b/data/src/main/java/com/proptiger/data/mvc/BlogNewsController.java
+index 088a417..58fd91f 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/BlogNewsController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/BlogNewsController.java
+@@ -22,7 +22,6 @@ import com.proptiger.data.service.BlogNewsService;
+  */
+ @Controller
+ public class BlogNewsController extends BaseController {
+-
+     @Autowired
+     private BlogNewsService blogNewsService;
+ 
+diff --git a/data/src/main/java/com/proptiger/data/mvc/CatchmentController.java b/data/src/main/java/com/proptiger/data/mvc/CatchmentController.java
+index a410229..25e300c 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/CatchmentController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/CatchmentController.java
+@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.meta.DisableCaching;
+ import com.proptiger.data.model.Catchment;
+ import com.proptiger.data.pojo.FIQLSelector;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/CompanyUserController.java b/data/src/main/java/com/proptiger/data/mvc/CompanyUserController.java
+index a42d0b8..35b3d24 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/CompanyUserController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/CompanyUserController.java
+@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
+ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.model.companyuser.CompanyUser;
+ import com.proptiger.data.pojo.FIQLSelector;
+ import com.proptiger.data.pojo.response.APIResponse;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/GCMUserController.java b/data/src/main/java/com/proptiger/data/mvc/GCMUserController.java
+index d5e9124..0e46d76 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/GCMUserController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/GCMUserController.java
+@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+ import com.proptiger.core.constants.ResponseCodes;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.model.GCMUser;
+ import com.proptiger.data.pojo.response.APIResponse;
+ import com.proptiger.data.service.GCMUserService;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/LocalityRatingController.java b/data/src/main/java/com/proptiger/data/mvc/LocalityRatingController.java
+index 6880696..98f7e11 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/LocalityRatingController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/LocalityRatingController.java
+@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.meta.DisableCaching;
+ import com.proptiger.data.model.LocalityRatings;
+ import com.proptiger.data.pojo.response.APIResponse;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/LocalityReviewController.java b/data/src/main/java/com/proptiger/data/mvc/LocalityReviewController.java
+index 0bcc6c8..5ee33ce 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/LocalityReviewController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/LocalityReviewController.java
+@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.meta.DisableCaching;
+ import com.proptiger.data.model.LocalityReviewComments;
+ import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/ProjectPhaseController.java b/data/src/main/java/com/proptiger/data/mvc/ProjectPhaseController.java
+index 157f003..f056fac 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/ProjectPhaseController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/ProjectPhaseController.java
+@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
++import com.proptiger.core.service.ApplicationNameService;
+ import com.proptiger.data.enums.DataVersion;
+ import com.proptiger.data.pojo.FIQLSelector;
+ import com.proptiger.data.pojo.response.APIResponse;
+-import com.proptiger.data.service.ApplicationNameService;
+ import com.proptiger.data.service.B2BAttributeService;
+ import com.proptiger.data.service.ProjectPhaseService;
+ 
+diff --git a/data/src/main/java/com/proptiger/data/mvc/PropertyController.java b/data/src/main/java/com/proptiger/data/mvc/PropertyController.java
+index 840ed75..7c3b9ce 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/PropertyController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/PropertyController.java
+@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.meta.DisableCaching;
+ import com.proptiger.data.model.ProjectError;
+ import com.proptiger.data.model.Property;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/UserController.java b/data/src/main/java/com/proptiger/data/mvc/UserController.java
+index 5819c86..21c7de6 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/UserController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/UserController.java
+@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.util.Constants;
+ import com.proptiger.data.external.dto.CustomUser;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.internal.dto.ChangePassword;
+ import com.proptiger.data.internal.dto.RegisterUser;
+ import com.proptiger.data.meta.DisableCaching;
+@@ -25,7 +26,6 @@ import com.proptiger.data.pojo.response.APIResponse;
+ import com.proptiger.data.service.user.UserService;
+ import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
+ import com.proptiger.data.service.user.UserService.UserCommunicationType;
+-import com.proptiger.data.util.Constants;
+ 
+ /**
+  * APIs to find whether a user have already enquired about a entity
+diff --git a/data/src/main/java/com/proptiger/data/mvc/UserPreferenceController.java b/data/src/main/java/com/proptiger/data/mvc/UserPreferenceController.java
+index f48544a..2fc8ddb 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/UserPreferenceController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/UserPreferenceController.java
+@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.meta.DisableCaching;
+ import com.proptiger.data.model.UserPreference;
+ import com.proptiger.data.pojo.response.APIResponse;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/marketplace/LeadOfferController.java b/data/src/main/java/com/proptiger/data/mvc/marketplace/LeadOfferController.java
+index 0df3036..e5fa6a3 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/marketplace/LeadOfferController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/marketplace/LeadOfferController.java
+@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.internal.dto.SenderDetail;
+ import com.proptiger.data.model.Listing;
+ import com.proptiger.data.model.marketplace.LeadOffer;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/marketplace/ListingController.java b/data/src/main/java/com/proptiger/data/mvc/marketplace/ListingController.java
+index dcb949a..9064e0e 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/marketplace/ListingController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/marketplace/ListingController.java
+@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.model.Listing;
+ import com.proptiger.data.mvc.BaseController;
+ import com.proptiger.data.pojo.FIQLSelector;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/security/OTPController.java b/data/src/main/java/com/proptiger/data/mvc/security/OTPController.java
+index a21c330..10f4994 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/security/OTPController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/security/OTPController.java
+@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.mvc.BaseController;
+ import com.proptiger.data.pojo.response.APIResponse;
+ import com.proptiger.data.service.security.OTPService;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/trend/BuilderTrendController.java b/data/src/main/java/com/proptiger/data/mvc/trend/BuilderTrendController.java
+index 5a1d604..910949c 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/trend/BuilderTrendController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/trend/BuilderTrendController.java
+@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+ import com.proptiger.core.annotations.Intercepted;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.mvc.BaseController;
+ import com.proptiger.data.pojo.FIQLSelector;
+ import com.proptiger.data.pojo.response.APIResponse;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/trend/TrendController.java b/data/src/main/java/com/proptiger/data/mvc/trend/TrendController.java
+index 037edcf..113d82c 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/trend/TrendController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/trend/TrendController.java
+@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+ import com.proptiger.core.annotations.Intercepted;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.meta.DisableCaching;
+ import com.proptiger.data.model.trend.Trend;
+ import com.proptiger.data.mvc.BaseController;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/trend/UserGraphController.java b/data/src/main/java/com/proptiger/data/mvc/trend/UserGraphController.java
+index c52bec7..d9ff74c 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/trend/UserGraphController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/trend/UserGraphController.java
+@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.model.trend.Graph;
+ import com.proptiger.data.mvc.BaseController;
+ import com.proptiger.data.pojo.FIQLSelector;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/user/DashboardController.java b/data/src/main/java/com/proptiger/data/mvc/user/DashboardController.java
+index 7d6c73b..9a8f61c 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/user/DashboardController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/user/DashboardController.java
+@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.internal.dto.DashboardDto;
+ import com.proptiger.data.model.user.Dashboard;
+ import com.proptiger.data.model.user.DashboardWidgetMapping;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/user/EnquiryController.java b/data/src/main/java/com/proptiger/data/mvc/user/EnquiryController.java
+index ff9cbb1..4f86230 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/user/EnquiryController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/user/EnquiryController.java
+@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.model.Enquiry.EnquiryCustomDetails;
+ import com.proptiger.data.mvc.BaseController;
+ import com.proptiger.data.pojo.response.APIResponse;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/user/ProjectDiscussionsController.java b/data/src/main/java/com/proptiger/data/mvc/user/ProjectDiscussionsController.java
+index b456dba..bbcabbf 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/user/ProjectDiscussionsController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/user/ProjectDiscussionsController.java
+@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.meta.DisableCaching;
+ import com.proptiger.data.model.ProjectDiscussion;
+ import com.proptiger.data.mvc.BaseController;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/user/SavedSearchController.java b/data/src/main/java/com/proptiger/data/mvc/user/SavedSearchController.java
+index 864ce63..3dd9cf8 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/user/SavedSearchController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/user/SavedSearchController.java
+@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.model.user.SavedSearch;
+ import com.proptiger.data.mvc.BaseController;
+ import com.proptiger.data.pojo.response.APIResponse;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/user/UnmatchedProjectRequestController.java b/data/src/main/java/com/proptiger/data/mvc/user/UnmatchedProjectRequestController.java
+index a631903..b5ec66f 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/user/UnmatchedProjectRequestController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/user/UnmatchedProjectRequestController.java
+@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
+ import com.proptiger.data.mvc.BaseController;
+ import com.proptiger.data.pojo.response.APIResponse;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/user/UserWishListController.java b/data/src/main/java/com/proptiger/data/mvc/user/UserWishListController.java
+index 73a25ae..5ee5ea4 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/user/UserWishListController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/user/UserWishListController.java
+@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.internal.dto.UserWishListDto;
+ import com.proptiger.data.model.UserWishlist;
+ import com.proptiger.data.mvc.BaseController;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/user/portfolio/PortfolioController.java b/data/src/main/java/com/proptiger/data/mvc/user/portfolio/PortfolioController.java
+index c7e4d8d..0cc6591 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/user/portfolio/PortfolioController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/user/portfolio/PortfolioController.java
+@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ import org.springframework.web.bind.annotation.ResponseStatus;
+ 
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.enums.portfolio.ListingStatus;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.model.Subscription;
+ import com.proptiger.data.model.user.portfolio.Portfolio;
+ import com.proptiger.data.model.user.portfolio.PortfolioListing;
+diff --git a/data/src/main/java/com/proptiger/data/mvc/user/portfolio/PortfolioPriceTrendController.java b/data/src/main/java/com/proptiger/data/mvc/user/portfolio/PortfolioPriceTrendController.java
+index f380a01..d27db33 100644
+--- a/data/src/main/java/com/proptiger/data/mvc/user/portfolio/PortfolioPriceTrendController.java
++++ b/data/src/main/java/com/proptiger/data/mvc/user/portfolio/PortfolioPriceTrendController.java
+@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
+ 
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.internal.dto.PortfolioPriceTrend;
+ import com.proptiger.data.internal.dto.ProjectPriceTrend;
+ import com.proptiger.data.mvc.BaseController;
+diff --git a/data/src/main/java/com/proptiger/data/repo/BlogNewsDao.java b/data/src/main/java/com/proptiger/data/repo/BlogNewsDao.java
+index 9024b3c..fa1b0b0 100644
+--- a/data/src/main/java/com/proptiger/data/repo/BlogNewsDao.java
++++ b/data/src/main/java/com/proptiger/data/repo/BlogNewsDao.java
+@@ -14,7 +14,7 @@ import javax.persistence.Query;
+ import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.stereotype.Component;
+ 
+-import com.proptiger.app.config.AppRepositoryConfig;
++import com.proptiger.core.config.AppRepositoryConfig;
+ import com.proptiger.data.model.WordpressPost;
+ import com.proptiger.data.pojo.Paging;
+ 
+diff --git a/data/src/main/java/com/proptiger/data/repo/BuilderDaoImpl.java b/data/src/main/java/com/proptiger/data/repo/BuilderDaoImpl.java
+index 39e2207..5b7b148 100644
+--- a/data/src/main/java/com/proptiger/data/repo/BuilderDaoImpl.java
++++ b/data/src/main/java/com/proptiger/data/repo/BuilderDaoImpl.java
+@@ -14,7 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Repository;
+ 
+ import com.google.gson.Gson;
+-import com.proptiger.data.enums.DocumentType;
++import com.proptiger.core.enums.DocumentType;
++import com.proptiger.core.repo.SolrDao;
+ import com.proptiger.data.model.Builder;
+ import com.proptiger.data.model.filter.SolrQueryBuilder;
+ import com.proptiger.data.pojo.Selector;
+diff --git a/data/src/main/java/com/proptiger/data/repo/CMSDao.java b/data/src/main/java/com/proptiger/data/repo/CMSDao.java
+index 17fac99..528ea2b 100644
+--- a/data/src/main/java/com/proptiger/data/repo/CMSDao.java
++++ b/data/src/main/java/com/proptiger/data/repo/CMSDao.java
+@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
+ import org.springframework.web.client.RestClientException;
+ import org.springframework.web.client.RestTemplate;
+ 
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.util.HMAC_Client;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ 
+ /**
+  * 
+diff --git a/data/src/main/java/com/proptiger/data/repo/CityDao.java b/data/src/main/java/com/proptiger/data/repo/CityDao.java
+index c0301a8..6899287 100644
+--- a/data/src/main/java/com/proptiger/data/repo/CityDao.java
++++ b/data/src/main/java/com/proptiger/data/repo/CityDao.java
+@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Repository;
+ 
+-import com.proptiger.data.enums.DocumentType;
++import com.proptiger.core.enums.DocumentType;
++import com.proptiger.core.repo.SolrDao;
+ import com.proptiger.data.enums.filter.Operator;
+ import com.proptiger.data.model.City;
+ import com.proptiger.data.model.SolrResult;
+diff --git a/data/src/main/java/com/proptiger/data/repo/LandMarkDaoImpl.java b/data/src/main/java/com/proptiger/data/repo/LandMarkDaoImpl.java
+index 5b691e6..c4a1c9c 100644
+--- a/data/src/main/java/com/proptiger/data/repo/LandMarkDaoImpl.java
++++ b/data/src/main/java/com/proptiger/data/repo/LandMarkDaoImpl.java
+@@ -16,7 +16,8 @@ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+ 
+-import com.proptiger.data.enums.DocumentType;
++import com.proptiger.core.enums.DocumentType;
++import com.proptiger.core.repo.SolrDao;
+ import com.proptiger.data.enums.SortOrder;
+ import com.proptiger.data.model.LandMark;
+ import com.proptiger.data.model.LandMarkResult;
+diff --git a/data/src/main/java/com/proptiger/data/repo/LocalityDaoImpl.java b/data/src/main/java/com/proptiger/data/repo/LocalityDaoImpl.java
+index 368f0d9..5dd048d 100644
+--- a/data/src/main/java/com/proptiger/data/repo/LocalityDaoImpl.java
++++ b/data/src/main/java/com/proptiger/data/repo/LocalityDaoImpl.java
+@@ -21,7 +21,8 @@ import org.hibernate.SessionFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Repository;
+ 
+-import com.proptiger.data.enums.DocumentType;
++import com.proptiger.core.enums.DocumentType;
++import com.proptiger.core.repo.SolrDao;
+ import com.proptiger.data.enums.SortOrder;
+ import com.proptiger.data.enums.filter.Operator;
+ import com.proptiger.data.model.Locality;
+diff --git a/data/src/main/java/com/proptiger/data/repo/ProjectSolrDao.java b/data/src/main/java/com/proptiger/data/repo/ProjectSolrDao.java
+index 01e426a..694cbe2 100644
+--- a/data/src/main/java/com/proptiger/data/repo/ProjectSolrDao.java
++++ b/data/src/main/java/com/proptiger/data/repo/ProjectSolrDao.java
+@@ -25,7 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Repository;
+ 
+ import com.fasterxml.jackson.databind.ObjectMapper;
+-import com.proptiger.data.enums.DocumentType;
++import com.proptiger.core.enums.DocumentType;
++import com.proptiger.core.repo.SolrDao;
+ import com.proptiger.data.enums.SortOrder;
+ import com.proptiger.data.model.Project;
+ import com.proptiger.data.model.SolrResult;
+diff --git a/data/src/main/java/com/proptiger/data/repo/PropertyDaoImpl.java b/data/src/main/java/com/proptiger/data/repo/PropertyDaoImpl.java
+index b117bfb..62f58f2 100644
+--- a/data/src/main/java/com/proptiger/data/repo/PropertyDaoImpl.java
++++ b/data/src/main/java/com/proptiger/data/repo/PropertyDaoImpl.java
+@@ -27,6 +27,7 @@ import org.springframework.cache.annotation.Cacheable;
+ import org.springframework.stereotype.Repository;
+ 
+ import com.fasterxml.jackson.databind.ObjectMapper;
++import com.proptiger.core.repo.SolrDao;
+ import com.proptiger.data.enums.SortOrder;
+ import com.proptiger.data.enums.filter.Operator;
+ import com.proptiger.data.model.CouponCatalogue;
+diff --git a/data/src/main/java/com/proptiger/data/repo/SuburbDaoImpl.java b/data/src/main/java/com/proptiger/data/repo/SuburbDaoImpl.java
+index 64256de..6c3d68f 100644
+--- a/data/src/main/java/com/proptiger/data/repo/SuburbDaoImpl.java
++++ b/data/src/main/java/com/proptiger/data/repo/SuburbDaoImpl.java
+@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Repository;
+ 
++import com.proptiger.core.repo.SolrDao;
+ import com.proptiger.data.enums.filter.Operator;
+ import com.proptiger.data.model.SolrResult;
+ import com.proptiger.data.model.Suburb;
+diff --git a/data/src/main/java/com/proptiger/data/repo/TypeaheadDao.java b/data/src/main/java/com/proptiger/data/repo/TypeaheadDao.java
+index 477b21d..1b059bd 100644
+--- a/data/src/main/java/com/proptiger/data/repo/TypeaheadDao.java
++++ b/data/src/main/java/com/proptiger/data/repo/TypeaheadDao.java
+@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Repository;
+ 
+ import com.google.common.base.Joiner;
++import com.proptiger.core.repo.SolrDao;
+ import com.proptiger.data.model.City;
+ import com.proptiger.data.model.Typeahead;
+ import com.proptiger.data.service.CityService;
+diff --git a/data/src/main/java/com/proptiger/data/repo/user/UserPreferenceDao.java b/data/src/main/java/com/proptiger/data/repo/user/UserPreferenceDao.java
+index dac5f90..e701497 100644
+--- a/data/src/main/java/com/proptiger/data/repo/user/UserPreferenceDao.java
++++ b/data/src/main/java/com/proptiger/data/repo/user/UserPreferenceDao.java
+@@ -4,7 +4,7 @@ import java.util.List;
+ 
+ import org.springframework.data.repository.PagingAndSortingRepository;
+ 
+-import com.proptiger.data.enums.Application;
++import com.proptiger.core.enums.Application;
+ import com.proptiger.data.model.UserPreference;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/data/service/BuilderService.java b/data/src/main/java/com/proptiger/data/service/BuilderService.java
+index 0fd7171..397b818 100644
+--- a/data/src/main/java/com/proptiger/data/service/BuilderService.java
++++ b/data/src/main/java/com/proptiger/data/service/BuilderService.java
+@@ -21,7 +21,8 @@ import org.springframework.cache.annotation.Cacheable;
+ import org.springframework.stereotype.Service;
+ 
+ import com.google.gson.Gson;
+-import com.proptiger.data.enums.DocumentType;
++import com.proptiger.core.enums.DocumentType;
++import com.proptiger.core.repo.SolrDao;
+ import com.proptiger.data.enums.SortOrder;
+ import com.proptiger.data.enums.filter.Operator;
+ import com.proptiger.data.enums.resource.ResourceType;
+@@ -35,7 +36,6 @@ import com.proptiger.data.pojo.Selector;
+ import com.proptiger.data.pojo.SortBy;
+ import com.proptiger.data.pojo.response.PaginatedResponse;
+ import com.proptiger.data.repo.BuilderDao;
+-import com.proptiger.data.repo.SolrDao;
+ import com.proptiger.data.util.Constants;
+ import com.proptiger.exception.ResourceNotAvailableException;
+ 
+diff --git a/data/src/main/java/com/proptiger/data/service/ErrorReportingService.java b/data/src/main/java/com/proptiger/data/service/ErrorReportingService.java
+index 074c786..083e3f9 100644
+--- a/data/src/main/java/com/proptiger/data/service/ErrorReportingService.java
++++ b/data/src/main/java/com/proptiger/data/service/ErrorReportingService.java
+@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
+ import org.springframework.web.context.request.RequestContextHolder;
+ import org.springframework.web.context.request.ServletRequestAttributes;
+ 
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.mail.MailTemplateDetail;
+ import com.proptiger.data.internal.dto.mail.MailBody;
+ import com.proptiger.data.internal.dto.mail.MailDetails;
+@@ -19,7 +20,6 @@ import com.proptiger.data.model.Property;
+ import com.proptiger.data.repo.ProjectErrorDao;
+ import com.proptiger.data.service.mail.MailSender;
+ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+-import com.proptiger.data.util.PropertyReader;
+ 
+ @Service
+ public class ErrorReportingService {
+diff --git a/data/src/main/java/com/proptiger/data/service/ImageService.java b/data/src/main/java/com/proptiger/data/service/ImageService.java
+index bb582dc..4b08f04 100644
+--- a/data/src/main/java/com/proptiger/data/service/ImageService.java
++++ b/data/src/main/java/com/proptiger/data/service/ImageService.java
+@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
+ 
+ import com.google.common.io.Files;
+ import com.google.common.util.concurrent.Striped;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.DomainObject;
+ import com.proptiger.data.enums.ImageResolution;
+ import com.proptiger.data.enums.MediaType;
+@@ -36,7 +37,6 @@ import com.proptiger.data.repo.ImageDao;
+ import com.proptiger.data.util.Caching;
+ import com.proptiger.data.util.Constants;
+ import com.proptiger.data.util.MediaUtil;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.ResourceAlreadyExistException;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/data/service/LeadTaskService.java b/data/src/main/java/com/proptiger/data/service/LeadTaskService.java
+index bede37f..b34bb94 100644
+--- a/data/src/main/java/com/proptiger/data/service/LeadTaskService.java
++++ b/data/src/main/java/com/proptiger/data/service/LeadTaskService.java
+@@ -16,12 +16,14 @@ import org.springframework.data.domain.Pageable;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.LeadOfferStatus;
+ import com.proptiger.data.enums.LeadTaskName;
+ import com.proptiger.data.enums.TaskStatus;
+ import com.proptiger.data.external.dto.LeadTaskDto;
+ import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.model.LeadTaskStatus;
+ import com.proptiger.data.model.MasterLeadOfferStatus;
+ import com.proptiger.data.model.MasterLeadTask;
+@@ -47,8 +49,6 @@ import com.proptiger.data.service.marketplace.LeadOfferService;
+ import com.proptiger.data.service.marketplace.ListingService;
+ import com.proptiger.data.service.marketplace.NotificationService;
+ import com.proptiger.data.util.DateUtil;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.data.util.SecurityContextUtils;
+ import com.proptiger.exception.BadRequestException;
+ import com.proptiger.exception.ProAPIException;
+diff --git a/data/src/main/java/com/proptiger/data/service/LocalityRatingService.java b/data/src/main/java/com/proptiger/data/service/LocalityRatingService.java
+index d3bf374..8ebccfa 100644
+--- a/data/src/main/java/com/proptiger/data/service/LocalityRatingService.java
++++ b/data/src/main/java/com/proptiger/data/service/LocalityRatingService.java
+@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
+ import com.google.common.util.concurrent.Striped;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+ import com.proptiger.data.model.LocalityRatings;
+ import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
+@@ -25,7 +26,6 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
+ import com.proptiger.data.model.LocalityRatings.LocalityRatingUserCount;
+ import com.proptiger.data.repo.LocalityRatingDao;
+ import com.proptiger.data.util.Constants;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.ConstraintViolationException;
+ import com.proptiger.exception.ProAPIException;
+ 
+diff --git a/data/src/main/java/com/proptiger/data/service/LocalityService.java b/data/src/main/java/com/proptiger/data/service/LocalityService.java
+index 5fdfd41..89d4bd8 100644
+--- a/data/src/main/java/com/proptiger/data/service/LocalityService.java
++++ b/data/src/main/java/com/proptiger/data/service/LocalityService.java
+@@ -31,6 +31,8 @@ import org.springframework.stereotype.Service;
+ 
+ import com.google.common.collect.Lists;
+ import com.google.gson.Gson;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.DomainObject;
+ import com.proptiger.data.enums.SortOrder;
+ import com.proptiger.data.enums.filter.Operator;
+@@ -59,8 +61,6 @@ import com.proptiger.data.thirdparty.Circle;
+ import com.proptiger.data.thirdparty.Point;
+ import com.proptiger.data.thirdparty.SEC;
+ import com.proptiger.data.util.Constants;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.ResourceNotAvailableException;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/data/service/MediaService.java b/data/src/main/java/com/proptiger/data/service/MediaService.java
+index 6b050df..1f348d8 100644
+--- a/data/src/main/java/com/proptiger/data/service/MediaService.java
++++ b/data/src/main/java/com/proptiger/data/service/MediaService.java
+@@ -12,6 +12,8 @@ import org.apache.commons.io.FilenameUtils;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.beans.factory.annotation.Value;
+ 
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.DomainObject;
+ import com.proptiger.data.enums.MediaType;
+ import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+@@ -23,8 +25,6 @@ import com.proptiger.data.repo.ObjectMediaTypeDao;
+ import com.proptiger.data.repo.ObjectTypeDao;
+ import com.proptiger.data.util.AmazonS3Util;
+ import com.proptiger.data.util.MediaUtil;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.BadRequestException;
+ import com.proptiger.exception.ProAPIException;
+ import com.proptiger.exception.ResourceAlreadyExistException;
+diff --git a/data/src/main/java/com/proptiger/data/service/MetaService.java b/data/src/main/java/com/proptiger/data/service/MetaService.java
+index 2b5ede1..ecd65da 100644
+--- a/data/src/main/java/com/proptiger/data/service/MetaService.java
++++ b/data/src/main/java/com/proptiger/data/service/MetaService.java
+@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.core.annotation.AnnotationUtils;
+ import org.springframework.stereotype.Service;
+ 
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.DataType;
+ import com.proptiger.data.enums.resource.ResourceType;
+ import com.proptiger.data.enums.resource.ResourceTypeAction;
+@@ -24,8 +26,6 @@ import com.proptiger.data.meta.FieldMetaInfo;
+ import com.proptiger.data.meta.ResourceMetaInfo;
+ import com.proptiger.data.model.meta.FieldMetaData;
+ import com.proptiger.data.model.meta.ResourceModelMeta;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.ResourceNotAvailableException;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/data/service/PropertyService.java b/data/src/main/java/com/proptiger/data/service/PropertyService.java
+index d989271..dce44d4 100644
+--- a/data/src/main/java/com/proptiger/data/service/PropertyService.java
++++ b/data/src/main/java/com/proptiger/data/service/PropertyService.java
+@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
+ import com.google.gson.Gson;
++import com.proptiger.core.repo.SolrDao;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.DataVersion;
+ import com.proptiger.data.enums.filter.Operator;
+ import com.proptiger.data.enums.resource.ResourceType;
+@@ -41,9 +43,7 @@ import com.proptiger.data.pojo.Paging;
+ import com.proptiger.data.pojo.Selector;
+ import com.proptiger.data.pojo.response.PaginatedResponse;
+ import com.proptiger.data.repo.PropertyDao;
+-import com.proptiger.data.repo.SolrDao;
+ import com.proptiger.data.util.Constants;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.BadRequestException;
+ import com.proptiger.exception.ResourceNotAvailableException;
+ 
+diff --git a/data/src/main/java/com/proptiger/data/service/TestimonialService.java b/data/src/main/java/com/proptiger/data/service/TestimonialService.java
+index 5aec7cc..945b83e 100644
+--- a/data/src/main/java/com/proptiger/data/service/TestimonialService.java
++++ b/data/src/main/java/com/proptiger/data/service/TestimonialService.java
+@@ -7,11 +7,11 @@ import javax.annotation.PostConstruct;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+ 
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.model.Testimonial;
+ import com.proptiger.data.pojo.FIQLSelector;
+ import com.proptiger.data.pojo.response.PaginatedResponse;
+ import com.proptiger.data.repo.TestimonialDao;
+-import com.proptiger.data.util.PropertyReader;
+ 
+ /**
+  * @author Rajeev Pandey
+diff --git a/data/src/main/java/com/proptiger/data/service/cron/CronService.java b/data/src/main/java/com/proptiger/data/service/cron/CronService.java
+index 8e4960f..de83001 100644
+--- a/data/src/main/java/com/proptiger/data/service/cron/CronService.java
++++ b/data/src/main/java/com/proptiger/data/service/cron/CronService.java
+@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.scheduling.annotation.Scheduled;
+ import org.springframework.stereotype.Component;
+ 
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.LeadOfferStatus;
+ import com.proptiger.data.model.marketplace.Lead;
+ import com.proptiger.data.repo.marketplace.LeadDao;
+@@ -17,8 +19,6 @@ import com.proptiger.data.service.LeadTaskService;
+ import com.proptiger.data.service.marketplace.LeadOfferService;
+ import com.proptiger.data.service.marketplace.LeadService;
+ import com.proptiger.data.service.marketplace.NotificationService;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.ConstraintViolationException;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/data/service/mail/AmazonMailSender.java b/data/src/main/java/com/proptiger/data/service/mail/AmazonMailSender.java
+index e823d99..5e1362c 100644
+--- a/data/src/main/java/com/proptiger/data/service/mail/AmazonMailSender.java
++++ b/data/src/main/java/com/proptiger/data/service/mail/AmazonMailSender.java
+@@ -20,9 +20,9 @@ import com.amazonaws.services.simpleemail.model.Destination;
+ import com.amazonaws.services.simpleemail.model.Message;
+ import com.amazonaws.services.simpleemail.model.SendEmailRequest;
+ import com.amazonaws.services.simpleemail.model.SendEmailResult;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.internal.dto.mail.MailDetails;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.ProAPIException;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/data/service/marketplace/LeadOfferService.java b/data/src/main/java/com/proptiger/data/service/marketplace/LeadOfferService.java
+index 255588e..c59b895 100644
+--- a/data/src/main/java/com/proptiger/data/service/marketplace/LeadOfferService.java
++++ b/data/src/main/java/com/proptiger/data/service/marketplace/LeadOfferService.java
+@@ -14,13 +14,15 @@ import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.LeadOfferStatus;
+ import com.proptiger.data.enums.LeadTaskName;
+ import com.proptiger.data.enums.NotificationType;
+ import com.proptiger.data.enums.TaskStatus;
+ import com.proptiger.data.enums.resource.ResourceType;
+ import com.proptiger.data.enums.resource.ResourceTypeAction;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.internal.dto.SenderDetail;
+ import com.proptiger.data.internal.dto.mail.MailBody;
+ import com.proptiger.data.internal.dto.mail.MailDetails;
+@@ -50,8 +52,6 @@ import com.proptiger.data.service.mail.MailSender;
+ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+ import com.proptiger.data.service.user.UserService;
+ import com.proptiger.data.util.DateUtil;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.BadRequestException;
+ import com.proptiger.exception.ResourceNotAvailableException;
+ 
+diff --git a/data/src/main/java/com/proptiger/data/service/marketplace/LeadService.java b/data/src/main/java/com/proptiger/data/service/marketplace/LeadService.java
+index 79297c5..4c075dc 100644
+--- a/data/src/main/java/com/proptiger/data/service/marketplace/LeadService.java
++++ b/data/src/main/java/com/proptiger/data/service/marketplace/LeadService.java
+@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.NotificationType;
+ import com.proptiger.data.model.Company;
+ import com.proptiger.data.model.marketplace.Lead;
+@@ -24,7 +25,6 @@ import com.proptiger.data.service.LocalityService;
+ import com.proptiger.data.service.ProjectService;
+ import com.proptiger.data.service.companyuser.CompanyService;
+ import com.proptiger.data.service.user.UserService;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.data.util.UtilityClass;
+ import com.proptiger.exception.BadRequestException;
+ import com.proptiger.exception.ProAPIException;
+diff --git a/data/src/main/java/com/proptiger/data/service/marketplace/NotificationService.java b/data/src/main/java/com/proptiger/data/service/marketplace/NotificationService.java
+index cc00ba7..33f7fd4 100644
+--- a/data/src/main/java/com/proptiger/data/service/marketplace/NotificationService.java
++++ b/data/src/main/java/com/proptiger/data/service/marketplace/NotificationService.java
+@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
+ import org.springframework.web.client.RestTemplate;
+ 
+ import com.fasterxml.jackson.databind.JsonNode;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.LeadTaskName;
+ import com.proptiger.data.enums.NotificationType;
+ import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+@@ -42,8 +44,6 @@ import com.proptiger.data.repo.marketplace.NotificationDao;
+ import com.proptiger.data.service.mail.MailSender;
+ import com.proptiger.data.service.user.UserService;
+ import com.proptiger.data.util.DateUtil;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.data.util.SerializationUtils;
+ import com.proptiger.exception.BadRequestException;
+ import com.proptiger.exception.ProAPIException;
+diff --git a/data/src/main/java/com/proptiger/data/service/security/OTPService.java b/data/src/main/java/com/proptiger/data/service/security/OTPService.java
+index a4f15e1..394709e 100644
+--- a/data/src/main/java/com/proptiger/data/service/security/OTPService.java
++++ b/data/src/main/java/com/proptiger/data/service/security/OTPService.java
+@@ -19,8 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
+ import com.proptiger.app.config.security.AuthSuccessHandler;
+ import com.proptiger.core.constants.ResponseCodes;
+ import com.proptiger.core.constants.ResponseErrorMessages;
+-import com.proptiger.data.enums.Application;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.enums.Application;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.internal.dto.mail.MailBody;
+ import com.proptiger.data.internal.dto.mail.MailDetails;
+ import com.proptiger.data.model.CompanyIP;
+@@ -33,8 +35,6 @@ import com.proptiger.data.repo.CompanyIPDao;
+ import com.proptiger.data.repo.user.UserOTPDao;
+ import com.proptiger.data.service.mail.MailSender;
+ import com.proptiger.data.service.user.UserSubscriptionService;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.data.util.SecurityContextUtils;
+ import com.proptiger.exception.BadRequestException;
+ 
+diff --git a/data/src/main/java/com/proptiger/data/service/trend/BuilderTrendService.java b/data/src/main/java/com/proptiger/data/service/trend/BuilderTrendService.java
+index 902d0df..4ee9aee 100644
+--- a/data/src/main/java/com/proptiger/data/service/trend/BuilderTrendService.java
++++ b/data/src/main/java/com/proptiger/data/service/trend/BuilderTrendService.java
+@@ -17,11 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.stereotype.Service;
+ 
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.dto.external.trend.BuilderTrend;
+ import com.proptiger.data.enums.ConstructionStatus;
+ import com.proptiger.data.enums.UnitType;
+ import com.proptiger.data.init.comparator.GenericComparator;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.model.trend.Trend;
+ import com.proptiger.data.pojo.FIQLSelector;
+ import com.proptiger.data.repo.trend.TrendDao;
+diff --git a/data/src/main/java/com/proptiger/data/service/trend/TrendService.java b/data/src/main/java/com/proptiger/data/service/trend/TrendService.java
+index 3fe1de8..2733c06 100644
+--- a/data/src/main/java/com/proptiger/data/service/trend/TrendService.java
++++ b/data/src/main/java/com/proptiger/data/service/trend/TrendService.java
+@@ -24,9 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.stereotype.Service;
+ 
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
+ import com.proptiger.data.enums.UnitType;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.model.trend.Trend;
+ import com.proptiger.data.pojo.FIQLSelector;
+ import com.proptiger.data.pojo.FIQLSelector.FIQLOperator;
+diff --git a/data/src/main/java/com/proptiger/data/service/trend/UserGraphService.java b/data/src/main/java/com/proptiger/data/service/trend/UserGraphService.java
+index d53460b..48c1e49 100644
+--- a/data/src/main/java/com/proptiger/data/service/trend/UserGraphService.java
++++ b/data/src/main/java/com/proptiger/data/service/trend/UserGraphService.java
+@@ -14,8 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
+ 
+ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+ import com.proptiger.core.constants.ResponseCodes;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.model.trend.Graph;
+ import com.proptiger.data.pojo.FIQLSelector;
+ import com.proptiger.data.repo.trend.GraphDao;
+diff --git a/data/src/main/java/com/proptiger/data/service/user/CatchmentService.java b/data/src/main/java/com/proptiger/data/service/user/CatchmentService.java
+index 4f4e7ec..47e5df3 100644
+--- a/data/src/main/java/com/proptiger/data/service/user/CatchmentService.java
++++ b/data/src/main/java/com/proptiger/data/service/user/CatchmentService.java
+@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
+ 
+ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+ import com.proptiger.core.constants.ResponseCodes;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
+ import com.proptiger.data.model.Catchment;
+ import com.proptiger.data.model.CatchmentProject;
+ import com.proptiger.data.pojo.FIQLSelector;
+diff --git a/data/src/main/java/com/proptiger/data/service/user/LeadGenerationService.java b/data/src/main/java/com/proptiger/data/service/user/LeadGenerationService.java
+index ec81e74..22ab32a 100644
+--- a/data/src/main/java/com/proptiger/data/service/user/LeadGenerationService.java
++++ b/data/src/main/java/com/proptiger/data/service/user/LeadGenerationService.java
+@@ -15,11 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.scheduling.annotation.Async;
+ import org.springframework.stereotype.Service;
+ 
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.portfolio.LeadPageName;
+ import com.proptiger.data.enums.portfolio.LeadSaleType;
+ import com.proptiger.data.model.Enquiry;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.LeadPostException;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/data/service/user/ProjectDiscussionsService.java b/data/src/main/java/com/proptiger/data/service/user/ProjectDiscussionsService.java
+index 90dfaed..1246624 100644
+--- a/data/src/main/java/com/proptiger/data/service/user/ProjectDiscussionsService.java
++++ b/data/src/main/java/com/proptiger/data/service/user/ProjectDiscussionsService.java
+@@ -18,7 +18,8 @@ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
+ import com.proptiger.core.constants.ResponseCodes;
+-import com.proptiger.data.internal.dto.ActiveUser;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.model.Project;
+ import com.proptiger.data.model.ProjectDiscussion;
+ import com.proptiger.data.model.user.ProjectCommentLikes;
+@@ -33,7 +34,6 @@ import com.proptiger.data.service.mail.MailSender;
+ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+ import com.proptiger.data.util.Caching;
+ import com.proptiger.data.util.Constants;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.exception.ResourceAlreadyExistException;
+ 
+ @Service
+diff --git a/data/src/main/java/com/proptiger/data/service/user/UnmatchedProjectRequestService.java b/data/src/main/java/com/proptiger/data/service/user/UnmatchedProjectRequestService.java
+index 5b3833c..3f748ed 100644
+--- a/data/src/main/java/com/proptiger/data/service/user/UnmatchedProjectRequestService.java
++++ b/data/src/main/java/com/proptiger/data/service/user/UnmatchedProjectRequestService.java
+@@ -5,8 +5,10 @@ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+ 
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.mail.MailTemplateDetail;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
+ import com.proptiger.data.internal.dto.mail.MailBody;
+ import com.proptiger.data.internal.dto.mail.MailDetails;
+@@ -14,8 +16,6 @@ import com.proptiger.data.model.user.User;
+ import com.proptiger.data.repo.user.UserDao;
+ import com.proptiger.data.service.mail.MailSender;
+ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ 
+ @Service
+ public class UnmatchedProjectRequestService {
+diff --git a/data/src/main/java/com/proptiger/data/service/user/UserService.java b/data/src/main/java/com/proptiger/data/service/user/UserService.java
+index e775897..9b31c28 100644
+--- a/data/src/main/java/com/proptiger/data/service/user/UserService.java
++++ b/data/src/main/java/com/proptiger/data/service/user/UserService.java
+@@ -29,7 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
+ import com.google.gson.Gson;
+ import com.proptiger.core.constants.ResponseCodes;
+ import com.proptiger.core.constants.ResponseErrorMessages;
+-import com.proptiger.data.enums.Application;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.enums.Application;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.AuthProvider;
+ import com.proptiger.data.enums.DomainObject;
+ import com.proptiger.data.enums.mail.MailTemplateDetail;
+@@ -38,7 +41,6 @@ import com.proptiger.data.external.dto.CustomUser.UserAppDetail;
+ import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomCity;
+ import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
+ import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.internal.dto.ChangePassword;
+ import com.proptiger.data.internal.dto.RegisterUser;
+ import com.proptiger.data.internal.dto.mail.MailBody;
+@@ -80,8 +82,6 @@ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+ import com.proptiger.data.util.Constants;
+ import com.proptiger.data.util.DateUtil;
+ import com.proptiger.data.util.PasswordUtils;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.data.util.RegistrationUtils;
+ import com.proptiger.data.util.SecurityContextUtils;
+ import com.proptiger.data.util.UtilityClass;
+diff --git a/data/src/main/java/com/proptiger/data/service/user/portfolio/PortfolioService.java b/data/src/main/java/com/proptiger/data/service/user/portfolio/PortfolioService.java
+index 84a6402..d4001c7 100644
+--- a/data/src/main/java/com/proptiger/data/service/user/portfolio/PortfolioService.java
++++ b/data/src/main/java/com/proptiger/data/service/user/portfolio/PortfolioService.java
+@@ -23,6 +23,8 @@ import org.springframework.cache.annotation.Cacheable;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.DomainObject;
+ import com.proptiger.data.enums.ResidentialFlag;
+ import com.proptiger.data.enums.mail.MailTemplateDetail;
+@@ -70,8 +72,6 @@ import com.proptiger.data.service.user.LeadGenerationService;
+ import com.proptiger.data.service.user.SubscriptionService;
+ import com.proptiger.data.service.user.UserService;
+ import com.proptiger.data.util.Constants;
+-import com.proptiger.data.util.PropertyKeys;
+-import com.proptiger.data.util.PropertyReader;
+ import com.proptiger.data.util.portfolio.PortfolioUtil;
+ import com.proptiger.exception.ConstraintViolationException;
+ import com.proptiger.exception.DuplicateNameResourceException;
+diff --git a/data/src/main/java/com/proptiger/data/util/DateUtil.java b/data/src/main/java/com/proptiger/data/util/DateUtil.java
+index da71b47..8d69802 100644
+--- a/data/src/main/java/com/proptiger/data/util/DateUtil.java
++++ b/data/src/main/java/com/proptiger/data/util/DateUtil.java
+@@ -12,6 +12,8 @@ import org.joda.time.DateTime;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ 
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.exception.ProAPIException;
+ 
+ /**
+diff --git a/data/src/main/java/com/proptiger/data/util/SecurityContextUtils.java b/data/src/main/java/com/proptiger/data/util/SecurityContextUtils.java
+index 3df99f6..9700dc6 100644
+--- a/data/src/main/java/com/proptiger/data/util/SecurityContextUtils.java
++++ b/data/src/main/java/com/proptiger/data/util/SecurityContextUtils.java
+@@ -14,11 +14,13 @@ import org.springframework.security.core.userdetails.UserDetails;
+ import org.springframework.web.context.request.RequestContextHolder;
+ import org.springframework.web.context.request.ServletRequestAttributes;
+ 
+-import com.proptiger.data.enums.Application;
++import com.proptiger.core.dto.internal.ActiveUser;
++import com.proptiger.core.enums.Application;
++import com.proptiger.core.service.ApplicationNameService;
++import com.proptiger.core.util.PropertyKeys;
++import com.proptiger.core.util.PropertyReader;
+ import com.proptiger.data.enums.security.UserRole;
+-import com.proptiger.data.internal.dto.ActiveUser;
+ import com.proptiger.data.model.user.User;
+-import com.proptiger.data.service.ApplicationNameService;
+ 
+ /**
+  * Security utils to get current logged in user and session related work.
+diff --git a/data/src/main/resources/application.properties b/data/src/main/resources/application.properties
+index 5bd51b3..23d3821 100644
+--- a/data/src/main/resources/application.properties
++++ b/data/src/main/resources/application.properties
+@@ -12,7 +12,7 @@ db.password=root
+ hibernate.dialect=com.proptiger.data.init.CustomMySQL5InnoDBDialec
+ hibernate.show_sql=false
+ 
+-entitymanager.packages.to.scan=com.proptiger.data.model\,com.proptiger.data.event.model\,com.proptiger.data.notification.model
++entitymanager.packages.to.scan=com.proptiger.core.model\,com.proptiger.data.model\,com.proptiger.data.event.model\,com.proptiger.data.notification.model
+ 
+ metainfo.package.to.scan=com.proptiger.data.model
+ 
+diff --git a/data/src/test/java/com/proptiger/data/controller/AppLocalityControllerTest.java b/data/src/test/java/com/proptiger/data/controller/AppLocalityControllerTest.java
+index 23e80da..36ab1cb 100644
+--- a/data/src/test/java/com/proptiger/data/controller/AppLocalityControllerTest.java
++++ b/data/src/test/java/com/proptiger/data/controller/AppLocalityControllerTest.java
+@@ -1,6 +1,7 @@
+ package com.proptiger.data.controller;
+ 
+-import static org.testng.AssertJUnit.*;
++import static org.testng.AssertJUnit.assertEquals;
++import static org.testng.AssertJUnit.assertNotNull;
+ 
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.testng.annotations.Test;
+diff --git a/data/src/test/java/com/proptiger/data/notification/NotificationGeneratedServiceTest.java b/data/src/test/java/com/proptiger/data/notification/NotificationGeneratedServiceTest.java
+index c53de01..05cc1f0 100644
+--- a/data/src/test/java/com/proptiger/data/notification/NotificationGeneratedServiceTest.java
++++ b/data/src/test/java/com/proptiger/data/notification/NotificationGeneratedServiceTest.java
+@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
+ import com.proptiger.data.mocker.NotificationMockerService;
+ import com.proptiger.data.notification.enums.MediumType;
+ import com.proptiger.data.notification.enums.NotificationStatus;
+-import com.proptiger.data.notification.enums.NotificationTypeEnum;
+ import com.proptiger.data.notification.enums.Tokens;
+ import com.proptiger.data.notification.model.NotificationGenerated;
+ import com.proptiger.data.notification.model.NotificationMedium;
+diff --git a/data/src/test/java/com/proptiger/data/service/PortfolioPriceTrendServiceTest.java b/data/src/test/java/com/proptiger/data/service/PortfolioPriceTrendServiceTest.java
+index 37fed9c..6046acd 100644
+--- a/data/src/test/java/com/proptiger/data/service/PortfolioPriceTrendServiceTest.java
++++ b/data/src/test/java/com/proptiger/data/service/PortfolioPriceTrendServiceTest.java
+@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
+ import org.testng.Assert;
+ import org.testng.annotations.Test;
+ 
+-import ch.qos.logback.core.joran.conditional.IfAction;
+-
+ import com.proptiger.data.internal.dto.PortfolioPriceTrend;
+ import com.proptiger.data.internal.dto.PriceDetail;
+ import com.proptiger.data.internal.dto.ProjectPriceTrend;
+diff --git a/data/src/test/java/com/proptiger/data/service/URLServiceTest.java b/data/src/test/java/com/proptiger/data/service/URLServiceTest.java
+index a3603e7..c068d9d 100644
+--- a/data/src/test/java/com/proptiger/data/service/URLServiceTest.java
++++ b/data/src/test/java/com/proptiger/data/service/URLServiceTest.java
+@@ -1,6 +1,6 @@
+ package com.proptiger.data.service;
+ 
+-import static org.testng.AssertJUnit.*;
++import static org.testng.AssertJUnit.assertEquals;
+ 
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.testng.annotations.Test;

@@ -2,7 +2,7 @@ package com.proptiger.data.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.proptiger.data.model.LandMarkTypes;
+import com.proptiger.core.model.cms.LandMarkTypes;
 
 /**
  * @author Rajeev Pandey

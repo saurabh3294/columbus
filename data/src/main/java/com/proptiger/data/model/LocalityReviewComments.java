@@ -22,12 +22,17 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.proptiger.ForumUser;
+import com.proptiger.core.model.proptiger.LocalityRatings;
+import com.proptiger.core.model.proptiger.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 
 /**
  * This class represents review comments for locality
@@ -94,8 +99,7 @@ public class LocalityReviewComments extends BaseModel {
     @Column(name = "STATUS")
     private String            status;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
+    @Transient
     private ForumUser         forumUser;
 
     @OneToOne(fetch = FetchType.EAGER, optional = true)
@@ -228,6 +232,14 @@ public class LocalityReviewComments extends BaseModel {
 
     public void setLocality(Locality locality) {
         this.locality = locality;
+    }
+    
+    public ForumUser getForumUser() {
+        return forumUser;
+    }
+
+    public void setForumUser(ForumUser forumUser) {
+        this.forumUser = forumUser;
     }
 
     @PrePersist

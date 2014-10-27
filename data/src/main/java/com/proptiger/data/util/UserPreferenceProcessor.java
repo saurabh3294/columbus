@@ -7,7 +7,7 @@ import java.net.URL;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.util.JsonLoader;
-import com.proptiger.exception.ProAPIException;
+import com.proptiger.core.exception.ProAPIException;
 
 /**
  * Class for various json processing on b2b user preference

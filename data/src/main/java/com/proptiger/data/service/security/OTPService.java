@@ -17,26 +17,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.app.config.security.AuthSuccessHandler;
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.enums.Application;
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.Application;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.model.proptiger.CompanySubscription;
+import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
+import com.proptiger.core.repo.APIAccessLogDao;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.CompanyIP;
-import com.proptiger.data.model.CompanySubscription;
-import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.user.UserOTP;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.repo.APIAccessLogDao;
 import com.proptiger.data.repo.CompanyIPDao;
 import com.proptiger.data.repo.user.UserOTPDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.user.UserSubscriptionService;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.data.util.SecurityContextUtils;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * Service class to handle generation/validation of one time password.
@@ -125,7 +125,7 @@ public class OTPService {
     }
 
     @Transactional
-    public void validate(Integer otp, ActiveUser activeUser, HttpServletRequest request, HttpServletResponse response) {
+    public void validate(String otp, ActiveUser activeUser, HttpServletRequest request, HttpServletResponse response) {
         Pageable pageable = new LimitOffsetPageRequest(0, 1, Direction.DESC, "id");
         List<UserOTP> userOTPs = userOTPDao.findLatestOTPByUserId(activeUser.getUserIdentifier(), pageable);
         if (userOTPs.isEmpty() || otp == null) {
@@ -140,7 +140,7 @@ public class OTPService {
             respondWithOTP(activeUser);
             throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.OTP_EXPIRED);
         }
-        if (otp.equals(userOTPs.get(0).getOtp())) {
+        if (otp.equals(userOTPs.get(0).getOtp().toString())) {
             SecurityContextUtils.grantUserAuthorityToActiveUser();
             clearUserOTP(activeUser);
             try {

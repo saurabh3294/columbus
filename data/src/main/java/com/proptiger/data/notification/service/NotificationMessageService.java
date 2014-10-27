@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.enums.Tokens;
@@ -183,7 +183,8 @@ public class NotificationMessageService {
         payload.setFromEmail(fromEmail);
         payload.setCcList(ccList);
         payload.setBccList(bccList);
-        return new NotificationMessage(userId, payload, notiType);
+        NotificationMessage notificationMessage =  new NotificationMessage(userId, payload, notiType);
+        return saveOrFlush(notificationMessage);
     }
 
     /**
@@ -364,6 +365,14 @@ public class NotificationMessageService {
 
     public void setUserNTSubscriptionService(UserNotificationTypeSubscriptionService userNTSubscriptionService) {
         this.userNTSubscriptionService = userNTSubscriptionService;
+    }
+
+    public NotificationMessageDao getNotificationMessageDao() {
+        return notificationMessageDao;
+    }
+
+    public void setNotificationMessageDao(NotificationMessageDao notificationMessageDao) {
+        this.notificationMessageDao = notificationMessageDao;
     }
 
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.proptiger.data.model.ProjectAmenity;
+import com.proptiger.core.model.proptiger.ProjectAmenity;
 
 /**
  * @author Rajeev Pandey

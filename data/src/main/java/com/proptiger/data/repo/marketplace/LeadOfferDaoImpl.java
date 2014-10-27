@@ -21,13 +21,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * @author Rajeev Pandey

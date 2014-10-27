@@ -9,9 +9,9 @@ import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.Status;
-import com.proptiger.data.model.ListingPrice.CustomCurrentListingPrice;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.Status;
+import com.proptiger.core.model.cms.ListingPrice.CustomCurrentListingPrice;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class ListingPriceDaoImpl {
             EntityManager em = emf.createEntityManager();
 
             Query query = em
-                    .createQuery("select NEW com.proptiger.data.model.ListingPrice$CustomCurrentListingPrice(listingId, substring_index(group_concat(pricePerUnitArea,effectiveDate,-1), ',', 1), substring_index(group_concat(effectiveDate,effectiveDate,-1), ',', 1)) from ListingPrice where listingId in (?1) and version = ?2 and status = ?3 group by listingId");
+                    .createQuery("select NEW com.proptiger.core.model.cms.ListingPrice$CustomCurrentListingPrice(listingId, substring_index(group_concat(pricePerUnitArea,effectiveDate,-1), ',', 1), substring_index(group_concat(effectiveDate,effectiveDate,-1), ',', 1)) from ListingPrice where listingId in (?1) and version = ?2 and status = ?3 group by listingId");
 
             query.setParameter(1, listingIds);
             query.setParameter(2, version);

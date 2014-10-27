@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.model.Builder;
+import com.proptiger.core.model.cms.Builder;
 
 /**
  * 

@@ -11,11 +11,11 @@ import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import com.proptiger.data.enums.Application;
-import com.proptiger.data.enums.SubscriptionSection;
-import com.proptiger.data.model.Company;
-import com.proptiger.data.model.UserPreference;
-import com.proptiger.data.model.user.Dashboard;
+import com.proptiger.core.enums.Application;
+import com.proptiger.core.enums.SubscriptionSection;
+import com.proptiger.core.model.cms.Company;
+import com.proptiger.core.model.proptiger.Dashboard;
+import com.proptiger.core.model.user.UserPreference;
 
 /**
  * 

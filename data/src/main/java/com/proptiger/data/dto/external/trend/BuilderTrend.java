@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.enums.UnitType;
-import com.proptiger.exception.ProAPIException;
+import com.proptiger.core.enums.UnitType;
+import com.proptiger.core.exception.ProAPIException;
 
 /**
  * DTO for custom builder trend

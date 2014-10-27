@@ -16,18 +16,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.model.cms.Builder;
+import com.proptiger.core.model.cms.LandMark;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.ProjectDB;
+import com.proptiger.core.model.cms.ProjectSpecification;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.Builder;
-import com.proptiger.data.model.LandMark;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.model.ProjectSpecification;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.LandMarkService;
@@ -36,7 +37,7 @@ import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.util.UtilityClass;
+import com.proptiger.data.service.user.ProjectDiscussionsService;
 
 /**
  * @author mandeep
@@ -67,6 +68,9 @@ public class ProjectDetailController extends BaseController {
 
     @Autowired
     private LocalityService        localityService;
+    
+    @Autowired
+    private ProjectDiscussionsService projectDiscussionsService;
 
     @RequestMapping(value = "app/v1/project-detail")
     public @ResponseBody
@@ -87,7 +91,7 @@ public class ProjectDetailController extends BaseController {
 
         // getting project discussions.
         int totalProjectDiscussion = 0;
-        List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
+        List<ProjectDiscussion> projectDiscussionList = projectDiscussionsService.getDiscussions(projectId, null);
         if (projectDiscussionList != null)
             totalProjectDiscussion = projectDiscussionList.size();
 

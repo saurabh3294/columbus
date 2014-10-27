@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 import com.proptiger.data.mocker.NotificationMockerService;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
@@ -47,57 +46,68 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
         List<MediumType> mediumTypes = new ArrayList<MediumType>();
         mediumTypes.add(MediumType.Email);
 
-        // NotificationMessage message =
-        // nMessageService.createNotificationMessage(1211883,
-        // "This is a subject for XYZ", "This is a sample template for XYZ");
+//        NotificationMessage message = nMessageService.createNotificationMessage(
+//                1211883,
+//                "This is a subject for XYZ",
+//                "This is a sample template for XYZ");
+        
         NotificationMessage message = notificationMockerService.getMockNotificationMessageForEmail();
 
         testCreateNotificationGenerated(message, mediumTypes);
     }
-    
-//  @Test(enabled=false)
-//  public void testCreateNotificationGeneratedForCouponEmail() {
-//      List<MediumType> mediumTypes = new ArrayList<MediumType>();
-//      mediumTypes.add(MediumType.Email);
+
+//    @Test(enabled=false)
+//    public void testCreateNotificationGeneratedForCouponEmailAndSMS() {
+//        List<MediumType> mediumTypes = new ArrayList<MediumType>();
+//        mediumTypes.add(MediumType.Email);
+//        mediumTypes.add(MediumType.Sms);
 //
-//      Map<String, Object> templateMap = new HashMap<String, Object>();
-//      templateMap.put(Tokens.CouponIssued.CouponCode.name(), "12AB56ab90zB345");
-//      templateMap.put(Tokens.CouponIssued.Date.name(), "24th September'2014");
-//      templateMap.put(Tokens.CouponIssued.CouponPrice.name(), "25000");
-//      templateMap.put(Tokens.CouponIssued.Discount.name(), "4 Lacs");
-//      templateMap.put(Tokens.CouponIssued.DiscountPrice.name(), "34.63 Lacs");
-//      templateMap.put(Tokens.CouponIssued.ProjectName.name(), "Satyam Greens");
-//      templateMap.put(Tokens.CouponIssued.Size.name(), "1150 sq ft");
-//      templateMap.put(Tokens.CouponIssued.UnitName.name(), "2BHK + 2T");
-//      templateMap.put(Tokens.CouponIssued.UserName.name(), "Sahil Garg");
+//        Map<String, Object> templateMap = new HashMap<String, Object>();
+//        templateMap.put(Tokens.CouponIssued.CouponCode.name(), "12AB56ab90zB345");
+//        templateMap.put(Tokens.CouponIssued.Date.name(), "24th September'2014");
+//        templateMap.put(Tokens.CouponIssued.CouponPrice.name(), "25000");
+//        templateMap.put(Tokens.CouponIssued.Discount.name(), "4 Lacs");
+//        templateMap.put(Tokens.CouponIssued.DiscountPrice.name(), "34.63 Lacs");
+//        templateMap.put(Tokens.CouponIssued.ProjectName.name(), "Satyam Greens");
+//        templateMap.put(Tokens.CouponIssued.Size.name(), "1150 sq ft");
+//        templateMap.put(Tokens.CouponIssued.UnitName.name(), "2BHK + 2T");
+//        templateMap.put(Tokens.CouponIssued.UserName.name(), "Sahil Garg");
 //
-//      List<String> ccList = new ArrayList<String>();
-//      ccList.add("mukand.agarwal@proptiger.com");
+//        List<String> ccList = new ArrayList<String>();
+//        ccList.add("mukand.agarwal@proptiger.com");
 //
-//      String fromEmail = "customer.service@proptiger.com";
+//        String fromEmail = "customer.service@proptiger.com";
 //
-//      NotificationMessage message = nMessageService.createNotificationMessage(
-//              NotificationTypeEnum.CouponIssued.getName(),
-//              1211883,
-//              templateMap,
-//              fromEmail,
-//              ccList);
-//
-//      testCreateNotificationGenerated(message, mediumTypes);
-//  }
+//        NotificationMessage message = nMessageService.createNotificationMessage(
+//                NotificationTypeEnum.CouponIssued.getName(),
+//                1211883,
+//                templateMap,
+//                fromEmail,
+//                ccList,
+//                null);
+//        
+//        List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
+//        nMessages.add(message);
+//     
+//        nGeneratedService.createNotificationGenerated(
+//                nMessages,
+//                mediumTypes);
+//    }
 
     @Test
     public void testCreateNotificationGeneratedForSms() {
         List<MediumType> mediumTypes = new ArrayList<MediumType>();
         mediumTypes.add(MediumType.Sms);
-        
+
         Map<String, Object> templateMap = new HashMap<String, Object>();
         templateMap.put(Tokens.CouponIssued.CouponCode.name(), "12AB56ab90zB345");
         templateMap.put(Tokens.CouponIssued.Date.name(), "24th September'2014");
 
-        // NotificationMessage message =
-        // nMessageService.createNotificationMessage(NotificationTypeEnum.CouponIssued.getName(),
-        // 1211883, templateMap);
+//        NotificationMessage message = nMessageService.createNotificationMessage(
+//                NotificationTypeEnum.CouponIssued.getName(),
+//                1211883,
+//                templateMap);
+        
         NotificationMessage message = notificationMockerService.getMockNotificationMessageForTemplateMap(templateMap);
 
         testCreateNotificationGenerated(message, mediumTypes);
@@ -109,9 +119,12 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
         mediumTypes.add(MediumType.MarketplaceApp);
 
         String template = "{'id':121, 'notifications': ['notification_01', 'notification_02'] }";
-        // NotificationMessage message =
-        // nMessageService.createNotificationMessage(NotificationTypeEnum.MarketplaceDefault.getName(),
-        // 1211883, template);
+        
+//        NotificationMessage message = nMessageService.createNotificationMessage(
+//                NotificationTypeEnum.MarketplaceDefault.getName(),
+//                1211883,
+//                template);
+        
         NotificationMessage message = notificationMockerService.getMockNotificationMessageForTemplate(template);
 
         testCreateNotificationGenerated(message, mediumTypes);

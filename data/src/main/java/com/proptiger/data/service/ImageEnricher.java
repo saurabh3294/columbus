@@ -9,29 +9,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.model.Bank;
-import com.proptiger.data.model.Builder;
-import com.proptiger.data.model.LandMark;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.ProjectDB;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.model.image.Image;
-import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.cms.Builder;
+import com.proptiger.core.model.cms.LandMark;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.ProjectDB;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.proptiger.Bank;
+import com.proptiger.core.model.proptiger.Image;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.MediaUtil;
-import com.proptiger.data.util.UtilityClass;
 
 @Service
 public class ImageEnricher {

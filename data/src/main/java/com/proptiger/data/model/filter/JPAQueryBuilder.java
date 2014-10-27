@@ -33,12 +33,12 @@ import org.apache.cxf.jaxrs.ext.search.jpa.JPACriteriaQueryVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.SortBy;
 import com.proptiger.data.enums.filter.Operator;
-import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.filter.FieldsMapLoader.FieldMetaInfo;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.SortBy;
 
 /**
  * This class provides implementation to build query specific to my sql

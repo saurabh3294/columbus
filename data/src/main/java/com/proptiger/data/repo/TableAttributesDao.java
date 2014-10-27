@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.model.TableAttributes;
+import com.proptiger.core.model.cms.TableAttributes;
 
 @Repository
 public interface TableAttributesDao extends PagingAndSortingRepository<TableAttributes, Long> {

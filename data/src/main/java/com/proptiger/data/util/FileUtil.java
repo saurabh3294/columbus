@@ -3,6 +3,7 @@ package com.proptiger.data.util;
 import java.io.File;
 
 import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 

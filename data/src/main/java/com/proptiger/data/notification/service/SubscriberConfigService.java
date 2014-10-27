@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.notification.model.Subscriber;
@@ -20,7 +21,6 @@ import com.proptiger.data.notification.model.SubscriberConfig;
 import com.proptiger.data.notification.model.SubscriberConfig.ConfigName;
 import com.proptiger.data.notification.repo.SubscriberConfigDao;
 import com.proptiger.data.notification.repo.SubscriberDao;
-import com.proptiger.data.util.DateUtil;
 
 @Service
 public class SubscriberConfigService {
@@ -62,7 +62,7 @@ public class SubscriberConfigService {
     }
     
     public Iterable<SubscriberConfig> findAllSubscriberConfig() {
-        return subscriberConfigDao.findAll();
+        return subscriberConfigDao.findAllMapping();
     }
     
     public Iterable<Subscriber> findAllSubscriber() {
