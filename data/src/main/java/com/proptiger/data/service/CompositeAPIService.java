@@ -49,7 +49,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.util.URLUtil;
 
 /**
  * Service class to get result from individual API and put that into a map
