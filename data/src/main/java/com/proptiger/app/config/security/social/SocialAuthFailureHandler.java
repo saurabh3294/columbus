@@ -11,8 +11,8 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.social.security.SocialAuthenticationRedirectException;
 
 import com.proptiger.app.config.security.ResponseErrorWriter;
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
 
 /**
  * Failure handler for spring social flow, if auth requested with access token

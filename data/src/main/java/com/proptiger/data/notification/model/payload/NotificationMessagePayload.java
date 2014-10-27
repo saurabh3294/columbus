@@ -3,7 +3,7 @@ package com.proptiger.data.notification.model.payload;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 public class NotificationMessagePayload extends BaseModel {
 

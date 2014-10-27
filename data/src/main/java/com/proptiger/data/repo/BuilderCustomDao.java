@@ -2,7 +2,7 @@ package com.proptiger.data.repo;
 
 import java.util.List;
 
-import com.proptiger.data.model.Builder;
+import com.proptiger.core.model.cms.Builder;
 
 public interface BuilderCustomDao {
     public Builder getBuilderById(int builderId);

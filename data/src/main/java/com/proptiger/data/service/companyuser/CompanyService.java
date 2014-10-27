@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.model.cms.Company;
 import com.proptiger.data.enums.ActivationStatus;
-import com.proptiger.data.model.Company;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.repo.CompanyDao;
 import com.proptiger.data.repo.companyuser.CompanyUserDao;

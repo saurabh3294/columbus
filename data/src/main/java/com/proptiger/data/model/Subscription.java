@@ -15,6 +15,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.model.user.SubscriptionType;
 
 @Entity

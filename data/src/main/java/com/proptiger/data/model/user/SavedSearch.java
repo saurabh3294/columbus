@@ -11,9 +11,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "FORUM_USER_SAVED_SEARCHES")

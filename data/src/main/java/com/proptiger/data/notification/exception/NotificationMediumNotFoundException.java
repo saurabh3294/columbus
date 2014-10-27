@@ -1,6 +1,6 @@
 package com.proptiger.data.notification.exception;
 
-import com.proptiger.exception.ProAPIException;
+import com.proptiger.core.exception.ProAPIException;
 
 /**
  * 

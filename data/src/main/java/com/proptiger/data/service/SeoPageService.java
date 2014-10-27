@@ -1,6 +1,5 @@
 package com.proptiger.data.service;
 
-import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -25,28 +24,28 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.google.gson.Gson;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.cms.Builder;
+import com.proptiger.core.model.cms.City;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.cms.Suburb;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
-import com.proptiger.data.model.Builder;
-import com.proptiger.data.model.City;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectSeoTags;
-import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SeoFooter;
 import com.proptiger.data.model.SeoPage;
 import com.proptiger.data.model.SeoPage.Tokens;
-import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.URLDetail;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ProjectSeoTagsDao;
 import com.proptiger.data.repo.SeoFooterDao;
 import com.proptiger.data.repo.SeoPageDao;
-import com.proptiger.data.util.Constants;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 @Service
 public class SeoPageService {

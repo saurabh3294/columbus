@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.proptiger.data.model.user.DashboardWidgetMapping;
+import com.proptiger.core.model.proptiger.DashboardWidgetMapping;
 
 /**
  * @author Rajeev Pandey

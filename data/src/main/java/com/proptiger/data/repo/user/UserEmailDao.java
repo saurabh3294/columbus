@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.proptiger.data.model.user.UserEmail;
+import com.proptiger.core.model.user.UserEmail;
 
 /**
  * 

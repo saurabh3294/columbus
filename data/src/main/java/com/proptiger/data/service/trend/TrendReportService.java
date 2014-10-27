@@ -18,12 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.MSExcelUtils;
-import com.proptiger.exception.ProAPIException;
 
 @Service
 public class TrendReportService {

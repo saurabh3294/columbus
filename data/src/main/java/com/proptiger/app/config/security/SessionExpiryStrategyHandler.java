@@ -7,8 +7,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.web.RedirectStrategy;
 
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
 
 /**
  * This handler overrides the dfault implementation not to redirect on any url

@@ -23,11 +23,11 @@ import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.StringUtils;
 
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.util.Constants;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.SortBy;
+import com.proptiger.core.util.Constants;
 
 /**
  * This class is responsible to create all clauses of solr query

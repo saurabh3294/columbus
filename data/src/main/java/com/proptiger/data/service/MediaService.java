@@ -9,27 +9,26 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.enums.MediaType;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.MediaType;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.ResourceAlreadyExistException;
+import com.proptiger.core.exception.ResourceNotFoundException;
+import com.proptiger.core.model.proptiger.Media;
+import com.proptiger.core.model.proptiger.ObjectMediaType;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
-import com.proptiger.data.model.Media;
-import com.proptiger.data.model.image.ObjectMediaType;
 import com.proptiger.data.repo.MediaDao;
 import com.proptiger.data.repo.MediaTypeDao;
 import com.proptiger.data.repo.ObjectMediaTypeDao;
 import com.proptiger.data.repo.ObjectTypeDao;
 import com.proptiger.data.util.AmazonS3Util;
 import com.proptiger.data.util.MediaUtil;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceAlreadyExistException;
-import com.proptiger.exception.ResourceNotFoundException;
 
 /**
  * 
