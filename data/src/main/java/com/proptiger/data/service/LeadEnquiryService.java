@@ -5,8 +5,10 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +20,7 @@ import net.sf.uadetector.service.UADetectorServiceFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.data.constants.ResponseCodes;
@@ -103,6 +106,7 @@ public class LeadEnquiryService {
                                                           "noida",
                                                           "pune");
 
+    @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
 
         HashMap<String, String> leadInvalidations = new HashMap<String, String>();
@@ -143,7 +147,7 @@ public class LeadEnquiryService {
             else {
                 enquiry = generateAndWriteLead(enquiry, request);
                 enquiryIds.add(enquiry.getId());
-//                updateUserDetails(enquiry, userInfo);
+                updateUserDetails(enquiry);
             }
 
             if (enquiry.getUserMedium().equals("ppc") || enquiry.getUserMedium().equals("cpc")) {
@@ -152,7 +156,7 @@ public class LeadEnquiryService {
 
             leadResponse = new LeadEnquiryResponse(enquiry, enquiryIds);
 
-            SendEmailRequest(enquiry, projectNames);
+            sendEmailRequest(enquiry, projectNames);
         }
         
         createAutofillCookie(enquiry, response, request);
@@ -197,7 +201,7 @@ public class LeadEnquiryService {
 
     }
 
-    private void updateUserDetails(Enquiry enquiry, ActiveUser userInfo) {
+    private void updateUserDetails(Enquiry enquiry) {
 
         User user = userService.getUser(enquiry.getEmail());
 
@@ -205,10 +209,11 @@ public class LeadEnquiryService {
             User newUser = new User();
             UserContactNumber userContactNumber = new UserContactNumber();
             userContactNumber.setContactNumber(enquiry.getPhone());
-            newUser.getContactNumbers().add(userContactNumber);
-            newUser.setId(newUser.getId());
+            Set<UserContactNumber> contactNumbers = new HashSet<UserContactNumber>();
+            contactNumbers.add(userContactNumber);
+            newUser.setContactNumbers(contactNumbers);
+            newUser.setId(user.getId());
             userService.updateContactNumbers(newUser);
-//            userService.updateUserDetails(newUser, userInfo);
         }
     }
 
@@ -231,7 +236,7 @@ public class LeadEnquiryService {
         return enquiry;
     }
 
-    private void SendEmailRequest(Enquiry enquiry, List<String> projectNames) {
+    private void sendEmailRequest(Enquiry enquiry, List<String> projectNames) {
 
         LeadSubmitMail dataForTemplate = null;
         String emailReceiver = null;
