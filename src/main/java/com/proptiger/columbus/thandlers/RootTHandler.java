@@ -8,13 +8,13 @@ import com.proptiger.columbus.model.Typeahead;
 
 @Component
 public abstract class RootTHandler {
-    
+
     protected TemplateTypes type;
-    
+
     public TemplateTypes getType() {
         return type;
     }
-    
+
     public void setType(TemplateTypes type) {
         this.type = type;
     }
@@ -28,10 +28,10 @@ public abstract class RootTHandler {
         typeahead.setIsSuggestion(true);
         return typeahead;
     }
-    
+
     /* Abstract Methods */
 
     public abstract List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows);
-    
+
     public abstract Typeahead getTopResult(String query, Typeahead typeahead, String city);
 }

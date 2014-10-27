@@ -16,12 +16,10 @@ import com.proptiger.core.config.WebMvcConfig;
  * @author azi
  * 
  */
-public class AppWebInitializer extends WebInitializer implements
-		WebApplicationInitializer {
+public class AppWebInitializer extends WebInitializer implements WebApplicationInitializer {
 
-	@Override
-	public void onStartup(ServletContext servletContext)
-			throws ServletException {
-		super.onServletStartup(servletContext, WebMvcConfig.class);
-	}
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
+        super.onServletStartup(servletContext, WebMvcConfig.class);
+    }
 }

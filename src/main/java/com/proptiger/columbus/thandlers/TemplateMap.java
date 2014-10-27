@@ -9,12 +9,12 @@ public class TemplateMap extends HashMap<String, TemplateTypes> {
     private static final long serialVersionUID = 1L;
 
     private static Logger     logger           = LoggerFactory.getLogger(TemplateMap.class);
-    
+
     public TemplateMap() {
         super();
         fillMap();
     }
-    
+
     public RootTHandler getTemplate(String text) {
         TemplateTypes ttype;
         try {
@@ -36,10 +36,9 @@ public class TemplateMap extends HashMap<String, TemplateTypes> {
 
     private void fillMap() {
         TemplateTypes[] allTemplateTypes = TemplateTypes.values();
-        for(TemplateTypes ttype : allTemplateTypes)
-        {
+        for (TemplateTypes ttype : allTemplateTypes) {
             this.put(ttype.getText().toLowerCase(), ttype);
         }
     }
- 
+
 }
