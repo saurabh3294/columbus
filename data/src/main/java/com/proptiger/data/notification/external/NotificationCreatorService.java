@@ -22,6 +22,13 @@ public class NotificationCreatorService {
     @Autowired
     private NotificationGeneratedService notificationGeneratedService;
 
+    /**
+     * Creates notification in the Database which will be later scheduled and sent
+     * to the user.
+     * 
+     * @param request
+     * @return
+     */
     public List<NotificationGenerated> createNotificationGenerated(NotificationCreatorServiceRequest request) {
 
         List<NotificationMessage> notificationMessages = new ArrayList<NotificationMessage>();

@@ -76,46 +76,10 @@ public class NotificationMockerService {
         return portfolioListings;
     }
 
-    public NotificationMessage getMockNotificationMessageForEmail() {
-        Integer userId = 1211883;
-        NotificationType notiType = getMockNotificationType();
-        NotificationMessagePayload payload = getMockNotificationMessagePayloadWithSubjectBody();
-        return new NotificationMessage(userId, payload, notiType);
-    }
-
-    public NotificationMessage getMockNotificationMessageForTemplate(String template) {
-        Integer userId = 1211884;
-        NotificationType notiType = getMockNotificationType();
-        NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplate(template);
-        return new NotificationMessage(userId, payload, notiType);
-    }
-
-    public NotificationMessage getMockNotificationMessageForTemplateMap(Map<String, Object> templateMap) {
-        Integer userId = 1211884;
-        NotificationType notiType = getMockNotificationType();
-        NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplateMap(templateMap);
-        return new NotificationMessage(userId, payload, notiType);
-    }
-
-    public NotificationMessage getMockNotificationMessageForTemplateMap(
-            Map<String, Object> templateMap,
-            String fromEmail,
-            List<String> ccList,
-            List<String> bccList) {
-        Integer userId = 1211884;
-        NotificationType notiType = getMockNotificationType();
-        NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplateMap(
-                templateMap,
-                fromEmail,
-                ccList,
-                bccList);
-        return new NotificationMessage(userId, payload, notiType);
-    }
-
     public NotificationMessage getMockNotificationMessage() {
         Integer userId = 241221;
         NotificationType notiType = getMockNotificationType();
-        NotificationMessagePayload payload = getMockNotificationMessagePayload();
+        NotificationMessagePayload payload = getMockNotificationMessagePayload();        
         return new NotificationMessage(userId, payload, notiType);
     }
 
@@ -158,50 +122,24 @@ public class NotificationMockerService {
         return payload;
     }
 
-    private NotificationMessagePayload getMockNotificationMessagePayloadWithSubjectBody() {
-        String subject = "This is a mock email subject for XYZ";
-        String body = "This is a mock email body for XYZ";
-
-        Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Default.Subject.name(), subject);
-        extraAttributes.put(Tokens.Default.Body.name(), body);
-        return getMockNotificationMessagePayloadWithTemplateMap(extraAttributes);
-    }
-
-    private NotificationMessagePayload getMockNotificationMessagePayloadWithTemplate(String template) {
-        Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Default.Template.name(), template);
-        return getMockNotificationMessagePayloadWithTemplateMap(extraAttributes);
-    }
-
-    private NotificationMessagePayload getMockNotificationMessagePayloadWithTemplateMap(Map<String, Object> templateMap) {
-        NotificationMessagePayload payload = new NotificationMessagePayload();
-        payload.setNotificationTypePayload(getMockNotificationTypePayload());
-        payload.setExtraAttributes(templateMap);
-        return payload;
-    }
-
-    private NotificationMessagePayload getMockNotificationMessagePayloadWithTemplateMap(
-            Map<String, Object> templateMap,
-            String fromEmail,
-            List<String> ccList,
-            List<String> bccList) {
-        NotificationMessagePayload payload = new NotificationMessagePayload();
-        payload.setNotificationTypePayload(getMockNotificationTypePayload());
-        payload.setExtraAttributes(templateMap);
-        payload.setCcList(ccList);
-        payload.setBccList(bccList);
-        payload.setFromEmail(fromEmail);
-        return payload;
-    }
-
     private NotificationMessagePayload getMockNotificationMessagePayload() {
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
         extraAttributes.put(Tokens.PortfolioProjectUpdates.ProjectName.name(), "dummyProjectName");
 
+        List<String> ccList = new ArrayList<String>();
+        ccList.add("cc-email@proptiger.com");
+        
+        List<String> bccList = new ArrayList<String>();
+        bccList.add("bcc-email@proptiger.com");
+
+        String fromEmail = "from-email@proptiger.com";
+        
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setNotificationTypePayload(getMockNotificationTypePayload());
         payload.setExtraAttributes(extraAttributes);
+        payload.setCcList(ccList);
+        payload.setBccList(bccList);
+        payload.setFromEmail(fromEmail);
         return payload;
     }
 }

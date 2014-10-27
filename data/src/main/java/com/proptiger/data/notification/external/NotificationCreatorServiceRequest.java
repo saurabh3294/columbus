@@ -59,10 +59,12 @@ public class NotificationCreatorServiceRequest {
             int userId,
             String template,
             List<MediumType> mediumTypes) {
-        this.notificationType = notificationType;
+        if (notificationType != null) {
+            this.notificationType = notificationType;
+        }
         this.userIds.add(userId);
         this.template = template;
-        this.mediumTypes = mediumTypes;
+        this.mediumTypes.addAll(mediumTypes);
     }
 
     /**
@@ -79,10 +81,14 @@ public class NotificationCreatorServiceRequest {
             int userId,
             Map<String, Object> payloadMap,
             List<MediumType> mediumTypes) {
-        this.notificationType = notificationType;
+        if (notificationType != null) {
+            this.notificationType = notificationType;
+        }
         this.userIds.add(userId);
-        this.payloadMap = payloadMap;
-        this.mediumTypes = mediumTypes;
+        if (payloadMap != null) {
+            this.payloadMap.putAll(payloadMap);
+        }
+        this.mediumTypes.addAll(mediumTypes);
     }
 
     /**
@@ -106,13 +112,21 @@ public class NotificationCreatorServiceRequest {
             List<String> ccList,
             List<String> bccList,
             List<MediumType> mediumTypes) {
-        this.notificationType = notificationType;
+        if (notificationType != null) {
+            this.notificationType = notificationType;
+        }
         this.userIds.add(userId);
-        this.payloadMap = payloadMap;
+        if (payloadMap != null) {
+            this.payloadMap.putAll(payloadMap);
+        }
         this.fromEmail = fromEmail;
-        this.ccList = ccList;
-        this.bccList = bccList;
-        this.mediumTypes = mediumTypes;
+        if (ccList != null) {
+            this.ccList.addAll(ccList);
+        }
+        if (bccList != null) {
+            this.bccList.addAll(bccList);
+        }
+        this.mediumTypes.addAll(mediumTypes);
     }
 
     public NotificationTypeEnum getNotificationType() {
