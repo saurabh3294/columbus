@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -28,7 +27,6 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.enums.lead.BuyPeriod;
 import com.proptiger.data.enums.lead.ProcessingStatus;
 import com.proptiger.data.enums.lead.SalesType;
 import com.proptiger.data.util.DateUtil;
