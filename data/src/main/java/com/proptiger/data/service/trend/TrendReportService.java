@@ -36,7 +36,7 @@ public class TrendReportService {
 
     String                workSheetName             = "sheet1";
 
-    @Value("${trendReportTempPath}")
+    @Value("${path.temp.trend.report}")
     private String        trendReportDirPath;
 
     private File          trendReportDir;
