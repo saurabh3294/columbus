@@ -109,16 +109,16 @@ public class CronService {
         }
 
         for (Integer leadId : leadIdList) {
-            //try {
+            try {
                 leadService.manageLeadAuctionWithCycle(
                         leadId,
                         maxPhaseIdMapLeadId,
                         maxPhaseIdMapLeadId.get(leadId) == null ? 0 : maxPhaseIdMapLeadId.get(leadId),0);
-            //}
+            }
 
-            //catch (Exception e) {
-               // logger.error("Error in lead assignment: " + e);
-            //}
+            catch (Exception e) {
+                logger.error("Error in lead assignment: " + e);
+            }
 
         }
     }
