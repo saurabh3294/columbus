@@ -30,7 +30,7 @@ public class OTPController extends BaseController{
 
     @RequestMapping(value = "app/v1/otp/validate", method = RequestMethod.POST)
     public void validateOTP(
-            @RequestBody Integer otp,
+            @RequestBody String otp,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
             HttpServletRequest request,
             HttpServletResponse response) {
@@ -43,7 +43,7 @@ public class OTPController extends BaseController{
     public APIResponse getOTP(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
         otpService.respondWithOTP(activeUser);;
-        return new APIResponse();
+        return new APIResponse("New OTP has been sent to your registered email");
     }
 
 }

@@ -125,7 +125,7 @@ public class OTPService {
     }
 
     @Transactional
-    public void validate(Integer otp, ActiveUser activeUser, HttpServletRequest request, HttpServletResponse response) {
+    public void validate(String otp, ActiveUser activeUser, HttpServletRequest request, HttpServletResponse response) {
         Pageable pageable = new LimitOffsetPageRequest(0, 1, Direction.DESC, "id");
         List<UserOTP> userOTPs = userOTPDao.findLatestOTPByUserId(activeUser.getUserIdentifier(), pageable);
         if (userOTPs.isEmpty() || otp == null) {
@@ -140,7 +140,7 @@ public class OTPService {
             respondWithOTP(activeUser);
             throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.OTP_EXPIRED);
         }
-        if (otp.equals(userOTPs.get(0).getOtp())) {
+        if (otp.equals(userOTPs.get(0).getOtp().toString())) {
             SecurityContextUtils.grantUserAuthorityToActiveUser();
             clearUserOTP(activeUser);
             try {
