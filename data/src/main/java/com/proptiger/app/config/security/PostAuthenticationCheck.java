@@ -29,7 +29,7 @@ public class PostAuthenticationCheck implements UserDetailsChecker {
     public void check(UserDetails toCheck) {
         if (toCheck instanceof ActiveUser) {
             ActiveUser activeUser = ((ActiveUser) toCheck);
-            //validateSubscription(activeUser);
+            validateSubscription(activeUser);
         }
     }
 

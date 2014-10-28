@@ -125,7 +125,7 @@ public class OTPService {
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.OTP,
                 new OtpMail(activeUser.getFullName(), otp, UserOTP.EXPIRES_IN_MINUTES));
-        MailDetails mailDetails = new MailDetails(mailBody).setMailTo("rajeev.pandey@proptiger.com");
+        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(activeUser.getUsername());
         mailSender.sendMailUsingAws(mailDetails);
 
     }
