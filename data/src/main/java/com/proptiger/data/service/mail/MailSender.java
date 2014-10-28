@@ -1,7 +1,6 @@
 package com.proptiger.data.service.mail;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.internal.dto.mail.MailDetails;

@@ -6,9 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.proptiger.data.enums.portfolio.ListingStatus;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
-import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
+import com.proptiger.core.enums.ListingStatus;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.proptiger.PortfolioListing.Source;
 
 /**
  * @author Rajeev Pandey

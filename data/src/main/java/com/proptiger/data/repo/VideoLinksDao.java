@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.model.VideoLinks;
+import com.proptiger.core.model.cms.VideoLinks;
 
 @Repository
 public interface VideoLinksDao extends PagingAndSortingRepository<VideoLinks, Integer> {

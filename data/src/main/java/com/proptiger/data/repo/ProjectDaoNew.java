@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.model.Project;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.model.cms.Project;
 
 @Repository
 public interface ProjectDaoNew extends PagingAndSortingRepository<Project, Integer> {

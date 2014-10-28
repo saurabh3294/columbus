@@ -1,6 +1,7 @@
 package com.proptiger.data.internal.dto;
 
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.model.user.User;
+
 
 /**
  * Registration DTO

@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.service.EventTypeProcessorService;
-import com.proptiger.data.util.DateUtil;
 
 @Component
 public class PriceChangeProcessor extends DBEventProcessor {

@@ -12,12 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.enums.UnitType;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.data.dto.external.trend.BuilderTrend;
-import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.model.trend.Trend;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.service.trend.BuilderTrendService;
-import com.proptiger.exception.ProAPIException;
 
 /**
  * 

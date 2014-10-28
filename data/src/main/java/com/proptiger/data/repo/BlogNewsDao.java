@@ -2,7 +2,6 @@ package com.proptiger.data.repo;
 
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -15,9 +14,9 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.app.config.AppRepositoryConfig;
+import com.proptiger.core.config.AppRepositoryConfig;
+import com.proptiger.core.pojo.Paging;
 import com.proptiger.data.model.WordpressPost;
-import com.proptiger.data.pojo.Paging;
 
 /**
  * This class handles queries for both wordpress and wordpress_news database

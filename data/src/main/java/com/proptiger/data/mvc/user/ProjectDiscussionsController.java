@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.user.ProjectDiscussionsService;
-import com.proptiger.data.util.Constants;
 
 @Controller
 public class ProjectDiscussionsController extends BaseController {

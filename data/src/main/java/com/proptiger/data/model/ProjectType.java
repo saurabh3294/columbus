@@ -1,3 +1,4 @@
+
 package com.proptiger.data.model;
 
 import java.util.Date;
@@ -9,8 +10,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.proptiger.data.enums.DataType;
-import com.proptiger.data.enums.UnitType;
+import com.proptiger.core.enums.DataType;
+import com.proptiger.core.enums.UnitType;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.meta.FieldMetaInfo;
 
 /**

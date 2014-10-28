@@ -13,13 +13,13 @@ import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
-import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.exception.ResourceAlreadyExistException;
+import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.Graph;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.GraphDao;
-import com.proptiger.exception.ResourceAlreadyExistException;
 
 @Service
 public class UserGraphService {

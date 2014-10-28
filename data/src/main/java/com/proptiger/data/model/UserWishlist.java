@@ -16,6 +16,8 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
 
 /**
  * User wish list model object corresponding to USER_WISHLIST table

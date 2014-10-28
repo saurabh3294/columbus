@@ -18,10 +18,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.gson.Gson;
-import com.proptiger.data.annotations.ExcludeFromBeanCopy;
-import com.proptiger.data.enums.Status;
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.core.annotations.ExcludeFromBeanCopy;
+import com.proptiger.core.enums.Status;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.pojo.FIQLSelector;
 
 /**
  * BebUserSelection model object

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.citruspay.pg.model.Enquiry;
-import com.proptiger.data.model.CouponCatalogue;
+import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
 import com.proptiger.data.model.transaction.Payment;

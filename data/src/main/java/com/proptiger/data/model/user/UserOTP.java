@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 /**
  * @author Rajeev Pandey
@@ -20,7 +20,7 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "user.user_otps")
 public class UserOTP extends BaseModel{
-    private static final int EXPIRES_IN_MINUTES = 15;
+    public static final int EXPIRES_IN_MINUTES = 30;
 
     private static final long serialVersionUID = -5831632111030084121L;
 

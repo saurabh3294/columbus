@@ -19,28 +19,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.sqs.model.EmptyBatchRequestException;
-import com.proptiger.data.enums.ConstructionStatus;
-import com.proptiger.data.enums.portfolio.ListingStatus;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.core.enums.ConstructionStatus;
+import com.proptiger.core.enums.ListingStatus;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.proptiger.PortfolioListingPrice;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
-import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.ProjectPriceTrendService;
 import com.proptiger.data.service.ProjectService;
-import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * This class provides price trend for portfolio and for a particular listing of

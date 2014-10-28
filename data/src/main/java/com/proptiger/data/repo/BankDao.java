@@ -2,7 +2,7 @@ package com.proptiger.data.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.proptiger.data.model.Bank;
+import com.proptiger.core.model.proptiger.Bank;
 
 /**
  * @author Rajeev Pandey

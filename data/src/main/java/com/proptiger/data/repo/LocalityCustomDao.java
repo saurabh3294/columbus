@@ -5,12 +5,12 @@ package com.proptiger.data.repo;
 
 import java.util.List;
 
-import com.proptiger.data.enums.SortOrder;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 
 /**
  * @author mandeep

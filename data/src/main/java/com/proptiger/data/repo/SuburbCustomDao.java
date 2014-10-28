@@ -5,8 +5,8 @@ package com.proptiger.data.repo;
 
 import java.util.List;
 
-import com.proptiger.data.model.Suburb;
-import com.proptiger.data.pojo.Selector;
+import com.proptiger.core.model.cms.Suburb;
+import com.proptiger.core.pojo.Selector;
 
 /**
  * @author mandeep

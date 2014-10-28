@@ -15,12 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.exception.LeadPostException;
+import com.proptiger.core.model.proptiger.Enquiry;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.portfolio.LeadPageName;
 import com.proptiger.data.enums.portfolio.LeadSaleType;
-import com.proptiger.data.model.Enquiry;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.exception.LeadPostException;
 
 /**
  * Lead generation service, using lead.php to submit leads

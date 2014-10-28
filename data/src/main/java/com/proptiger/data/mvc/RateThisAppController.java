@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.pojo.response.APIResponse;
 
 /**
  * @author mandeep

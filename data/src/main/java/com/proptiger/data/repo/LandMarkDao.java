@@ -11,7 +11,7 @@ import org.jboss.logging.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.proptiger.data.model.LandMark;
+import com.proptiger.core.model.cms.LandMark;
 
 /**
  * 

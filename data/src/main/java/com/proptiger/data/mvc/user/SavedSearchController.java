@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.model.user.SavedSearch;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.SavedSearchService;
-import com.proptiger.data.util.Constants;
 
 /**
  * @author Rajeev Pandey
