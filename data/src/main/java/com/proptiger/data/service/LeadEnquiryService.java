@@ -515,7 +515,7 @@ public class LeadEnquiryService {
                 enquiry.setProject(projectInfo);
             }
         }
-        else if (enquiry.getLocalityName() != null && enquiry.getCityName() != "") {
+        else if (enquiry.getLocalityName() != null && enquiry.getLocalityName() != "" && enquiry.getCityName() != "") {
 
             localityInfo = localityDao.getLocalityOnLocAndCity(enquiry.getLocalityName(), enquiry.getCityName());
         }
