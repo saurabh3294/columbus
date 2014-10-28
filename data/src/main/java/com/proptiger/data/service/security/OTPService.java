@@ -28,6 +28,7 @@ import com.proptiger.core.repo.APIAccessLogDao;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
+import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.CompanyIP;
@@ -36,6 +37,7 @@ import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.CompanyIPDao;
 import com.proptiger.data.repo.user.UserOTPDao;
 import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserSubscriptionService;
 
 /**
@@ -65,6 +67,9 @@ public class OTPService {
 
     @Autowired
     private CompanyIPDao            companyIPDao;
+    
+    @Autowired
+    private TemplateToHtmlGenerator   mailBodyGenerator;
 
     public boolean isOTPRequired(Authentication auth, HttpServletRequest request) {
         boolean required = false;
@@ -116,11 +121,12 @@ public class OTPService {
         userOTP.setOtp(otp);
         userOTP.setUserId(activeUser.getUserIdentifier());
         userOTPDao.save(userOTP);
-        /*
-         * Mail template should be used
-         */
-        mailSender.sendMailUsingAws(new MailDetails(new MailBody().setBody("OTP-" + otp).setSubject(
-                "One time password to login")).setMailTo(activeUser.getUsername()));
+        
+        MailBody mailBody = mailBodyGenerator.generateMailBody(
+                MailTemplateDetail.OTP,
+                new OtpMail(activeUser.getFullName(), otp, UserOTP.EXPIRES_IN_MINUTES));
+        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(activeUser.getUsername());
+        mailSender.sendMailUsingAws(mailDetails);
 
     }
 
@@ -159,4 +165,24 @@ public class OTPService {
         userOTPDao.deleteByUserId(activeUser.getUserIdentifier());
     }
 
+    public static class OtpMail{
+        private String userName;
+        private Integer otp;
+        private Integer validity;
+        public OtpMail(String userName, Integer otp, Integer validity) {
+            super();
+            this.userName = userName;
+            this.otp = otp;
+            this.validity = validity;
+        }
+        public String getUserName() {
+            return userName;
+        }
+        public Integer getOtp() {
+            return otp;
+        }
+        public Integer getValidity() {
+            return validity;
+        }
+    }
 }

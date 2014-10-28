@@ -36,7 +36,8 @@ public class SocialUserDetailServiceImpl implements SocialUserDetailsService {
         if (user != null) {
             String password = user.getPassword() == null ? "" : user.getPassword();
             Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
-            socialUser = new ActiveUser(user.getFullName(),
+            socialUser = new ActiveUser(
+                    user.getFullName(),
                     user.getId(),
                     user.getEmail(),
                     password,
