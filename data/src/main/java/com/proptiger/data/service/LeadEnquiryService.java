@@ -9,19 +9,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import net.sf.uadetector.ReadableUserAgent;
 import net.sf.uadetector.UserAgentStringParser;
 import net.sf.uadetector.service.UADetectorServiceFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.google.gson.Gson;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.enums.lead.ProcessingStatus;
@@ -338,6 +334,10 @@ public class LeadEnquiryService {
                         enquiry.getCityName());
                 leadMailData.getEnquiry().setLocality(localityInfo);
             }
+            if(enquiry.getCity() == null) {
+                City city = cityService.getCityByName(enquiry.getCityName());
+                leadMailData.getEnquiry().setCity(city);
+            }
         }
         return leadMailData;
     }
@@ -347,16 +347,16 @@ public class LeadEnquiryService {
         StringBuilder leadQuery = new StringBuilder();
         leadQuery.append(enquiry.getQuery());
 
-        if (enquiry.getBedrooms() != null) {
+        if (enquiry.getBedrooms() != null && enquiry.getBedrooms() != "") {
             leadQuery.append(" : [ Bedrooms = " + enquiry.getBedrooms() + " ]");
         }
-        if (enquiry.getBudget() != null) {
+        if (enquiry.getBudget() != null && enquiry.getBudget() != "") {
             leadQuery.append(" : [ Budget = " + enquiry.getBudget() + " ]");
         }
-        if (enquiry.getPropertyType() != null) {
+        if (enquiry.getPropertyType() != null && enquiry.getPropertyType() != "") {
             leadQuery.append(" : [ PropertyType = " + enquiry.getPropertyType() + " ]");
         }
-        if (enquiry.getHomeLoanType() != null) {
+        if (enquiry.getHomeLoanType() != null && enquiry.getHomeLoanType() != "") {
             leadQuery.append(" : [ Home Loan Purpose = " + enquiry.getHomeLoanType() + " ]");
         }
         if (enquiry.getLocalityId() != null && enquiry.getPageName() != null
