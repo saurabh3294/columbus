@@ -1,34 +1,40 @@
-package com.proptiger.data.notification.external;
+package com.proptiger.data.notification.model.external;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 
-public class NotificationCreatorServiceRequest {
+public class NotificationCreatorServiceRequest extends BaseModel {
 
-    private NotificationTypeEnum notificationType = NotificationTypeEnum.Default;
+    private static final long    serialVersionUID = 1156368440678315380L;
 
-    private List<Integer>        userIds          = new ArrayList<Integer>();
+    @NotNull
+    private NotificationTypeEnum notificationType;
 
-    private String               subject;
+    @Size(min=1)
+    private List<User>           users            = new ArrayList<User>();
 
-    private String               body;
+    private EmailAttributes      emailAttributes  = new EmailAttributes();
 
     private String               template;
 
-    private List<String>         ccList           = new ArrayList<String>();
-
-    private List<String>         bccList          = new ArrayList<String>();
-
-    private String               fromEmail;
-
     private Map<String, Object>  payloadMap       = new HashMap<String, Object>();
 
-    private List<MediumType>     mediumTypes      = new ArrayList<MediumType>();   ;
+    @Size(min=1)
+    private List<MediumType>     mediumTypes      = new ArrayList<MediumType>();
+
+    public NotificationCreatorServiceRequest() {
+
+    }
 
     /**
      * For sending email notification of default type with specific subject and
@@ -39,10 +45,13 @@ public class NotificationCreatorServiceRequest {
      * @param body
      */
     public NotificationCreatorServiceRequest(int userId, String subject, String body) {
-        this.userIds.add(userId);
-        this.subject = subject;
-        this.body = body;
+        User user = new User();
+        user.setId(userId);
+        this.users.add(user);
+        this.emailAttributes.setSubject(subject);
+        this.emailAttributes.setBody(body);
         this.mediumTypes.add(MediumType.Email);
+        this.notificationType = NotificationTypeEnum.Default;
     }
 
     /**
@@ -62,9 +71,13 @@ public class NotificationCreatorServiceRequest {
         if (notificationType != null) {
             this.notificationType = notificationType;
         }
-        this.userIds.add(userId);
+        User user = new User();
+        user.setId(userId);
+        this.users.add(user);
         this.template = template;
-        this.mediumTypes.addAll(mediumTypes);
+        if (mediumTypes != null) {
+            this.mediumTypes.addAll(mediumTypes);
+        }
     }
 
     /**
@@ -84,11 +97,17 @@ public class NotificationCreatorServiceRequest {
         if (notificationType != null) {
             this.notificationType = notificationType;
         }
-        this.userIds.add(userId);
+
+        User user = new User();
+        user.setId(userId);
+        this.users.add(user);
+
         if (payloadMap != null) {
             this.payloadMap.putAll(payloadMap);
         }
-        this.mediumTypes.addAll(mediumTypes);
+        if (mediumTypes != null) {
+            this.mediumTypes.addAll(mediumTypes);
+        }
     }
 
     /**
@@ -115,18 +134,26 @@ public class NotificationCreatorServiceRequest {
         if (notificationType != null) {
             this.notificationType = notificationType;
         }
-        this.userIds.add(userId);
+
+        User user = new User();
+        user.setId(userId);
+        this.users.add(user);
+
         if (payloadMap != null) {
             this.payloadMap.putAll(payloadMap);
         }
-        this.fromEmail = fromEmail;
+
+        this.emailAttributes.setFromEmail(fromEmail);
+
         if (ccList != null) {
-            this.ccList.addAll(ccList);
+            this.emailAttributes.getCcList().addAll(ccList);
         }
         if (bccList != null) {
-            this.bccList.addAll(bccList);
+            this.emailAttributes.getBccList().addAll(bccList);
         }
-        this.mediumTypes.addAll(mediumTypes);
+        if (mediumTypes != null) {
+            this.mediumTypes.addAll(mediumTypes);
+        }
     }
 
     public NotificationTypeEnum getNotificationType() {
@@ -137,28 +164,20 @@ public class NotificationCreatorServiceRequest {
         this.notificationType = notificationType;
     }
 
-    public List<Integer> getUserIds() {
-        return userIds;
+    public List<User> getUsers() {
+        return users;
     }
 
-    public void setUserIds(List<Integer> userIds) {
-        this.userIds = userIds;
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
-    public String getSubject() {
-        return subject;
+    public EmailAttributes getEmailAttributes() {
+        return emailAttributes;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
+    public void setEmailAttributes(EmailAttributes emailAttributes) {
+        this.emailAttributes = emailAttributes;
     }
 
     public String getTemplate() {
@@ -167,30 +186,6 @@ public class NotificationCreatorServiceRequest {
 
     public void setTemplate(String template) {
         this.template = template;
-    }
-
-    public List<String> getCcList() {
-        return ccList;
-    }
-
-    public void setCcList(List<String> ccList) {
-        this.ccList = ccList;
-    }
-
-    public List<String> getBccList() {
-        return bccList;
-    }
-
-    public void setBccList(List<String> bccList) {
-        this.bccList = bccList;
-    }
-
-    public String getFromEmail() {
-        return fromEmail;
-    }
-
-    public void setFromEmail(String fromEmail) {
-        this.fromEmail = fromEmail;
     }
 
     public Map<String, Object> getPayloadMap() {

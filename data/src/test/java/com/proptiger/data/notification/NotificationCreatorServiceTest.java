@@ -13,8 +13,8 @@ import org.testng.annotations.Test;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
-import com.proptiger.data.notification.external.NotificationCreatorService;
-import com.proptiger.data.notification.external.NotificationCreatorServiceRequest;
+import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
+import com.proptiger.data.notification.service.external.NotificationCreatorService;
 import com.proptiger.data.service.AbstractTest;
 
 public class NotificationCreatorServiceTest extends AbstractTest {

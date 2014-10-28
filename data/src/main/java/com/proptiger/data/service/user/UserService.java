@@ -652,6 +652,14 @@ public class UserService {
         patchUser(user);
         return user;
     }
+    
+    public User findOrCreateUser(User user) {
+        if (user.getId() != 0) {
+            return userDao.findOne(user.getId());
+        } else {
+            return createUser(user);
+        }
+    }
 
     /**
      * 

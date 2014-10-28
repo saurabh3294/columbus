@@ -19,9 +19,9 @@ import com.proptiger.data.model.user.User;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
-import com.proptiger.data.notification.external.NotificationCreatorService;
-import com.proptiger.data.notification.external.NotificationCreatorServiceRequest;
+import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.NotificationMessageService;
+import com.proptiger.data.notification.service.external.NotificationCreatorService;
 import com.proptiger.data.service.user.UserService;
 
 @Service
