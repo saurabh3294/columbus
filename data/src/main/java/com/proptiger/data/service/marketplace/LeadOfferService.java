@@ -451,7 +451,7 @@ public class LeadOfferService {
         offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getId());
 
-        if (phaseId == null) {
+        if (phaseId == null || phaseId == 0) {
             phaseId = 1;
         }
 
@@ -522,6 +522,9 @@ public class LeadOfferService {
                     .getId()) {
                 notificationService.removeNotification(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
+                leadOfferDao.save(leadOfferInDB);
+                restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
+                return leadOfferInDB;
             }
         }
 
@@ -738,6 +741,7 @@ public class LeadOfferService {
             leadOfferDao.expireRestOfTheLeadOffers(leadOfferInDB.getLeadId());
         }
         else {
+            
             if (declinedLeadOfferCountInCycle + leadOfferCountInCycle == allCountInCycle) {
                 getLeadService();
                 leadService.manageLeadAuctionWithBeforeCycle(leadOfferInDB.getLeadId());

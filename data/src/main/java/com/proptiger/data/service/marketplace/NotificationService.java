@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -470,11 +471,10 @@ public class NotificationService {
 
     public Notification sendLeadOfferNotification(int offerId) {
         LeadOffer offer = leadOfferDao.getLeadOfferWithRequirements(offerId);
-         for(LeadRequirement leadRequirement:offer.getLead().getRequirements())
-         {
-             leadRequirement.setLead(null);
-         }
-         Notification notification = createNotification(
+        for (LeadRequirement leadRequirement : offer.getLead().getRequirements()) {
+            leadRequirement.setLead(null);
+        }
+        Notification notification = createNotification(
                 offer.getAgentId(),
                 NotificationType.LeadOffered.getId(),
                 offer.getId(),
@@ -648,6 +648,24 @@ public class NotificationService {
                 NotificationType.LeadOffered.getId());
         if (notification != null) {
             notificationDao.delete(notification);
+        }
+    }
+
+    public void deleteNotificationsOfLeadOffersExpired(List<Integer> leadIdList, int notificationTypeId) {
+
+        String leadIdString = "";
+        int i = 0;
+        for (Integer leadId : leadIdList) {
+            if (i == 0) {
+                leadIdString += leadId;
+            }
+            else {
+                leadIdString += "," + leadId;
+            }
+            i++;
+        }
+        if (leadIdString != "") {
+            notificationDao.deleteUsingNotificationTypeAndObjectId(leadIdString, notificationTypeId,LeadOfferStatus.Offered.getId());
         }
     }
 }

@@ -62,4 +62,10 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
             int notificationTypeId);
 
     public List<Notification> findByUserIdAndNotificationTypeId(int userId, int notificationTypeId);
+
+    @Transactional
+    @Modifying
+    @Query(nativeQuery = true,
+            value ="delete marketplace.notifications from marketplace.notifications join marketplace.lead_offers on (marketplace.notifications.object_id = marketplace.lead_offers.id) and marketplace.notifications.notification_type_id = ?2 and marketplace.lead_offers.lead_id in (?1) and marketplace.lead_offers.status_id = ?3")
+    public void deleteUsingNotificationTypeAndObjectId(String leadIdString, int notificationTypeId,int status_id);
 }

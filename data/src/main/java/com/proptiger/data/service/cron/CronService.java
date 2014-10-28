@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.enums.LeadOfferStatus;
+import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.repo.marketplace.LeadDao;
@@ -105,7 +106,8 @@ public class CronService {
         }
 
         if (!leadIds.isEmpty()) {
-            leadOfferDao.updateLeadOffers(leadIdList);
+            notificationService.deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
+            leadOfferDao.updateLeadOffers(leadIdList);            
         }
 
         for (Integer leadId : leadIdList) {
@@ -164,7 +166,6 @@ public class CronService {
         }
     }
 
-    @Scheduled(initialDelay = 50000, fixedDelay = 1800000)
     public void manageLeadOfferedReminder() {
         Date endDate = notificationService.getAuctionOverCutoffTime();
         Date startDate = new Date(
