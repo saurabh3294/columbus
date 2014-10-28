@@ -13,8 +13,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.enums.ActivationStatus;
-import com.proptiger.data.model.BaseModel;
 
 /**
  * @author Rajeev Pandey

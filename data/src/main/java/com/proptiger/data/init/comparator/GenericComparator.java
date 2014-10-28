@@ -6,8 +6,8 @@ import java.util.Comparator;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.data.dto.external.trend.BuilderTrend;
-import com.proptiger.exception.ProAPIException;
 
 /**
  * Deneric comparator for sorting pojo list on a field

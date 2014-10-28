@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 /**
  * Model object to map cms project history

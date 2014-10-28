@@ -6,10 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.enums.MediaType;
-import com.proptiger.data.model.Media;
-import com.proptiger.exception.ProAPIException;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.MediaType;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.model.proptiger.Media;
 
 @Service
 public class DocumentService extends MediaService {

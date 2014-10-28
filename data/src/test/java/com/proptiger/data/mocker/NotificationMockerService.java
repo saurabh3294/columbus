@@ -8,8 +8,8 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.user.User;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.enums.Tokens;

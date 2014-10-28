@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import com.proptiger.data.mocker.NotificationMockerService;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationMessage;

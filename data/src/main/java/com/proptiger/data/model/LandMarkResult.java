@@ -7,6 +7,9 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.cms.LandMark;
+import com.proptiger.core.model.cms.LandMarkTypes;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 @ResourceMetaInfo

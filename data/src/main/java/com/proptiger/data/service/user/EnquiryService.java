@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.Enquiry.EnquiryCustomDetails;
+import com.proptiger.core.model.proptiger.Enquiry.EnquiryCustomDetails;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.user.UserDao;
 

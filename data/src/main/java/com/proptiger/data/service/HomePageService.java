@@ -3,7 +3,7 @@ package com.proptiger.data.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.core.pojo.FIQLSelector;
 
 @Service
 public class HomePageService {

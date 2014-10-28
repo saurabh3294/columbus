@@ -4,8 +4,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 
-import com.proptiger.data.enums.Application;
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.Application;
 
 /**
  * This class decides the no of session creation for a user depending on for

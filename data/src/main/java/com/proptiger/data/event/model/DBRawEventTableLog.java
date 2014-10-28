@@ -12,7 +12,7 @@ import javax.persistence.Transient;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 @Entity
 @Table(name = "notification.raw_event_table_details")

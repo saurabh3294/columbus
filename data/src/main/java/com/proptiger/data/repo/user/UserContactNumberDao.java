@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.model.user.UserContactNumber;
+import com.proptiger.core.model.user.UserContactNumber;
 
 /**
  * 

@@ -18,7 +18,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 /**
  * @author mandeep
@@ -51,7 +51,7 @@ public class Payment extends BaseModel {
     private String citrusPayGatewayTransactionId;
     
     @Column(name="gateway_transaction_id")
-    private long gatewayTransactionId;
+    private Long gatewayTransactionId;
 
     @Column(name="payment_gateway_response_id")
     private Integer paymentGatewayResponseId;
@@ -141,11 +141,11 @@ public class Payment extends BaseModel {
         this.citrusPayGatewayTransactionId = citrusPayGatewayTransactionId;
     }
 
-    public long getGatewayTransactionId() {
+    public Long getGatewayTransactionId() {
         return gatewayTransactionId;
     }
 
-    public void setGatewayTransactionId(long gatewayTransactionId) {
+    public void setGatewayTransactionId(Long gatewayTransactionId) {
         this.gatewayTransactionId = gatewayTransactionId;
     }
 

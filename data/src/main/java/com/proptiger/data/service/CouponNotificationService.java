@@ -12,10 +12,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.CouponCatalogue;
-import com.proptiger.data.model.Property;
+import com.proptiger.core.model.cms.CouponCatalogue;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.transaction.Transaction;
-import com.proptiger.data.model.user.User;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;

@@ -1,6 +1,6 @@
 package com.proptiger.app.config.security;
 
-import org.springframework.security.web.context.*;
+import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 
 /**
  * Initialize spring security system

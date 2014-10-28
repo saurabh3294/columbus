@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 /**
  * @author Rajeev Pandey
