@@ -142,8 +142,8 @@ public class LeadService {
                     if (offer != null) {
                         isAssigned = true;
                         notificationService.sendLeadOfferNotification(offer.getId());
+                        countBrokers++;
                     }
-                    countBrokers++;
 
                     if (countBrokers >= PropertyReader.getRequiredPropertyAsType(
                             PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,
@@ -176,7 +176,9 @@ public class LeadService {
         if (!leadOffers.isEmpty()) {
             lead.setLeadOffers(leadOffers);
             for (LeadOffer leadOffer : lead.getLeadOffers()) {
-                agentIds.add(leadOffer.getAgentId());
+                if (!agentIds.contains(leadOffer.getAgentId())) {
+                    agentIds.add(leadOffer.getAgentId());
+                }
             }
         }
 

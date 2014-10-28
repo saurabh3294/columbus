@@ -106,8 +106,9 @@ public class CronService {
         }
 
         if (!leadIds.isEmpty()) {
-            notificationService.deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
-            leadOfferDao.updateLeadOffers(leadIdList);            
+            notificationService
+                    .deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
+            leadOfferDao.updateLeadOffers(leadIdList);
         }
 
         for (Integer leadId : leadIdList) {
@@ -115,7 +116,8 @@ public class CronService {
                 leadService.manageLeadAuctionWithCycle(
                         leadId,
                         maxPhaseIdMapLeadId,
-                        maxPhaseIdMapLeadId.get(leadId) == null ? 0 : maxPhaseIdMapLeadId.get(leadId),0);
+                        maxPhaseIdMapLeadId.get(leadId) == null ? 0 : maxPhaseIdMapLeadId.get(leadId),
+                        0);
             }
 
             catch (Exception e) {
