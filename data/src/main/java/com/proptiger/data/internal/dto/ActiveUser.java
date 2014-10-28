@@ -18,11 +18,13 @@ import com.proptiger.data.enums.Application;
 public class ActiveUser extends SocialUser {
     private static final long serialVersionUID = -3022788419586557079L;
     private Integer           userIdentifier;
+    private String            fullName;
     //TODO should be removed once we define role for a user
     @JsonIgnore
     private Application applicationType = Application.DEFAULT;
     
     public ActiveUser(
+            String fullName,
             Integer userId,
             String username,
             String password,
@@ -35,6 +37,7 @@ public class ActiveUser extends SocialUser {
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
         this.userIdentifier = userId;
         this.applicationType = applicationTyep;
+        this.fullName = fullName;
     }
 
     public Integer getUserIdentifier() {
@@ -61,6 +64,10 @@ public class ActiveUser extends SocialUser {
     @Override
     public int hashCode() {
         return getUsername().hashCode();
+    }
+
+    public String getFullName() {
+        return fullName;
     }
 
     @Override

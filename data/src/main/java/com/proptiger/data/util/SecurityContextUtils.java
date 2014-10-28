@@ -79,6 +79,7 @@ public class SecurityContextUtils {
     private static Authentication createNewAuthentication(User user) {
         Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
         UserDetails userDetails = new ActiveUser(
+                user.getFullName(),
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
