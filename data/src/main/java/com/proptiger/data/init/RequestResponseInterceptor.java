@@ -46,6 +46,7 @@ public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
             for (GrantedAuthority authority : activeUser.getAuthorities()) {
                 if (authority.getAuthority().equals(UserRole.ADMIN_BACKEND.name())) {
                     activeUser = new ActiveUser(
+                            UserRole.ADMIN_BACKEND.name(),
                             Constants.ADMIN_USER_ID,
                             activeUser.getUsername(),
                             activeUser.getPassword() == null ? "" : activeUser.getPassword(),
