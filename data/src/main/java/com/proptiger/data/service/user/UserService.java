@@ -74,6 +74,7 @@ import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
+import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
@@ -493,6 +494,7 @@ public class UserService {
      */
     @Transactional
     public CustomUser register(RegisterUser register) {
+        Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
         register.setUserAuthProviderDetails(null);
         RegistrationUtils.validateRegistration(register);
         register.setRegistered(true);
@@ -515,20 +517,38 @@ public class UserService {
          * send mail only if user registers
          */
         if (user.isRegistered()) {
-            ForumUserToken userToken = createForumUserToken(user.getId());
-            MailBody mailBody = htmlGenerator
-                    .generateMailBody(
-                            MailTemplateDetail.NEW_USER_REGISTRATION,
-                            new UserRegisterMailTemplate(
-                                    user.getFullName(),
-                                    user.getEmail(),
-                                    getEmailValidationLink(userToken)));
-            MailDetails details = new MailDetails(mailBody).setMailTo(user.getEmail()).setFrom(
-                    propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
-            mailSender.sendMailUsingAws(details);
+            /*
+             * mails should be sent for non b2b users only
+             */
+            if(!applicationType.equals(Application.B2B)){
+                /*
+                
+                Removing this as we are not sending validation link in mailer
+                TODO should be enabled once we figure out proper mailers from product team
+                 
+                ForumUserToken userToken = createForumUserToken(user.getId());
+                MailBody mailBody = htmlGenerator
+                        .generateMailBody(
+                                MailTemplateDetail.NEW_USER_REGISTRATION,
+                                new UserRegisterMailTemplate(
+                                        user.getFullName(),
+                                        user.getEmail(),
+                                        getEmailValidationLink(userToken)));
+                */
+                MailBody mailBody = htmlGenerator
+                        .generateMailBody(
+                                MailTemplateDetail.NEW_USER_REGISTRATION,
+                                new UserRegisterMailTemplate(
+                                        user.getFullName(),
+                                        user.getEmail(),
+                                        ""));
+                MailDetails details = new MailDetails(mailBody).setMailTo(user.getEmail()).setFrom(
+                        propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
+                mailSender.sendMailUsingAws(details);
+            }
             SecurityContextUtils.autoLogin(user);
         }
-        return getUserDetails(user.getId(), Application.DEFAULT);
+        return getUserDetails(user.getId(), applicationType);
     }
 
     private String getEmailValidationLink(ForumUserToken userToken) {
@@ -597,6 +617,7 @@ public class UserService {
         if (user == null) {
             user = new User();
             user.setEmail(email);
+            user.setRegistered(true);
             user.setFullName(userName);
             user = userDao.save(user);
         }
