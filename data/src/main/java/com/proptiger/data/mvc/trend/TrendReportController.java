@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.service.trend.TrendReportAggregator;
 import com.proptiger.data.service.trend.TrendReportService;
-import com.proptiger.data.util.Constants;
-import com.proptiger.exception.ProAPIException;
 
 @Controller
 @RequestMapping

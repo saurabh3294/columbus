@@ -5,7 +5,7 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.testng.annotations.Test;
 
-import com.proptiger.app.config.WebMvcConfig;
+import com.proptiger.core.config.WebMvcConfig;
 
 /**
  * Extends This abstarct class in test classes to initialize spring system

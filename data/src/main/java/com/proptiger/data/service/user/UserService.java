@@ -27,42 +27,49 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.enums.Application;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.Application;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.proptiger.CompanySubscription;
+import com.proptiger.core.model.proptiger.Dashboard;
+import com.proptiger.core.model.proptiger.Enquiry;
+import com.proptiger.core.model.proptiger.Permission;
+import com.proptiger.core.model.proptiger.SubscriptionPermission;
+import com.proptiger.core.model.proptiger.SubscriptionSection;
+import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.model.user.User.WhoAmIDetail;
+import com.proptiger.core.model.user.UserAttribute;
+import com.proptiger.core.model.user.UserAuthProviderDetail;
+import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.model.user.UserPreference;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.SecurityContextUtils;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.enums.AuthProvider;
-import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomCity;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
-import com.proptiger.data.model.CompanySubscription;
-import com.proptiger.data.model.Enquiry;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ForumUserToken;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.ProjectDiscussionSubscription;
-import com.proptiger.data.model.SubscriptionPermission;
-import com.proptiger.data.model.SubscriptionSection;
-import com.proptiger.data.model.UserPreference;
-import com.proptiger.data.model.UserSubscriptionMapping;
-import com.proptiger.data.model.user.Dashboard;
-import com.proptiger.data.model.user.User;
-import com.proptiger.data.model.user.User.WhoAmIDetail;
-import com.proptiger.data.model.user.UserAttribute;
-import com.proptiger.data.model.user.UserAuthProviderDetail;
-import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
@@ -74,20 +81,13 @@ import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
+import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PasswordUtils;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.RegistrationUtils;
-import com.proptiger.data.util.SecurityContextUtils;
-import com.proptiger.data.util.UtilityClass;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.UnauthorizedException;
 
 /**
  * Service class to get if user have already enquired about an entity
@@ -493,6 +493,7 @@ public class UserService {
      */
     @Transactional
     public CustomUser register(RegisterUser register) {
+        Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
         register.setUserAuthProviderDetails(null);
         RegistrationUtils.validateRegistration(register);
         register.setRegistered(true);
@@ -515,20 +516,38 @@ public class UserService {
          * send mail only if user registers
          */
         if (user.isRegistered()) {
-            ForumUserToken userToken = createForumUserToken(user.getId());
-            MailBody mailBody = htmlGenerator
-                    .generateMailBody(
-                            MailTemplateDetail.NEW_USER_REGISTRATION,
-                            new UserRegisterMailTemplate(
-                                    user.getFullName(),
-                                    user.getEmail(),
-                                    getEmailValidationLink(userToken)));
-            MailDetails details = new MailDetails(mailBody).setMailTo(user.getEmail()).setFrom(
-                    propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
-            mailSender.sendMailUsingAws(details);
+            /*
+             * mails should be sent for non b2b users only
+             */
+            if(!applicationType.equals(Application.B2B)){
+                /*
+                
+                Removing this as we are not sending validation link in mailer
+                TODO should be enabled once we figure out proper mailers from product team
+                 
+                ForumUserToken userToken = createForumUserToken(user.getId());
+                MailBody mailBody = htmlGenerator
+                        .generateMailBody(
+                                MailTemplateDetail.NEW_USER_REGISTRATION,
+                                new UserRegisterMailTemplate(
+                                        user.getFullName(),
+                                        user.getEmail(),
+                                        getEmailValidationLink(userToken)));
+                */
+                MailBody mailBody = htmlGenerator
+                        .generateMailBody(
+                                MailTemplateDetail.NEW_USER_REGISTRATION,
+                                new UserRegisterMailTemplate(
+                                        user.getFullName(),
+                                        user.getEmail(),
+                                        ""));
+                MailDetails details = new MailDetails(mailBody).setMailTo(user.getEmail()).setFrom(
+                        propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
+                mailSender.sendMailUsingAws(details);
+            }
             SecurityContextUtils.autoLogin(user);
         }
-        return getUserDetails(user.getId(), Application.DEFAULT);
+        return getUserDetails(user.getId(), applicationType);
     }
 
     private String getEmailValidationLink(ForumUserToken userToken) {
@@ -597,6 +616,7 @@ public class UserService {
         if (user == null) {
             user = new User();
             user.setEmail(email);
+            user.setRegistered(true);
             user.setFullName(userName);
             user = userDao.save(user);
         }

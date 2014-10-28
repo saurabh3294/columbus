@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
-import com.proptiger.data.pojo.FIQLSelector;
 
 public class TrendDaoFieldSwitcher {
 

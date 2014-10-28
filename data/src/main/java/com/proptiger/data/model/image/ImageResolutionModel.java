@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 @Entity(name = "image_resolutions")
 @Access(AccessType.FIELD)

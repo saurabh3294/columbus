@@ -14,20 +14,20 @@ import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.enums.filter.Operator;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.Catchment;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Property;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
-import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement.TypeOfData;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.user.CatchmentService;
-import com.proptiger.data.util.UtilityClass;
-import com.proptiger.exception.ProAPIException;
 
 @Component
 public class TrendReportAggregator {

@@ -13,8 +13,8 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.pojo.Selector;
 import com.proptiger.data.model.WordpressPost;
-import com.proptiger.data.pojo.Selector;
 
 public class BlogNewsServiceTest extends AbstractTest {
     @Autowired

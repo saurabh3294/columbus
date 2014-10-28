@@ -2,7 +2,7 @@ package com.proptiger.data.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.proptiger.data.model.City;
+import com.proptiger.core.model.cms.City;
 
 /**
  * @author rajeev-engg-lp

@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 @Entity
 @Table(name = "notification.sent_notification_log")

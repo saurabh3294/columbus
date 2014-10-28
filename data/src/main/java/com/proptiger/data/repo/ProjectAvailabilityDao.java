@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.proptiger.data.model.ProjectAvailability;
+import com.proptiger.core.model.cms.ProjectAvailability;
 
 /**
  * DAO for project availability model

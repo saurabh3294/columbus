@@ -17,6 +17,8 @@ import javax.persistence.TemporalType;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.cms.CouponCatalogue;
 
 @Entity
 @Table(name = "cms.coupons")

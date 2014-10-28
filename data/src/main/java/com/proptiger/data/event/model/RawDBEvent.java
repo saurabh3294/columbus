@@ -7,8 +7,8 @@ import java.util.Map;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
-import com.proptiger.data.model.BaseModel;
 
 /**
  * 

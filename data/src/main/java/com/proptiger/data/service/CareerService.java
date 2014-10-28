@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.model.JobDetail;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.CareerDao;
 
 /**

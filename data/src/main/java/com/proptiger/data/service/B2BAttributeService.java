@@ -3,16 +3,17 @@ package com.proptiger.data.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import javax.annotation.PostConstruct;
 
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.data.model.B2BAttribute;
 import com.proptiger.data.repo.B2BAttributeDao;
-import com.proptiger.exception.ProAPIException;
 
 @Service
 public class B2BAttributeService {

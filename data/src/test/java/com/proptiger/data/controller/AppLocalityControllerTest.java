@@ -1,15 +1,16 @@
 package com.proptiger.data.controller;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
 import com.proptiger.app.mvc.AppLocalityController;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.proptiger.LocalityRatings.LocalityAverageRatingByCategory;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.mvc.LocalityController;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.AbstractTest;
 
 public class AppLocalityControllerTest extends AbstractTest{
