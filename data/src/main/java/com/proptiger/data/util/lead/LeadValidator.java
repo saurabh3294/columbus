@@ -1,4 +1,4 @@
-package com.proptiger.data.init;
+package com.proptiger.data.util.lead;
 
 import java.util.HashMap;
 import java.util.regex.Matcher;

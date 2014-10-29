@@ -9,23 +9,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.sf.uadetector.ReadableUserAgent;
 import net.sf.uadetector.UserAgentStringParser;
 import net.sf.uadetector.service.UADetectorServiceFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.google.gson.Gson;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.enums.ProcessingStatus;
 import com.proptiger.core.enums.ProjectStatus;
 import com.proptiger.core.enums.SalesType;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.data.init.GACookies;
-import com.proptiger.data.init.LeadValidator;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.data.internal.dto.mail.LeadSubmitMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
@@ -45,13 +47,15 @@ import com.proptiger.data.repo.ProjectDaoNew;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.util.lead.GACookies;
+import com.proptiger.data.util.lead.LeadValidator;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.core.exception.BadRequestException;
 
 @Service
-public class LeadEnquiryService {
+public class EnquiryService {
 
     @Autowired
     LocalityService                 localityService;

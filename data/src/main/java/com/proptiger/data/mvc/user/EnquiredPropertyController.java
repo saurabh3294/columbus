@@ -15,7 +15,7 @@ import com.proptiger.core.model.proptiger.Enquiry.EnquiryCustomDetails;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.service.user.EnquiryService;
+import com.proptiger.data.service.user.EnquiredPropertyService;
 
 /**
  * Providing API to get enquired property of user
@@ -25,17 +25,17 @@ import com.proptiger.data.service.user.EnquiryService;
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/user/{userId}/enquired-property")
-public class EnquiryController extends BaseController {
+public class EnquiredPropertyController extends BaseController {
 
     @Autowired
-    private EnquiryService enquiryService;
+    private EnquiredPropertyService enquiredPropertyService;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public APIResponse getEnquiredProperties(
             @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-         List<EnquiryCustomDetails> result = enquiryService.getEnquiries(userInfo.getUserIdentifier());
+         List<EnquiryCustomDetails> result = enquiredPropertyService.getEnquiries(userInfo.getUserIdentifier());
         return new APIResponse(result, result.size());
     }
 }
