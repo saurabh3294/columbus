@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.proptiger.data.enums.Application;
-import com.proptiger.data.model.UserPreference;
+import com.proptiger.core.enums.Application;
+import com.proptiger.core.model.user.UserPreference;
 
 /**
  * 

@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
@@ -27,7 +27,7 @@ public class PhotoAddNotificationMessageProcessor extends NotificationMessagePro
 
     @Override
     public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
-            List<ForumUser> unsubscribedUserList,
+            List<User> unsubscribedUserList,
             NotificationTypeGenerated ntGenerated) {
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
@@ -41,14 +41,13 @@ public class PhotoAddNotificationMessageProcessor extends NotificationMessagePro
 
         for (Property property : propertyList) {
             Integer propertyId = property.getPropertyId();
-            
-            NotificationTypePayload newNTPayload = NotificationTypePayload.newInstance(ntGenerated.getNotificationTypePayload());
+
+            NotificationTypePayload newNTPayload = NotificationTypePayload.newInstance(ntGenerated
+                    .getNotificationTypePayload());
             newNTPayload.setPrimaryKeyName("property_id");
             newNTPayload.setPrimaryKeyValue(propertyId);
 
-            List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(
-                    unsubscribedUserList,
-                    propertyId);
+            List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
 
             // TODO: handle cases where user has multiple properties in a
             // particular project.

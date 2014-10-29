@@ -22,38 +22,37 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.enums.SortOrder;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.cms.CouponCatalogue;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.ProjectDB;
+import com.proptiger.core.model.cms.ProjectSpecification;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.cms.TableAttributes;
+import com.proptiger.core.model.proptiger.Bank;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.SortBy;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.model.Bank;
-import com.proptiger.data.model.CouponCatalogue;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.ProjectDB;
-import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.model.ProjectSpecification;
-import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.TableAttributes;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.ProjectSolrDao;
 import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
-import com.proptiger.data.util.UtilityClass;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 
@@ -314,23 +313,6 @@ public class ProjectService {
             project.setProperties(properties);
         }
     }
-    /**
-     * Returns all discussions for a project
-     * 
-     * @param projectId
-     * @param commentId
-     * @return
-     */
-    public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
-        List<ProjectDiscussion> discussions = projectDao.getDiscussions(projectId, commentId);
-        for (ProjectDiscussion projectDiscussion : discussions) {
-            if ("proptiger".equals(projectDiscussion.getUser().getUsername())) {
-                projectDiscussion.getUser().setUsername(projectDiscussion.getAdminUserName());
-            }
-        }
-
-        return discussions;
-    }
 
     /**
      * This methods get popular projects for city/locality id provided in
@@ -475,24 +457,6 @@ public class ProjectService {
             }
         }
         return projects;
-    }
-
-    /**
-     * This method will return the total number of project discussions in the
-     * project.
-     * 
-     * @param projectId
-     * @return total project discussions.
-     */
-    @Deprecated
-    private Integer getTotalProjectDiscussionCount(int projectId) {
-
-        Integer totalProjectDiscussion = 0;
-        List<ProjectDiscussion> projectDiscussionList = getDiscussions(projectId, null);
-        if (projectDiscussionList != null)
-            totalProjectDiscussion = projectDiscussionList.size();
-
-        return totalProjectDiscussion;
     }
 
     /**

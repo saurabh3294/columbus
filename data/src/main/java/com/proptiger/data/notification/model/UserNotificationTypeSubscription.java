@@ -9,8 +9,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.SubscriptionType;
 
 @Entity
@@ -28,7 +28,7 @@ public class UserNotificationTypeSubscription extends BaseModel {
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    private ForumUser         forumUser;
+    private User              user;
 
     @Column(name = "notification_type_id")
     private int               notificationTypeId;
@@ -36,9 +36,9 @@ public class UserNotificationTypeSubscription extends BaseModel {
     @Column(name = "subscription_type")
     @Enumerated(EnumType.STRING)
     private SubscriptionType  subscriptionType;
-    
+
     @Column(name = "is_deleted")
-    private Integer isDeleted;
+    private Integer           isDeleted;
 
     public int getId() {
         return id;
@@ -48,12 +48,12 @@ public class UserNotificationTypeSubscription extends BaseModel {
         this.id = id;
     }
 
-    public ForumUser getForumUser() {
-        return forumUser;
+    public User getUser() {
+        return user;
     }
 
-    public void setForumUser(ForumUser forumUser) {
-        this.forumUser = forumUser;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public int getNotificationTypeId() {

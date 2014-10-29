@@ -5,7 +5,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
-import com.proptiger.data.model.Locality;
+import com.proptiger.core.model.cms.Locality;
 
 public class LocalityServiceTest extends AbstractTest{
     @Autowired

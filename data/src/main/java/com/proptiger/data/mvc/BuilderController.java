@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.Builder;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.core.model.cms.Builder;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.BuilderDao;
 import com.proptiger.data.service.BuilderService;
 

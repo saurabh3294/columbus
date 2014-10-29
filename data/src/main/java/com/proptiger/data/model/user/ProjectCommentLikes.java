@@ -6,7 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 @Entity
 @Table(name = "FORUM_USER_LIKES")

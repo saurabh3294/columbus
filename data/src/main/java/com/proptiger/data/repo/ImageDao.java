@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.model.image.Image;
+import com.proptiger.core.model.proptiger.Image;
 
 @Repository
 public interface ImageDao extends ImageCustomDao, JpaRepository<Image, Long> {

@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.proptiger.data.enums.DomainObject;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.proptiger.Media;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.Media;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.AudioService;
 import com.proptiger.data.service.DocumentService;
 import com.proptiger.data.util.FileUtil;

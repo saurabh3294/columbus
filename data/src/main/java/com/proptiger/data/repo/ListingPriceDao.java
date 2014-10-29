@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.model.ListingPrice;
-import com.proptiger.data.model.ListingPrice.CustomCurrentListingPrice;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.model.cms.ListingPrice;
+import com.proptiger.core.model.cms.ListingPrice.CustomCurrentListingPrice;
 
 /**
  * 

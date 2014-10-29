@@ -3,6 +3,7 @@ package com.proptiger.data.event.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
@@ -11,7 +12,6 @@ import com.proptiger.data.event.processor.PriceChangeProcessor;
 import com.proptiger.data.event.verification.DBEventVerification;
 import com.proptiger.data.event.verification.DefaultDBEventVerification;
 import com.proptiger.data.event.verification.PriceChangeVerification;
-import com.proptiger.data.model.BaseModel;
 
 // TODO remove the Types ENUM. make it dynamic.
 public class EventTypeConfig extends BaseModel {

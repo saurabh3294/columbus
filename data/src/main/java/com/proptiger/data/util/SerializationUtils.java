@@ -2,7 +2,7 @@ package com.proptiger.data.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proptiger.data.init.CustomObjectMapper;
+import com.proptiger.core.init.CustomObjectMapper;
 
 /**
  * 

@@ -8,9 +8,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.model.Media;
-import com.proptiger.data.model.Property;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.proptiger.Media;
 
 @Service
 public class MediaEnricher {

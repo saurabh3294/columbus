@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.model.trend.Trend;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ReflectionUtils;
-import com.proptiger.exception.ProAPIException;
 
 @Repository
 public class TrendDao {

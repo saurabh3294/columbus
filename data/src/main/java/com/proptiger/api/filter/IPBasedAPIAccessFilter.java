@@ -18,9 +18,9 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.proptiger.app.config.security.CustomAccessDeniedHandler;
-import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
+import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 
 /**
  * This filter blocks a request coming from non white listed IP for API regex

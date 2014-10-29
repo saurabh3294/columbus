@@ -1,13 +1,14 @@
 package com.proptiger.data.repo.user;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.model.user.UserContactNumber;
+import com.proptiger.core.model.user.UserContactNumber;
 
 /**
  * 
@@ -24,7 +25,7 @@ public interface UserContactNumberDao extends JpaRepository<UserContactNumber, I
     public int incrementPriorityForUser(int userId);
 
     @Query("select UCN from UserContactNumber UCN where UCN.userId in (?1)")
-    public List<UserContactNumber> getContactNumbersByUserId(List<Integer> clientIds);
+    public List<UserContactNumber> getContactNumbersByUserId(Set<Integer> clientIds);
     
     public List<UserContactNumber> findByUserIdOrderByPriorityAsc(int userId);
 }

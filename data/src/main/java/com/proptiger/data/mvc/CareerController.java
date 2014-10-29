@@ -9,10 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.model.JobDetail;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.CareerService;
 
 /**

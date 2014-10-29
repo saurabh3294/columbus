@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
@@ -27,36 +27,32 @@ public abstract class NotificationMessageProcessor {
     private PortfolioService portfolioService;
 
     public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadBySubscribedUserList(
-            List<ForumUser> userList,
+            List<User> userList,
             NotificationTypeGenerated ntGenerated) {
         return new HashMap<Integer, NotificationMessagePayload>();
     }
 
     public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
-            List<ForumUser> unsubscribedUserList,
+            List<User> unsubscribedUserList,
             NotificationTypeGenerated ntGenerated) {
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
         Integer propertyId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
-        List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(
-                unsubscribedUserList,
-                propertyId);
+        List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
         return createDefaultNMPayloadByPropertyListings(portfolioListings, ntGenerated.getNotificationTypePayload());
     }
 
-    protected List<PortfolioListing> getPropertyListingsByPropertyId(
-            List<ForumUser> unsubscribedUserList,
-            Integer propertyId) {
+    protected List<PortfolioListing> getPropertyListingsByPropertyId(List<User> unsubscribedUserList, Integer propertyId) {
 
-        Map<Integer, ForumUser> unsubscribedUserMap = new HashMap<Integer, ForumUser>();
-        for (ForumUser user : unsubscribedUserList) {
-            unsubscribedUserMap.put(user.getUserId(), user);
+        Map<Integer, User> unsubscribedUserMap = new HashMap<Integer, User>();
+        for (User user : unsubscribedUserList) {
+            unsubscribedUserMap.put(user.getId(), user);
         }
 
         logger.debug("Getting portfolioListings for property id: " + propertyId);
         List<PortfolioListing> portfolioListings = portfolioService.getActivePortfolioListingsByPropertyId(propertyId);
         List<PortfolioListing> newPortfolioListings = new ArrayList<PortfolioListing>();
-        
+
         for (PortfolioListing portfolioListing : portfolioListings) {
             if (unsubscribedUserMap.get(portfolioListing.getUserId()) != null) {
                 logger.debug("Ignoring unsubscribed user : " + portfolioListing.getUserId());
@@ -72,12 +68,12 @@ public abstract class NotificationMessageProcessor {
             NotificationTypePayload ntPayload) {
 
         Map<Integer, NotificationMessagePayload> payloadMap = new HashMap<Integer, NotificationMessagePayload>();
-        
+
         if (portfolioListings == null) {
             logger.debug("No portfolio listing found.");
             return payloadMap;
         }
-        
+
         for (PortfolioListing portfolioListing : portfolioListings) {
             Map<String, Object> userDataMap = new HashMap<String, Object>();
             userDataMap.put(Tokens.PortfolioProjectUpdates.ProjectName.name(), portfolioListing.getProjectName());

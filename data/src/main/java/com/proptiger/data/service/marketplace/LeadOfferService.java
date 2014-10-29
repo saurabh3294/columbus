@@ -15,19 +15,28 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.cms.Company;
+import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.enums.TaskStatus;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.model.Company;
 import com.proptiger.data.model.LeadTaskStatus;
-import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
@@ -35,11 +44,7 @@ import com.proptiger.data.model.marketplace.LeadOffer.CountListingObject;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
-import com.proptiger.data.model.user.User;
-import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
@@ -47,15 +52,9 @@ import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
-import com.proptiger.data.service.cron.CronService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 
@@ -212,7 +211,7 @@ public class LeadOfferService {
     private void enrichLeadOffers(List<LeadOffer> leadOffers, Set<String> fields, Integer userId) {
         if (fields != null && leadOffers != null && !leadOffers.isEmpty()) {
             if (fields.contains("client")) {
-                List<Integer> clientIds = extractClientIds(leadOffers);
+                Set<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
 
                 Map<Integer, Set<UserContactNumber>> contactNumbers = null;
@@ -389,8 +388,8 @@ public class LeadOfferService {
      * @return
      */
 
-    private List<Integer> extractClientIds(List<LeadOffer> leadOffers) {
-        List<Integer> clientIds = new ArrayList<Integer>();
+    private Set<Integer> extractClientIds(List<LeadOffer> leadOffers) {
+        Set<Integer> clientIds = new HashSet<Integer>();
         for (LeadOffer leadOffer : leadOffers) {
             clientIds.add(leadOffer.getLead().getClientId());
         }

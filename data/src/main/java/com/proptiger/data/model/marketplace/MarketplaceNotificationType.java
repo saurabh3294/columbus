@@ -12,8 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.util.DateUtil;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.util.DateUtil;
 
 /**
  * 

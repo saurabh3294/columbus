@@ -259,11 +259,11 @@ public class NotificationGeneratedService {
                 if (nMessage.getNotificationType() == null) {
                     nMessage.setNotificationType(defaultNotificationType);
                 }
-                NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);
-                nGenerated = save(nGenerated);
+                NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);                
                 generatedList.add(nGenerated);
             }
         }
+        save(generatedList);
         return generatedList;
     }
 
@@ -289,11 +289,10 @@ public class NotificationGeneratedService {
             }
             for (NotificationMedium nMedium : nMediums) {
                 nGenerated = createNotificationGenerated(nMessage, nMedium);
-                nGenerated = save(nGenerated);
                 generatedList.add(nGenerated);
             }
         }
-
+        save(generatedList);
         return generatedList;
     }
 

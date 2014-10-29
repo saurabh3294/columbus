@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.SubscriptionType;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.UserNotificationTypeSubscription;
@@ -22,17 +22,17 @@ import com.proptiger.data.notification.repo.UserNotificationTypeSubscriptionDao;
 @Service
 public class UserNotificationTypeSubscriptionService {
 
-    private static Logger                        logger              = LoggerFactory
-                                                                             .getLogger(UserNotificationTypeSubscriptionService.class);
+    private static Logger                       logger              = LoggerFactory
+                                                                            .getLogger(UserNotificationTypeSubscriptionService.class);
 
     @Autowired
-    private UserNotificationTypeSubscriptionDao  userNTSubscriptionDao;
+    private UserNotificationTypeSubscriptionDao userNTSubscriptionDao;
 
     // Map of NotificationTypeId to subscribed users
-    private static Map<Integer, List<ForumUser>> subscribedUserMap   = new HashMap<Integer, List<ForumUser>>();
+    private static Map<Integer, List<User>>     subscribedUserMap   = new HashMap<Integer, List<User>>();
 
     // Map of NotificationTypeId to unsubscribed users
-    private static Map<Integer, List<ForumUser>> unsubscribedUserMap = new HashMap<Integer, List<ForumUser>>();
+    private static Map<Integer, List<User>>     unsubscribedUserMap = new HashMap<Integer, List<User>>();
 
     @PostConstruct
     private void constuctMappingFromDB() {
@@ -56,18 +56,18 @@ public class UserNotificationTypeSubscriptionService {
     public Iterable<UserNotificationTypeSubscription> findAll() {
         return userNTSubscriptionDao.findAll();
     }
-    
-    private Map<Integer, List<ForumUser>> addToNotificationTypeUserMap(
+
+    private Map<Integer, List<User>> addToNotificationTypeUserMap(
             UserNotificationTypeSubscription userNTSubscription,
-            Map<Integer, List<ForumUser>> ntUserMap) {
+            Map<Integer, List<User>> ntUserMap) {
 
         Integer notificationTypeId = userNTSubscription.getNotificationTypeId();
-        ForumUser forumUser = userNTSubscription.getForumUser();
+        User forumUser = userNTSubscription.getUser();
 
-        List<ForumUser> userList = ntUserMap.get(notificationTypeId);
+        List<User> userList = ntUserMap.get(notificationTypeId);
 
         if (userList == null) {
-            userList = new ArrayList<ForumUser>();
+            userList = new ArrayList<User>();
             userList.add(forumUser);
             ntUserMap.put(notificationTypeId, userList);
         }
@@ -77,19 +77,19 @@ public class UserNotificationTypeSubscriptionService {
         return ntUserMap;
     }
 
-    public List<ForumUser> getSubscribedUsersByNotificationType(NotificationType notificationType) {
+    public List<User> getSubscribedUsersByNotificationType(NotificationType notificationType) {
         logger.debug(subscribedUserMap.toString());
-        List<ForumUser> userList = subscribedUserMap.get(notificationType.getId());
+        List<User> userList = subscribedUserMap.get(notificationType.getId());
         if (userList == null) {
-            return new ArrayList<ForumUser>();
+            return new ArrayList<User>();
         }
         return userList;
     }
 
-    public List<ForumUser> getUnsubscribedUsersByNotificationType(NotificationType notificationType) {
-        List<ForumUser> userList = unsubscribedUserMap.get(notificationType.getId());
+    public List<User> getUnsubscribedUsersByNotificationType(NotificationType notificationType) {
+        List<User> userList = unsubscribedUserMap.get(notificationType.getId());
         if (userList == null) {
-            return new ArrayList<ForumUser>();
+            return new ArrayList<User>();
         }
         return userList;
     }

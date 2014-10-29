@@ -18,16 +18,18 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.proptiger.LocalityRatings.LocalityRatingDetails;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetail;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LocalityReviewDao;
-import com.proptiger.data.util.Constants;
+import com.proptiger.data.service.user.UserService;
 
 /**
  * Service class to handle CRUD operations for locality review details.
@@ -45,6 +47,9 @@ public class LocalityReviewService {
 
     @Autowired
     private LocalityService       localityService;
+    
+    @Autowired
+    private UserService userService;
 
     private static Logger         logger = LoggerFactory.getLogger(LocalityReviewService.class);
 
@@ -98,7 +103,25 @@ public class LocalityReviewService {
      * @return
      */
     public List<LocalityReviewCustomDetail> getLocalityReviewCustomDetails(int localityId, Pageable pageable) {
-        return localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
+        List<LocalityReviewComments> reviewComments = localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
+        List<LocalityReviewCustomDetail> customDetails = new ArrayList<>();
+        Set<Integer> userIds = new HashSet<Integer>();
+        for(LocalityReviewComments comments: reviewComments){
+            if(comments.getUserId() != null){
+                userIds.add(comments.getUserId());
+            }
+        }
+        Map<Integer, User> usersMap = userService.getUsers(userIds);
+        for (LocalityReviewComments c : reviewComments) {
+            User user = usersMap.get(c.getUserId());
+            customDetails.add(new LocalityReviewCustomDetail(
+                    c.getReview(),
+                    c.getReviewLabel(),
+                    user != null ? user.getFullName() : null,
+                    c.getCommenttime(),
+                    c.getUserName()));
+        }
+        return customDetails;
     }
 
     /**
@@ -216,7 +239,7 @@ public class LocalityReviewService {
              * default sort is by localityRatings.overallRating DESC, in case if
              * sort is already there on some other field even though we are
              * adding localityRatings.overallRating DESC to fetch rating
-             * details, as criteria builder does not houner Fetch.EAGER
+             * details, as criteria builder does not honor Fetch.EAGER
              */
             if (selector.getSort() == null || selector.getSort().isEmpty()) {
                 selector.addSortDESC("localityRatings.overallRating");
@@ -225,8 +248,22 @@ public class LocalityReviewService {
                 selector.addSortDESC("localityRatings.overallRating");
             }
             response = localityReviewDao.getLocalityReview(selector);
+            enrichReviewComments(response.getResults());
         }
         return response;
+    }
+
+    private void enrichReviewComments(List<LocalityReviewComments> results) {
+        if(results != null && !results.isEmpty()){
+            Set<Integer> userIds = new HashSet<Integer>();
+            for(LocalityReviewComments l: results){
+                userIds.add(l.getUserId());
+            }
+            Map<Integer, User> usersMap = userService.getUsers(userIds);
+            for(LocalityReviewComments l: results){
+                l.setForumUser(usersMap.get(l.getUserId()).toForumUser());;
+            }
+        }
     }
 
     public void updateReviewAndRatingsByHalf(LocalityReviewRatingDetails reviewRatingDetails) {

@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.core.model.proptiger.ForumUser;
 import com.proptiger.data.notification.model.MediumTypeConfig;
 import com.proptiger.data.notification.model.NotificationTypeConfig;
 

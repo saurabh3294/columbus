@@ -12,12 +12,9 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -30,8 +27,8 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.user.User;
 
 /**
  * @author Anubhav
@@ -105,8 +102,7 @@ public class Lead extends BaseModel {
     @OneToMany(mappedBy = "leadId")
     private List<LeadOffer>       leadOffers;
 
-    @JoinColumn(insertable = false, updatable = false, name = "client_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Transient
     private User                  client;
 
     @OneToMany(mappedBy = "leadId")
