@@ -596,11 +596,11 @@ public class LeadEnquiryService {
                 }
                 else {
                     if (project.getProjectStatus() != null && !project.getProjectStatus().equals(
-                            ProjectStatus.CANCELLED)
-                            && project.getProjectStatus().equals(ProjectStatus.ONHOLD)) {
+                            ProjectStatus.CANCELLED.getValue())
+                            && project.getProjectStatus().equals(ProjectStatus.ONHOLD.getValue())) {
                         if (project.getDerivedAvailability() == null) {
                             if (project.getProjectStatus() != null && project.getProjectStatus().equals(
-                                    ProjectStatus.COMPLETED)) {
+                                    ProjectStatus.COMPLETED.getValue())) {
                                 enquiry.setSalesType(SalesType.primary);
                             }
                             else {
