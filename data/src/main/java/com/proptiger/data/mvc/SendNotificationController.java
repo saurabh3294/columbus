@@ -38,10 +38,7 @@ public class SendNotificationController {
      * This API is used to send notification of given notification type to a
      * particular user
      * 
-     * @param user
-     * @param notificationType
-     * @param payloadMap
-     * @param mediumTypes
+     * @param request
      * @return
      */
     @ResponseBody
