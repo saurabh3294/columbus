@@ -7,7 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;

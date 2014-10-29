@@ -8,8 +8,8 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 

@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 
 /**
