@@ -153,7 +153,7 @@ public class TypeaheadController extends BaseController {
             filterQueries.add("TYPEAHEAD_CITY:" + city);
         }
         if (locality != null && locality.trim() != "") {
-            filterQueries.add("TYPEAHEAD_LOCALITY:(" + locality + ")");
+            filterQueries.add("TYPEAHEAD_LOCALITY:(\"" + locality + "\")");
         }
         if (typeAheadType != null && typeAheadType.trim() != "") {
             filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
