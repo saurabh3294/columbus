@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.util.StringUtils;
 
-import com.proptiger.data.model.Enquiry;
+import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.data.util.RegistrationUtils;
 
 public class LeadValidator {

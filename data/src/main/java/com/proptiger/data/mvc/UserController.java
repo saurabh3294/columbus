@@ -24,9 +24,9 @@ import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.user.UserDetails;
-import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.APIResponse;
 
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;

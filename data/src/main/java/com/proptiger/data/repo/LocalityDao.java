@@ -13,8 +13,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-
-import com.proptiger.data.model.Project;
 import com.proptiger.core.model.cms.Locality;
 
 /**

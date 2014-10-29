@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.core.model.BaseModel;
 
 @Entity
 @Table(name = "ENQUIRY_ATTRIBUTES")

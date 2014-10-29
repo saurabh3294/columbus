@@ -2,8 +2,8 @@ package com.proptiger.data.internal.dto.mail;
 
 import java.util.List;
 
-import com.proptiger.data.model.Enquiry;
-import com.proptiger.data.model.Project;
+import com.proptiger.core.model.proptiger.Enquiry;
+import com.proptiger.core.model.cms.Project;
 
 public class LeadSubmitMail {
 

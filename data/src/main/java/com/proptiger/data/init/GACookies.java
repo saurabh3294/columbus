@@ -3,7 +3,7 @@ package com.proptiger.data.init;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.time.DurationFormatUtils;
-import com.proptiger.data.model.Enquiry;
+import com.proptiger.core.model.proptiger.Enquiry;
 
 public class GACookies {
 
@@ -54,7 +54,7 @@ public class GACookies {
             long currentTime = System.currentTimeMillis() / 1000l;
             long timeSpent = (currentTime - Long.parseLong(utmaCookies[4])) * 1000;
             String dateString = DurationFormatUtils.formatDuration(timeSpent, "'0-0-'d' 'H':'m':'s");
-            enquiry.setGaTimespent(dateString); // wrong
+            enquiry.setGaTimespent(dateString);
         }
 
         if (cookieMap.get("USER_NETWORK") != null) {

@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.Enquiry;
-import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.model.proptiger.Enquiry;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.service.LeadEnquiryService;
-import com.proptiger.data.util.Constants;
+import com.proptiger.core.util.Constants;
 
 @Controller
 @RequestMapping(value = "data/v1/entity/lead-enquiry")

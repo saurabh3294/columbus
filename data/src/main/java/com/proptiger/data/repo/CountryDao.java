@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.model.Country;
-import com.proptiger.data.model.Enquiry;
 
 public interface CountryDao extends JpaRepository<Country, Serializable>{
 
