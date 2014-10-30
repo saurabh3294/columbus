@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -652,21 +653,9 @@ public class NotificationService {
     }
 
     public void deleteNotificationsOfLeadOffersExpired(List<Integer> leadIdList, int notificationTypeId) {
-
-        StringBuilder leadIdString = new StringBuilder();
-        int i = 0;
-        for (Integer leadId : leadIdList) {
-            if (i == 0) {
-                leadIdString.append(leadId);
-            }
-            else {
-                leadIdString.append(",");
-                leadIdString.append(leadId);
-            }
-            i++;
-        }
-        if (leadIdString.toString() != "") {
-            notificationDao.deleteUsingNotificationTypeAndObjectId(leadIdString.toString(), notificationTypeId,LeadOfferStatus.Offered.getId());
+        String string = StringUtils.join(leadIdList, ",");
+        if (string != "") {
+            notificationDao.deleteUsingNotificationTypeAndObjectId(string, notificationTypeId,LeadOfferStatus.Offered.getId());
         }
     }
 }
