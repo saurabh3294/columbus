@@ -439,9 +439,8 @@ public class LeadOfferService {
         Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(lead.getId(), phaseId);
         LeadOffer leadOffer = null;
         LeadOffer leadOfferInDB = null;
-        if (!agents.isEmpty())
-        {
-             leadOfferInDB = leadOfferDao.findByLeadIdAndAgentId(lead.getId(), agents.get(0).getUserId());
+        if (!agents.isEmpty()) {
+            leadOfferInDB = leadOfferDao.findByLeadIdAndAgentId(lead.getId(), agents.get(0).getUserId());
         }
         if (!agents.isEmpty() && leadOfferInDB == null) {
             leadOffer = createLeadOffer(lead, agents.get(0), cycleId, countLeadOfferInDB, phaseId);
