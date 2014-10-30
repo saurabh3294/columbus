@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
+import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -470,11 +472,10 @@ public class NotificationService {
 
     public Notification sendLeadOfferNotification(int offerId) {
         LeadOffer offer = leadOfferDao.getLeadOfferWithRequirements(offerId);
-         for(LeadRequirement leadRequirement:offer.getLead().getRequirements())
-         {
-             leadRequirement.setLead(null);
-         }
-         Notification notification = createNotification(
+        for (LeadRequirement leadRequirement : offer.getLead().getRequirements()) {
+            leadRequirement.setLead(null);
+        }
+        Notification notification = createNotification(
                 offer.getAgentId(),
                 NotificationType.LeadOffered.getId(),
                 offer.getId(),
@@ -648,6 +649,13 @@ public class NotificationService {
                 NotificationType.LeadOffered.getId());
         if (notification != null) {
             notificationDao.delete(notification);
+        }
+    }
+
+    public void deleteNotificationsOfLeadOffersExpired(List<Integer> leadIdList, int notificationTypeId) {
+        String string = StringUtils.join(leadIdList, ",");
+        if (string != "") {
+            notificationDao.deleteUsingNotificationTypeAndObjectId(string, notificationTypeId,LeadOfferStatus.Offered.getId());
         }
     }
 }

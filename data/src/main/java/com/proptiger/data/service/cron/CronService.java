@@ -18,6 +18,7 @@ import com.proptiger.core.exception.ConstraintViolationException;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.LeadOfferStatus;
+import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.repo.marketplace.LeadDao;
@@ -105,6 +106,8 @@ public class CronService {
         }
 
         if (!leadIds.isEmpty()) {
+            notificationService
+                    .deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
             leadOfferDao.updateLeadOffers(leadIdList);
         }
 
@@ -113,7 +116,8 @@ public class CronService {
                 leadService.manageLeadAuctionWithCycle(
                         leadId,
                         maxPhaseIdMapLeadId,
-                        maxPhaseIdMapLeadId.get(leadId) == null ? 0 : maxPhaseIdMapLeadId.get(leadId),0);
+                        maxPhaseIdMapLeadId.get(leadId) == null ? 0 : maxPhaseIdMapLeadId.get(leadId),
+                        0);
             }
 
             catch (Exception e) {
@@ -164,7 +168,6 @@ public class CronService {
         }
     }
 
-    @Scheduled(initialDelay = 50000, fixedDelay = 1800000)
     public void manageLeadOfferedReminder() {
         Date endDate = notificationService.getAuctionOverCutoffTime();
         Date startDate = new Date(

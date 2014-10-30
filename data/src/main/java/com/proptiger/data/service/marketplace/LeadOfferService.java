@@ -438,7 +438,11 @@ public class LeadOfferService {
         List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
         Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(lead.getId(), phaseId);
         LeadOffer leadOffer = null;
+        LeadOffer leadOfferInDB = null;
         if (!agents.isEmpty()) {
+            leadOfferInDB = leadOfferDao.findByLeadIdAndAgentId(lead.getId(), agents.get(0).getUserId());
+        }
+        if (!agents.isEmpty() && leadOfferInDB == null) {
             leadOffer = createLeadOffer(lead, agents.get(0), cycleId, countLeadOfferInDB, phaseId);
         }
         return leadOffer;
@@ -450,7 +454,7 @@ public class LeadOfferService {
         offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getId());
 
-        if (phaseId == null) {
+        if (phaseId == null || phaseId == 0) {
             phaseId = 1;
         }
 
@@ -521,6 +525,9 @@ public class LeadOfferService {
                     .getId()) {
                 notificationService.removeNotification(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
+                leadOfferDao.save(leadOfferInDB);
+                restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
+                return leadOfferInDB;
             }
         }
 
@@ -737,6 +744,7 @@ public class LeadOfferService {
             leadOfferDao.expireRestOfTheLeadOffers(leadOfferInDB.getLeadId());
         }
         else {
+
             if (declinedLeadOfferCountInCycle + leadOfferCountInCycle == allCountInCycle) {
                 getLeadService();
                 leadService.manageLeadAuctionWithBeforeCycle(leadOfferInDB.getLeadId());
@@ -776,13 +784,12 @@ public class LeadOfferService {
     }
 
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
-        
+
         LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
-        if(leadOfferInDB.getAgentId() != userId)
-        {
+        if (leadOfferInDB.getAgentId() != userId) {
             throw new BadRequestException("you can only view listings offered by you for lead offers assigned to you");
         }
-        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId,userId);
+        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId, userId);
         populateOfferedFlag(leadOfferId, matchingListings, userId);
         return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
     }
