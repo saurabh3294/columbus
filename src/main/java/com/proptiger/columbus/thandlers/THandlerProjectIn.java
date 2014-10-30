@@ -95,7 +95,8 @@ public class THandlerProjectIn extends RootTHandler {
                                 + URLGenerationConstants.Selector
                                 + String.format(URLGenerationConstants.SelectorGetLocalityNamesByCityName, cityName))
                 .build().encode().toString());
-        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeList(
+
+        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 uri,
                 new TypeToken<ArrayList<Locality>>() {}.getType());
         return topLocalities;

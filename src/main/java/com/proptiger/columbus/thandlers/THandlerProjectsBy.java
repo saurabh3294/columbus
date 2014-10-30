@@ -49,7 +49,7 @@ public class THandlerProjectsBy extends RootTHandler {
     }
 
     private List<Builder> getTopBuilders(String cityName) {
-        List<Builder> topBuilders = httpRequestUtil.getInternalApiResultAsTypeList(
+        List<Builder> topBuilders = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 URI.create(UriComponentsBuilder
                         .fromUriString(
                                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader

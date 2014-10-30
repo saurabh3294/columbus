@@ -31,7 +31,7 @@ public class ProjectSuggestions {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
-        List<Property> propertyList = httpRequestUtil.getInternalApiResultAsTypeList(
+        List<Property> propertyList = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 getURIForPropertyAPI(id),
                 new TypeToken<ArrayList<Property>>() {}.getType());
         if (propertyList == null || propertyList.isEmpty()) {

@@ -68,7 +68,7 @@ public class THandlerPropertyFor extends RootTHandler {
     }
 
     private List<Locality> getTopLocalities(String cityName) {
-        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeList(
+        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 URI.create(UriComponentsBuilder
                         .fromUriString(
                                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
