@@ -1,5 +1,6 @@
 package com.proptiger.data.event.processor;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -8,14 +9,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.service.EventTypeProcessorService;
 
 @Component
 public class PriceChangeProcessor extends DBEventProcessor {
-    
+
     private static Logger             logger = LoggerFactory.getLogger(PriceChangeProcessor.class);
 
     @Autowired
@@ -36,20 +36,25 @@ public class PriceChangeProcessor extends DBEventProcessor {
             return false;
         }
 
-        Date effectiveDate = (Date) transactionRow.get("effective_date");
-        Date firstDayOfMonth = DateUtil.getFirstDayOfCurrentMonth(event.getEventTypePayload()
-                .getTransactionDateKeyValue());
+        Calendar effectiveDate = Calendar.getInstance();
+        effectiveDate.setTime((Date) transactionRow.get("effective_date"));
+
+        Calendar transactionDate = Calendar.getInstance();
+        transactionDate.setTime(event.getEventTypePayload().getTransactionDateKeyValue());
 
         /**
          * PortfolioPriceChange, Only current month price changes are to be
          * accepted. Rest are to be discarded.
          */
-        logger.debug(" FIRST DAY OF MONTH " + firstDayOfMonth + " EFFECTIVE DATE " + effectiveDate);
-        /*
-         * if(!effectiveDate.equals(firstDayOfMonth)){ return false; }
-         */
+        if (effectiveDate.get(Calendar.YEAR) != transactionDate.get(Calendar.YEAR) || effectiveDate.get(Calendar.MONTH) != transactionDate
+                .get(Calendar.MONTH)) {
+            logger.debug("You cannot change the price for month other than the current month. Current Month: " + transactionDate
+                    + " Price change Month: "
+                    + effectiveDate);
+            return false;
+        }
 
-        Double oldValue = eventTypeProcessorService.getPriceChangeOldValue(event, effectiveDate);
+        Double oldValue = eventTypeProcessorService.getPriceChangeOldValue(event, effectiveDate.getTime());
         if (oldValue == null) {
             logger.debug(" OLD Value not found. ");
             return false;
