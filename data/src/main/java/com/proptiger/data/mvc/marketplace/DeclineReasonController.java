@@ -32,7 +32,4 @@ public class DeclineReasonController  extends BaseController{
         List<DeclineReason> declineReasons =  declineReasonService.getAllReasons();
         return new APIResponse(declineReasons);
     }
-    
-    
-    
 }
