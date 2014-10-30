@@ -119,16 +119,20 @@
                <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
                <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
                   Dear ${leadgeneration.enquiry.name}, <br /><br />
-                  #if(${leadgeneration.enquiry.locality})
                   Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
+                  
+                  #if(${leadgeneration.enquiry.locality})
                   We have received your enquiry regarding <b>${leadgeneration.enquiry.locality.label} - ${leadgeneration.enquiry.locality.suburb.city.label}</b>. Our Sales team will 
                   get in touch with you soon. 
                   
                   For more options in ${leadgeneration.enquiry.locality.label}, please click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.locality.url}" target="_blank">here</a>. Or for all properties in 
                   ${leadgeneration.enquiry.locality.suburb.city.label}, click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.locality.suburb.city.url}" target="_blank">here</a>.<br /><br />
                   
-                  #else
+                  #elseif(${leadgeneration.enquiry.city})
                   We have received your enquiry regarding <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.city.url}" >${leadgeneration.enquiry.city.label}</a>. Our Sales team will get in touch with you soon.
+                  
+                  #else
+                  We have received your enquiry. Our Sales team will get in touch with you soon.
                   #end
                   
                   You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />
