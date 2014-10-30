@@ -21,16 +21,19 @@ public class EventTypeProcessorDao extends DynamicTableDao {
             Object transactionKeyValue,
             String effectiveDateName,
             Date lasteffectiveDate,
-            String transactionDateName) {
+            Map<String, List<Object>> filterMap) {
 
         String queryString = "";
         try {
+            
+            String conditionStr = convertMapOfListToSql(filterMap);
+            
             /**
              * The query which will get the last value based on the latest value
              * before first day of the month.
              */
 
-            queryString = "SELECT %s FROM %s.%s WHERE %s=%s AND %s<%s AND %s<'%s' ORDER BY %s DESC, %s DESC LIMIT 1";
+            queryString = "SELECT %s FROM %s.%s WHERE %s=%s AND %s<%s AND %s<'%s' %s ORDER BY %s DESC, %s DESC LIMIT 1";
             queryString = String.format(
                     queryString,
                     attributeName,
@@ -42,8 +45,9 @@ public class EventTypeProcessorDao extends DynamicTableDao {
                     transactionKeyValue,
                     effectiveDateName,
                     conversionService.convert(lasteffectiveDate, String.class),
+                    conditionStr,
                     effectiveDateName,
-                    transactionDateName);
+                    transactionKeyName);
             
             List<Map<String, Object>> results = runDynamicTableQuery(queryString);
             if (!results.isEmpty()) {

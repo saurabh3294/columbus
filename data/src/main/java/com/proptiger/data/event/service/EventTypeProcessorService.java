@@ -48,7 +48,7 @@ public class EventTypeProcessorService {
                 eventGenerated.getEventTypePayload().getTransactionId(),
                 PRICE_CHANGE_EFFECTIVE_DATE,
                 effeDate,
-                dbRawEventTableLog.getDateAttributeName());
+                dbRawEventTableLog.getFilterMap());
 
         if (OldPrice != null)
             return OldPrice.doubleValue();
