@@ -261,7 +261,7 @@ public class EnquiryService {
         if ((enquiry.getPageName() != null) && !enquiry.getPageName().equals("CONTACT US")) {
             dataForTemplate = generateDataToMail(enquiry);
             emailReceiver = enquiry.getEmail();
-            if (!servingCities.contains(enquiry.getCityName().toLowerCase())) {
+            if (!enquiry.getCityName().isEmpty() && !servingCities.contains(enquiry.getCityName().toLowerCase())) {
                 dataForTemplate.setLeadMailFlag("non_serving_cities");
             }
             mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LEAD_GENERATION, dataForTemplate);
@@ -338,7 +338,7 @@ public class EnquiryService {
                         enquiry.getCityName());
                 leadMailData.getEnquiry().setLocality(localityInfo);
             }
-            if(enquiry.getCity() == null) {
+            if(enquiry.getCity() == null && !enquiry.getCityName().isEmpty()) {
                 City city = cityService.getCityByName(enquiry.getCityName());
                 leadMailData.getEnquiry().setCity(city);
             }
