@@ -10,12 +10,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
-import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerPropertyFor extends RootTHandler {
-
     private String localityFilter = "locality=%s";
 
     @Override
@@ -70,14 +68,17 @@ public class THandlerPropertyFor extends RootTHandler {
     }
 
     private List<Locality> getTopLocalities(String cityName) {
-        List<Locality> topLocalities = HttpRequestUtil.getInternalApiResultAsTypeList(URI.create(UriComponentsBuilder
-                .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                .getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
-                                + "?"
-                                + URLGenerationConstants.Selector
-                                + String.format(URLGenerationConstants.SelectorGetLocalityNamesByCityName, cityName))
-                .build().encode().toString()), new TypeToken<ArrayList<Locality>>() {}.getType());
+        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeList(
+                URI.create(UriComponentsBuilder
+                        .fromUriString(
+                                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        .getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
+                                        + "?"
+                                        + URLGenerationConstants.Selector
+                                        + String.format(
+                                                URLGenerationConstants.SelectorGetLocalityNamesByCityName,
+                                                cityName)).build().encode().toString()),
+                new TypeToken<ArrayList<Locality>>() {}.getType());
         return topLocalities;
     }
 

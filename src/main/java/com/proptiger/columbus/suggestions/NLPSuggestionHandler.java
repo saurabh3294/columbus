@@ -13,17 +13,21 @@ import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.thandlers.RootTHandler;
 import com.proptiger.columbus.thandlers.TemplateMap;
+import com.proptiger.core.util.HttpRequestUtil;
 
 @Component
 public class NLPSuggestionHandler {
     @Autowired
-    private TypeaheadDao typeaheadDao;
+    private TypeaheadDao    typeaheadDao;
 
-    private TemplateMap  templateMap   = new TemplateMap();
+    @Autowired
+    private HttpRequestUtil httpRequestUtil;
 
-    private Logger       logger        = LoggerFactory.getLogger(NLPSuggestionHandler.class);
+    private TemplateMap     templateMap   = new TemplateMap();
 
-    private float        scoreTheshold = 5.0f;
+    private Logger          logger        = LoggerFactory.getLogger(NLPSuggestionHandler.class);
+
+    private float           scoreTheshold = 5.0f;
 
     public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int rows) {
 
@@ -44,6 +48,7 @@ public class NLPSuggestionHandler {
 
         List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
         if (thandler != null) {
+            thandler.setHttpRequestUtil(httpRequestUtil);
             resultsFirstHandler = thandler.getResults(query, templateHits.get(0), city, rows);
         }
 

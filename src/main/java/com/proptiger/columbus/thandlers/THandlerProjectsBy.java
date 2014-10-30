@@ -9,12 +9,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Builder;
-import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerProjectsBy extends RootTHandler {
-
     @Override
     public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
 
@@ -51,14 +49,17 @@ public class THandlerProjectsBy extends RootTHandler {
     }
 
     private List<Builder> getTopBuilders(String cityName) {
-        List<Builder> topBuilders = HttpRequestUtil.getInternalApiResultAsTypeList(URI.create(UriComponentsBuilder
-                .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                .getRequiredPropertyAsString(PropertyKeys.BUILDER_API_URL)
-                                + "?"
-                                + URLGenerationConstants.Selector
-                                + String.format(URLGenerationConstants.SelectorGetBuilderNamesByCityName, cityName))
-                .build().encode().toString()), new TypeToken<ArrayList<Builder>>() {}.getType());
+        List<Builder> topBuilders = httpRequestUtil.getInternalApiResultAsTypeList(
+                URI.create(UriComponentsBuilder
+                        .fromUriString(
+                                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        .getRequiredPropertyAsString(PropertyKeys.BUILDER_API_URL)
+                                        + "?"
+                                        + URLGenerationConstants.Selector
+                                        + String.format(
+                                                URLGenerationConstants.SelectorGetBuilderNamesByCityName,
+                                                cityName)).build().encode().toString()),
+                new TypeToken<ArrayList<Builder>>() {}.getType());
         return topBuilders;
     }
 

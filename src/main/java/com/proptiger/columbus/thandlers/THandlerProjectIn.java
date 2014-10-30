@@ -5,19 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
-import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
-@Component
 public class THandlerProjectIn extends RootTHandler {
-
     private String localityFilter = "locality=%s";
 
     @Override
@@ -99,7 +95,7 @@ public class THandlerProjectIn extends RootTHandler {
                                 + URLGenerationConstants.Selector
                                 + String.format(URLGenerationConstants.SelectorGetLocalityNamesByCityName, cityName))
                 .build().encode().toString());
-        List<Locality> topLocalities = HttpRequestUtil.getInternalApiResultAsTypeList(
+        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeList(
                 uri,
                 new TypeToken<ArrayList<Locality>>() {}.getType());
         return topLocalities;

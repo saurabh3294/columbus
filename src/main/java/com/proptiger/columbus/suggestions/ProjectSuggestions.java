@@ -21,17 +21,17 @@ import com.proptiger.core.util.PropertyReader;
 
 @Component
 public class ProjectSuggestions {
-
+    private HttpRequestUtil httpRequestUtil;
     @Autowired
-    private TypeaheadDao typeaheadDao;
+    private TypeaheadDao    typeaheadDao;
 
-    private String       templateId = "Typeahead-Suggestion-Project";
+    private String          templateId = "Typeahead-Suggestion-Project";
 
     public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, int count) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
-        List<Property> propertyList = HttpRequestUtil.getInternalApiResultAsTypeList(
+        List<Property> propertyList = httpRequestUtil.getInternalApiResultAsTypeList(
                 getURIForPropertyAPI(id),
                 new TypeToken<ArrayList<Property>>() {}.getType());
         if (propertyList == null || propertyList.isEmpty()) {
