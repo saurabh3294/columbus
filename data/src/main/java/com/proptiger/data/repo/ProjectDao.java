@@ -14,7 +14,6 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.ProjectDB;
