@@ -653,19 +653,20 @@ public class NotificationService {
 
     public void deleteNotificationsOfLeadOffersExpired(List<Integer> leadIdList, int notificationTypeId) {
 
-        String leadIdString = "";
+        StringBuilder leadIdString = new StringBuilder();
         int i = 0;
         for (Integer leadId : leadIdList) {
             if (i == 0) {
-                leadIdString += leadId;
+                leadIdString.append(leadId);
             }
             else {
-                leadIdString += "," + leadId;
+                leadIdString.append(",");
+                leadIdString.append(leadId);
             }
             i++;
         }
-        if (leadIdString != "") {
-            notificationDao.deleteUsingNotificationTypeAndObjectId(leadIdString, notificationTypeId,LeadOfferStatus.Offered.getId());
+        if (leadIdString.toString() != "") {
+            notificationDao.deleteUsingNotificationTypeAndObjectId(leadIdString.toString(), notificationTypeId,LeadOfferStatus.Offered.getId());
         }
     }
 }
