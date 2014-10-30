@@ -44,21 +44,20 @@ public class SendNotificationController {
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST)
     public APIResponse sendNotification(@Valid @RequestBody NotificationCreatorServiceRequest request) {
+
+        List<User> registeredUsers = new ArrayList<User>();
+        for (User user : request.getUsers()) {
+            registeredUsers.add(userService.findOrCreateUser(user));
+        }
+
+        request.setUsers(registeredUsers);
+        List<NotificationGenerated> notificationGeneratedList = notificationCreatorService
+                .createNotificationGenerated(request);
+        if (notificationGeneratedList == null) {
+            return new APIResponse(ResponseCodes.BAD_REQUEST, "Not able to generate Notification.");
+        }
+        return new APIResponse(notificationGeneratedList);
         
-//        List<User> registeredUsers = new ArrayList<User>();
-//        for (User user : request.getUsers()) {
-//            registeredUsers.add(userService.findOrCreateUser(user));
-//        }
-//
-//        request.setUsers(registeredUsers);
-//        List<NotificationGenerated> notificationGeneratedList = notificationCreatorService
-//                .createNotificationGenerated(request);
-//        if (notificationGeneratedList == null) {
-//            return new APIResponse(ResponseCodes.BAD_REQUEST, "Not able to generate Notification.");
-//        }
-//        return new APIResponse(notificationGeneratedList);
-        
-        return new APIResponse(ResponseCodes.FORBIDDEN, "Access to this API is currently forbidden due to its security vulnerabilities.");
     }
 
 }
