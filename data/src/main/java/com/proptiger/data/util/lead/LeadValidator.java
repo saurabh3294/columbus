@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.springframework.util.StringUtils;
 
 import com.proptiger.core.model.proptiger.Enquiry;
-import com.proptiger.data.util.RegistrationUtils;
 
 public class LeadValidator {
 
@@ -31,7 +30,11 @@ public class LeadValidator {
             leadInvalidations.put("lead_email", "Please enter Email.");
         }
         else {
-            if (!RegistrationUtils.validateEmail(enquiry.getEmail())) {
+            String emailPattern = "^[_a-z0-9-+]+(.[_a-z0-9-+]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,3})$";
+            Pattern emailpattern = Pattern.compile(emailPattern);
+            Matcher emailmatcher = emailpattern.matcher(enquiry.getEmail());
+
+            if (!emailmatcher.matches()) {
                 leadInvalidations.put("lead_email", "Please enter a valid Email.");
             }
         }
