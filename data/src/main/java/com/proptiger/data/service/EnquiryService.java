@@ -57,6 +57,10 @@ import com.proptiger.core.exception.BadRequestException;
 @Service
 public class EnquiryService {
 
+    private static final int FORCE_RESALE_VALUE = 1;
+
+    private static final int FORCE_PRIMARY_VALUE = 2;
+
     @Autowired
     LocalityService                 localityService;
 
@@ -106,6 +110,7 @@ public class EnquiryService {
                                                           "noida",
                                                           "pune");
 
+    
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
 
@@ -595,32 +600,14 @@ public class EnquiryService {
         }
         else {
             if (project != null) {
-                if (project.isForceResale()) {
+                if (project.getForceResale() == FORCE_RESALE_VALUE || (project.getForceResale() != FORCE_PRIMARY_VALUE &&
+                    (project.getProjectStatus().equals(ProjectStatus.COMPLETED.getValue()) || 
+                    Integer.valueOf(0).equals(project.getDerivedAvailability()))))
+                {
                     enquiry.setSalesType(SalesType.resale);
                 }
                 else {
-                    if (project.getProjectStatus() != null && !project.getProjectStatus().equals(
-                            ProjectStatus.CANCELLED.getValue())
-                            && project.getProjectStatus().equals(ProjectStatus.ONHOLD.getValue())) {
-                        if (project.getDerivedAvailability() == null) {
-                            if (project.getProjectStatus() != null && project.getProjectStatus().equals(
-                                    ProjectStatus.COMPLETED.getValue())) {
-                                enquiry.setSalesType(SalesType.primary);
-                            }
-                            else {
-                                enquiry.setSalesType(SalesType.primary);
-                            }
-                        }
-                        else if (project.getDerivedAvailability() == 0) {
-                            enquiry.setSalesType(SalesType.resale);
-                        }
-                        else if (project.getDerivedAvailability() > 0) {
-                            enquiry.setSalesType(SalesType.primary);
-                        }
-                    }
-                    else {
-                        enquiry.setSalesType(SalesType.primary);
-                    }
+                    enquiry.setSalesType(SalesType.primary);
                 }
             }
         }
