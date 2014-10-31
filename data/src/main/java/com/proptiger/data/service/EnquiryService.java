@@ -592,7 +592,7 @@ public class EnquiryService {
         else if (enquiry.getBuySell() != null && enquiry.getBuySell().equals("sell")) {
             enquiry.setSalesType(SalesType.seller);
         }
-        else if ((enquiry.getHomeLoanType() != null) && !enquiry.getHomeLoanType().isEmpty()) {
+        else if (enquiry.getHomeLoanTypeFlag()) {
             enquiry.setSalesType(SalesType.homeloan);
         }
         else {
