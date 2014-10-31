@@ -49,7 +49,7 @@ public class CronService {
 
     private static Logger       logger = LoggerFactory.getLogger(CronService.class);
 
-    /*@Scheduled(initialDelay = 10000, fixedDelay = 1800000)*/
+    @Scheduled(initialDelay = 10000, fixedDelay = 1800000)
     public void manageLeadAssignment() {
         Date createdSince = new Date(
                 new Date().getTime() - PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_CRON_BUFFER)
@@ -65,28 +65,28 @@ public class CronService {
         }
     }
 
-    /*@Scheduled(
+    @Scheduled(
             initialDelayString = "${marketplace.notification.initial.delay}",
-            fixedDelayString = "${marketplace.notification.fixed.delay}")*/
+            fixedDelayString = "${marketplace.notification.fixed.delay}")
     public void populateNotification() {
         leadTaskService.manageCallDueNotification();
         leadTaskService.populateTaskDueNotification();
         leadTaskService.populateTaskOverDueNotification();
     }
 
-    //@Scheduled(cron = "0 0 9 * * ?")
+    @Scheduled(cron = "0 0 9 * * ?")
     public void sendTaskOverDueNotification() {
         populateNotification();
         notificationService.sendTaskOverDueNotification();
     }
 
-    //@Scheduled(cron = "0 0 9,18 * * ?")
+    @Scheduled(cron = "0 0 9,18 * * ?")
     public void sendTaskDueNotification() {
         populateNotification();
         notificationService.sendTaskDueNotification();
     }
 
-    //@Scheduled(initialDelay = 4000, fixedDelay = 60000)
+    @Scheduled(initialDelay = 4000, fixedDelay = 60000)
     public void manageNoBrokerClaimedNotification() {
         Date endDate = notificationService.getNoBrokerClaimedCutoffTime();
         Date startDate = new Date(
@@ -106,7 +106,7 @@ public class CronService {
         }
     }
 
-    //@Scheduled(initialDelay = 50000, fixedDelay = 1800000)
+    @Scheduled(initialDelay = 50000, fixedDelay = 1800000)
     public void manageLeadOfferedReminder() {
         Date endDate = notificationService.getAuctionOverCutoffTime();
         Date startDate = new Date(
