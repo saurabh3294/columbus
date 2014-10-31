@@ -11,7 +11,7 @@ import com.proptiger.core.model.BaseModel;
 
 @Entity
 @JsonInclude(Include.NON_EMPTY)
-@Table(name = "marketplace.decline_reasons")
+@Table(name = "marketplace.master_decline_reasons")
 public class DeclineReason extends BaseModel{
     
     @Id
