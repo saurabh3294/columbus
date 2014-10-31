@@ -381,7 +381,7 @@ public class EnquiryService {
         HashMap<String, String> cookieMap = new HashMap<String, String>();
         Cookie[] requestCookies = request.getCookies();
 
-        if (request.getHeader("Referer") != null) {
+       if (request.getHeader("Referer") != null) {
             enquiry.setHttpReferer(request.getHeader("Referer"));
         }
         else {
@@ -441,24 +441,22 @@ public class EnquiryService {
                 else if (c.getName().equals("USER_MEDIUM")) {
                     enquiry.setUserMedium(c.getValue());
                 }
-                else if (c.getName().equals("ip")) {
-                    enquiry.setIp(c.getValue());
-                }
             }
         }
 
-        if (enquiry.getIp() == null) {
-
-            if (cookieMap.containsKey("USER_IP")) {
-                enquiry.setIp(cookieMap.get("USER_IP"));
-            }
-            else if (request.getRemoteAddr() != null) {
-                enquiry.setIp(request.getRemoteAddr());
-            }
-            else {
-                enquiry.setIp("");
-            }
+        if (request.getHeader("IP") != null) {
+            enquiry.setIp(request.getHeader("IP"));
         }
+        else if (cookieMap.containsKey("USER_IP")) {
+            enquiry.setIp(cookieMap.get("USER_IP"));
+        }
+        else if (request.getRemoteAddr() != null) {
+            enquiry.setIp(request.getRemoteAddr());
+        }
+        else {
+            enquiry.setIp("");
+        }
+
         if (enquiry.getUserMedium() == null) {
             enquiry.setUserMedium("");
         }
@@ -594,7 +592,7 @@ public class EnquiryService {
         else if (enquiry.getBuySell() != null && enquiry.getBuySell().equals("sell")) {
             enquiry.setSalesType(SalesType.seller);
         }
-        else if ((enquiry.getHomeLoanType() != null) && !enquiry.getHomeLoanType().isEmpty()) {
+        else if (enquiry.getHomeLoanTypeFlag() != null && enquiry.getHomeLoanTypeFlag()) {
             enquiry.setSalesType(SalesType.homeloan);
         }
         else {
