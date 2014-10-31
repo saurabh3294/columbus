@@ -41,6 +41,31 @@ public class Caching {
         return data;
     }
 
+    /**
+     * This method will get from the cache. If the response is null then reset
+     * the cache for this key and return the output.
+     * 
+     * @param key
+     * @param data
+     * @return
+     */
+    public <T> T getNonNullCachedResponse(String key, T data) {
+        Caching cachingObject = applicationContext.getBean(Caching.class);
+
+        T output = cachingObject.getCachedSavedResponse(key, data);
+
+        if (output == null) {
+            cachingObject.deleteResponseFromCache(key);
+        }
+
+        return output;
+    }
+
+    /**
+     * This method will take array of keys and delete the cache for those keys.
+     * 
+     * @param keys
+     */
     @Deprecated
     public void deleteMultipleResponseFromCache(String keys[]) {
         Caching cachingObject = applicationContext.getBean(Caching.class);
@@ -49,6 +74,13 @@ public class Caching {
             cachingObject.deleteResponseFromCache(keys[i]);
     }
 
+    /**
+     * This method will take cacheName and the regex of the keys. It will reset
+     * the cache for all the keys found from regex.
+     * 
+     * @param keyPattern
+     * @param cacheName
+     */
     @Deprecated
     public void deleteMultipleResponseFromCacheOnRegex(String keyPattern, String cacheName) {
         RedisConnection redisConnection = redisTemplate.getConnectionFactory().getConnection();

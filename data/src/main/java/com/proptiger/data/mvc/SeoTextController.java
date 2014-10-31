@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.model.URLDetail;
 import com.proptiger.data.service.SeoPageService;
+import com.proptiger.data.service.URLCreaterService;
 import com.proptiger.data.service.URLService;
 
 /**
@@ -38,6 +39,9 @@ public class SeoTextController {
 
     @Autowired
     private URLService     urlService;
+    
+    @Autowired
+    private URLCreaterService urlLibService;
 
     @RequestMapping(value = "data/v1/seo-text", params = { "url" })
     @ResponseBody
@@ -65,6 +69,14 @@ public class SeoTextController {
         }
 
         return new APIResponse(seoPageService.getSeoContentForPage(objectUrlDetails));
+    }
+    
+    @RequestMapping(value = "data/v1/seo-test")
+    @ResponseBody
+    public APIResponse test(@RequestParam String type, @RequestParam Integer id){
+        urlLibService.test(type, id);
+        
+        return new APIResponse("done");
     }
 
 }

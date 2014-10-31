@@ -127,18 +127,31 @@ public class ProjectService {
 
     /**
      * This method will return the list of projects and total projects found
-     * based on the selector.
+     * based on the selector along with their images.
      * 
      * @param projectFilter
      * @return SolrServiceResponse<List<Project>> it will contain the list of
      *         localities and total projects found.
      */
     public PaginatedResponse<List<Project>> getProjects(Selector projectFilter) {
-        PaginatedResponse<List<Project>> projects = projectDao.getProjects(projectFilter);
+        PaginatedResponse<List<Project>> projects = getProjectsFromSolr(projectFilter);
         imageEnricher.setImagesOfProjects(projects.getResults());
         return projects;
     }
-
+    
+    /**
+     * This method will return the list of projects and total projects found
+     * based on the selector.
+     * 
+     * @param projectFilter
+     * @return SolrServiceResponse<List<Project>> it will contain the list of
+     *         localities and total projects found.
+     */
+    public PaginatedResponse<List<Project>> getProjectsFromSolr(Selector projectFilter) {
+        PaginatedResponse<List<Project>> projects = projectDao.getProjects(projectFilter);
+        return projects;
+    }
+    
     /**
      * Returns projects ordered by launch date (descending)
      * 

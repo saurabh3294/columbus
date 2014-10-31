@@ -93,7 +93,7 @@ public class PropertyService {
      * @return
      */
     public List<Property> getProperties(Selector propertyFilter) {
-        List<Property> properties = propertyDao.getProperties(propertyFilter);
+        List<Property> properties = getPropertiesFromSolr(propertyFilter);
         imageEnricher.setPropertiesImages(properties);
 
         Set<String> fields = propertyFilter.getFields();
@@ -103,7 +103,19 @@ public class PropertyService {
 
         return properties;
     }
-
+    
+    /**
+     * Returns properties given a selector
+     * 
+     * @param propertyFilter
+     * @return
+     */
+    public List<Property> getPropertiesFromSolr(Selector propertyFilter) {
+        List<Property> properties = propertyDao.getProperties(propertyFilter);
+        
+        return properties;
+    }
+    
     /**
      * Returns projects given a selector on property attributes and a few more
      * like cityLabel etc. This is needed to address listing page requirements
