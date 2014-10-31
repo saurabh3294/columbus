@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proptiger.core.init.CustomObjectMapper;
 import com.proptiger.core.model.proptiger.BeanstalkEnquiry;
 import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.util.PropertyKeys;

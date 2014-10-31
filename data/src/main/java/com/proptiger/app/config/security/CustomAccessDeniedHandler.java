@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.handler.ResponseErrorWriter;
 
 /**
  * @author Rajeev Pandey

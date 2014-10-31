@@ -1,8 +1,6 @@
 package com.proptiger.data.notification.model;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,7 +20,6 @@ import javax.persistence.Transient;
 
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.notification.enums.NotificationStatus;
-import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
 @Entity

@@ -57,6 +57,7 @@ public class SendNotificationController {
             return new APIResponse(ResponseCodes.BAD_REQUEST, "Not able to generate Notification.");
         }
         return new APIResponse(notificationGeneratedList);
+        
     }
 
 }

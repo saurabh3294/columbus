@@ -24,22 +24,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.ProcessingStatus;
 import com.proptiger.core.enums.ProjectStatus;
 import com.proptiger.core.enums.SalesType;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.model.cms.City;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.proptiger.Enquiry;
+import com.proptiger.core.model.proptiger.Enquiry.LeadEnquiryResponse;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.data.internal.dto.mail.LeadSubmitMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.core.model.cms.City;
-import com.proptiger.core.model.proptiger.Enquiry;
-import com.proptiger.core.model.proptiger.Enquiry.LeadEnquiryResponse;
 import com.proptiger.data.model.EnquiryAttributes;
-import com.proptiger.core.model.cms.Locality;
-import com.proptiger.core.model.cms.Project;
-import com.proptiger.core.model.user.User;
-import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.data.repo.EnquiryAttributesDao;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.LocalityDao;
@@ -49,13 +53,13 @@ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.lead.GACookies;
 import com.proptiger.data.util.lead.LeadValidator;
-import com.proptiger.core.util.PropertyKeys;
-import com.proptiger.core.util.PropertyReader;
-import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.core.exception.BadRequestException;
 
 @Service
 public class EnquiryService {
+
+    private static final int        FORCE_RESALE_VALUE  = 1;
+
+    private static final int        FORCE_PRIMARY_VALUE = 2;
 
     @Autowired
     LocalityService                 localityService;
@@ -93,18 +97,18 @@ public class EnquiryService {
     @Autowired
     private PropertyReader          propertyReader;
 
-    List<String>                    servingCities = Arrays.asList(
-                                                          "ahmedabad",
-                                                          "banglore",
-                                                          "chennai",
-                                                          "delhi",
-                                                          "faridabad",
-                                                          "ghaziabad",
-                                                          "gurgaon",
-                                                          "kolkata",
-                                                          "mumbai",
-                                                          "noida",
-                                                          "pune");
+    List<String>                    servingCities       = Arrays.asList(
+                                                                "ahmedabad",
+                                                                "banglore",
+                                                                "chennai",
+                                                                "delhi",
+                                                                "faridabad",
+                                                                "ghaziabad",
+                                                                "gurgaon",
+                                                                "kolkata",
+                                                                "mumbai",
+                                                                "noida",
+                                                                "pune");
 
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
@@ -158,7 +162,7 @@ public class EnquiryService {
 
             sendEmailRequest(enquiry, projectNames);
         }
-        
+
         createAutofillCookie(enquiry, response, request);
         return leadResponse;
     }
@@ -170,13 +174,13 @@ public class EnquiryService {
         enquiryMap.put("email", enquiry.getEmail());
         enquiryMap.put("phone", enquiry.getPhone());
         enquiryMap.put("country", enquiry.getCountryId());
-        
+
         Gson gson = new Gson();
         String enquiryJson = gson.toJson(enquiryMap);
-              
-        Long currentTime = System.currentTimeMillis()/1000L;
+
+        Long currentTime = System.currentTimeMillis() / 1000L;
         Cookie enquiryCookie = new Cookie("enquiry_info", enquiryJson);
-        enquiryCookie.setMaxAge(currentTime.intValue() +(3600*24*7));
+        enquiryCookie.setMaxAge(currentTime.intValue() + (3600 * 24 * 7));
         enquiryCookie.setPath("/");
         response.addCookie(enquiryCookie);
     }
@@ -261,7 +265,7 @@ public class EnquiryService {
         if ((enquiry.getPageName() != null) && !enquiry.getPageName().equals("CONTACT US")) {
             dataForTemplate = generateDataToMail(enquiry);
             emailReceiver = enquiry.getEmail();
-            if (!servingCities.contains(enquiry.getCityName().toLowerCase())) {
+            if (!enquiry.getCityName().isEmpty() && !servingCities.contains(enquiry.getCityName().toLowerCase())) {
                 dataForTemplate.setLeadMailFlag("non_serving_cities");
             }
             mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LEAD_GENERATION, dataForTemplate);
@@ -338,7 +342,7 @@ public class EnquiryService {
                         enquiry.getCityName());
                 leadMailData.getEnquiry().setLocality(localityInfo);
             }
-            if(enquiry.getCity() == null) {
+            if (enquiry.getCity() == null && !enquiry.getCityName().isEmpty()) {
                 City city = cityService.getCityByName(enquiry.getCityName());
                 leadMailData.getEnquiry().setCity(city);
             }
@@ -377,15 +381,11 @@ public class EnquiryService {
         HashMap<String, String> cookieMap = new HashMap<String, String>();
         Cookie[] requestCookies = request.getCookies();
 
-        if (request.getHeader("Referer") != null) {
+       if (request.getHeader("Referer") != null) {
             enquiry.setHttpReferer(request.getHeader("Referer"));
         }
         else {
             enquiry.setHttpReferer("");
-        }
-
-        if (request.getHeader("IP") != null) {
-            enquiry.setIp(request.getHeader("IP"));
         }
         if (enquiry.getResaleAndLaunchFlag() == null) {
             enquiry.setResaleAndLaunchFlag(request.getParameter("resaleNlaunchFlg"));
@@ -397,12 +397,12 @@ public class EnquiryService {
             ReadableUserAgent agent = parser.parse(request.getHeader("User-Agent"));
             String applicationSource = agent.getDeviceCategory().getName();
 
-            if (!applicationSource.isEmpty() && (applicationSource.toLowerCase().equals("PDA") || applicationSource
-                    .toLowerCase().equals("SMARTPHONE"))) {
+            if (!applicationSource.isEmpty() && (applicationSource.toLowerCase().equals("pda") || applicationSource
+                    .toLowerCase().equals("smartphone"))) {
                 enquiry.setApplicationType("Mobile Site");
             }
 
-            else if (!applicationSource.isEmpty() && applicationSource.toLowerCase().equals("TABLET")) {
+            else if (!applicationSource.isEmpty() && applicationSource.toLowerCase().equals("tablet")) {
                 enquiry.setApplicationType("Tablet Site");
             }
             else {
@@ -418,15 +418,6 @@ public class EnquiryService {
                 }
                 catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
-                }
-
-                if (c.getName().equals("USER_IP") && enquiry.getIp() == null) {
-                    if (c.getValue() != null) {
-                        enquiry.setIp(c.getValue());
-                    }
-                    else if (request.getRemoteAddr() != null) {
-                        enquiry.setIp(request.getRemoteAddr());
-                    }
                 }
 
                 if (c.getName().equals("LANDING_PAGE")) {
@@ -452,6 +443,20 @@ public class EnquiryService {
                 }
             }
         }
+
+        if (request.getHeader("IP") != null) {
+            enquiry.setIp(request.getHeader("IP"));
+        }
+        else if (cookieMap.containsKey("USER_IP")) {
+            enquiry.setIp(cookieMap.get("USER_IP"));
+        }
+        else if (request.getRemoteAddr() != null) {
+            enquiry.setIp(request.getRemoteAddr());
+        }
+        else {
+            enquiry.setIp("");
+        }
+
         if (enquiry.getUserMedium() == null) {
             enquiry.setUserMedium("");
         }
@@ -472,9 +477,6 @@ public class EnquiryService {
         }
         if (enquiry.getCampaign() == null) {
             enquiry.setCampaign("");
-        }
-        if (enquiry.getIp() == null) {
-            enquiry.setIp("");
         }
 
         return cookieMap;
@@ -595,32 +597,13 @@ public class EnquiryService {
         }
         else {
             if (project != null) {
-                if (project.isForceResale()) {
+                if (project.getForceResale() == FORCE_RESALE_VALUE || (project.getForceResale() != FORCE_PRIMARY_VALUE && (project
+                        .getProjectStatus().equals(ProjectStatus.COMPLETED.getValue()) || Integer.valueOf(0).equals(
+                        project.getDerivedAvailability())))) {
                     enquiry.setSalesType(SalesType.resale);
                 }
                 else {
-                    if (project.getProjectStatus() != null && !project.getProjectStatus().equals(
-                            ProjectStatus.CANCELLED.getValue())
-                            && project.getProjectStatus().equals(ProjectStatus.ONHOLD.getValue())) {
-                        if (project.getDerivedAvailability() == null) {
-                            if (project.getProjectStatus() != null && project.getProjectStatus().equals(
-                                    ProjectStatus.COMPLETED.getValue())) {
-                                enquiry.setSalesType(SalesType.primary);
-                            }
-                            else {
-                                enquiry.setSalesType(SalesType.primary);
-                            }
-                        }
-                        else if (project.getDerivedAvailability() == 0) {
-                            enquiry.setSalesType(SalesType.resale);
-                        }
-                        else if (project.getDerivedAvailability() > 0) {
-                            enquiry.setSalesType(SalesType.primary);
-                        }
-                    }
-                    else {
-                        enquiry.setSalesType(SalesType.primary);
-                    }
+                    enquiry.setSalesType(SalesType.primary);
                 }
             }
         }
