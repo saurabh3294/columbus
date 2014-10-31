@@ -607,7 +607,7 @@ public class ProjectService {
                 + locationId
                 + "}},{\"range\":{\"projectAvgPriceRiseMonths\":{\"from\":1},\"projectAvgPriceRisePercentage\":{\"from\":"
                 + minimumPriceRise
-                + "}}}]},\"sort\":[{\"field\":\"projectPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
+                + "}}}]},\"sort\":[{\"field\":\"projectAvgPriceRisePercentage\",\"sortOrder\":\"DESC\"}]}";
 
         Selector selector = new Gson().fromJson(json, Selector.class);
         PaginatedResponse<List<Project>> paginatedResponse = projectDao.getProjects(selector);

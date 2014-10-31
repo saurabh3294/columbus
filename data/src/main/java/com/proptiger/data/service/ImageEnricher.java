@@ -477,7 +477,7 @@ public class ImageEnricher {
                 public int compare(Image o1, Image o2) {
                     return UtilityClass.compareTo(o1.getPriority(), o2.getPriority());
                 }});
-            orderImgByCatPriority.put(imgList.size(), imgList);
+            orderImgByCatPriority.put(new Integer(imgList.get(0).getImageTypeObj().getPriority()), imgList);
         }
                
         List<Image> orderedImgList = new ArrayList<Image>();
