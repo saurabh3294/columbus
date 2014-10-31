@@ -9,6 +9,7 @@ import org.springframework.security.web.RedirectStrategy;
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.handler.ResponseErrorWriter;
 
 /**
  * This handler overrides the dfault implementation not to redirect on any url

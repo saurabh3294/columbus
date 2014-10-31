@@ -1,8 +1,6 @@
 package com.proptiger.data.event.service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -10,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawEventToEventTypeMapping;
@@ -18,7 +15,10 @@ import com.proptiger.data.event.repo.EventTypeProcessorDao;
 
 @Service
 public class EventTypeProcessorService {
-    private static Logger                     logger = LoggerFactory.getLogger(EventTypeProcessorService.class);
+    private static Logger                     logger                      = LoggerFactory
+                                                                                  .getLogger(EventTypeProcessorService.class);
+
+    private static final String               PRICE_CHANGE_EFFECTIVE_DATE = "effective_date";
 
     @Autowired
     private EventTypeProcessorDao             eventTypeProcessorDao;
@@ -33,21 +33,9 @@ public class EventTypeProcessorService {
         logger.info(" Getting the Old Price Value for Price Change Event. " + eventGenerated.getEventTypePayload()
                 .getTransactionId());
 
-        // Getting the First Day of the Month.
-        Date eventCreatedDate = eventGenerated.getEventTypePayload().getTransactionDateKeyValue();
-        Date firstDayOfMonth = DateUtil.getFirstDayOfCurrentMonth(eventCreatedDate);
-
         RawEventToEventTypeMapping eventTypeMapping = eventTypeMappingService.getMappingByEventTypeId(eventGenerated
                 .getEventType().getId());
         DBRawEventTableLog dbRawEventTableLog = eventTypeMapping.getDbRawEventTableLog();
-
-        Map<String, List<Object>> filtersMap = dbRawEventTableLog.getFilterMap();
-
-        // getting the old value of the 1 month before latest value.
-        List<Object> list = new ArrayList<Object>();
-        logger.debug("effectiveDate: " + effeDate);
-        list.add(DateUtil.shiftMonths(effeDate, -1));
-        filtersMap.put("effective_date", list);
 
         Number OldPrice = (Number) eventTypeProcessorDao.getOldValueOfEventTypeOnLastMonth(
                 dbRawEventTableLog.getHostName(),
@@ -58,8 +46,8 @@ public class EventTypeProcessorService {
                 eventTypeMapping.getAttributeName(),
                 dbRawEventTableLog.getTransactionKeyName(),
                 eventGenerated.getEventTypePayload().getTransactionId(),
-                dbRawEventTableLog.getDateAttributeName(),
-                firstDayOfMonth,
+                PRICE_CHANGE_EFFECTIVE_DATE,
+                effeDate,
                 dbRawEventTableLog.getFilterMap());
 
         if (OldPrice != null)
