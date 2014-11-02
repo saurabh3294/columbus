@@ -8,7 +8,7 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
@@ -46,11 +46,11 @@ public class NotificationMockerService {
         return ntGenerated;
     }
 
-    public List<ForumUser> getMockUserList() {
-        ForumUser user = new ForumUser();
-        user.setUserId(53453);
+    public List<User> getMockUserList() {
+        User user = new User();
+        user.setId(53453);
 
-        List<ForumUser> userList = new ArrayList<ForumUser>();
+        List<User> userList = new ArrayList<User>();
         userList.add(user);
         return userList;
     }
@@ -89,11 +89,26 @@ public class NotificationMockerService {
         NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplate(template);
         return new NotificationMessage(userId, payload, notiType);
     }
-    
+
     public NotificationMessage getMockNotificationMessageForTemplateMap(Map<String, Object> templateMap) {
         Integer userId = 1211884;
         NotificationType notiType = getMockNotificationType();
         NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplateMap(templateMap);
+        return new NotificationMessage(userId, payload, notiType);
+    }
+
+    public NotificationMessage getMockNotificationMessageForTemplateMap(
+            Map<String, Object> templateMap,
+            String fromEmail,
+            List<String> ccList,
+            List<String> bccList) {
+        Integer userId = 1211884;
+        NotificationType notiType = getMockNotificationType();
+        NotificationMessagePayload payload = getMockNotificationMessagePayloadWithTemplateMap(
+                templateMap,
+                fromEmail,
+                ccList,
+                bccList);
         return new NotificationMessage(userId, payload, notiType);
     }
 
@@ -158,11 +173,25 @@ public class NotificationMockerService {
         extraAttributes.put(Tokens.Default.Template.name(), template);
         return getMockNotificationMessagePayloadWithTemplateMap(extraAttributes);
     }
-    
+
     private NotificationMessagePayload getMockNotificationMessagePayloadWithTemplateMap(Map<String, Object> templateMap) {
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setNotificationTypePayload(getMockNotificationTypePayload());
         payload.setExtraAttributes(templateMap);
+        return payload;
+    }
+
+    private NotificationMessagePayload getMockNotificationMessagePayloadWithTemplateMap(
+            Map<String, Object> templateMap,
+            String fromEmail,
+            List<String> ccList,
+            List<String> bccList) {
+        NotificationMessagePayload payload = new NotificationMessagePayload();
+        payload.setNotificationTypePayload(getMockNotificationTypePayload());
+        payload.setExtraAttributes(templateMap);
+        payload.setCcList(ccList);
+        payload.setBccList(bccList);
+        payload.setFromEmail(fromEmail);
         return payload;
     }
 

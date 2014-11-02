@@ -16,34 +16,40 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gcm.server.Message;
-import com.google.android.gcm.server.MulticastResult;
+import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
 import com.proptiger.data.enums.AndroidApplication;
 import com.proptiger.data.model.GCMUser;
+import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
+import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.service.GCMUserService;
 
 @Service
 public class AndroidSender implements MediumSender {
 
-    private static Logger       logger   = LoggerFactory.getLogger(AndroidSender.class);
+    private static Logger                logger   = LoggerFactory.getLogger(AndroidSender.class);
 
-    private static final String TYPE_KEY = "type";
-    private static final String DATA_KEY = "data";
+    private static final String          TYPE_KEY = "type";
+    private static final String          DATA_KEY = "data";
 
     @Autowired
-    private GCMUserService      gcmUserService;
+    private GCMUserService               gcmUserService;
+
+    @Autowired
+    private NotificationGeneratedService nGeneratedService;
 
     @Value("${app.android.key}")
-    private String              KEY_STRING;
+    private String                       KEY_STRING;
 
     @Value("${app.android.timeToLiveInSeconds}")
-    private Integer             TIME_TO_LIVE;
+    private Integer                      TIME_TO_LIVE;
 
     @Value("${app.android.retryCount}")
-    private Integer             RETRY_COUNT;
+    private Integer                      RETRY_COUNT;
 
-    private Map<String, String> androidKeyMap;
+    private Map<String, String>          androidKeyMap;
 
     @PostConstruct
     private void populateAndroidkeyMap() {
@@ -57,7 +63,11 @@ public class AndroidSender implements MediumSender {
     }
 
     @Override
-    public boolean send(String template, Integer userId, String typeName, NotificationSenderPayload payload) {
+    public boolean send(
+            String template,
+            Integer userId,
+            NotificationGenerated nGenerated,
+            NotificationSenderPayload payload) {
 
         if (userId == null) {
             logger.error("Found null User Id while sending Push Notification.");
@@ -69,25 +79,26 @@ public class AndroidSender implements MediumSender {
 
         if (gcmUsersList == null || gcmUsersList.isEmpty()) {
             logger.error("No GCM users found for UserId: " + userId + " while sending Push Notification.");
-            return false;
+            updateStatusAsLookUpFailed(nGenerated.getId());
+            return true;
         }
 
-        return pushToAndroidDevice(template, gcmUsersList, typeName);
+        return pushToAndroidDevice(template, gcmUsersList, nGenerated.getNotificationType().getName());
     }
 
-    public boolean sendToMarketplaceApp(String template, Integer userId, String typeName) {
-        return findUsersAndPushToAndroidDevice(template, userId, AndroidApplication.Marketplace, typeName);
+    public boolean sendToMarketplaceApp(String template, Integer userId, NotificationGenerated nGenerated) {
+        return findUsersAndPushToAndroidDevice(template, userId, AndroidApplication.Marketplace, nGenerated);
     }
 
-    public boolean sendToProptigerApp(String template, Integer userId, String typeName) {
-        return findUsersAndPushToAndroidDevice(template, userId, AndroidApplication.Proptiger, typeName);
+    public boolean sendToProptigerApp(String template, Integer userId, NotificationGenerated nGenerated) {
+        return findUsersAndPushToAndroidDevice(template, userId, AndroidApplication.Proptiger, nGenerated);
     }
 
     private boolean findUsersAndPushToAndroidDevice(
             String template,
             Integer userId,
             AndroidApplication androidApp,
-            String typeName) {
+            NotificationGenerated nGenerated) {
 
         if (userId == null) {
             logger.error("Found null User Id while sending Push Notification for " + androidApp.name()
@@ -103,13 +114,15 @@ public class AndroidSender implements MediumSender {
                     + " while sending Push Notification for "
                     + androidApp.name()
                     + " AndroidApplication");
-            return false;
+            updateStatusAsLookUpFailed(nGenerated.getId());
+            return true;
         }
 
-        return pushToAndroidDevice(template, gcmUsersList, typeName);
+        return pushToAndroidDevice(template, gcmUsersList, nGenerated.getNotificationType().getName());
     }
 
     private boolean pushToAndroidDevice(String template, List<GCMUser> gcmUsersList, String typeName) {
+        Boolean isSent = Boolean.FALSE;
 
         // Create a map of AppIdentifier to List of Reg Ids
         Map<AndroidApplication, List<String>> regIdMap = new HashMap<AndroidApplication, List<String>>();
@@ -142,18 +155,25 @@ public class AndroidSender implements MediumSender {
                         + " to regIds: "
                         + regIds);
 
-                MulticastResult result = sender.send(message, regIds, RETRY_COUNT);
-
-                if (result.getSuccess() == 0) {
-                    logger.error("Unable to send android notification to regIds: " + regIds
-                            + ". Got Result: "
-                            + result.toString());
-                    return false;
+                for (String regId : regIds) {
+                    Result result = sender.send(message, regId, RETRY_COUNT);
+                    if (result.getMessageId() == null) {
+                        logger.error("Unable to send android notification to regId: " + regId
+                                + ". Got Result: "
+                                + result.toString());
+                    }
+                    else {
+                        isSent = Boolean.TRUE;
+                        logger.info("Got Result " + result.toString()
+                                + " after sending android notification to regId: "
+                                + regId);
+                        String canonicalRegId = result.getCanonicalRegistrationId();
+                        if (canonicalRegId != null) {
+                            updateGCMRegistrationId(regId, canonicalRegId);
+                        }
+                    }
                 }
 
-                logger.info("Got Result " + result.toString()
-                        + " after sending android notification to regIds: "
-                        + regIds);
             }
             catch (IOException ioe) {
                 logger.error("Error while sending Push Notification.", ioe.getStackTrace().toString());
@@ -163,7 +183,11 @@ public class AndroidSender implements MediumSender {
             }
         }
 
-        return true;
+        if (isSent) {
+            return true;
+        }
+
+        return false;
     }
 
     private Map<String, String> getDataMap(String template, String typeName) {
@@ -173,11 +197,28 @@ public class AndroidSender implements MediumSender {
         return dataMap;
     }
 
+    private void updateGCMRegistrationId(String regId, String canonicalRegId) {
+        List<GCMUser> gcmUsers = gcmUserService.findByGCMRegId(canonicalRegId);
+        if (gcmUsers != null && !gcmUsers.isEmpty()) {
+            gcmUserService.deleteGCMUser(regId);
+        }
+        else {
+            gcmUserService.updateGCMRegId(regId, canonicalRegId);
+        }
+    }
+
     public Map<String, String> getAndroidKeyMap() {
         return androidKeyMap;
     }
 
     public void setAndroidKeyMap(Map<String, String> androidKeyMap) {
         this.androidKeyMap = androidKeyMap;
+    }
+
+    private void updateStatusAsLookUpFailed(Integer id) {
+        nGeneratedService.updateNotificationGeneratedStatusOnOldStatus(
+                id,
+                NotificationStatus.LookUpFailed,
+                NotificationStatus.Scheduled);
     }
 }

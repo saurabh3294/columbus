@@ -10,8 +10,6 @@ import com.proptiger.data.pojo.Selector;
 
 public class THandlerProjectsBy extends RootTHandler {
 
-    private String selectorCityFilter = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]}}";
-
     @Override
     public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
 
@@ -44,12 +42,12 @@ public class THandlerProjectsBy extends RootTHandler {
             return null;
     }
 
-    private List<Builder> getTopBuilders(String cityName) {
-        Selector selector = (new Gson()).fromJson(
-                String.format(selectorCityFilter, cityName),
-                Selector.class);
-        List<Builder> topBuilders = builderService.getTopBuilders(selector).getResults();
-        return topBuilders;
-    }
+	private List<Builder> getTopBuilders(String cityName) {
+		Selector selector = (new Gson()).fromJson(String.format(
+				URLGenerationConstants.ServiceSelectorGetLocalityByCity,
+				cityName), Selector.class);
+		List<Builder> topBuilders = builderService.getTopBuilders(selector).getResults();
+		return topBuilders;
+	}
 
 }

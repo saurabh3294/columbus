@@ -74,6 +74,7 @@ import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
+import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
@@ -195,7 +196,7 @@ public class UserService {
      * and preferences and subscription details
      * 
      * @param userInfo
-     * @return {@link ForumUser}
+     * @return {@link CustomUser}
      */
     @Transactional
     public CustomUser getUserDetails(Integer userId, Application application) {
@@ -236,7 +237,7 @@ public class UserService {
      * Sets app specific details for user object
      * 
      * @param user
-     * @return {@link ForumUser}
+     * @return {@link CustomUser}
      */
     private CustomUser setAppDetails(CustomUser customUser, User user) {
         HashMap<Application, UserAppDetail> appDetailsMap = new HashMap<>();
@@ -492,7 +493,7 @@ public class UserService {
      * @return
      */
     @Transactional
-    public CustomUser register(RegisterUser register) {
+    public Integer register(RegisterUser register, Application applicationType) {
         register.setUserAuthProviderDetails(null);
         RegistrationUtils.validateRegistration(register);
         register.setRegistered(true);
@@ -515,20 +516,38 @@ public class UserService {
          * send mail only if user registers
          */
         if (user.isRegistered()) {
-            ForumUserToken userToken = createForumUserToken(user.getId());
-            MailBody mailBody = htmlGenerator
-                    .generateMailBody(
-                            MailTemplateDetail.NEW_USER_REGISTRATION,
-                            new UserRegisterMailTemplate(
-                                    user.getFullName(),
-                                    user.getEmail(),
-                                    getEmailValidationLink(userToken)));
-            MailDetails details = new MailDetails(mailBody).setMailTo(user.getEmail()).setFrom(
-                    propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
-            mailSender.sendMailUsingAws(details);
+            /*
+             * mails should be sent for non b2b users only
+             */
+            if(!applicationType.equals(Application.B2B)){
+                /*
+                
+                Removing this as we are not sending validation link in mailer
+                TODO should be enabled once we figure out proper mailers from product team
+                 
+                ForumUserToken userToken = createForumUserToken(user.getId());
+                MailBody mailBody = htmlGenerator
+                        .generateMailBody(
+                                MailTemplateDetail.NEW_USER_REGISTRATION,
+                                new UserRegisterMailTemplate(
+                                        user.getFullName(),
+                                        user.getEmail(),
+                                        getEmailValidationLink(userToken)));
+                */
+                MailBody mailBody = htmlGenerator
+                        .generateMailBody(
+                                MailTemplateDetail.NEW_USER_REGISTRATION,
+                                new UserRegisterMailTemplate(
+                                        user.getFullName(),
+                                        user.getEmail(),
+                                        ""));
+                MailDetails details = new MailDetails(mailBody).setMailTo(user.getEmail()).setFrom(
+                        propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
+                mailSender.sendMailUsingAws(details);
+            }
             SecurityContextUtils.autoLogin(user);
         }
-        return getUserDetails(user.getId(), Application.DEFAULT);
+        return user.getId();
     }
 
     private String getEmailValidationLink(ForumUserToken userToken) {
@@ -597,6 +616,7 @@ public class UserService {
         if (user == null) {
             user = new User();
             user.setEmail(email);
+            user.setRegistered(true);
             user.setFullName(userName);
             user = userDao.save(user);
         }
@@ -766,16 +786,7 @@ public class UserService {
         return userDao.findByEmail(email);
     }
 
-    public Map<Integer, User> getUsers(List<Integer> clientIds) {
-        Map<Integer, User> users = new HashMap<>();
-        for (User user : userDao.findAll(clientIds)) {
-            users.put(user.getId(), user);
-        }
-
-        return users;
-    }
-
-    public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(List<Integer> clientIds) {
+    public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(Set<Integer> clientIds) {
         List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
         Map<Integer, Set<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
 
@@ -794,6 +805,17 @@ public class UserService {
 
     public User getUserById(int userId) {
         return userDao.findOne(userId);
+    }
+    
+    public Map<Integer, User> getUsers(Set<Integer> userIds){
+        Map<Integer, User> usersMap = new HashMap<>();
+        if(userIds != null && !userIds.isEmpty()){
+            List<User> users = userDao.findByIdIn(userIds);
+            for(User u: users){
+                usersMap.put(u.getId(), u);
+            }
+        }
+        return usersMap;
     }
     
     public UserContactNumber getTopPriorityContact(int userId) {

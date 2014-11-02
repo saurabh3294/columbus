@@ -35,7 +35,8 @@ import com.proptiger.data.model.ForumUser;
 @Entity
 @Table(name = "dashboards")
 public class Dashboard extends BaseModel{
-    
+    private static final long serialVersionUID = -1111148103018677340L;
+
     public enum DashboardType {
         PORTFOLIO, B2B
     }
@@ -66,11 +67,6 @@ public class Dashboard extends BaseModel{
 
     @Column(name = "updated_at")
     private Date                         updatedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
-    private ForumUser                    forumUser;
 
     @OneToMany(mappedBy = "dashboardId", fetch = FetchType.EAGER)
     private List<DashboardWidgetMapping> widgets;

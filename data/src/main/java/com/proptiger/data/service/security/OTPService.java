@@ -20,6 +20,7 @@ import com.proptiger.app.config.security.AuthSuccessHandler;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.enums.Application;
+import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -32,6 +33,7 @@ import com.proptiger.data.repo.APIAccessLogDao;
 import com.proptiger.data.repo.CompanyIPDao;
 import com.proptiger.data.repo.user.UserOTPDao;
 import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserSubscriptionService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -65,6 +67,9 @@ public class OTPService {
 
     @Autowired
     private CompanyIPDao            companyIPDao;
+    
+    @Autowired
+    private TemplateToHtmlGenerator   mailBodyGenerator;
 
     public boolean isOTPRequired(Authentication auth, HttpServletRequest request) {
         boolean required = false;
@@ -116,16 +121,18 @@ public class OTPService {
         userOTP.setOtp(otp);
         userOTP.setUserId(activeUser.getUserIdentifier());
         userOTPDao.save(userOTP);
-        /*
-         * Mail template should be used
-         */
-        mailSender.sendMailUsingAws(new MailDetails(new MailBody().setBody("OTP-" + otp).setSubject(
-                "One time password to login")).setMailTo(activeUser.getUsername()));
+
+        MailBody mailBody = mailBodyGenerator.generateMailBody(
+                MailTemplateDetail.OTP,
+                new OtpMail(activeUser.getFullName(), otp, UserOTP.EXPIRES_IN_MINUTES));
+        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(activeUser.getUsername()).setMailBCC(
+                PropertyReader.getRequiredPropertyAsString(PropertyKeys.MAIL_OTP_BCC));
+        mailSender.sendMailUsingAws(mailDetails);
 
     }
 
     @Transactional
-    public void validate(Integer otp, ActiveUser activeUser, HttpServletRequest request, HttpServletResponse response) {
+    public void validate(String otp, ActiveUser activeUser, HttpServletRequest request, HttpServletResponse response) {
         Pageable pageable = new LimitOffsetPageRequest(0, 1, Direction.DESC, "id");
         List<UserOTP> userOTPs = userOTPDao.findLatestOTPByUserId(activeUser.getUserIdentifier(), pageable);
         if (userOTPs.isEmpty() || otp == null) {
@@ -140,7 +147,7 @@ public class OTPService {
             respondWithOTP(activeUser);
             throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.OTP_EXPIRED);
         }
-        if (otp.equals(userOTPs.get(0).getOtp())) {
+        if (otp.equals(userOTPs.get(0).getOtp().toString())) {
             SecurityContextUtils.grantUserAuthorityToActiveUser();
             clearUserOTP(activeUser);
             try {
@@ -159,4 +166,24 @@ public class OTPService {
         userOTPDao.deleteByUserId(activeUser.getUserIdentifier());
     }
 
+    public static class OtpMail{
+        private String userName;
+        private Integer otp;
+        private Integer validity;
+        public OtpMail(String userName, Integer otp, Integer validity) {
+            super();
+            this.userName = userName;
+            this.otp = otp;
+            this.validity = validity;
+        }
+        public String getUserName() {
+            return userName;
+        }
+        public Integer getOtp() {
+            return otp;
+        }
+        public Integer getValidity() {
+            return validity;
+        }
+    }
 }

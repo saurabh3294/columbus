@@ -27,7 +27,7 @@ public class EventTypeService {
         return eventType;
     }
 
-    private void populateConfig(EventType eventType) {
+    public EventType populateConfig(EventType eventType) {
         String configName = eventType.getName();
         if (eventType.getOverwriteConfigName() != null) {
             configName = eventType.getOverwriteConfigName();
@@ -48,6 +48,7 @@ public class EventTypeService {
         }
         setEventTypeConfigObjectAttributes(savedEventTypeConfig);
         eventType.setEventTypeConfig(savedEventTypeConfig);
+        return eventType;
     }
 
     private void setEventTypeConfigObjectAttributes(EventTypeConfig eventTypeConfig) {

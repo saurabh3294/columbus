@@ -98,7 +98,7 @@ public class SecurityUtilService {
         hash.append(request.getRemoteAddr()).append(Constants.Security.HASH_SEPERATOR)
                 .append(request.getHeader(Constants.USER_AGENT)).append(Constants.Security.HASH_SEPERATOR)
                 .append(serverTimeHeader).append(Constants.Security.HASH_SEPERATOR)
-                .append(Constants.Security.API_SECRET_KEYWORD);
+                .append(Constants.Security.API_SECRET_WORD_VALUE);
         return PasswordUtils.encode(hash.toString());
     }
 

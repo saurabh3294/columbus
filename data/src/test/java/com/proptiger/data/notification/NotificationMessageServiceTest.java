@@ -1,5 +1,7 @@
 package com.proptiger.data.notification;
 
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -9,16 +11,18 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.proptiger.data.mocker.NotificationMockerService;
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
+import com.proptiger.data.notification.repo.NotificationMessageDao;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.NotificationTypeService;
 import com.proptiger.data.notification.service.UserNotificationTypeSubscriptionService;
@@ -37,6 +41,13 @@ public class NotificationMessageServiceTest extends AbstractTest {
 
     @Autowired
     private NotificationMockerService  notificationMockerService;
+
+    @BeforeMethod
+    private void init() {
+        NotificationMessageDao notificationMessageDao = mock(NotificationMessageDao.class);
+        when(notificationMessageDao.saveAndFlush((NotificationMessage) anyObject())).then(returnsFirstArg());
+        nMessageService.setNotificationMessageDao(notificationMessageDao);
+    }
 
     @Test
     public void testCreateNotificationMessageForEmail() {
@@ -117,7 +128,7 @@ public class NotificationMessageServiceTest extends AbstractTest {
     @Test
     public void testGetNotificationMessagesForNotificationTypeGenerated() {
         NotificationTypeGenerated ntGenerated = notificationMockerService.getMockNotificationTypeGenerated();
-        List<ForumUser> userList = notificationMockerService.getMockUserList();
+        List<User> userList = notificationMockerService.getMockUserList();
         Integer propertyId = (Integer) ntGenerated.getNotificationTypePayload().getPrimaryKeyValue();
         List<PortfolioListing> portfolioListings = notificationMockerService.getMockPortfolioListings(propertyId);
         DefaultNotificationMessageProcessor nMessageProcessor = (DefaultNotificationMessageProcessor) ntGenerated

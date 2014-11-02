@@ -185,7 +185,7 @@ public class RawEventToEventTypeMappingService {
     }
 
     public Iterable<RawEventToEventTypeMapping> findAll() {
-        return rawEventToEventTypeMappingDao.findAll();
+        return rawEventToEventTypeMappingDao.findAllMapping();
     }
 
     public RawEventToEventTypeMapping getMappingByEventTypeId(Integer eventTypeId) {
@@ -197,7 +197,7 @@ public class RawEventToEventTypeMappingService {
     }
 
     private void setEventTypeObject(RawEventToEventTypeMapping eventTypeMapping) {
-        EventType eventType = eventTypeService.getEventTypeByEventTypeId(eventTypeMapping.getEventTypeId());
+        EventType eventType = eventTypeService.populateConfig(eventTypeMapping.getEventType());
         eventTypeMapping.setEventType(eventType);
     }
 

@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
@@ -27,7 +27,7 @@ public class GoalPriceNotificationMessageProcessor extends NotificationMessagePr
 
     @Override
     public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
-            List<ForumUser> unsubscribedUserList,
+            List<User> unsubscribedUserList,
             NotificationTypeGenerated ntGenerated) {
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
@@ -45,11 +45,12 @@ public class GoalPriceNotificationMessageProcessor extends NotificationMessagePr
 
         List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
         List<PortfolioListing> newPortfolioListings = new ArrayList<PortfolioListing>();
-        
+
         for (PortfolioListing portfolioListing : portfolioListings) {
             Double goalAmount = portfolioListing.getGoalAmount();
             if (goalAmount == null || goalAmount == 0 || (Double) notificationTypePayload.getNewValue() < goalAmount) {
-                logger.debug("Skipping Goal Price Notification Creation as goal price is not met for user id : " + portfolioListing.getUserId());
+                logger.debug("Skipping Goal Price Notification Creation as goal price is not met for user id : " + portfolioListing
+                        .getUserId());
                 continue;
             }
             newPortfolioListings.add(portfolioListing);

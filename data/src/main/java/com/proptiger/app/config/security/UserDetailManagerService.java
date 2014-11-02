@@ -42,6 +42,7 @@ public class UserDetailManagerService implements UserDetailsService {
                     Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
                     String password = user.getPassword() == null ? "" : user.getPassword();
                     userDetails = new ActiveUser(
+                            user.getFullName(),
                             user.getId(),
                             user.getEmail(),
                             password,

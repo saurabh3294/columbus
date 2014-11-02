@@ -90,6 +90,23 @@ public class TypeaheadController extends BaseController {
         return new APIResponse(super.filterFields(list, null), list.size());
     }
     
+    @RequestMapping(value = "app/v4/typeahead")
+    @ResponseBody
+    public APIResponse getTypeaheadsV4(HttpServletRequest request, @RequestParam String query,
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(required = false) String typeAheadType,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String locality) {
+
+        List<String> filterQueries = new ArrayList<String>();
+        addReqParamBasedFilterToQuery(filterQueries, city, locality, typeAheadType);
+ 
+        city = getCityContext(city, request);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, city);
+
+        return new APIResponse(super.filterFields(list, null), list.size());
+    }
+    
     private String getCityContext(String city, HttpServletRequest request) {
         /* if city was explicitly set in URL use that */
         if (city != null && !city.isEmpty()) {
@@ -136,7 +153,7 @@ public class TypeaheadController extends BaseController {
             filterQueries.add("TYPEAHEAD_CITY:" + city);
         }
         if (locality != null && locality.trim() != "") {
-            filterQueries.add("TYPEAHEAD_LOCALITY:(" + locality + ")");
+            filterQueries.add("TYPEAHEAD_LOCALITY:(\"" + locality + "\")");
         }
         if (typeAheadType != null && typeAheadType.trim() != "") {
             filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());

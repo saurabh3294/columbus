@@ -11,6 +11,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
@@ -74,6 +75,10 @@ public class WordpressPost extends BaseModel {
     @JsonIgnore
     @Column(name = "post_excerpt")
     private String            postExcerpt;
+    
+    @JsonIgnore
+    @Column(name = "post_name")
+    private String            postName;
 
     public long getId() {
         return id;
@@ -98,9 +103,13 @@ public class WordpressPost extends BaseModel {
     public void setPostContent(String postContent) {
         this.postContent = postContent;
     }
-
+    
+    @JsonProperty
     public String getGuid() {
-        return guid;
+        if (guid == null || guid.isEmpty() || postName == null || postName.isEmpty()) {
+            return null;
+        }
+        return guid.substring(0, guid.indexOf("?")) + postName;
     }
 
     public void setGuid(String guid) {
@@ -145,5 +154,13 @@ public class WordpressPost extends BaseModel {
 
     public void setPostExcerpt(String postExcerpt) {
         this.postExcerpt = postExcerpt;
+    }
+
+    public String getPostName() {
+        return postName;
+    }
+
+    public void setPostName(String postName) {
+        this.postName = postName;
     }
 }

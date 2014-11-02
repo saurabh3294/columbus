@@ -1,6 +1,8 @@
 package com.proptiger.data.repo;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -33,42 +35,24 @@ public class TypeaheadDao {
     private float       boostStart      = 10f;
     private float       boostMultiplier = 0.3f;
 
-    public QueryResponse getResponseSuggestions(String query, int rows, List<String> filterQueries) {
-        SolrQuery solrQuery = getSimpleSolrQuery(query, rows, filterQueries);
-        QueryResponse result = solrDao.executeQuery(solrQuery);
-        return result;
-    }
+//    public QueryResponse getResponseSuggestions(String query, int rows, List<String> filterQueries) {
+//        SolrQuery solrQuery = getSimpleSolrQuery(query, rows, filterQueries);
+//        QueryResponse result = solrDao.executeQuery(solrQuery);
+//        return result;
+//    }
 
-    public QueryResponse getResponseV2(String query, int rows, List<String> filterQueries) {
-        SolrQuery solrQuery = getSolrQueryV2(query, rows, filterQueries);
-        QueryResponse result = solrDao.executeQuery(solrQuery);
-        return result;
-    }
+//    public QueryResponse getResponseV2(String query, int rows, List<String> filterQueries) {
+//        SolrQuery solrQuery = getSolrQueryV2(query, rows, filterQueries);
+//        QueryResponse result = solrDao.executeQuery(solrQuery);
+//        return result;
+//    }
 
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
-
-//        List<String> filterQueriesOld = new ArrayList<String>(filterQueries);
-//
-//        // Add the city filter if it exist in the query
-//        List<String> cityList = this.findCities(query);
-//
-//        // removes city name if query contains other terms too
-//        String new_query = this.parseCities(query, cityList);
-//        for (String city : cityList) {
-//            filterQueries.add("TYPEAHEAD_CITY:" + city);
-//        }
-//
-//        List<SolrQuery> solrQueries = new ArrayList<SolrQuery>();
-//        solrQueries.add(this.getSolrQueryV2(new_query, rows, filterQueries));
-//        if (!filterQueries.isEmpty()) {         // Adding another query if filters exist
-//            solrQueries.add(this.getSolrQueryV2(query, rows, filterQueriesOld));
-//        }
-
         SolrQuery solrQuery = this.getSolrQueryV2(query, rows, filterQueries);
         List<Typeahead> results = getSpellCheckedResponseV2(solrQuery, rows, filterQueries);
         return UtilityClass.getFirstNElementsOfList(results, rows);
     }
-
+    
     // Add parameters to use the custom requestHandler
     private SolrQuery getSolrQueryV2(String query, int rows, List<String> filterQueries) {
 
@@ -84,7 +68,7 @@ public class TypeaheadDao {
         }
         return solrQuery;
     }
-
+    
     private String getBoostQuery(String query) {
         String boostQuery = "";
         StringTokenizer st = new StringTokenizer(query.trim());
@@ -141,7 +125,77 @@ public class TypeaheadDao {
         }
     }
 
-    // Previous functions:
+    //******* TYPEAHEAD :: VERSION 4 ********
+
+    public List<Typeahead> getTypeaheadsV4(String query, int rows, List<String> filterQueries) {
+        List<Typeahead> results = getSpellCheckedResponseV4(query, rows, filterQueries);
+        return UtilityClass.getFirstNElementsOfList(results, rows);
+    }
+
+    private SolrQuery getSolrQueryV4(String query, int rows, List<String> filterQueries) {
+
+        SolrQuery solrQuery = getSimpleSolrQuery(query, rows, filterQueries);
+        solrQuery.setParam("qt", "/payload_v4");
+        solrQuery.setParam("defType", "payload");
+        solrQuery.setParam("fl", "*,score");
+        return solrQuery;
+    }
+    
+    public QueryResponse getResponseV4(String query, int rows, List<String> filterQueries) {
+        SolrQuery solrQuery = getSolrQueryV4(query, rows, filterQueries);
+        QueryResponse result = solrDao.executeQuery(solrQuery);
+        return result;
+    }
+    
+    /**
+     * If the query has a typo and can be corrected then new query is generated
+     * using the suggestions and executed automatically
+     */
+    private List<Typeahead> getSpellCheckedResponseV4(String query, int rows, List<String> filterQueries) {
+
+    	/* Fetch results for entered query first */
+        SolrQuery solrQuery = this.getSolrQueryV4(query, rows, filterQueries);
+        List<Typeahead> resultsOriginal = new ArrayList<Typeahead>();
+        QueryResponse response = solrDao.executeQuery(solrQuery);
+        resultsOriginal = response.getBeans(Typeahead.class);
+        
+        /* If spell-check suggestions are there, get those results as well */
+
+        String spellsuggestion = response.getSpellCheckResponse().getCollatedResult();
+        List<Typeahead> resultsSuggested = new ArrayList<Typeahead>();
+        if (spellsuggestion != null && !spellsuggestion.isEmpty()) {
+            SolrQuery newQuery = this.getSolrQueryV4(spellsuggestion.toString(), rows, filterQueries);
+            resultsSuggested = solrDao.executeQuery(newQuery).getBeans(Typeahead.class);
+        }
+        
+        if(resultsSuggested.isEmpty()){
+        	return resultsOriginal;
+        }
+        
+        /* Merge results */
+
+        resultsOriginal.addAll(resultsSuggested);
+        Collections.sort(resultsOriginal, new Comparator<Typeahead>() {
+			@Override
+			public int compare(Typeahead o1, Typeahead o2) {
+				return o2.getScore().compareTo(o1.getScore());
+			}
+		});
+        
+        List<List<Typeahead>> listOfresults = new ArrayList<List<Typeahead>>();
+        listOfresults.add(resultsOriginal);
+        List<Typeahead> results = UtilityClass.getMergedListRemoveDuplicates(listOfresults, new Comparator<Typeahead>(){
+			@Override
+			public int compare(Typeahead o1, Typeahead o2) {
+				return o1.getId().compareTo(o2.getId());
+			}
+		});
+
+        
+        return results;
+    }
+
+    //******* TYPEAHEAD :: OLD VERSION FUNCTIONS ********
 
     private SolrQuery getSolrQuery(String query, int rows, List<String> filterQueries) {
         SolrQuery solrQuery = this.getQueryParams(query);
