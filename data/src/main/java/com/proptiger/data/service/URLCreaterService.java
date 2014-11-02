@@ -13,8 +13,10 @@ import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.data.model.URLDetail;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Serializer;
+import com.proptiger.data.enums.seo.PropertyType;
 
 @Service
 public class URLCreaterService {
@@ -40,8 +42,13 @@ public class URLCreaterService {
     @Autowired
     private BuilderService  builderService;
 
+    private final String    bhkSuffix    = "bhk";
+
+    private final String    budgetSuffix = "lacs";
+    private final String    defaultUrl   = "";
+
     public void test(String type, Integer id) {
-        switch(type){
+        switch (type) {
             case "builder":
                 getCachedBuilderData(id);
                 break;
@@ -58,8 +65,64 @@ public class URLCreaterService {
                 getCachedSuburbData(id, "noida");
                 break;
         }
-        
 
+    }
+
+    public String urlLibCityUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+
+        if (urlDetail.getCityName() != null) {
+            String cityName = getCleanName(urlDetail.getCityName());
+            String areaType = urlDetail.getAreaType();
+            if (isEmpty(areaType)) {
+                areaType = "overview";
+            }
+
+            if (areaType == "overview") {
+                url = cityName + "-real-estate-overview";
+            }
+            else {
+                url = cityName + "/" + areaType;
+            }
+
+        }
+
+        return url;
+    }
+
+    public String urlLibCountryListUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        PropertyType propertyType = urlDetail.getUrlPropertyType();
+
+        if (propertyType == null) {
+            propertyType = PropertyType.Apartment;
+        }
+
+        url += "-sale";
+        addBhk(url, urlDetail.getBedrooms());
+        addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
+
+        return url;
+    }
+
+    public String urlLibCityListingUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+
+        return url;
+    }
+
+    private String addBhk(String url, Integer bedrooms) {
+        if (bedrooms != null && bedrooms > 0)
+            return url + "/" + bedrooms + this.bhkSuffix;
+
+        return url;
+    }
+
+    private String addBudget(String url, Integer minBudget, Integer maxBudget) {
+        if (minBudget != null && minBudget > 0 && maxBudget != null && maxBudget > 0)
+            return url + "/" + minBudget + this.budgetSuffix + "-" + maxBudget + this.budgetSuffix;
+
+        return url;
     }
 
     private Property getCachedPropertyData(Integer id) {
@@ -76,11 +139,11 @@ public class URLCreaterService {
         if (currentProperty != null) {
             return currentProperty;
         }
-        
+
         int start = 0, rows = 5000, size;
-        do{
+        do {
             List<Property> properties = getAllProperties(start, rows);
-            if(properties == null){
+            if (properties == null) {
                 break;
             }
             size = properties.size();
@@ -94,8 +157,9 @@ public class URLCreaterService {
                 }
             }
             properties.clear();
-        }while(size>0);
-        
+        }
+        while (size > 0);
+
         return currentProperty;
     }
 
@@ -113,17 +177,17 @@ public class URLCreaterService {
         if (currentProject != null) {
             return currentProject;
         }
-        
+
         int start = 0, rows = 5000, size = 0;
-        do{
+        do {
             List<Project> projects = getAllProjects(start, rows);
             System.out.println("called");
-            if(projects == null){
+            if (projects == null) {
                 break;
             }
             size = projects.size();
             start = start + size;
-            System.out.println(" PROJECTS "+size);
+            System.out.println(" PROJECTS " + size);
             for (Project project : projects) {
                 cacheKey = projectKeyIdPrefix + project.getProjectId();
                 caching.saveResponse(cacheKey, project);
@@ -132,8 +196,9 @@ public class URLCreaterService {
                 }
             }
             projects.clear();
-        }while(size>0);
-        
+        }
+        while (size > 0);
+
         return currentProject;
     }
 
@@ -165,7 +230,7 @@ public class URLCreaterService {
 
         return currentBuilder;
     }
-    
+
     private Suburb getCachedSuburbData(Integer id, String name) {
         String suburbKeyIdPrefix = "parse_url_suburb_data_id";
         String suburbKeyNamePrefix = "parse_url_suburb_data_name";
@@ -255,6 +320,10 @@ public class URLCreaterService {
         return currentLocality;
     }
 
+    private boolean isEmpty(String str) {
+        return (str == null || str.isEmpty());
+    }
+
     private String getCleanName(String name) {
         name = name.replaceAll("[\\(\\).,&_]", "");
         name = name.trim();
@@ -293,7 +362,10 @@ public class URLCreaterService {
 
     private List<Project> getAllProjects(int start, int rows) {
 
-        String selectorString = "{\"fields\":[\"projectId\", \"name\", \"locality\", \"city\", \"builderLabel\"], \"paging\":{\"start\":"+start+", \"rows\":"+rows+"}}";
+        String selectorString = "{\"fields\":[\"projectId\", \"name\", \"locality\", \"city\", \"builderLabel\"], \"paging\":{\"start\":" + start
+                + ", \"rows\":"
+                + rows
+                + "}}";
         System.out.println(selectorString);
         PaginatedResponse<List<Project>> projects = projectService.getProjectsFromSolr(Serializer.fromJson(
                 selectorString,
@@ -303,12 +375,25 @@ public class URLCreaterService {
     }
 
     private List<Property> getAllProperties(int start, int rows) {
-        String selectorString = "{\"fields\":[\"projectId\", \"name\", \"locality\", \"city\", \"builderLabel\", \"bedrooms\"], \"paging\":{\"start\":"+start+", \"rows\":"+rows+"}}";
+        String selectorString = "{\"fields\":[\"projectId\", \"name\", \"locality\", \"city\", \"builderLabel\", \"bedrooms\"], \"paging\":{\"start\":" + start
+                + ", \"rows\":"
+                + rows
+                + "}}";
         System.out.println(selectorString);
-        List<Property> properties = propertyService.getPropertiesFromSolr(Serializer.fromJson(selectorString, Selector.class));
+        List<Property> properties = propertyService.getPropertiesFromSolr(Serializer.fromJson(
+                selectorString,
+                Selector.class));
 
         return properties;
 
     }
 
+    /*
+     * function __get_property_type_for_url( $type ) { $type = strtolower( trim(
+     * $type ) ); switch( $type ) { case 'apartment': case 'flat': $type =
+     * "apartments-flats"; break; case 'site': case 'plot': $type =
+     * "sites-plots"; break; case 'villa': $type = "villas"; break; case
+     * 'house': break; case 'property': $type = "property"; break; default:
+     * $type = "property"; } retur
+     */
 }
