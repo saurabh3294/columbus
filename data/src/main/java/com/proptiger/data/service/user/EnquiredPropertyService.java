@@ -16,7 +16,7 @@ import com.proptiger.data.repo.user.UserDao;
  * 
  */
 @Service
-public class EnquiryService {
+public class EnquiredPropertyService {
 
     @Autowired
     private EnquiryDao   enquiryDao;

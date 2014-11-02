@@ -86,13 +86,13 @@ public class ImageService extends MediaService {
         Info info = new Info(file.getAbsolutePath());
 
         IMOperation imOps = new IMOperation();
-        imOps.size(info.getImageWidth(), info.getImageWidth());
+        imOps.size(info.getImageWidth(), info.getImageHeight());
         imOps.addImage(2);
         imOps.geometry(
                 info.getImageWidth() / 2,
-                info.getImageWidth() / 2,
+                info.getImageHeight() / 2,
                 info.getImageWidth() / 4,
-                info.getImageWidth() / 4);
+                info.getImageHeight() / 4);
         imOps.addImage();
         CompositeCmd cmd = new CompositeCmd();
 

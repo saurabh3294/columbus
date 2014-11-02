@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
-import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.generator.model.DBRawEventAttributeConfig;
 import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
 import com.proptiger.data.event.model.DBRawEventTableLog;
@@ -58,13 +57,13 @@ public class EventGeneratedService {
         logger.info(eventGenerateds.size() + " Events Being Persisting ");
 
         applicationContext.getBean(this.getClass()).saveOrUpdateEvents(eventGenerateds);
-        
+
         logger.info(" Events Saved .");
-        
+
         dbRawEventTableLogDao.updateLastTransactionKeyValueById(
                 dbRawEventTableLog.getId(),
                 dbRawEventTableLog.getLastTransactionKeyValue());
-        
+
         logger.info(" Updated the Last Transaction Value " + dbRawEventTableLog.getLastTransactionKeyValue()
                 + " for table Config "
                 + dbRawEventTableLog.getId());
@@ -115,7 +114,7 @@ public class EventGeneratedService {
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
         List<EventGenerated> listEventGenerateds = eventGeneratedDao.getLatestEventGenerated(pageable);
         logger.debug("Latest Event generated: " + listEventGenerateds);
-        
+
         if (listEventGenerateds == null || listEventGenerateds.isEmpty()) {
             return null;
         }
@@ -181,31 +180,27 @@ public class EventGeneratedService {
         List<EventGenerated> eventGeneratedList = new ArrayList<EventGenerated>();
         DBRawEventOperationConfig dbRawEventOperationConfig = rawDBEvent.getDbRawEventOperationConfig();
 
-        if (DBOperation.INSERT.equals(dbRawEventOperationConfig.getDbOperation())) {
+        if (dbRawEventOperationConfig.getListEventTypes() != null) {
             generateEvents(rawDBEvent, dbRawEventOperationConfig.getListEventTypes(), null, eventGeneratedList);
         }
-        else if (DBOperation.DELETE.equals(dbRawEventOperationConfig.getDbOperation())) {
-            generateEvents(rawDBEvent, dbRawEventOperationConfig.getListEventTypes(), null, eventGeneratedList);
-        }
-        else if (DBOperation.UPDATE.equals(dbRawEventOperationConfig.getDbOperation())) {
 
-            for (String attributeName : rawDBEvent.getNewDBValueMap().keySet()) {
-                logger.debug(" Attribute Name " + attributeName);
+        for (String attributeName : rawDBEvent.getNewDBValueMap().keySet()) {
+            logger.debug(" Attribute Name " + attributeName);
 
-                DBRawEventAttributeConfig dbRawEventAttributeConfig = dbRawEventOperationConfig
-                        .getDBRawEventAttributeConfig(attributeName);
-                if (dbRawEventAttributeConfig != null) {
-                    logger.debug(" List of Events Mapped from Attribute Name " + Serializer
-                            .toJson(dbRawEventAttributeConfig.getListEventTypes()));
+            DBRawEventAttributeConfig dbRawEventAttributeConfig = dbRawEventOperationConfig
+                    .getDBRawEventAttributeConfig(attributeName);
+            if (dbRawEventAttributeConfig != null && dbRawEventAttributeConfig.getListEventTypes() != null) {
+                logger.debug(" List of Events Mapped from Attribute Name " + Serializer
+                        .toJson(dbRawEventAttributeConfig.getListEventTypes()));
 
-                    generateEvents(
-                            rawDBEvent,
-                            dbRawEventAttributeConfig.getListEventTypes(),
-                            attributeName,
-                            eventGeneratedList);
-                }
+                generateEvents(
+                        rawDBEvent,
+                        dbRawEventAttributeConfig.getListEventTypes(),
+                        attributeName,
+                        eventGeneratedList);
             }
         }
+
         logger.info(" Number of Events Generated are: " + eventGeneratedList.size());
 
         return eventGeneratedList;

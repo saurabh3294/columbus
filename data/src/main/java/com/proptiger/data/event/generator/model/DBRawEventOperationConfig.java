@@ -47,6 +47,9 @@ public class DBRawEventOperationConfig {
     }
     
     public DBRawEventAttributeConfig getDBRawEventAttributeConfig(String attributeName) {
+        if (listDBRawEventAttributeConfigs == null) {
+            return null;
+        }
         for (DBRawEventAttributeConfig dbRawEventAttributeConfig : listDBRawEventAttributeConfigs) {
             if (dbRawEventAttributeConfig.getAttributeName().equals(attributeName)) {
                 return dbRawEventAttributeConfig;

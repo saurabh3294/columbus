@@ -452,14 +452,7 @@ public class LocalityService {
         // meaning.
         Date date = new DateTime().minusWeeks(enquiryInWeeks).toDate();
         String dateStr = new SimpleDateFormat("YYYY-MM-DD hh\\:mm\\:ss").format(date);
-        List<Integer> localityIds = new ArrayList<Integer>();
-
         List<Locality> result = localityDao.getPopularLocalities(cityId, suburbId, dateStr, selector);
-        for(Locality locality : result) {
-            localityIds.add(locality.getLocalityId());
-        }
-        
-        result = localityDao.findByLocalityIds(localityIds, selector).getResults();
         for (Locality locality : result) {
             updateLocalityRatingAndReviewDetails(locality);
         }
