@@ -21,6 +21,7 @@ import com.proptiger.core.util.PropertyReader;
 
 @Component
 public class ProjectSuggestions {
+    @Autowired
     private HttpRequestUtil httpRequestUtil;
     @Autowired
     private TypeaheadDao    typeaheadDao;
@@ -73,8 +74,9 @@ public class ProjectSuggestions {
     private URI getURIForPropertyAPI(int projectId) {
         FIQLSelector selector = new FIQLSelector();
         selector.addAndConditionToFilter("projectId==" + projectId);
+        selector.addField("bedrooms").addField("unitType").addField("URL");
         String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                .getRequiredPropertyAsString(PropertyKeys.PROPERTY_API_URL) + "?" + selector.getFIQLForUrl();
+                .getRequiredPropertyAsString(PropertyKeys.PROPERTY_API_URL) + "?" + selector.getStringFIQL();
         return URI.create(stringUrl);
     }
 }
