@@ -441,6 +441,9 @@ public class SolrResult extends BaseModel {
     
     @Field(value ="IS_PROPERTY_SOLD_OUT")
     private boolean           isPropertySoldOut;
+
+    @Field(value ="IS_SOLD_OUT")
+    private boolean           isSoldOut;
     
     @Field("PANORAMA_VIEW_PATH")
     private String              panoramaViewPath;

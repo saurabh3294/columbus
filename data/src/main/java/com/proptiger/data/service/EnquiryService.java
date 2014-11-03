@@ -4,11 +4,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -381,7 +384,7 @@ public class EnquiryService {
         HashMap<String, String> cookieMap = new HashMap<String, String>();
         Cookie[] requestCookies = request.getCookies();
 
-       if (request.getHeader("Referer") != null) {
+        if (request.getHeader("Referer") != null) {
             enquiry.setHttpReferer(request.getHeader("Referer"));
         }
         else {
@@ -440,6 +443,22 @@ public class EnquiryService {
                 }
                 else if (c.getName().equals("USER_MEDIUM")) {
                     enquiry.setUserMedium(c.getValue());
+                }
+            }
+        }
+
+        if (request.getHeader("IP") == null) {
+            String cookies = request.getHeader("Cookie");
+            Pattern urlPattern = Pattern.compile("__utmz=(.*?);");
+            Matcher m = urlPattern.matcher(cookies);
+            String utmzCookie = null;
+            if (m.find()) {
+                utmzCookie = m.group(1);
+                try {
+                    cookieMap.put("__utmz", java.net.URLDecoder.decode(utmzCookie, "UTF-8"));
+                }
+                catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -592,7 +611,7 @@ public class EnquiryService {
         else if (enquiry.getBuySell() != null && enquiry.getBuySell().equals("sell")) {
             enquiry.setSalesType(SalesType.seller);
         }
-        else if ((enquiry.getHomeLoanType() != null) && !enquiry.getHomeLoanType().isEmpty()) {
+        else if (enquiry.getHomeLoanTypeFlag() != null && enquiry.getHomeLoanTypeFlag()) {
             enquiry.setSalesType(SalesType.homeloan);
         }
         else {
