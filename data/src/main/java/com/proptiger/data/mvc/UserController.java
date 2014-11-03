@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.Application;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ChangePassword;
@@ -100,8 +102,10 @@ public class UserController extends BaseController {
     @RequestMapping(value = Constants.Security.REGISTER_URL, method = RequestMethod.POST)
     @ResponseBody
     public APIResponse register(@RequestBody RegisterUser register) {
-        CustomUser forumUser = userService.register(register);
-        return new APIResponse(forumUser);
+        Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
+        Integer userId = userService.register(register, applicationType);
+        return new APIResponse(userService.getUserDetails(userId, applicationType));
+
     }
 
     @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST)
