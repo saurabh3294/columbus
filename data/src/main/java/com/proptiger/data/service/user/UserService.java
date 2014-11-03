@@ -495,8 +495,7 @@ public class UserService {
      * @return
      */
     @Transactional
-    public CustomUser register(RegisterUser register) {
-        Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
+    public Integer register(RegisterUser register, Application applicationType) {
         register.setUserAuthProviderDetails(null);
         RegistrationUtils.validateRegistration(register);
         register.setRegistered(true);
@@ -550,7 +549,7 @@ public class UserService {
             }
             SecurityContextUtils.autoLogin(user);
         }
-        return getUserDetails(user.getId(), applicationType);
+        return user.getId();
     }
 
     private String getEmailValidationLink(ForumUserToken userToken) {
