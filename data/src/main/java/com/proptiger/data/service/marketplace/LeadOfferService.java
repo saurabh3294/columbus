@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.prefs.BackingStoreException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,7 @@ import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
+import com.proptiger.data.enums.DeclineReason;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
@@ -122,6 +124,9 @@ public class LeadOfferService {
 
     @Autowired
     private ApplicationContext           applicationContext;
+
+    @Autowired
+    private DeclineReasonService         declineReasonService;
 
     private LeadService getLeadService() {
         if (leadService == null) {
@@ -523,6 +528,23 @@ public class LeadOfferService {
         if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId()) {
             if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() || leadOfferInDB.getStatusId() == LeadOfferStatus.Expired
                     .getId()) {
+
+                if (leadOffer.getDeclineReasonId() == null || declineReasonService.getReasonById(leadOffer
+                        .getDeclineReasonId()) == null) {
+                    throw new BadRequestException("please provide valid reason for declining");
+                }
+                else if (leadOffer.getDeclineReasonId() == DeclineReason.Other.getDeclineReasonId()) {
+                    if (leadOffer.getOtherReason() == null || leadOffer.getOtherReason() == "") {
+                        throw new BadRequestException("please provide valid reason for declining");
+                    }
+                    else {
+                        leadOfferInDB.setOtherReason(leadOffer.getOtherReason());
+                    }
+                }
+                else {
+                    leadOfferInDB.setDeclineReasonId(leadOffer.getDeclineReasonId());
+                }
+
                 notificationService.removeNotification(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
                 leadOfferDao.save(leadOfferInDB);

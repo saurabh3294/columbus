@@ -145,6 +145,29 @@ public class LeadOffer extends BaseModel {
     @Column(name = "phase_id")
     private int                      phaseId;
 
+    @Column(name = "decline_reason_id")
+    private Integer                      declineReasonId;
+    
+    @Column(name = "other_reason")
+    private String                   otherReason;
+    
+    
+    public Integer getDeclineReasonId() {
+        return declineReasonId;
+    }
+
+    public void setDeclineReasonId(Integer declineReasonId) {
+        this.declineReasonId = declineReasonId;
+    }
+
+    public String getOtherReason() {
+        return otherReason;
+    }
+
+    public void setOtherReason(String otherReason) {
+        this.otherReason = otherReason;
+    }
+
     public int getPhaseId() {
         return phaseId;
     }
