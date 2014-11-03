@@ -14,20 +14,16 @@ import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.core.dto.internal.ActiveUser;
-import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.enums.filter.Operator;
-import com.proptiger.data.model.Catchment;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement.TypeOfData;
 import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.service.user.CatchmentService;
 
 @Component
 public class TrendReportAggregator {
@@ -35,34 +31,18 @@ public class TrendReportAggregator {
     @Autowired
     private TrendService     trendService;
 
-    @Autowired
-    private CatchmentService catchmentService;
+
 
     @Autowired
     private PropertyService  propertyService;
 
     @SuppressWarnings("unchecked")
     public List<CatchmentTrendReportElement> getCatchmentTrendReport(
-            Integer catchmentId,
             FIQLSelector selector,
-            ActiveUser userInfo,
             List<Date> sortedMonthList) {
-
-        List<Catchment> catchmentList = catchmentService.getCatchment(new FIQLSelector()
-                .addAndConditionToFilter("id==" + catchmentId));
-        if (catchmentList.isEmpty()) {
-            throw new ProAPIException("Invalid Catchment ID");
-        }
-
-        /** Fetch Information from Other APIs **/
-
-        Catchment catchment = catchmentList.get(0);
-        List<Integer> projectIdList = catchment.getProjectIds();
-        Map<Integer, AdditionalInfo> mapPidToAdditionInfo = getAdditionalInfo(projectIdList);
 
         /** Fetch Information from TREND APIs **/
 
-        selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
         List<Trend> trendList = trendService.getTrend(selector);
 
         //DebugUtils.exportToNewDebugFile(DebugUtils.getAsListOfStrings(trendList));
@@ -76,6 +56,11 @@ public class TrendReportAggregator {
                 trendList,
                 Arrays.asList(groupFields));
 
+        /** Fetch Information from Other APIs **/
+
+        List<Integer> projectIdList = new ArrayList<Integer>(groupedTrendList.keySet());
+        Map<Integer, AdditionalInfo> mapPidToAdditionInfo = getAdditionalInfo(projectIdList);
+        
         /** Generate a list of CatchmentReportElement objects from the above grouped map **/
 
         List<CatchmentTrendReportElement> ctrElemList = new ArrayList<CatchmentTrendReportElement>();
