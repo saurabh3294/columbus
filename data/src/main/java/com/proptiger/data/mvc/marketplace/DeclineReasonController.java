@@ -19,13 +19,6 @@ public class DeclineReasonController  extends BaseController{
     @Autowired
     DeclineReasonService declineReasonService;
     
-    @RequestMapping(value = "data/v1/entity/decline-reason/{id}")
-    @ResponseBody
-    public APIResponse get(@PathVariable int id) {        
-        DeclineReason declineReason =  declineReasonService.getReasonById(id);
-        return new APIResponse(declineReason);
-    }
-    
     @RequestMapping(value = "data/v1/entity/decline-reason")
     @ResponseBody
     public APIResponse get() {        

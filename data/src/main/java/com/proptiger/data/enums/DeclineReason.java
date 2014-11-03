@@ -1,7 +1,7 @@
 package com.proptiger.data.enums;
 
 public enum DeclineReason {
-    other(99);
+    Other(99);
     
     private int declineReasonId;
     

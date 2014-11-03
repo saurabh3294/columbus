@@ -530,12 +530,10 @@ public class LeadOfferService {
                     .getId()) {
 
                 if (leadOffer.getDeclineReasonId() == null || declineReasonService.getReasonById(leadOffer
-                        .getDeclineReasonId()) == null) 
-                {
+                        .getDeclineReasonId()) == null) {
                     throw new BadRequestException("please provide valid reason for declining");
                 }
-                else if(leadOffer.getDeclineReasonId() == DeclineReason.other.getDeclineReasonId())
-                {                    
+                else if (leadOffer.getDeclineReasonId() == DeclineReason.Other.getDeclineReasonId()) {
                     if (leadOffer.getOtherReason() == null || leadOffer.getOtherReason() == "") {
                         throw new BadRequestException("please provide valid reason for declining");
                     }
