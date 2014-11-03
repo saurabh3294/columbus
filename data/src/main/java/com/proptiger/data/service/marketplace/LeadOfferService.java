@@ -30,6 +30,7 @@ import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
+import com.proptiger.data.enums.DeclineReason;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
@@ -529,7 +530,12 @@ public class LeadOfferService {
                     .getId()) {
 
                 if (leadOffer.getDeclineReasonId() == null || declineReasonService.getReasonById(leadOffer
-                        .getDeclineReasonId()) == null) {
+                        .getDeclineReasonId()) == null) 
+                {
+                    throw new BadRequestException("please provide valid reason for declining");
+                }
+                else if(leadOffer.getDeclineReasonId() == DeclineReason.other.getDeclineReasonId())
+                {                    
                     if (leadOffer.getOtherReason() == null || leadOffer.getOtherReason() == "") {
                         throw new BadRequestException("please provide valid reason for declining");
                     }
