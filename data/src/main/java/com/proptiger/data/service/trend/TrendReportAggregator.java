@@ -31,8 +31,6 @@ public class TrendReportAggregator {
     @Autowired
     private TrendService     trendService;
 
-
-
     @Autowired
     private PropertyService  propertyService;
 
@@ -143,8 +141,8 @@ public class TrendReportAggregator {
         int sumTotalUnits = 0;
         int sumLaunchedUnits = 0;
         for (CatchmentTrendReportElement ctre : ctrElemList) {
-            sumTotalUnits += ctre.getTotalUnits();
-            sumLaunchedUnits += ctre.getLaunchedUnits();
+            sumTotalUnits += (ctre.getTotalUnits() == null ? 0 : ctre.getTotalUnits());
+            sumLaunchedUnits += (ctre.getLaunchedUnits() == null ? 0 : ctre.getLaunchedUnits());
         }
         ctrElem.setLaunchedUnits(sumLaunchedUnits);
         ctrElem.setTotalUnits(sumTotalUnits);
@@ -217,8 +215,8 @@ public class TrendReportAggregator {
             ctrElem.setLatitude(additionalInfo.laitude);
             ctrElem.setLongitude(additionalInfo.longitude);
             ctrElem.setProjectArea(additionalInfo.projectArea);
+            ctrElem.setProjectBhkSizeRange(additionalInfo.getProjectBhkSizeRange());
         }
-        ctrElem.setProjectBhkSizeRange(additionalInfo.getProjectBhkSizeRange());
 
         ctrElem.setLaunchPrice(0);
 

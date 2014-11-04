@@ -32,7 +32,7 @@ public class TrendReportController extends BaseController {
     @Autowired
     TrendReportAggregator     trendReportDao;
 
-    @RequestMapping("app/v1/trendreport/")
+    @RequestMapping("app/v1/trendreport")
     @ResponseBody
     public void getTrendReport(
             HttpServletResponse response,
