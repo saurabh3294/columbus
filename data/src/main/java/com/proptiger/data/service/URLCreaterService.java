@@ -17,6 +17,7 @@ import com.proptiger.data.model.URLDetail;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Serializer;
 import com.proptiger.data.enums.seo.PropertyType;
+import com.proptiger.data.enums.seo.TaxonomyPropertyTypes;
 
 @Service
 public class URLCreaterService {
@@ -93,8 +94,12 @@ public class URLCreaterService {
     public String urlLibCountryListUrl(URLDetail urlDetail) {
         String url = this.defaultUrl;
         PropertyType propertyType = urlDetail.getUrlPropertyType();
+        TaxonomyPropertyTypes taxonomyPropertyType = urlDetail.getTaxonomyPropertyType();
 
-        if (propertyType == null) {
+        if (taxonomyPropertyType != null) {
+            return taxonomyPropertyType + "in-india";
+        }
+        else if (propertyType == null) {
             propertyType = PropertyType.Apartment;
         }
 
@@ -107,6 +112,179 @@ public class URLCreaterService {
 
     public String urlLibCityListingUrl(URLDetail urlDetail) {
         String url = this.defaultUrl;
+        String cityName = getCleanName(urlDetail.getCityName());
+        PropertyType propertyType = urlDetail.getUrlPropertyType();
+        TaxonomyPropertyTypes taxonomyPropertyType = urlDetail.getTaxonomyPropertyType();
+
+        if (isEmpty(cityName)) {
+            if (propertyType != null) {
+                url = cityName + "/" + propertyType.getUrlAlias() + "-sale";
+                addBhk(url, urlDetail.getBedrooms());
+                addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
+            }
+            else if (taxonomyPropertyType != null) {
+                url = cityName + "/" + taxonomyPropertyType.getUrlAlias();
+                addBhk(url, urlDetail.getBedrooms());
+            }
+            else {
+                url = cityName + "-real-estate";
+            }
+
+        }
+
+        return url;
+    }
+
+    public String urlLibCitySitemapUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        String cityName = getCleanName(urlDetail.getCityName());
+
+        if (isEmpty(cityName)) {
+            url = cityName + "-real-estate/" + cityName + "-sitemap.php";
+        }
+        return url;
+    }
+
+    public String urlLibAllLocalityUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        String cityName = getCleanName(urlDetail.getCityName());
+
+        if (isEmpty(cityName)) {
+            url = cityName + "/" + "all-localities";
+        }
+
+        return url;
+    }
+
+    public String urlLibLocalityUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        Integer localityId = urlDetail.getLocalityId();
+        String localityName = urlDetail.getLocalityName();
+
+        Locality locality = getCachedLocalityData(localityId, localityName);
+
+        if (locality == null) {
+            return url;
+        }
+        localityName = getCleanName(locality.getLabel());
+        String cityName = getCleanName(locality.getSuburb().getCity().getLabel());
+        String areaType = getCleanName(urlDetail.getAreaType());
+
+        if (areaType == null) {
+            url = cityName + "/" + localityName + localityId;
+        }
+        else if (areaType.equalsIgnoreCase("overview")) {
+            url = cityName + "/" + localityName + "-overview-" + localityId;
+        }
+        else {
+            url = cityName + "/" + localityName + localityId + "/" + areaType;
+        }
+
+        return url;
+    }
+
+    public String urlLibSuburbUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        Integer suburbId = urlDetail.getSuburbId();
+        String suburbName = urlDetail.getSuburbName();
+
+        Suburb suburb = getCachedSuburbData(suburbId, suburbName);
+
+        if (suburb == null) {
+            return url;
+        }
+        suburbName = getCleanName(suburb.getLabel());
+        String cityName = getCleanName(suburb.getCity().getLabel());
+        String areaType = getCleanName(urlDetail.getAreaType());
+
+        if (areaType == null) {
+            url = cityName + "/" + suburbName + suburbId;
+        }
+        else if (areaType.equalsIgnoreCase("overview")) {
+            url = cityName + "/" + suburbName + "-overview-" + suburbId;
+        }
+        else {
+            url = cityName + "/" + suburbName + suburbId + "/" + areaType;
+        }
+
+        return url;
+    }
+
+    public String urlLibLocalityListingUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+
+        return url;
+    }
+
+    public String urlLibAllBuilderUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        String cityName = getCleanName(urlDetail.getCityName());
+
+        if (isEmpty(cityName)) {
+            url = cityName + "/" + "all-builders";
+        }
+
+        return url;
+    }
+
+    public String urlLibBuilderUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        Builder builder = getCachedBuilderData(urlDetail.getBuilderId());
+
+        if (builder != null) {
+            String builderName = getCleanName(builder.getName());
+            String cityName = getCleanName(urlDetail.getCityName());
+            url = builderName + "-" + builder.getId();
+
+            if (urlDetail.getBuilderPropertyType() != null) {
+                url = urlDetail.getBuilderPropertyType() + "-by-" + url;
+            }
+            else if (cityName != null) {
+                url = cityName + "/" + url;
+            }
+        }
+
+        return url;
+    }
+
+    public String urlLibProjectUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        Project project = getCachedProjectData(urlDetail.getProjectId());
+
+        if (project != null) {
+            String projectName = getCleanName(project.getName());
+            String localityName = getCleanName(project.getLocality().getLabel());
+            String cityName = getCleanName(project.getLocality().getSuburb().getCity().getLabel());
+            String builderName = getCleanName(project.getBuilder().getName());
+
+            url = cityName + "/" + localityName + "/" + builderName + "-" + projectName + project.getProjectId();
+        }
+
+        return url;
+    }
+
+    public String urlLibPropertyUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        Property property = getCachedPropertyData(urlDetail.getPropertyId());
+
+        if (property != null) {
+            String projectName = getCleanName(property.getProject().getName());
+            String localityName = getCleanName(property.getProject().getLocality().getLabel());
+            String cityName = getCleanName(property.getProject().getLocality().getSuburb().getCity().getLabel());
+            String builderName = getCleanName(property.getProject().getBuilder().getName());
+            String bedrooms = property.getBedrooms() < 1 ? "" : (property.getBedrooms() + "");
+
+            url = cityName + "/"
+                    + builderName
+                    + "-"
+                    + projectName
+                    + "-"
+                    + localityName
+                    + property.getPropertyId()
+                    + "/"
+                    + bedrooms
+                    + "bhk";
+        }
 
         return url;
     }
@@ -325,6 +503,9 @@ public class URLCreaterService {
     }
 
     private String getCleanName(String name) {
+        if (name == null) {
+            return null;
+        }
         name = name.replaceAll("[\\(\\).,&_]", "");
         name = name.trim();
         return name;
