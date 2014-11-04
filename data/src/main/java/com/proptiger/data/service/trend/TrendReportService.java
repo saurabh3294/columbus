@@ -85,7 +85,7 @@ public class TrendReportService {
         }
 
         /** Format report data as MS-Excel Workbook */
-        String reportFileName = trendReportDir + "/trend_report_" + System.currentTimeMillis() + ".xls";
+        String reportFileName = trendReportDir + "/price-and-absorption-report_" + System.currentTimeMillis() + ".xls";
         String sheetName = WorkbookUtil.createSafeSheetName(workSheetName);
         Workbook msExcelWorkbook = msExcelUtils.exportToMsExcelSheet(
                 reportFileName,
