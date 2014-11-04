@@ -5,6 +5,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +18,11 @@ import org.testng.annotations.Test;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.mocker.NotificationMockerService;
-import com.proptiger.data.notification.enums.Tokens;
+import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
+import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
 import com.proptiger.data.notification.service.NotificationMessageService;
@@ -50,79 +52,60 @@ public class NotificationMessageServiceTest extends AbstractTest {
     }
 
     @Test
-    public void testCreateNotificationMessageForEmail() {
-        Integer userId = 5435;
-        String subject = "Mock Subject";
-        String body = "Mock Body";
-
-        NotificationType notificationType = notificationMockerService.getMockNotificationType();
-
-        NotificationTypeService notificationTypeService = mock(NotificationTypeService.class);
-        when(notificationTypeService.findDefaultNotificationType()).thenReturn(notificationType);
-        nMessageService.setNotiTypeService(notificationTypeService);
-
-        NotificationMessage message = nMessageService.createNotificationMessage(userId, subject, body);
-        Assert.assertNotNull(message);
-        Assert.assertEquals(message.getUserId(), userId);
-        Assert.assertNotNull(message.getNotificationType());
-        Assert.assertNotNull(message.getNotificationType().getName());
-        Assert.assertEquals(message.getNotificationType().getName(), notificationType.getName());
-        Assert.assertNotNull(message.getNotificationMessagePayload());
-
-        Map<String, Object> extraAttributes = message.getNotificationMessagePayload().getExtraAttributes();
-        Assert.assertEquals((String) extraAttributes.get(Tokens.Default.Subject.name()), subject);
-        Assert.assertEquals((String) extraAttributes.get(Tokens.Default.Body.name()), body);
-    }
-
-    @Test
     public void testCreateNotificationMessageForTemplateMap() {
-        NotificationType notificationType = notificationMockerService.getMockNotificationType();
-        String typeName = notificationType.getName();
+        NotificationTypeEnum typeName = NotificationTypeEnum.Default;
+        NotificationType notificationType = notificationMockerService.getMockNotificationType(typeName.getName());
         Integer userId = 5435;
 
         final String MOCK_KEY = "mock-key";
         final String MOCK_VALUE = "mock-value";
+        final String FROM_EMAIL = "from-email";
+        final String CC_EMAIL = "cc-email";
+        final String BCC_EMAIL = "bcc-email";
+
         Map<String, Object> templateMap = new HashMap<String, Object>();
         templateMap.put(MOCK_KEY, MOCK_VALUE);
 
+        List<String> ccList = new ArrayList<String>();
+        ccList.add(CC_EMAIL);
+
+        List<String> bccList = new ArrayList<String>();
+        bccList.add(BCC_EMAIL);
+
         NotificationTypeService notificationTypeService = mock(NotificationTypeService.class);
-        when(notificationTypeService.findByName(typeName)).thenReturn(notificationType);
+        when(notificationTypeService.findByName(typeName.getName())).thenReturn(notificationType);
         nMessageService.setNotiTypeService(notificationTypeService);
 
-        NotificationMessage message = nMessageService.createNotificationMessage(typeName, userId, templateMap);
+        NotificationMessage message = nMessageService.createNotificationMessage(
+                typeName,
+                userId,
+                templateMap,
+                FROM_EMAIL,
+                ccList,
+                bccList);
+
         Assert.assertNotNull(message);
         Assert.assertEquals(message.getUserId(), userId);
         Assert.assertNotNull(message.getNotificationType());
         Assert.assertNotNull(message.getNotificationType().getName());
-        Assert.assertEquals(message.getNotificationType().getName(), typeName);
-        Assert.assertNotNull(message.getNotificationMessagePayload());
+        Assert.assertEquals(message.getNotificationType().getName(), typeName.getName());
 
-        Map<String, Object> extraAttributes = message.getNotificationMessagePayload().getExtraAttributes();
+        NotificationMessagePayload payload = message.getNotificationMessagePayload();
+        Assert.assertNotNull(payload);
+
+        Map<String, Object> extraAttributes = payload.getExtraAttributes();
         Assert.assertNotNull(extraAttributes.get(MOCK_KEY));
         Assert.assertEquals(extraAttributes.get(MOCK_KEY), MOCK_VALUE);
-    }
 
-    @Test
-    public void testCreateNotificationMessageForTemplate() {
-        NotificationType notificationType = notificationMockerService.getMockNotificationType();
-        String typeName = notificationType.getName();
-        Integer userId = 5435;
-        String template = "Mock Template";
+        Assert.assertEquals(payload.getFromEmail(), FROM_EMAIL);
+        Assert.assertNotNull(payload.getCcList());
+        Assert.assertEquals(payload.getCcList().size(), ccList.size());
+        Assert.assertEquals(payload.getCcList().get(0), CC_EMAIL);
 
-        NotificationTypeService notificationTypeService = mock(NotificationTypeService.class);
-        when(notificationTypeService.findByName(typeName)).thenReturn(notificationType);
-        nMessageService.setNotiTypeService(notificationTypeService);
+        Assert.assertNotNull(payload.getBccList());
+        Assert.assertEquals(payload.getBccList().size(), bccList.size());
+        Assert.assertEquals(payload.getBccList().get(0), BCC_EMAIL);
 
-        NotificationMessage message = nMessageService.createNotificationMessage(typeName, userId, template);
-        Assert.assertNotNull(message);
-        Assert.assertEquals(message.getUserId(), userId);
-        Assert.assertNotNull(message.getNotificationType());
-        Assert.assertNotNull(message.getNotificationType().getName());
-        Assert.assertEquals(message.getNotificationType().getName(), typeName);
-        Assert.assertNotNull(message.getNotificationMessagePayload());
-
-        Map<String, Object> extraAttributes = message.getNotificationMessagePayload().getExtraAttributes();
-        Assert.assertEquals(extraAttributes.get(Tokens.Default.Template.name()), template);
     }
 
     @Test

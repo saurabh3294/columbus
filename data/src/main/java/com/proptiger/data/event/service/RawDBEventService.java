@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.enums.DBOperation;
-import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
-import com.proptiger.data.event.model.DBRawEventTableLog;
+import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.repo.DBRawEventTableLogDao;
+import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawDBEventDao;
 import com.proptiger.data.util.Serializer;
 
@@ -28,17 +28,17 @@ public class RawDBEventService {
     private RawDBEventDao rawDBEventDao;
     
     @Autowired
-    private DBRawEventTableLogDao dbRawEventTableLogDao;
+    private RawEventTableDetailsDao rawEventTableDetailsDao;
     
-    public List<RawDBEvent> getRawDBEvents(DBRawEventTableConfig dbRawEventTableConfig) {
+    public List<RawDBEvent> getRawDBEvents(RawDBEventTableConfig rawDBEventTableConfig) {
 
         List<RawDBEvent> rawDBEventList = new ArrayList<RawDBEvent>();
-        DBRawEventTableLog tableLog = dbRawEventTableConfig.getDbRawEventTableLog();
+        RawEventTableDetails tableLog = rawDBEventTableConfig.getRawEventTableDetails();
 
         if(tableLog.getLastTransactionKeyValue() == null) {
             Map<String, Object> latestTransaction = rawDBEventDao.getLatestTransaction(tableLog);
             Long transactionId = Long.parseLong(latestTransaction.get(tableLog.getTransactionKeyName()).toString());
-            dbRawEventTableLogDao.updateLastTransactionKeyValueById(tableLog.getId(), transactionId);
+            rawEventTableDetailsDao.updateLastTransactionKeyValueById(tableLog.getId(), transactionId);
             return rawDBEventList;
         }
         
@@ -51,16 +51,16 @@ public class RawDBEventService {
             // TODO to handle the null value of the dbOperation if it is not
             // found.
             DBOperation dbOperation = DBOperation.getDBOperationEnum((Character) rawDBEventMap
-                    .get(DBRawEventTableConfig.getDbOperationAttributeName()));
+                    .get(RawDBEventTableConfig.getDbOperationAttributeName()));
             
-            if (dbRawEventTableConfig.getDbRawEventOperationConfig(dbOperation) == null) {
+            if (rawDBEventTableConfig.getDbRawEventOperationConfig(dbOperation) == null) {
                 logger.debug("Skipping raw event creation as DbRawEventOperationConfig not found for " + rawDBEventMap.toString());
                 continue;
             }
             
             RawDBEvent rawDBEvent = new RawDBEvent();
-            rawDBEvent.setDbRawEventTableLog(tableLog);
-            rawDBEvent.setDbRawEventOperationConfig(dbRawEventTableConfig.getDbRawEventOperationConfig(dbOperation));
+            rawDBEvent.setRawEventTableDetails(tableLog);
+            rawDBEvent.setRawDBEventOperationConfig(rawDBEventTableConfig.getDbRawEventOperationConfig(dbOperation));
             rawDBEvent.setNewDBValueMap(rawDBEventMap);
             rawDBEvent.setPrimaryKeyValue(rawDBEventMap.get(tableLog.getPrimaryKeyName()));
             rawDBEvent.setTransactionKeyValue(rawDBEventMap.get(tableLog.getTransactionKeyName()));
@@ -77,13 +77,13 @@ public class RawDBEventService {
     public RawDBEvent populateRawDBEventData(RawDBEvent rawDBEvent) {
         logger.debug(" POPULATE OLD VALUE FOR Raw DB Event with Transaction Id : "+rawDBEvent.getTransactionKeyValue());
         
-        if (DBOperation.INSERT.equals(rawDBEvent.getDbRawEventOperationConfig().getDbOperation())) {
+        if (DBOperation.INSERT.equals(rawDBEvent.getRawDBEventOperationConfig().getDbOperation())) {
             rawDBEvent = populateInsertRawDBEventData(rawDBEvent);
         }
-        else if (DBOperation.DELETE.equals(rawDBEvent.getDbRawEventOperationConfig().getDbOperation())) {
+        else if (DBOperation.DELETE.equals(rawDBEvent.getRawDBEventOperationConfig().getDbOperation())) {
             rawDBEvent = populateDeleteRawDBEventData(rawDBEvent);
         }
-        else if (DBOperation.UPDATE.equals(rawDBEvent.getDbRawEventOperationConfig().getDbOperation())) {
+        else if (DBOperation.UPDATE.equals(rawDBEvent.getRawDBEventOperationConfig().getDbOperation())) {
             rawDBEvent = populateUpdateRawDBEventData(rawDBEvent);
         }
         return rawDBEvent;
@@ -102,7 +102,7 @@ public class RawDBEventService {
     public RawDBEvent populateUpdateRawDBEventData(RawDBEvent rawDBEvent) {
         logger.info(" UPDATE RAW DB EVENT ");
         
-        DBRawEventTableLog tableLog = rawDBEvent.getDbRawEventTableLog();
+        RawEventTableDetails tableLog = rawDBEvent.getRawEventTableDetails();
         Map<String, Object> oldRawEventDataMap = rawDBEventDao.getOldRawDBEvent(
                 tableLog,
                 rawDBEvent.getTransactionKeyValue(),
@@ -150,14 +150,14 @@ public class RawDBEventService {
     }
 
     public Map<String, Object> getRawEventTransactionRow(
-            DBRawEventTableLog dbRawEventTableLog,
+            RawEventTableDetails dbRawEventTableLog,
             Object transactionKeyValue) {
         return rawDBEventDao.getRawEventDataOnTransactionId(dbRawEventTableLog, transactionKeyValue);
     }
 
     private Map<String, Object> getUniqueKeyValuesMap(
             Map<String, Object> rawDbEventDataMap,
-            DBRawEventTableLog dbRawEventTableLog) {
+            RawEventTableDetails dbRawEventTableLog) {
         String[] uniqueKeyStrings = dbRawEventTableLog.getUniqueKeysArray();
         Map<String, Object> postFiltersMap = new HashMap<String, Object>();
         Object value = null;

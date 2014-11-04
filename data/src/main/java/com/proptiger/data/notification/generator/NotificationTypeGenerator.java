@@ -55,9 +55,9 @@ public class NotificationTypeGenerator {
 
         Collections.sort(eventGeneratedList, new Comparator<EventGenerated>() {
             public int compare(EventGenerated event1, EventGenerated event2) {
-                if (event1.getUpdatedDate().after(event2.getUpdatedDate()))
+                if (event1.getUpdatedAt().after(event2.getUpdatedAt()))
                     return 1;
-                else if (event1.getUpdatedDate().before(event2.getUpdatedDate()))
+                else if (event1.getUpdatedAt().before(event2.getUpdatedAt()))
                     return -1;
                 else
                     return 0;

@@ -125,7 +125,8 @@ public class OTPService {
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.OTP,
                 new OtpMail(activeUser.getFullName(), otp, UserOTP.EXPIRES_IN_MINUTES));
-        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(activeUser.getUsername());
+        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(activeUser.getUsername()).setMailBCC(
+                PropertyReader.getRequiredPropertyAsString(PropertyKeys.MAIL_OTP_BCC));
         mailSender.sendMailUsingAws(mailDetails);
 
     }

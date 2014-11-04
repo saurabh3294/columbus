@@ -13,7 +13,6 @@ import com.proptiger.data.notification.model.MediumTypeConfig;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
-import com.proptiger.data.notification.service.SentNotificationLogService;
 
 @Service
 public class NotificationSender {
@@ -25,9 +24,6 @@ public class NotificationSender {
 
     @Autowired
     private NotificationGeneratedService nGeneratedService;
-
-    @Autowired
-    private SentNotificationLogService   sentNotificationLogService;
 
     public Integer sendNotification(MediumType medium) {
         Integer numberOfSendNtGen = 0;
@@ -43,13 +39,27 @@ public class NotificationSender {
                 }
             }
             catch (Exception e) {
-                logger.error("Send Notification failed for nGenerated id: " + nGenerated.getId()
+                logger.error("Send Notification failed for NotificationGeneratedID: " + nGenerated.getId()
+                        + " UserID: "
+                        + nGenerated.getUserId()
+                        + " Medium: "
+                        + nGenerated.getNotificationMedium().getName()
+                        + " NotificationType: "
+                        + nGenerated.getNotificationType().getName()
                         + " with Exception: "
-                        + e + " StackTrace: " + e.getStackTrace());
+                        + e
+                        + " StackTrace: "
+                        + e.getStackTrace());
             }
 
             if (NotificationStatus.Failed.equals(notificationStatus)) {
                 logger.error("Not able to send Notification for nGenerated id: " + nGenerated.getId()
+                        + " UserID: "
+                        + nGenerated.getUserId()
+                        + " Medium: "
+                        + nGenerated.getNotificationMedium().getName()
+                        + " NotificationType: "
+                        + nGenerated.getNotificationType().getName()
                         + " Marking its status as Failed.");
             }
 
@@ -77,11 +87,7 @@ public class NotificationSender {
         if (payload != null) {
             payload = payload.populatePayload(nGenerated);
         }
-        return config.getMediumSenderObject().send(
-                template,
-                userId,
-                nGenerated,
-                payload);
+        return config.getMediumSenderObject().send(template, userId, nGenerated, payload);
 
     }
 }

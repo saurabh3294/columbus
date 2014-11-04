@@ -13,4 +13,5 @@ import com.proptiger.core.model.cms.Suburb;
  * @author mukand
  */
 public interface SuburbDao extends PagingAndSortingRepository<Suburb, Integer>, SuburbCustomDao {
+    
 }
