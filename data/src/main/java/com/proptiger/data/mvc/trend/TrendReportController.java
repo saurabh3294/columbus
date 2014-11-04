@@ -32,7 +32,7 @@ public class TrendReportController extends BaseController {
     @Autowired
     TrendReportAggregator trendReportDao;
 
-    @RequestMapping("app/v1/trendreport/priceandabsorptionreport")
+    @RequestMapping("app/v1/report/price-and-absorption")
     @ResponseBody
     public void getTrendReport(
             HttpServletResponse response,
@@ -42,7 +42,7 @@ public class TrendReportController extends BaseController {
         makeHTTPServletResponse(response, file);
     }
     
-    @RequestMapping("app/v1/trendreport/priceandabsorptionreport/catchment/{catchmentId}")
+    @RequestMapping("app/v1/report/price-and-absorption/catchment/{catchmentId}")
     @ResponseBody
     public void getTrendReportByCatchmentId(
             HttpServletResponse response,
