@@ -27,12 +27,12 @@ import com.proptiger.data.service.trend.TrendReportService;
 public class TrendReportController extends BaseController {
 
     @Autowired
-    TrendReportService trendReportService;
+    TrendReportService    trendReportService;
 
     @Autowired
-    TrendReportAggregator     trendReportDao;
+    TrendReportAggregator trendReportDao;
 
-    @RequestMapping("app/v1/trendreport")
+    @RequestMapping("app/v1/trendreport/priceandabsorptionreport")
     @ResponseBody
     public void getTrendReport(
             HttpServletResponse response,
@@ -42,7 +42,7 @@ public class TrendReportController extends BaseController {
         makeHTTPServletResponse(response, file);
     }
     
-    @RequestMapping("app/v1/trendreport/catchment/{catchmentId}")
+    @RequestMapping("app/v1/trendreport/priceandabsorptionreport/catchment/{catchmentId}")
     @ResponseBody
     public void getTrendReportByCatchmentId(
             HttpServletResponse response,
