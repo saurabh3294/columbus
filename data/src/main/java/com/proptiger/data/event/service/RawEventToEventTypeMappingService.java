@@ -14,9 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
-import com.proptiger.data.event.generator.model.DBRawEventAttributeConfig;
-import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
-import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
+import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
+import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
+import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawEventToEventTypeMapping;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
@@ -31,7 +31,7 @@ public class RawEventToEventTypeMappingService {
     @Autowired
     private EventTypeService                  eventTypeService;
 
-    public static List<DBRawEventTableConfig> dbRawEventTableConfigs;
+    public static List<RawDBEventTableConfig> rawDBEventTableConfigs;
 
     private Gson                              gson   = new Gson();
 
@@ -42,23 +42,23 @@ public class RawEventToEventTypeMappingService {
         Iterator<RawEventToEventTypeMapping> itEvenIterator = listEventTypeMapping.iterator();
         logger.debug(" DB RETRIEVE LIST Details : " + gson.toJson(listEventTypeMapping));
 
-        Map<Integer, DBRawEventTableConfig> dbRawEventMapping = new HashMap<Integer, DBRawEventTableConfig>();
-        Map<String, DBRawEventOperationConfig> dbOperationMap = new HashMap<String, DBRawEventOperationConfig>();
-        Map<String, DBRawEventAttributeConfig> dbAttributeMap = new HashMap<String, DBRawEventAttributeConfig>();
+        Map<Integer, RawDBEventTableConfig> dbRawEventMapping = new HashMap<Integer, RawDBEventTableConfig>();
+        Map<String, RawDBEventOperationConfig> dbOperationMap = new HashMap<String, RawDBEventOperationConfig>();
+        Map<String, RawDBEventAttributeConfig> dbAttributeMap = new HashMap<String, RawDBEventAttributeConfig>();
         Map<String, EventType> dbEventTypemap = new HashMap<String, EventType>();
 
         List<EventType> eventTypeList;
-        List<DBRawEventOperationConfig> operationConfigslist;
-        List<DBRawEventAttributeConfig> attributeConfigslist;
+        List<RawDBEventOperationConfig> operationConfigslist;
+        List<RawDBEventAttributeConfig> attributeConfigslist;
 
-        dbRawEventTableConfigs = new ArrayList<DBRawEventTableConfig>();
+        rawDBEventTableConfigs = new ArrayList<RawDBEventTableConfig>();
 
         logger.debug("STARTING ITERATING");
         while (itEvenIterator.hasNext()) {
             RawEventToEventTypeMapping eventTypeMapping = itEvenIterator.next();
             logger.debug(" DB CONFIG EACH EVENT: " + new Gson().toJson(eventTypeMapping));
 
-            Integer eventKey = eventTypeMapping.getDbRawEventTableLog().getId();
+            Integer eventKey = eventTypeMapping.getRawEventTableDetails().getId();
             String operationKey = eventKey + eventTypeMapping.getDbOperation().name();
             String attributeKey = operationKey;
             if (eventTypeMapping.getAttributeName() != null) {
@@ -70,24 +70,24 @@ public class RawEventToEventTypeMappingService {
                 eventTypeList = new ArrayList<EventType>();
                 eventTypeList.add(eventTypeMapping.getEventType());
 
-                DBRawEventAttributeConfig attributeConfig = null;
-                DBRawEventOperationConfig operationConfig = new DBRawEventOperationConfig(
+                RawDBEventAttributeConfig attributeConfig = null;
+                RawDBEventOperationConfig operationConfig = new RawDBEventOperationConfig(
                         eventTypeMapping.getDbOperation(),
                         null,
                         null);
 
-                operationConfigslist = new ArrayList<DBRawEventOperationConfig>();
+                operationConfigslist = new ArrayList<RawDBEventOperationConfig>();
                 operationConfigslist.add(operationConfig);
                 dbOperationMap.put(operationKey, operationConfig);
 
                 if (eventTypeMapping.getAttributeName() != null) {
 
-                    attributeConfig = new DBRawEventAttributeConfig(eventTypeMapping.getAttributeName(), eventTypeList);
+                    attributeConfig = new RawDBEventAttributeConfig(eventTypeMapping.getAttributeName(), eventTypeList);
 
-                    attributeConfigslist = new ArrayList<DBRawEventAttributeConfig>();
+                    attributeConfigslist = new ArrayList<RawDBEventAttributeConfig>();
                     attributeConfigslist.add(attributeConfig);
 
-                    operationConfig.setListDBRawEventAttributeConfigs(attributeConfigslist);
+                    operationConfig.setRawDBEventAttributeConfigs(attributeConfigslist);
                     dbAttributeMap.put(attributeKey, attributeConfig);
 
                 }
@@ -96,22 +96,22 @@ public class RawEventToEventTypeMappingService {
                 }
                 dbEventTypemap.put(eventTypeKey, eventTypeMapping.getEventType());
 
-                DBRawEventTableConfig TableConfig = new DBRawEventTableConfig(
-                        eventTypeMapping.getDbRawEventTableLog(),
+                RawDBEventTableConfig TableConfig = new RawDBEventTableConfig(
+                        eventTypeMapping.getRawEventTableDetails(),
                         operationConfigslist);
                 dbRawEventMapping.put(eventKey, TableConfig);
-                dbRawEventTableConfigs.add(TableConfig);
+                rawDBEventTableConfigs.add(TableConfig);
 
             }
             else if (dbOperationMap.get(operationKey) == null) {
                 // common code starts
-                DBRawEventTableConfig tableConfig = dbRawEventMapping.get(eventKey);
+                RawDBEventTableConfig tableConfig = dbRawEventMapping.get(eventKey);
 
                 eventTypeList = new ArrayList<EventType>();
                 eventTypeList.add(eventTypeMapping.getEventType());
 
-                DBRawEventAttributeConfig attributeConfig = null;
-                DBRawEventOperationConfig operationConfig = new DBRawEventOperationConfig(
+                RawDBEventAttributeConfig attributeConfig = null;
+                RawDBEventOperationConfig operationConfig = new RawDBEventOperationConfig(
                         eventTypeMapping.getDbOperation(),
                         null,
                         null);
@@ -120,12 +120,12 @@ public class RawEventToEventTypeMappingService {
 
                 if (eventTypeMapping.getAttributeName() != null) {
 
-                    attributeConfig = new DBRawEventAttributeConfig(eventTypeMapping.getAttributeName(), eventTypeList);
+                    attributeConfig = new RawDBEventAttributeConfig(eventTypeMapping.getAttributeName(), eventTypeList);
 
-                    attributeConfigslist = new ArrayList<DBRawEventAttributeConfig>();
+                    attributeConfigslist = new ArrayList<RawDBEventAttributeConfig>();
                     attributeConfigslist.add(attributeConfig);
 
-                    operationConfig.setListDBRawEventAttributeConfigs(attributeConfigslist);
+                    operationConfig.setRawDBEventAttributeConfigs(attributeConfigslist);
                     dbAttributeMap.put(attributeKey, attributeConfig);
                 }
                 else {
@@ -134,21 +134,21 @@ public class RawEventToEventTypeMappingService {
                 dbEventTypemap.put(eventTypeKey, eventTypeMapping.getEventType());
                 // common code ends.
 
-                tableConfig.getDbRawEventOperationConfigs().add(operationConfig);
+                tableConfig.getRawDBEventOperationConfigs().add(operationConfig);
             }
             else if (dbAttributeMap.get(attributeKey) == null) {
-                DBRawEventOperationConfig operationConfig = dbOperationMap.get(operationKey);
+                RawDBEventOperationConfig operationConfig = dbOperationMap.get(operationKey);
 
                 eventTypeList = new ArrayList<EventType>();
                 eventTypeList.add(eventTypeMapping.getEventType());
 
-                DBRawEventAttributeConfig attributeConfig = null;
+                RawDBEventAttributeConfig attributeConfig = null;
 
                 if (eventTypeMapping.getAttributeName() != null) {
 
-                    attributeConfig = new DBRawEventAttributeConfig(eventTypeMapping.getAttributeName(), eventTypeList);
+                    attributeConfig = new RawDBEventAttributeConfig(eventTypeMapping.getAttributeName(), eventTypeList);
 
-                    operationConfig.getListDBRawEventAttributeConfigs().add(attributeConfig);
+                    operationConfig.getRawDBEventAttributeConfigs().add(attributeConfig);
                     dbAttributeMap.put(attributeKey, attributeConfig);
 
                 }
@@ -159,13 +159,13 @@ public class RawEventToEventTypeMappingService {
 
             }
             else if (dbEventTypemap.get(eventTypeKey) == null) {
-                DBRawEventAttributeConfig attributeConfig = dbAttributeMap.get(attributeKey);
+                RawDBEventAttributeConfig attributeConfig = dbAttributeMap.get(attributeKey);
                 attributeConfig.getListEventTypes().add(eventTypeMapping.getEventType());
                 dbEventTypemap.put(eventTypeKey, eventTypeMapping.getEventType());
             }
         }
         logger.debug("ENDING ITERATING");
-        logger.debug("RawEventToEventTypeMapping " + new Gson().toJson(dbRawEventTableConfigs));
+        logger.debug("RawEventToEventTypeMapping " + new Gson().toJson(rawDBEventTableConfigs));
 
     }
 
@@ -201,11 +201,11 @@ public class RawEventToEventTypeMappingService {
         eventTypeMapping.setEventType(eventType);
     }
 
-    public List<DBRawEventTableConfig> getDbRawEventTableConfigs() {
-        return dbRawEventTableConfigs;
+    public List<RawDBEventTableConfig> getRawDBEventTableConfigs() {
+        return rawDBEventTableConfigs;
     }
 
-    public void setDbRawEventTableConfigs(List<DBRawEventTableConfig> dbRawEventTableConfigs) {
-        RawEventToEventTypeMappingService.dbRawEventTableConfigs = dbRawEventTableConfigs;
+    public void setDbRawEventTableConfigs(List<RawDBEventTableConfig> rawDBEventTableConfigs) {
+        RawEventToEventTypeMappingService.rawDBEventTableConfigs = rawDBEventTableConfigs;
     }
 }

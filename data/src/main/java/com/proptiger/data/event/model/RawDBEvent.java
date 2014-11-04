@@ -8,7 +8,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
+import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
 
 /**
  * 
@@ -20,31 +20,31 @@ public class RawDBEvent extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = -2282380803429297198L;
-    private DBRawEventTableLog        dbRawEventTableLog;
-    private DBRawEventOperationConfig dbRawEventOperationConfig;
-    private Map<String, Object>       oldDBValueMap = new HashMap<>();
-    private Map<String, Object>       newDBValueMap = new HashMap<>();
+    private static final long         serialVersionUID = -2282380803429297198L;
+    private RawEventTableDetails      rawEventTableDetails;
+    private RawDBEventOperationConfig rawDBEventOperationConfig;
+    private Map<String, Object>       oldDBValueMap    = new HashMap<>();
+    private Map<String, Object>       newDBValueMap    = new HashMap<>();
     private Object                    primaryKeyValue;
     private Object                    transactionKeyValue;
     @Temporal(TemporalType.TIMESTAMP)
     private Date                      transactionDate;
     private Map<String, Object>       uniqueKeyValuesMap;
 
-    public DBRawEventTableLog getDbRawEventTableLog() {
-        return dbRawEventTableLog;
+    public RawEventTableDetails getRawEventTableDetails() {
+        return rawEventTableDetails;
     }
 
-    public void setDbRawEventTableLog(DBRawEventTableLog dbRawEventTableLog) {
-        this.dbRawEventTableLog = dbRawEventTableLog;
+    public void setRawEventTableDetails(RawEventTableDetails rawEventTableDetails) {
+        this.rawEventTableDetails = rawEventTableDetails;
     }
 
-    public DBRawEventOperationConfig getDbRawEventOperationConfig() {
-        return dbRawEventOperationConfig;
+    public RawDBEventOperationConfig getRawDBEventOperationConfig() {
+        return rawDBEventOperationConfig;
     }
 
-    public void setDbRawEventOperationConfig(DBRawEventOperationConfig dbRawEventOperationConfig) {
-        this.dbRawEventOperationConfig = dbRawEventOperationConfig;
+    public void setRawDBEventOperationConfig(RawDBEventOperationConfig rawDBEventOperationConfig) {
+        this.rawDBEventOperationConfig = rawDBEventOperationConfig;
     }
 
     public Map<String, Object> getOldDBValueMap() {
