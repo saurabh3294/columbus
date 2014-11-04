@@ -3,7 +3,7 @@ package com.proptiger.data.notification.model.external;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmailAttributes {
+public class EmailTemplate extends Template {
 
     private String       subject;
 
@@ -14,6 +14,21 @@ public class EmailAttributes {
     private List<String> bccList = new ArrayList<String>();
 
     private String       fromEmail;
+
+    public EmailTemplate() {
+
+    }
+
+    public EmailTemplate(String subject, String body) {
+        this.subject = subject;
+        this.body = body;
+    }
+
+    public EmailTemplate(List<String> ccList, List<String> bccList, String fromEmail) {
+        this.ccList = ccList;
+        this.bccList = bccList;
+        this.fromEmail = fromEmail;
+    }
 
     public String getSubject() {
         return subject;

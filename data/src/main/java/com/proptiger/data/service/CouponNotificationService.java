@@ -19,7 +19,9 @@ import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
+import com.proptiger.data.notification.model.external.EmailTemplate;
 import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
+import com.proptiger.data.notification.model.external.Template;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
 import com.proptiger.data.service.user.UserService;
@@ -71,18 +73,15 @@ public class CouponNotificationService {
 
         bccList.addAll(couponCatalogue.getListBuilderEmail());
 
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Sms);
-        mediumTypes.add(MediumType.Email);
+        Map<MediumType, Template> mediumTypes = new HashMap<MediumType, Template>();
+        mediumTypes.put(MediumType.Email, new EmailTemplate(ccList, null, fromEmail));
+        mediumTypes.put(MediumType.Sms, null);
 
         // Sending it to user.
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 NotificationTypeEnum.CouponIssued,
                 transaction.getUserId(),
                 payloadMap,
-                fromEmail,
-                ccList,
-                bccList,
                 mediumTypes);
 
         notificationCreatorService.createNotificationGenerated(request);
@@ -108,17 +107,14 @@ public class CouponNotificationService {
             bccList.addAll(couponCatalogue.getListBuilderEmail());
         }
 
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Email);
+        Map<MediumType, Template> mediumTypes = new HashMap<MediumType, Template>();
+        mediumTypes.put(MediumType.Email, new EmailTemplate(ccList, null, fromEmail));
 
         // Sending it to user.
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 NotificationTypeEnum.CouponRefunded,
                 transaction.getUserId(),
                 payloadMap,
-                fromEmail,
-                ccList,
-                bccList,
                 mediumTypes);
 
         notificationCreatorService.createNotificationGenerated(request);
@@ -146,18 +142,15 @@ public class CouponNotificationService {
         List<String> bccList = new ArrayList<String>();
         bccList.addAll(couponCatalogue.getListBuilderEmail());
 
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Sms);
-        mediumTypes.add(MediumType.Email);
+        Map<MediumType, Template> mediumTypes = new HashMap<MediumType, Template>();
+        mediumTypes.put(MediumType.Email, new EmailTemplate(ccList, null, fromEmail));
+        mediumTypes.put(MediumType.Sms, null);
 
         // Sending it to user.
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 NotificationTypeEnum.CouponCancelled,
                 transaction.getUserId(),
                 notificationPayloadMap,
-                fromEmail,
-                ccList,
-                bccList,
                 mediumTypes);
 
         notificationCreatorService.createNotificationGenerated(request);
@@ -191,18 +184,15 @@ public class CouponNotificationService {
         List<String> bccList = new ArrayList<String>();
         bccList.addAll(couponCatalogue.getListBuilderEmail());
 
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Sms);
-        mediumTypes.add(MediumType.Email);
+        Map<MediumType, Template> mediumTypes = new HashMap<MediumType, Template>();
+        mediumTypes.put(MediumType.Email, new EmailTemplate(ccList, null, fromEmail));
+        mediumTypes.put(MediumType.Sms, null);
 
         // Sending it to user.
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 NotificationTypeEnum.CouponRedeemed,
                 transaction.getUserId(),
                 notificationPayloadMap,
-                fromEmail,
-                ccList,
-                bccList,
                 mediumTypes);
 
         notificationCreatorService.createNotificationGenerated(request);
@@ -232,18 +222,15 @@ public class CouponNotificationService {
 
         bccList.addAll(couponCatalogue.getListBuilderEmail());
 
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Sms);
-        mediumTypes.add(MediumType.Email);
+        Map<MediumType, Template> mediumTypes = new HashMap<MediumType, Template>();
+        mediumTypes.put(MediumType.Email, new EmailTemplate(ccList, null, fromEmail));
+        mediumTypes.put(MediumType.Sms, null);
 
         // Sending it to user.
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 NotificationTypeEnum.CouponPaymentFailure,
                 transaction.getUserId(),
                 payloadMap,
-                fromEmail,
-                ccList,
-                bccList,
                 mediumTypes);
 
         notificationCreatorService.createNotificationGenerated(request);

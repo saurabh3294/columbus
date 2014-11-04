@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.proptiger.core.model.BaseModel;
+import com.proptiger.data.notification.model.external.Template;
 
 public class NotificationMessagePayload extends BaseModel {
 
@@ -18,11 +19,16 @@ public class NotificationMessagePayload extends BaseModel {
 
     private List<NotificationMessageUpdateHistory> notificationMessageUpdateHistories = new ArrayList<NotificationMessageUpdateHistory>();
 
+    @Deprecated
     private String                                 fromEmail;
 
+    @Deprecated
     private List<String>                           ccList;
 
+    @Deprecated
     private List<String>                           bccList;
+
+    private Template                               template;
 
     public List<NotificationMessageUpdateHistory> getNotificationMessageUpdateHistories() {
         return notificationMessageUpdateHistories;
@@ -49,28 +55,41 @@ public class NotificationMessagePayload extends BaseModel {
         this.notificationMessagePayloads = notificationMessagePayloads;
     }
 
+    @Deprecated
     public String getFromEmail() {
         return fromEmail;
     }
 
+    @Deprecated
     public void setFromEmail(String fromEmail) {
         this.fromEmail = fromEmail;
     }
 
+    @Deprecated
     public List<String> getCcList() {
         return ccList;
     }
 
+    @Deprecated
     public void setCcList(List<String> ccList) {
         this.ccList = ccList;
     }
 
+    @Deprecated
     public List<String> getBccList() {
         return bccList;
     }
 
+    @Deprecated
     public void setBccList(List<String> bccList) {
         this.bccList = bccList;
     }
 
+    public Template getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(Template template) {
+        this.template = template;
+    }
 }

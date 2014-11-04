@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
+import com.proptiger.data.notification.model.external.Template;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
@@ -247,19 +249,21 @@ public class NotificationGeneratedService {
      */
     public List<NotificationGenerated> createNotificationGenerated(
             List<NotificationMessage> nMessages,
-            List<MediumType> mediumTypes) {
+            Map<MediumType, ? extends Template> mediumTypes) {
         if (mediumTypes == null) {
             return generateNotficationGenerated(nMessages);
         }
         List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
         NotificationType defaultNotificationType = notificationTypeService.findDefaultNotificationType();
-        for (MediumType medium : mediumTypes) {
-            NotificationMedium nMedium = notificationMediumService.findNotificationMediumByMediumType(medium);
+        
+        for (Entry<MediumType, ? extends Template> entry : mediumTypes.entrySet()) {
+            NotificationMedium nMedium = notificationMediumService.findNotificationMediumByMediumType(entry.getKey());
             for (NotificationMessage nMessage : nMessages) {
                 if (nMessage.getNotificationType() == null) {
                     nMessage.setNotificationType(defaultNotificationType);
                 }
-                NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);                
+                NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);         
+                nGenerated.getNotificationMessagePayload().setTemplate(entry.getValue());
                 generatedList.add(nGenerated);
             }
         }
