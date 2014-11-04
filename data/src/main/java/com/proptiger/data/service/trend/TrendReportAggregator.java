@@ -106,6 +106,7 @@ public class TrendReportAggregator {
         Integer temp;
         for (TypeOfData tod : TypeOfData.values()) {
             for (Date month : sortedMonthList) {
+                monthWiseSum = 0;
                 for (CatchmentTrendReportElement ctre : ctrElemList) {
                     temp = (Integer) (ctre.getBhkGroupedMap().get(tod).get(month));
                     monthWiseSum += (temp != null ? temp.intValue() : 0);
