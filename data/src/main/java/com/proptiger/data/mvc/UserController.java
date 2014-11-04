@@ -81,7 +81,7 @@ public class UserController extends BaseController {
     public APIResponse getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
         return new APIResponse(userService.getUserDetails(
                 activeUser.getUserIdentifier(),
-                activeUser.getApplicationType()));
+                activeUser.getApplicationType(), true));
     }
 
     @RequestMapping(value = "data/v1/entity/user/who-am-i", method = RequestMethod.GET)
@@ -104,14 +104,17 @@ public class UserController extends BaseController {
     public APIResponse register(@RequestBody RegisterUser register) {
         Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
         Integer userId = userService.register(register, applicationType);
-        return new APIResponse(userService.getUserDetails(userId, applicationType));
+        return new APIResponse(userService.getUserDetails(userId, applicationType, true));
 
     }
 
     @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST)
     @ResponseBody
-    public APIResponse resetPassword(@RequestParam String email) {
-        String message = userService.resetPassword(email);
+    public APIResponse resetPassword(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String token,
+            @RequestBody(required = false) ChangePassword changePassword) {
+        Object message = userService.resetPassword(email, token, changePassword);
         return new APIResponse(message);
     }
 

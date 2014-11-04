@@ -201,9 +201,9 @@ public class UserService {
      * @return {@link CustomUser}
      */
     @Transactional
-    public CustomUser getUserDetails(Integer userId, Application application) {
+    public CustomUser getUserDetails(Integer userId, Application application, boolean needDashboards) {
         User user = userDao.findById(userId);
-        CustomUser customUser = createCustomUserObj(user, application, true);
+        CustomUser customUser = createCustomUserObj(user, application, needDashboards);
         return customUser;
     }
 
@@ -565,20 +565,46 @@ public class UserService {
      * send a password recovery mail
      * 
      * @param email
+     * @param changePassword 
+     * @param token 
      * @return
      */
-    public String resetPassword(String email) {
-        User user = userDao.findByEmail(email);
-        if (user == null || !user.isRegistered()) {
-            return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
+    public Object resetPassword(String email, String token, ChangePassword changePassword) {
+        if (email != null && !email.isEmpty()) {
+            User user = userDao.findByEmail(email);
+            if (user == null || !user.isRegistered()) {
+                throw new BadRequestException(ResponseErrorMessages.EMAIL_NOT_REGISTERED);
+            }
+            ForumUserToken forumUserToken = createForumUserToken(user.getId());
+            StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append("/").append(
+                    PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_RESET_PASSWORD_PAGE)).append(
+                    "?token=" + forumUserToken.getToken());
+            ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
+                    user.getFullName(),
+                    retrivePasswordLink.toString());
+            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
+            MailDetails details = new MailDetails(mailBody).setMailTo(email);
+            mailSender.sendMailUsingAws(details);
+            return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
         }
-        ForumUserToken forumUserToken = createForumUserToken(user.getId());
-        String retrivePasswordLink = proptigerUrl + "/forgotpass.php?token=" + forumUserToken.getToken();
-        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(user.getFullName(), retrivePasswordLink);
-        MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
-        MailDetails details = new MailDetails(mailBody).setMailTo(email);
-        mailSender.sendMailUsingAws(details);
-        return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
+        else if (token != null && !token.isEmpty()) {
+            ForumUserToken forumUserToken = forumUserTokenDao.findByToken(token);
+            if (forumUserToken == null || changePassword == null) {
+                throw new BadRequestException("Invalid token "+token);
+            }
+            String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
+                    changePassword.getNewPassword(),
+                    changePassword.getConfirmNewPassword());
+            User user = userDao.findOne(forumUserToken.getUserId());
+            user.setPassword(encodedPass);
+            user = userDao.save(user);
+            SecurityContextUtils.autoLogin(user);
+            forumUserTokenDao.delete(forumUserToken);
+            return getUserDetails(user.getId(), Application.DEFAULT, false);
+        }
+        else{
+            throw new BadRequestException("Invalid input");
+        }
     }
 
     private ForumUserToken createForumUserToken(Integer userId) {
