@@ -17,13 +17,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.Application;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.meta.DisableCaching;
+import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
 import com.proptiger.data.service.user.UserService.UserCommunicationType;
@@ -40,7 +43,7 @@ import com.proptiger.data.service.user.UserService.UserCommunicationType;
 public class UserController extends BaseController {
 
     @Value("${proptiger.url}")
-    private String                           proptigerUrl;
+    private String      proptigerUrl;
 
     @Autowired
     private UserService userService;
@@ -80,13 +83,13 @@ public class UserController extends BaseController {
                 activeUser.getUserIdentifier(),
                 activeUser.getApplicationType()));
     }
-    
+
     @RequestMapping(value = "data/v1/entity/user/who-am-i", method = RequestMethod.GET)
     @ResponseBody
-    public APIResponse whoAmI(){
+    public APIResponse whoAmI() {
         return new APIResponse(userService.getWhoAmIDetail());
     }
-    
+
     @RequestMapping(value = "data/v1/entity/user/change-password", method = RequestMethod.POST)
     @ResponseBody
     public APIResponse changePassword(
@@ -95,16 +98,19 @@ public class UserController extends BaseController {
         userService.changePassword(userInfo, changePassword);
         return new APIResponse();
     }
+
     @RequestMapping(value = Constants.Security.REGISTER_URL, method = RequestMethod.POST)
     @ResponseBody
-    public APIResponse register(@RequestBody RegisterUser register){
-        CustomUser forumUser = userService.register(register);
-        return new APIResponse(forumUser);
+    public APIResponse register(@RequestBody RegisterUser register) {
+        Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
+        Integer userId = userService.register(register, applicationType);
+        return new APIResponse(userService.getUserDetails(userId, applicationType));
+
     }
-    
+
     @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST)
     @ResponseBody
-    public APIResponse resetPassword(@RequestParam String email){
+    public APIResponse resetPassword(@RequestParam String email) {
         String message = userService.resetPassword(email);
         return new APIResponse(message);
     }
@@ -117,7 +123,7 @@ public class UserController extends BaseController {
      */
     @RequestMapping(value = "app/v1/user/details-by-email", method = RequestMethod.GET)
     @ResponseBody
-    public APIResponse getUserDetailsByEmailId(@RequestParam String email){
+    public APIResponse getUserDetailsByEmailId(@RequestParam String email) {
         CustomUser customUser = userService.getUserDetailsByEmail(email);
         return new APIResponse(customUser);
     }
@@ -127,8 +133,17 @@ public class UserController extends BaseController {
     public void validateUserCommunicationDetails(
             @RequestParam UserCommunicationType type,
             @RequestParam String token,
-            HttpServletRequest request, HttpServletResponse response) throws IOException{
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
         userService.validateUserCommunicationDetails(type, token);
-        response.sendRedirect(proptigerUrl+"?flag=email_valid");
+        response.sendRedirect(proptigerUrl + "?flag=email_valid");
+    }
+
+    @RequestMapping(value = "app/v1/entity/user/details", method = RequestMethod.PUT)
+    @ResponseBody
+    public APIResponse updateUserDetails(
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
+            @RequestBody UserDetails user) throws IOException {
+        return new APIResponse(userService.updateUserDetails(user, userInfo));
     }
 }

@@ -275,6 +275,7 @@ public class TrendReportAggregator {
             additionalInfo = new AdditionalInfo();
             additionalInfo.laitude = project.getLatitude();
             additionalInfo.longitude = project.getLongitude();
+            additionalInfo.projectArea = project.getSizeInAcres();
             additionalInfo.mapPidToBhkRange = getProjectBhkSizeRangeMap(project);
             mapPidToAdditionInfo.put(project.getProjectId(), additionalInfo);
         }

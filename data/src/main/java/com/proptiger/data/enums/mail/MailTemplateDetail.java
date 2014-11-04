@@ -44,7 +44,13 @@ public enum MailTemplateDetail {
             "mailtemplate/resetpassword/reset-password-mail-subject.vm"),
     
     NEW_USER_REGISTRATION("newregistration", "mailtemplate/register/new-user-registration.vm",
-            "mailtemplate/register/new-user-registration-subject.vm");
+            "mailtemplate/register/new-user-registration-subject.vm"),
+    
+    LEAD_GENERATION("leadgeneration", "mailtemplate/lead_email_template.vm",
+            "mailtemplate/lead_email_template_subject.vm"),
+    
+    OTP("otp", "mailtemplate/otp/otp-mail.vm",
+            "mailtemplate/otp/otp-subject.vm");
 
     private MailTemplateDetail(String key, String body, String subject) {
         this.key = key;

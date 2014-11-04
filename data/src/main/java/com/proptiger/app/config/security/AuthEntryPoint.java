@@ -10,6 +10,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.handler.ResponseErrorWriter;
 
 /**
  * The Entry Point will not redirect to any sort of Login - it will return the
