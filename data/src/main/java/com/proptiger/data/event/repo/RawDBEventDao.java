@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.event.model.DBRawEventTableLog;
+import com.proptiger.data.event.model.RawEventTableDetails;
 
 /**
  * 
@@ -20,7 +20,7 @@ public class RawDBEventDao extends DynamicTableDao {
     @Autowired
     private ConversionService conversionService;
 
-    public List<Map<String, Object>> getRawDBEventByTableNameAndId(DBRawEventTableLog tableLog) {
+    public List<Map<String, Object>> getRawDBEventByTableNameAndId(RawEventTableDetails tableLog) {
 
         /* *
          * The rows will sorted in ascending order by their current time. As
@@ -51,7 +51,7 @@ public class RawDBEventDao extends DynamicTableDao {
     }
 
     public Map<String, Object> getOldRawDBEvent(
-            DBRawEventTableLog tableLog,
+            RawEventTableDetails tableLog,
             Object transactionKeyValue,
             Object primaryKeyValue,
             Map<String, Object> uniqueKeysValuesMap) {
@@ -83,7 +83,7 @@ public class RawDBEventDao extends DynamicTableDao {
         return null;
     }
 
-    public Map<String, Object> getLatestTransaction(DBRawEventTableLog tableLog) {
+    public Map<String, Object> getLatestTransaction(RawEventTableDetails tableLog) {
         String queryString = "";
         queryString = "SELECT * FROM " + tableLog.getDbName()
                 + "."
@@ -101,7 +101,7 @@ public class RawDBEventDao extends DynamicTableDao {
         return null;
     }
 
-    public Map<String, Object> getRawEventDataOnTransactionId(DBRawEventTableLog tableLog, Object transactionKeyValue) {
+    public Map<String, Object> getRawEventDataOnTransactionId(RawEventTableDetails tableLog, Object transactionKeyValue) {
         String queryString = " SELECT * FROM " + tableLog.getDbName()
                 + "."
                 + tableLog.getTableName()

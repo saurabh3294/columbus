@@ -18,21 +18,21 @@ import com.proptiger.data.event.model.EventGenerated.EventStatus;
  */
 public interface EventGeneratedDao extends PagingAndSortingRepository<EventGenerated, Integer> {
 
-    public List<EventGenerated> findByEventStatusOrderByCreatedDateAsc(EventStatus status);
+    public List<EventGenerated> findByEventStatusOrderByCreatedAtAsc(EventStatus status);
 
-    public List<EventGenerated> findByEventStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(
+    public List<EventGenerated> findByEventStatusAndExpiryDateLessThanEqualOrderByCreatedAtAsc(
             EventStatus status,
             Date expiryDate);
 
-    public List<EventGenerated> findByEventStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(
+    public List<EventGenerated> findByEventStatusAndExpiryDateGreaterThanOrderByCreatedAtAsc(
             EventStatus status,
             Date expiryDate);
 
-    public List<EventGenerated> findByEventStatusAndUpdatedDateGreaterThanOrderByUpdatedDateAsc(
+    public List<EventGenerated> findByEventStatusAndUpdatedAtGreaterThanOrderByUpdatedAtAsc(
             EventStatus status,
             Date updatedDate);
 
-    @Query("Select E from EventGenerated E ORDER BY E.createdDate Desc")
+    @Query("Select E from EventGenerated E ORDER BY E.createdAt Desc")
     public List<EventGenerated> getLatestEventGenerated(Pageable pageable);
 
     @Modifying

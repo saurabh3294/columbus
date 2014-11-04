@@ -5,12 +5,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.event.model.DBRawEventTableLog;
+import com.proptiger.data.event.model.RawEventTableDetails;
 
-public interface DBRawEventTableLogDao extends PagingAndSortingRepository<DBRawEventTableLog, Integer> {
+public interface RawEventTableDetailsDao extends PagingAndSortingRepository<RawEventTableDetails, Integer> {
     
     @Modifying
-    @Query("Update DBRawEventTableLog D set D.lastTransactionKeyValue=?2 where D.id=?1 ")
+    @Query("Update RawEventTableDetails D set D.lastTransactionKeyValue=?2 where D.id=?1 ")
     @Transactional
     public Integer updateLastTransactionKeyValueById(int id, Long transactionId);
 }

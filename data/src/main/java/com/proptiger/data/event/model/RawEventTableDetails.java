@@ -16,7 +16,7 @@ import com.proptiger.core.model.BaseModel;
 
 @Entity
 @Table(name = "notification.raw_event_table_details")
-public class DBRawEventTableLog extends BaseModel {
+public class RawEventTableDetails extends BaseModel {
     /**
      * 
      */

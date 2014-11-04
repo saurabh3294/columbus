@@ -24,30 +24,30 @@ public class RawEventToEventTypeMapping extends BaseModel {
     /**
      * 
      */
-    private static final long  serialVersionUID = 8620987853665861856L;
+    private static final long    serialVersionUID = 8620987853665861856L;
 
     @Column(name = "id")
     @Id
-    private int                id;
+    private int                  id;
 
     @Column(name = "db_operation")
     @Enumerated(EnumType.STRING)
-    private DBOperation        dbOperation;
+    private DBOperation          dbOperation;
 
     @Column(name = "attribute_name")
-    private String             attributeName;
+    private String               attributeName;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
-    private EventType          eventType;
+    private EventType            eventType;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "raw_event_table_id")
-    private DBRawEventTableLog dbRawEventTableLog;
+    private RawEventTableDetails rawEventTableDetails;
 
-    @Column(name = "created_date")
+    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date               createdDate;
+    private Date                 createdAt;
 
     public int getId() {
         return id;
@@ -81,19 +81,19 @@ public class RawEventToEventTypeMapping extends BaseModel {
         this.eventType = eventType;
     }
 
-    public DBRawEventTableLog getDbRawEventTableLog() {
-        return dbRawEventTableLog;
+    public RawEventTableDetails getRawEventTableDetails() {
+        return rawEventTableDetails;
     }
 
-    public void setDbRawEventTableLog(DBRawEventTableLog dbRawEventTableLog) {
-        this.dbRawEventTableLog = dbRawEventTableLog;
+    public void setRawEventTableDetails(RawEventTableDetails rawEventTableDetails) {
+        this.rawEventTableDetails = rawEventTableDetails;
     }
 
-    public Date getCreatedDate() {
-        return createdDate;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 }

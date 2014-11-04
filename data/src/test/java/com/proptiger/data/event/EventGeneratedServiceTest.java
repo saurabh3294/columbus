@@ -32,7 +32,7 @@ public class EventGeneratedServiceTest extends AbstractTest {
     public void testGenerateEventFromInsertRawDBEvent() {
         RawDBEvent rawDBEvent = eventMockerService.getMockInsertRawDBEvent();
         List<EventGenerated> eventGeneratedList = eventGeneratedService.generateEventFromRawDBEvent(rawDBEvent);
-        Assert.assertEquals(eventGeneratedList.size(), rawDBEvent.getDbRawEventOperationConfig().getListEventTypes()
+        Assert.assertEquals(eventGeneratedList.size(), rawDBEvent.getRawDBEventOperationConfig().getListEventTypes()
                 .size());
     }
 
