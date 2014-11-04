@@ -510,12 +510,12 @@ public class NotificationService {
      */
     private String getGcmMessageContentForGroupableNotification(int userId, int notificationTypeId) {
         MarketplaceNotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
-        List<Notification> notifications = notificationDao
-                .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
-        for (Notification notification : notifications) {
-            notification.setNotificationType(null);
-        }
-        notificationType.setNotifications(notifications);
+//        List<Notification> notifications = notificationDao
+//                .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
+//        for (Notification notification : notifications) {
+//            notification.setNotificationType(null);
+//        }
+        notificationType.setNotifications(new ArrayList<Notification>());
 
         return SerializationUtils.objectToJson(notificationType).toString();
     }
