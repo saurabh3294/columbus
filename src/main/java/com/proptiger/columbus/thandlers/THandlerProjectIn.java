@@ -98,7 +98,7 @@ public class THandlerProjectIn extends RootTHandler {
 
         List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 uri,
-                new TypeToken<ArrayList<Locality>>() {}.getType());
+                Locality.class);
         return topLocalities;
     }
 

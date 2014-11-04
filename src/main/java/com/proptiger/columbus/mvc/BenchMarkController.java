@@ -49,7 +49,7 @@ public class BenchMarkController {
                 Date d1 = new Date();
                 httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                         uri,
-                        new TypeToken<ArrayList<Locality>>() {}.getType());
+                        Locality.class);
                 Date d2 = new Date();
                 long diff = d2.getTime() - d1.getTime();
                 writer.write(city + "," + diff + "\n");

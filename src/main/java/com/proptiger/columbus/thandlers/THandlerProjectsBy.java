@@ -59,7 +59,7 @@ public class THandlerProjectsBy extends RootTHandler {
                                         + String.format(
                                                 URLGenerationConstants.SelectorGetBuilderNamesByCityName,
                                                 cityName)).build().encode().toString()),
-                new TypeToken<ArrayList<Builder>>() {}.getType());
+                Builder.class);
         return topBuilders;
     }
 

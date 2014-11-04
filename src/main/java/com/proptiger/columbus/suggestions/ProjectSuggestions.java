@@ -34,7 +34,7 @@ public class ProjectSuggestions {
 
         List<Property> propertyList = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 getURIForPropertyAPI(id),
-                new TypeToken<ArrayList<Property>>() {}.getType());
+                Property.class);
         if (propertyList == null || propertyList.isEmpty()) {
             return suggestions;
         }

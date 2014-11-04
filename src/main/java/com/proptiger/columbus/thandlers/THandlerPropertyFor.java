@@ -78,7 +78,7 @@ public class THandlerPropertyFor extends RootTHandler {
                                         + String.format(
                                                 URLGenerationConstants.SelectorGetLocalityNamesByCityName,
                                                 cityName)).build().encode().toString()),
-                new TypeToken<ArrayList<Locality>>() {}.getType());
+                Locality.class);
         return topLocalities;
     }
 
