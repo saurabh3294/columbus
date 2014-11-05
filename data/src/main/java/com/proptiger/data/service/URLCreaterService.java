@@ -226,22 +226,22 @@ public class URLCreaterService {
         PropertyType propertyType = urlDetail.getUrlPropertyType();
         TaxonomyPropertyTypes taxonomyPropertyType = urlDetail.getTaxonomyPropertyType();
 
-        if(propertyType == null){
+        if (propertyType == null) {
             propertyType = PropertyType.Property;
         }
-        
+
         if (taxonomyPropertyType != null) {
-            url = cityName + "/" + taxonomyPropertyType.getUrlAlias() + "-in-"+localityName + localityId;
+            url = cityName + "/" + taxonomyPropertyType.getUrlAlias() + "-in-" + localityName + localityId;
         }
         else {
-            url = cityName + "/" + propertyType.getUrlAlias()+"-"+localityName + localityId;
+            url = cityName + "/" + propertyType.getUrlAlias() + "-" + localityName + localityId;
             addBhk(url, urlDetail.getBedrooms());
             addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
         }
 
         return url;
     }
-    
+
     public String urlLibSuburbListingUrl(URLDetail urlDetail) {
         String url = this.defaultUrl;
 
@@ -258,15 +258,15 @@ public class URLCreaterService {
         PropertyType propertyType = urlDetail.getUrlPropertyType();
         TaxonomyPropertyTypes taxonomyPropertyType = urlDetail.getTaxonomyPropertyType();
 
-        if(propertyType == null){
+        if (propertyType == null) {
             propertyType = PropertyType.Property;
         }
-        
+
         if (taxonomyPropertyType != null) {
-            url = cityName + "/" + taxonomyPropertyType.getUrlAlias() + "-in-"+suburbName + suburbId;
+            url = cityName + "/" + taxonomyPropertyType.getUrlAlias() + "-in-" + suburbName + suburbId;
         }
         else {
-            url = cityName + "/" + propertyType.getUrlAlias()+"-"+suburbName + suburbId;
+            url = cityName + "/" + propertyType.getUrlAlias() + "-" + suburbName + suburbId;
             addBhk(url, urlDetail.getBedrooms());
             addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
         }
