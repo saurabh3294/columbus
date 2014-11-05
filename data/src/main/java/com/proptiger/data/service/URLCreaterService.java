@@ -213,6 +213,64 @@ public class URLCreaterService {
     public String urlLibLocalityListingUrl(URLDetail urlDetail) {
         String url = this.defaultUrl;
 
+        Integer localityId = urlDetail.getLocalityId();
+        String localityName = urlDetail.getLocalityName();
+
+        Locality locality = getCachedLocalityData(localityId, localityName);
+
+        if (locality == null) {
+            return url;
+        }
+        localityName = getCleanName(locality.getLabel());
+        String cityName = getCleanName(locality.getSuburb().getCity().getLabel());
+        PropertyType propertyType = urlDetail.getUrlPropertyType();
+        TaxonomyPropertyTypes taxonomyPropertyType = urlDetail.getTaxonomyPropertyType();
+
+        if(propertyType == null){
+            propertyType = PropertyType.Property;
+        }
+        
+        if (taxonomyPropertyType != null) {
+            url = cityName + "/" + taxonomyPropertyType.getUrlAlias() + "-in-"+localityName + localityId;
+        }
+        else {
+            url = cityName + "/" + propertyType.getUrlAlias()+"-"+localityName + localityId;
+            addBhk(url, urlDetail.getBedrooms());
+            addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
+        }
+
+        return url;
+    }
+    
+    public String urlLibSuburbListingUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+
+        Integer suburbId = urlDetail.getSuburbId();
+        String suburbName = urlDetail.getSuburbName();
+
+        Suburb suburb = getCachedSuburbData(suburbId, suburbName);
+
+        if (suburb == null) {
+            return url;
+        }
+        suburbName = getCleanName(suburb.getLabel());
+        String cityName = getCleanName(suburb.getCity().getLabel());
+        PropertyType propertyType = urlDetail.getUrlPropertyType();
+        TaxonomyPropertyTypes taxonomyPropertyType = urlDetail.getTaxonomyPropertyType();
+
+        if(propertyType == null){
+            propertyType = PropertyType.Property;
+        }
+        
+        if (taxonomyPropertyType != null) {
+            url = cityName + "/" + taxonomyPropertyType.getUrlAlias() + "-in-"+suburbName + suburbId;
+        }
+        else {
+            url = cityName + "/" + propertyType.getUrlAlias()+"-"+suburbName + suburbId;
+            addBhk(url, urlDetail.getBedrooms());
+            addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
+        }
+
         return url;
     }
 
