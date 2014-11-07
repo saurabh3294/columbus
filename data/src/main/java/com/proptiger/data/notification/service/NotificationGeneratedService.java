@@ -14,13 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
-import com.proptiger.data.notification.model.external.Template;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
@@ -249,21 +249,21 @@ public class NotificationGeneratedService {
      */
     public List<NotificationGenerated> createNotificationGenerated(
             List<NotificationMessage> nMessages,
-            Map<MediumType, ? extends Template> mediumTypes) {
+            Map<MediumType, MediumDetails> mediumTypes) {
         if (mediumTypes == null) {
             return generateNotficationGenerated(nMessages);
         }
         List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
         NotificationType defaultNotificationType = notificationTypeService.findDefaultNotificationType();
-        
-        for (Entry<MediumType, ? extends Template> entry : mediumTypes.entrySet()) {
+
+        for (Entry<MediumType, MediumDetails> entry : mediumTypes.entrySet()) {
             NotificationMedium nMedium = notificationMediumService.findNotificationMediumByMediumType(entry.getKey());
             for (NotificationMessage nMessage : nMessages) {
                 if (nMessage.getNotificationType() == null) {
                     nMessage.setNotificationType(defaultNotificationType);
                 }
-                NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);         
-                nGenerated.getNotificationMessagePayload().setTemplate(entry.getValue());
+                NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);
+                nGenerated.getNotificationMessagePayload().setMediumDetails(entry.getValue());
                 generatedList.add(nGenerated);
             }
         }

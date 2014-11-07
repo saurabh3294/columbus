@@ -5,8 +5,6 @@ import java.util.Map;
 
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.notification.enums.MediumType;
-import com.proptiger.data.notification.model.payload.EmailSenderPayload;
-import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 import com.proptiger.data.notification.sender.AndroidSender;
 import com.proptiger.data.notification.sender.EmailSender;
 import com.proptiger.data.notification.sender.MarketplaceAppSender;
@@ -16,31 +14,24 @@ import com.proptiger.data.notification.sender.SmsSender;
 
 public class MediumTypeConfig extends BaseModel {
 
-    private static final long                                    serialVersionUID = 5217123915811730145L;
+    private static final long                       serialVersionUID = 5217123915811730145L;
 
-    public static Map<MediumType, MediumTypeConfig>              mediumTypeConfigMap;
+    public static Map<MediumType, MediumTypeConfig> mediumTypeConfigMap;
     static {
         mediumTypeConfigMap = new HashMap<MediumType, MediumTypeConfig>();
-        mediumTypeConfigMap.put(MediumType.Email, new MediumTypeConfig(EmailSender.class, EmailSenderPayload.class));
-        mediumTypeConfigMap.put(MediumType.Android, new MediumTypeConfig(AndroidSender.class, null));
-        mediumTypeConfigMap.put(MediumType.Sms, new MediumTypeConfig(SmsSender.class, null));
-        mediumTypeConfigMap.put(MediumType.ProptigerApp, new MediumTypeConfig(ProptigerAppSender.class, null));
-        mediumTypeConfigMap.put(MediumType.MarketplaceApp, new MediumTypeConfig(MarketplaceAppSender.class, null));
+        mediumTypeConfigMap.put(MediumType.Email, new MediumTypeConfig(EmailSender.class));
+        mediumTypeConfigMap.put(MediumType.Android, new MediumTypeConfig(AndroidSender.class));
+        mediumTypeConfigMap.put(MediumType.Sms, new MediumTypeConfig(SmsSender.class));
+        mediumTypeConfigMap.put(MediumType.ProptigerApp, new MediumTypeConfig(ProptigerAppSender.class));
+        mediumTypeConfigMap.put(MediumType.MarketplaceApp, new MediumTypeConfig(MarketplaceAppSender.class));
     }
 
-    private transient Class<? extends MediumSender>              senderClassName  = EmailSender.class;
-    private transient Class<? extends NotificationSenderPayload> payloadClassName = EmailSenderPayload.class;
-    private transient MediumSender                               mediumSenderObject;
-    private transient NotificationSenderPayload                  notificationSenderPayloadObject;
+    private transient Class<? extends MediumSender> senderClassName  = EmailSender.class;
+    private transient MediumSender                  mediumSenderObject;
 
-    public MediumTypeConfig(
-            Class<? extends MediumSender> senderClassName,
-            Class<? extends NotificationSenderPayload> payloadClassName) {
+    public MediumTypeConfig(Class<? extends MediumSender> senderClassName) {
         if (senderClassName != null) {
             this.senderClassName = senderClassName;
-        }
-        if (payloadClassName != null) {
-            this.payloadClassName = payloadClassName;
         }
     }
 
@@ -63,19 +54,4 @@ public class MediumTypeConfig extends BaseModel {
         this.mediumSenderObject = mediumSenderObject;
     }
 
-    public Class<? extends NotificationSenderPayload> getPayloadClassName() {
-        return payloadClassName;
-    }
-
-    public void setPayloadClassName(Class<? extends NotificationSenderPayload> payloadClassName) {
-        this.payloadClassName = payloadClassName;
-    }
-
-    public NotificationSenderPayload getNotificationSenderPayloadObject() {
-        return notificationSenderPayloadObject;
-    }
-
-    public void setNotificationSenderPayloadObject(NotificationSenderPayload notificationSenderPayloadObject) {
-        this.notificationSenderPayloadObject = notificationSenderPayloadObject;
-    }
 }

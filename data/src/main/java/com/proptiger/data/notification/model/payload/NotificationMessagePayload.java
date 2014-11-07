@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.notification.model.external.Template;
+import com.proptiger.data.internal.dto.mail.MediumDetails;
 
 public class NotificationMessagePayload extends BaseModel {
 
@@ -28,7 +28,7 @@ public class NotificationMessagePayload extends BaseModel {
     @Deprecated
     private List<String>                           bccList;
 
-    private Template                               template;
+    private MediumDetails                          mediumDetails;
 
     public List<NotificationMessageUpdateHistory> getNotificationMessageUpdateHistories() {
         return notificationMessageUpdateHistories;
@@ -85,11 +85,12 @@ public class NotificationMessagePayload extends BaseModel {
         this.bccList = bccList;
     }
 
-    public Template getTemplate() {
-        return template;
+    public MediumDetails getMediumDetails() {
+        return mediumDetails;
     }
 
-    public void setTemplate(Template template) {
-        this.template = template;
+    public void setMediumDetails(MediumDetails mediumDetails) {
+        this.mediumDetails = mediumDetails;
     }
+
 }

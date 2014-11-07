@@ -11,7 +11,6 @@ import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.MediumTypeConfig;
 import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 
 @Service
@@ -76,18 +75,8 @@ public class NotificationSender {
 
         String template = templateGenerator.generatePopulatedTemplate(nGenerated);
 
-        if (template == null) {
-            return false;
-        }
-
-        Integer userId = nGenerated.getUserId();
         MediumTypeConfig config = nGenerated.getNotificationMedium().getMediumTypeConfig();
-
-        NotificationSenderPayload payload = config.getNotificationSenderPayloadObject();
-        if (payload != null) {
-            payload = payload.populatePayload(nGenerated);
-        }
-        return config.getMediumSenderObject().send(template, userId, nGenerated, payload);
+        return config.getMediumSenderObject().send(template, nGenerated);
 
     }
 }

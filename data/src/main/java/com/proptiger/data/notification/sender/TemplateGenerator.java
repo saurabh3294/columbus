@@ -53,11 +53,6 @@ public class TemplateGenerator {
             return null;
         }
 
-        if (payloadDataMap == null || payloadDataMap.isEmpty()) {
-            logger.error("Payload Data Map is null or empty for notificationGenerated id: " + nGenerated.getId());
-            return null;
-        }
-
         String populatedTemplate = null;
         try {
             populatedTemplate = populateTemplate(template, payloadDataMap, nGenerated.getNotificationType().getName());

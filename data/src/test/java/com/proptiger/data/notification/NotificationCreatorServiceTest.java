@@ -10,13 +10,13 @@ import junit.framework.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
+import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.data.internal.dto.mail.MailDetails;
+import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
-import com.proptiger.data.notification.model.external.DefaultTemplate;
-import com.proptiger.data.notification.model.external.EmailTemplate;
 import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
-import com.proptiger.data.notification.model.external.Template;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
 import com.proptiger.data.service.AbstractTest;
 
@@ -27,12 +27,12 @@ public class NotificationCreatorServiceTest extends AbstractTest {
 
     @Test
     public void testCreateNotificationGeneratedForEmail() {
-        NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(1211883, new EmailTemplate(
+        NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(1211883, new MailDetails(
                 "This is a subject for XYZ",
                 "This is a sample template for XYZ"));
 
         Assert.assertNotNull(request);
-        // notificationCreatorService.createNotificationGenerated(request);
+        notificationCreatorService.createNotificationGenerated(request);
     }
 
     @Test
@@ -43,7 +43,7 @@ public class NotificationCreatorServiceTest extends AbstractTest {
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 NotificationTypeEnum.MarketplaceDefault,
                 1211883,
-                new DefaultTemplate(template),
+                new DefaultMediumDetails(template),
                 MediumType.MarketplaceApp);
 
         Assert.assertNotNull(request);
@@ -82,13 +82,11 @@ public class NotificationCreatorServiceTest extends AbstractTest {
         templateMap.put(Tokens.CouponIssued.UnitName.name(), "2BHK + 2T");
         templateMap.put(Tokens.CouponIssued.UserName.name(), "Sahil Garg");
 
-        List<String> ccList = new ArrayList<String>();
-        ccList.add("mukand.agarwal@proptiger.com");
-
+        String ccList[] = { "sahil.garg@proptiger.com" };
         String fromEmail = "customer.service@proptiger.com";
 
-        Map<MediumType, Template> mediumTypes = new HashMap<MediumType, Template>();
-        mediumTypes.put(MediumType.Email, new EmailTemplate(ccList, null, fromEmail));
+        Map<MediumType, MediumDetails> mediumTypes = new HashMap<MediumType, MediumDetails>();
+        mediumTypes.put(MediumType.Email, new MailDetails(ccList, null, fromEmail));
         mediumTypes.put(MediumType.Sms, null);
 
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(

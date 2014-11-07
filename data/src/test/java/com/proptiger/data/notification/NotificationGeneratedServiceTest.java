@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.mocker.NotificationMockerService;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -21,7 +22,6 @@ import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
-import com.proptiger.data.notification.model.external.Template;
 import com.proptiger.data.notification.repo.NotificationGeneratedDao;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMediumService;
@@ -43,7 +43,7 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
 
     @Test
     public void testCreateNotificationGenerated() {
-        Map<MediumType, Template> mediumTypes = new HashMap<MediumType, Template>();
+        Map<MediumType, MediumDetails> mediumTypes = new HashMap<MediumType, MediumDetails>();
         mediumTypes.put(MediumType.Sms, null);
         mediumTypes.put(MediumType.Email, null);
 

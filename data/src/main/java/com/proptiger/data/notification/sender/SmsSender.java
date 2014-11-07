@@ -11,8 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 import com.proptiger.data.service.user.UserService;
 
 @Service
@@ -43,19 +44,29 @@ public class SmsSender implements MediumSender {
     private UserService         userService;
 
     @Override
-    public boolean send(String template, Integer userId, NotificationGenerated nGenerated, NotificationSenderPayload payload) {
-        
+    public boolean send(String template, NotificationGenerated nGenerated) {
+
+        MediumDetails mediumDetails = nGenerated.getNotificationMessagePayload().getMediumDetails();
+        DefaultMediumDetails defaultMediumDetails = null;
+        if (mediumDetails != null) {
+            defaultMediumDetails = (DefaultMediumDetails) mediumDetails;
+            if (defaultMediumDetails.getMessage() != null) {
+                template = defaultMediumDetails.getMessage();
+            }
+        }
+
+        Integer userId = nGenerated.getUserId();
         if (userId == null) {
             logger.error("Found null User Id while sending SMS.");
             return false;
         }
-               
-        UserContactNumber userContactNumber = userService.getTopPriorityContact(userId);      
+
+        UserContactNumber userContactNumber = userService.getTopPriorityContact(userId);
         if (userContactNumber == null) {
             logger.error("No contact number found for UserId: " + userId + " while sending SMS.");
             return false;
         }
-        
+
         String contact = userContactNumber.getContactNumber();
 
         Map<String, String> urlVariables = new HashMap<String, String>();
@@ -75,7 +86,7 @@ public class SmsSender implements MediumSender {
         logger.debug("urlVariables: " + urlVariables.toString());
         String response = restTemplate.getForObject(BASE_URL, String.class, urlVariables);
         logger.info("Received SMS response \"" + response + "\" for contact: " + contact);
-        
+
         return true;
     }
 
