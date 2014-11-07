@@ -21,6 +21,10 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
             value = "SELECT DISTINCT NT FROM MarketplaceNotificationType NT INNER JOIN FETCH NT.notifications N WHERE N.userId = ?1")
     public List<MarketplaceNotificationType> getNotificationTypesForUser(int userId);
 
+    @Query(
+            value = "SELECT DISTINCT NT FROM MarketplaceNotificationType NT INNER JOIN FETCH NT.notifications N WHERE N.userId = ?1 AND NT.id = ?2")
+    public List<MarketplaceNotificationType> getNotificationTypesForUser(int userId, int notificationTypeId);
+
     @Modifying
     @Transactional
     @Query(

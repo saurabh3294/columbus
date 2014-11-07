@@ -107,7 +107,29 @@ public class NotificationService {
      */
     public List<MarketplaceNotificationType> getNotificationsForUser(int userId) {
         List<MarketplaceNotificationType> notificationTypes = notificationDao.getNotificationTypesForUser(userId);
+        return getFilteredAndOrderedNotificationTypes(notificationTypes);
+    }
 
+    /**
+     * 
+     * @param userId
+     *            notificationTypeId
+     * @return {@link List} of {@link Notification} grouped on the basis of
+     *         {@link MarketplaceNotificationType} in default order
+     */
+    public List<MarketplaceNotificationType> getNotificationsForUser(int userId, Integer notificationTypeId) {
+        List<MarketplaceNotificationType> notificationTypes;
+        if(notificationTypeId == null){
+            notificationTypes = notificationDao.getNotificationTypesForUser(userId);
+        }
+        else{
+            notificationTypes = notificationDao.getNotificationTypesForUser(userId, notificationTypeId);
+        }
+        return getFilteredAndOrderedNotificationTypes(notificationTypes);
+    }
+
+    private List<MarketplaceNotificationType> getFilteredAndOrderedNotificationTypes(
+            List<MarketplaceNotificationType> notificationTypes) {
         List<MarketplaceNotificationType> finalNotificationTypes = new ArrayList<>();
         for (MarketplaceNotificationType notificationType : notificationTypes) {
             for (Notification notification : notificationType.getNotifications()) {
@@ -510,11 +532,11 @@ public class NotificationService {
      */
     private String getGcmMessageContentForGroupableNotification(int userId, int notificationTypeId) {
         MarketplaceNotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
-//        List<Notification> notifications = notificationDao
-//                .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
-//        for (Notification notification : notifications) {
-//            notification.setNotificationType(null);
-//        }
+        // List<Notification> notifications = notificationDao
+        // .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
+        // for (Notification notification : notifications) {
+        // notification.setNotificationType(null);
+        // }
         notificationType.setNotifications(new ArrayList<Notification>());
 
         return SerializationUtils.objectToJson(notificationType).toString();
@@ -661,7 +683,10 @@ public class NotificationService {
     public void deleteNotificationsOfLeadOffersExpired(List<Integer> leadIdList, int notificationTypeId) {
         String string = StringUtils.join(leadIdList, ",");
         if (string != "") {
-            notificationDao.deleteUsingNotificationTypeAndObjectId(string, notificationTypeId,LeadOfferStatus.Offered.getId());
+            notificationDao.deleteUsingNotificationTypeAndObjectId(
+                    string,
+                    notificationTypeId,
+                    LeadOfferStatus.Offered.getId());
         }
     }
 }
