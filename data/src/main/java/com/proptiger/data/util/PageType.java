@@ -13,10 +13,13 @@ public enum PageType {
      * correctly
      */
     HOME_PAGE("^$", new String[]{}),
-    CITY_URLS("^([\\w]+)(?:(((/(apartments-flats-sale|property-sale|house-sale|villas-sale|sites-plots-sale))|-real-estate|-real-estate/\\1-sitemap.php)(/[\\d]{1,2}bhk)?(/\\d+-\\d+-lacs)?)|(-real-estate-overview|/schools|/restaurants|/banks|/atms|/hospitals|/petrol-pumps)|/(resale-property|ready-to-move-property|under-construction-property|upcoming-property|upcoming-projects|luxury-projects|low-budget-flats|affordable-flats|new-projects-for-sale|upcoming-flats-for-sale|ready-to-move-flats|resale-apartments|new-apartments-for-sale|all-builders))$", new String[] { "cityName" }),
+    CITY_URLS("^([\\w]+)(?:(((/(apartments-flats-sale|property-sale|house-sale|villas-sale|sites-plots-sale))|-real-estate|-real-estate/\\1-sitemap.php)(/[\\d]{1,2}bhk)?(/\\d+-\\d+-lacs)?)|(-real-estate-overview)|/(resale-property|ready-to-move-property|under-construction-property|upcoming-property|upcoming-projects|luxury-projects|low-budget-flats|affordable-flats|new-projects-for-sale|upcoming-flats-for-sale|ready-to-move-flats|resale-apartments|new-apartments-for-sale|all-builders))$", new String[] { "cityName" }),
     LOCALITY_SUBURB_LISTING_SEO("^(?:[\\w]+)/(society-flats-in|resale-property-in|ready-to-move-property-in|under-construction-property-in|upcoming-property-in|upcoming-Projects-in|luxury-projects-in|low-budget-flats-in|affordable-flats-in|new-projects-for-sale-in|residential-property-for-sale-in|upcoming-flats-for-sale-in|ready-to-move-flats-in|resale-apartments-in|new-apartments-for-sale-in)-(?:[\\-\\w]+)-(\\d{5,5})$", new String[] { "propertyType", "localityId"}),
-    LOCALITY_SUBURB_LISTING("^(?:[\\w]+)/(apartments-flats-sale|property-sale|house-sale|villas-sale|sites-plots-sale)-(?:[\\-\\w]+)-(\\d{5,5})(/[\\d]{1,2}bhk)?(/\\d+-\\d+-lacs)?$", new String[] { "propertyType", "localityId", "bedroomString", "priceString" }), 
-    LOCALITY_SUBURB_LANDMARK("(?:[\\w]+)/(?:[\\-\\w]+)-(\\d{5,5})(/schools|/restaurants|/banks|/atms|/hospitals|/petrol-pumps)", new String[] { "localityId", "appendingString"}), 
+    LOCALITY_SUBURB_LISTING("^(?:[\\w]+)/(apartments-flats-sale|property-sale|house-sale|villas-sale|sites-plots-sale)-(?:[\\-\\w]+)-(\\d{5,5})(/[\\d]{1,2}bhk)?(/\\d+-\\d+-lacs)?$", new String[] { "propertyType", "localityId", "bedroomString", "priceString" }),
+    /**
+     * Suburb does not support amenities URL.
+     */
+    LOCALITY_SUBURB_LANDMARK("(?:[\\w]+)/(?:[\\-\\w]+)-([5-9]\\d{4,4})(/schools|/restaurants|/banks|/atms|/hospitals|/petrol-pumps)", new String[] { "localityId", "appendingString"}), 
     LOCALITY_SUBURB_OVERVIEW("^(?:[\\-\\w]+)/(?:[\\-\\w]+)-(overview)-(\\d{5,5})$", new String[] { "overviewType", "localityId" }),
     PROJECT_URLS("^(?:.*)([5-9]\\d{5})$", new String[] { "projectId" }),
     PROPERTY_URLS("^(?:.*)([5-9]\\d{6,6})/(?:[\\d]{0,2}bhk)$", new String[] {"propertyId"}),
