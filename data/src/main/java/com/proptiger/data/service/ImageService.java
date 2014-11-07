@@ -49,6 +49,8 @@ import com.proptiger.data.util.MediaUtil;
 public class ImageService extends MediaService {
     private static final String      HYPHON = "-";
     
+    private static final String		 ORIGINAL = "ORIGINAL";
+    
     private static Logger            logger = LoggerFactory.getLogger(ImageService.class);
 
     @Autowired
@@ -132,10 +134,28 @@ public class ImageService extends MediaService {
         amazonS3Util.uploadFile(image.getPath() + image.getOriginalName(), original);
         original.delete();
         amazonS3Util.uploadFile(image.getPath() + image.getWaterMarkName(), waterMark);
+        uploadImageWithOptimalSuffix(image, waterMark, format);
         createAndUploadMoreResolutions(image, waterMark, format);
     }
 
-    /**
+	private void uploadImageWithOptimalSuffix(Image image, File waterMark,
+			String format) {
+		try {
+			Integer resolutionId = getResolutionId(ORIGINAL);
+			ImageQuality quality = getOptimalQuality((int) image.getImageTypeId(),
+					resolutionId);
+			File processedImage = null;
+			if (quality != null) {
+				processedImage = resizeAndQualityChange(waterMark, null, quality.getQuality(), format, true);
+				amazonS3Util.uploadFile(image.getPath() + image.getId() + HYPHON + Image.OPTIMAL_SUFFIX + Image.DOT + format, processedImage);
+			}
+		}
+		catch (Exception e) {
+			logger.error("Could not optimize image quality for ", ORIGINAL, e);
+		}
+	}
+
+	/**
      * Creating more resolution for image file and uploading that to S3
      * 
      * @param image
@@ -150,6 +170,10 @@ public class ImageService extends MediaService {
 
                 // not for all resolutions only
                 for (ImageResolution imageResolution : ImageResolution.values()) {
+                	if (imageResolution.getLabel().equals(ORIGINAL)) {
+                		continue;
+                	}
+                	
                     Integer resolutionId = getResolutionId(imageResolution.getLabel());
 
                     ImageQuality qualityObject = null;
@@ -160,7 +184,7 @@ public class ImageService extends MediaService {
                     File resizedFile = null;
                     try {
 
-                        resizedFile = resize(waterMark, imageResolution, Image.BEST_QUALITY, format);
+                        resizedFile = resizeAndQualityChange(waterMark, imageResolution, Image.BEST_QUALITY, format, false);
 
                         // upload original as well
                         amazonS3Util.uploadFile(
@@ -170,7 +194,7 @@ public class ImageService extends MediaService {
 
                         // resize the image for optimal quality
                         if (qualityObject != null) {
-                            resizedFile = resize(waterMark, imageResolution, qualityObject.getQuality(), format);
+                            resizedFile = resizeAndQualityChange(waterMark, imageResolution, qualityObject.getQuality(), format, false);
                             amazonS3Util.uploadFile(
                                     image.getPath() + computeResizedImageName(
                                             image,
@@ -204,17 +228,19 @@ public class ImageService extends MediaService {
 
     }
 
-    private File resize(File waterMark, ImageResolution imageResolution, double quality, String format)
+    private File resizeAndQualityChange(File waterMark, ImageResolution imageResolution, double quality, String format, boolean isOriginalImage)
             throws Exception {
         ConvertCmd convertCmd = new ConvertCmd();
         IMOperation imOperation = new IMOperation();
-        ;
         imOperation.addImage(waterMark.getAbsolutePath());
-        imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight(), ">");
+        if (!isOriginalImage) {
+        	imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight(), ">");
+        }
         imOperation.strip();
         imOperation.quality(quality);
-
-        if (!imageResolution.getLabel().equalsIgnoreCase("thumbnail"))
+        
+        //Thumbnail images are small in size, so they are marked as non-progressive.
+        if (imageResolution != null && !imageResolution.getLabel().equalsIgnoreCase("thumbnail"))
             imOperation.interlace("Plane");
 
         File outputFile = File.createTempFile("resizedImage", Image.DOT + format, tempDir);
