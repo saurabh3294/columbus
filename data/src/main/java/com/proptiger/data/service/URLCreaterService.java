@@ -47,6 +47,8 @@ public class URLCreaterService {
 
     private final String    budgetSuffix = "lacs";
     private final String    defaultUrl   = "";
+    private final String    HYPHEN       = "-";
+    private final String    SLASH        = "/";
 
     public void test(String type, Integer id) {
         switch (type) {
@@ -83,7 +85,7 @@ public class URLCreaterService {
                 url = cityName + "-real-estate-overview";
             }
             else {
-                url = cityName + "/" + areaType;
+                url = cityName + this.SLASH + areaType;
             }
 
         }
@@ -118,12 +120,12 @@ public class URLCreaterService {
 
         if (isEmpty(cityName)) {
             if (propertyType != null) {
-                url = cityName + "/" + propertyType.getUrlAlias() + "-sale";
+                url = cityName + this.SLASH + propertyType.getUrlAlias() + "-sale";
                 addBhk(url, urlDetail.getBedrooms());
                 addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
             }
             else if (taxonomyPropertyType != null) {
-                url = cityName + "/" + taxonomyPropertyType.getUrlAlias();
+                url = cityName + this.SLASH + taxonomyPropertyType.getUrlAlias();
                 addBhk(url, urlDetail.getBedrooms());
             }
             else {
@@ -150,7 +152,7 @@ public class URLCreaterService {
         String cityName = getCleanName(urlDetail.getCityName());
 
         if (isEmpty(cityName)) {
-            url = cityName + "/" + "all-localities";
+            url = cityName + this.SLASH + "all-localities";
         }
 
         return url;
@@ -171,13 +173,13 @@ public class URLCreaterService {
         String areaType = getCleanName(urlDetail.getAreaType());
 
         if (areaType == null) {
-            url = cityName + "/" + localityName + localityId;
+            url = cityName + this.SLASH + localityName + localityId;
         }
         else if (areaType.equalsIgnoreCase("overview")) {
-            url = cityName + "/" + localityName + "-overview-" + localityId;
+            url = cityName + this.SLASH + localityName + "-overview-" + localityId;
         }
         else {
-            url = cityName + "/" + localityName + localityId + "/" + areaType;
+            url = cityName + this.SLASH + localityName + localityId + this.SLASH + areaType;
         }
 
         return url;
@@ -198,13 +200,13 @@ public class URLCreaterService {
         String areaType = getCleanName(urlDetail.getAreaType());
 
         if (areaType == null) {
-            url = cityName + "/" + suburbName + suburbId;
+            url = cityName + this.SLASH + suburbName + suburbId;
         }
         else if (areaType.equalsIgnoreCase("overview")) {
-            url = cityName + "/" + suburbName + "-overview-" + suburbId;
+            url = cityName + this.SLASH + suburbName + "-overview-" + suburbId;
         }
         else {
-            url = cityName + "/" + suburbName + suburbId + "/" + areaType;
+            url = cityName + this.SLASH + suburbName + suburbId + this.SLASH + areaType;
         }
 
         return url;
@@ -231,10 +233,10 @@ public class URLCreaterService {
         }
 
         if (taxonomyPropertyType != null) {
-            url = cityName + "/" + taxonomyPropertyType.getUrlAlias() + "-in-" + localityName + localityId;
+            url = cityName + this.SLASH + taxonomyPropertyType.getUrlAlias() + "-in-" + localityName + localityId;
         }
         else {
-            url = cityName + "/" + propertyType.getUrlAlias() + "-" + localityName + localityId;
+            url = cityName + this.SLASH + propertyType.getUrlAlias() + this.HYPHEN + localityName + localityId;
             addBhk(url, urlDetail.getBedrooms());
             addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
         }
@@ -263,10 +265,10 @@ public class URLCreaterService {
         }
 
         if (taxonomyPropertyType != null) {
-            url = cityName + "/" + taxonomyPropertyType.getUrlAlias() + "-in-" + suburbName + suburbId;
+            url = cityName + this.SLASH + taxonomyPropertyType.getUrlAlias() + "-in-" + suburbName + suburbId;
         }
         else {
-            url = cityName + "/" + propertyType.getUrlAlias() + "-" + suburbName + suburbId;
+            url = cityName + this.SLASH + propertyType.getUrlAlias() + this.HYPHEN + suburbName + suburbId;
             addBhk(url, urlDetail.getBedrooms());
             addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
         }
@@ -279,7 +281,7 @@ public class URLCreaterService {
         String cityName = getCleanName(urlDetail.getCityName());
 
         if (isEmpty(cityName)) {
-            url = cityName + "/" + "all-builders";
+            url = cityName + this.SLASH + "all-builders";
         }
 
         return url;
@@ -292,13 +294,13 @@ public class URLCreaterService {
         if (builder != null) {
             String builderName = getCleanName(builder.getName());
             String cityName = getCleanName(urlDetail.getCityName());
-            url = builderName + "-" + builder.getId();
+            url = builderName + this.HYPHEN + builder.getId();
 
             if (urlDetail.getBuilderPropertyType() != null) {
                 url = urlDetail.getBuilderPropertyType() + "-by-" + url;
             }
             else if (cityName != null) {
-                url = cityName + "/" + url;
+                url = cityName + this.SLASH + url;
             }
         }
 
@@ -315,7 +317,13 @@ public class URLCreaterService {
             String cityName = getCleanName(project.getLocality().getSuburb().getCity().getLabel());
             String builderName = getCleanName(project.getBuilder().getName());
 
-            url = cityName + "/" + localityName + "/" + builderName + "-" + projectName + project.getProjectId();
+            url = cityName + this.SLASH
+                    + localityName
+                    + this.SLASH
+                    + builderName
+                    + this.HYPHEN
+                    + projectName
+                    + project.getProjectId();
         }
 
         return url;
@@ -332,14 +340,14 @@ public class URLCreaterService {
             String builderName = getCleanName(property.getProject().getBuilder().getName());
             String bedrooms = property.getBedrooms() < 1 ? "" : (property.getBedrooms() + "");
 
-            url = cityName + "/"
+            url = cityName + this.SLASH
                     + builderName
-                    + "-"
+                    + this.HYPHEN
                     + projectName
-                    + "-"
+                    + this.HYPHEN
                     + localityName
                     + property.getPropertyId()
-                    + "/"
+                    + this.SLASH
                     + bedrooms
                     + "bhk";
         }
@@ -349,14 +357,14 @@ public class URLCreaterService {
 
     private String addBhk(String url, Integer bedrooms) {
         if (bedrooms != null && bedrooms > 0)
-            return url + "/" + bedrooms + this.bhkSuffix;
+            return url + this.SLASH + bedrooms + this.bhkSuffix;
 
         return url;
     }
 
     private String addBudget(String url, Integer minBudget, Integer maxBudget) {
         if (minBudget != null && minBudget > 0 && maxBudget != null && maxBudget > 0)
-            return url + "/" + minBudget + this.budgetSuffix + "-" + maxBudget + this.budgetSuffix;
+            return url + this.SLASH + minBudget + this.budgetSuffix + this.HYPHEN + maxBudget + this.budgetSuffix;
 
         return url;
     }
@@ -377,8 +385,9 @@ public class URLCreaterService {
         }
 
         int start = 0, rows = 5000, size;
+        List<Property> properties = null;
         do {
-            List<Property> properties = getAllProperties(start, rows);
+            properties = getAllProperties(start, rows);
             if (properties == null) {
                 break;
             }
@@ -393,6 +402,7 @@ public class URLCreaterService {
                 }
             }
             properties.clear();
+            System.gc();
         }
         while (size > 0);
 
@@ -415,8 +425,9 @@ public class URLCreaterService {
         }
 
         int start = 0, rows = 5000, size = 0;
+        List<Project> projects = null;
         do {
-            List<Project> projects = getAllProjects(start, rows);
+            projects = getAllProjects(start, rows);
             System.out.println("called");
             if (projects == null) {
                 break;
@@ -495,7 +506,7 @@ public class URLCreaterService {
             String suburbKeyId, suburbNameForKey, suburbKeyName;
             for (Suburb suburb : suburbs) {
                 suburbKeyId = suburbKeyIdPrefix + "_" + suburb.getId();
-                suburbNameForKey = getCleanName(suburb.getLabel()).replace(' ', '-') + "-"
+                suburbNameForKey = getCleanName(suburb.getLabel()).replace(' ', '-') + this.HYPHEN
                         + getCleanName(suburb.getCity().getLabel()).replace(' ', '-');
                 suburbKeyName = suburbKeyNamePrefix + "_" + suburbNameForKey;
 
@@ -539,7 +550,7 @@ public class URLCreaterService {
             String localityKeyId, localityNameForKey, localityKeyName;
             for (Locality locality : localities) {
                 localityKeyId = localityKeyIdPrefix + "_" + locality.getLocalityId();
-                localityNameForKey = getCleanName(locality.getLabel()).replace(' ', '-') + "-"
+                localityNameForKey = getCleanName(locality.getLabel()).replace(' ', '-') + this.HYPHEN
                         + getCleanName(locality.getSuburb().getCity().getLabel()).replace(' ', '-');
                 localityKeyName = localityKeyNamePrefix + "_" + localityNameForKey;
 
@@ -627,12 +638,4 @@ public class URLCreaterService {
 
     }
 
-    /*
-     * function __get_property_type_for_url( $type ) { $type = strtolower( trim(
-     * $type ) ); switch( $type ) { case 'apartment': case 'flat': $type =
-     * "apartments-flats"; break; case 'site': case 'plot': $type =
-     * "sites-plots"; break; case 'villa': $type = "villas"; break; case
-     * 'house': break; case 'property': $type = "property"; break; default:
-     * $type = "property"; } retur
-     */
 }
