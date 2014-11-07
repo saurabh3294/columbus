@@ -21,6 +21,10 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
             value = "SELECT DISTINCT NT FROM MarketplaceNotificationType NT INNER JOIN FETCH NT.notifications N WHERE N.userId = ?1")
     public List<MarketplaceNotificationType> getNotificationTypesForUser(int userId);
 
+    @Query(
+            value = "SELECT DISTINCT NT FROM MarketplaceNotificationType NT INNER JOIN FETCH NT.notifications N WHERE N.userId = ?1 AND NT.id = ?2")
+    public List<MarketplaceNotificationType> getNotificationTypesForUser(int userId, int notificationTypeId);
+
     @Modifying
     @Transactional
     @Query(
@@ -65,7 +69,8 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
 
     @Transactional
     @Modifying
-    @Query(nativeQuery = true,
-            value ="delete marketplace.notifications from marketplace.notifications join marketplace.lead_offers on (marketplace.notifications.object_id = marketplace.lead_offers.id) and marketplace.notifications.notification_type_id = ?2 and marketplace.lead_offers.lead_id in (?1) and marketplace.lead_offers.status_id = ?3")
-    public void deleteUsingNotificationTypeAndObjectId(String leadIdString, int notificationTypeId,int status_id);
+    @Query(
+            nativeQuery = true,
+            value = "delete marketplace.notifications from marketplace.notifications join marketplace.lead_offers on (marketplace.notifications.object_id = marketplace.lead_offers.id) and marketplace.notifications.notification_type_id = ?2 and marketplace.lead_offers.lead_id in (?1) and marketplace.lead_offers.status_id = ?3")
+    public void deleteUsingNotificationTypeAndObjectId(String leadIdString, int notificationTypeId, int status_id);
 }

@@ -141,7 +141,7 @@ public class LeadService {
 
                     if (offer != null) {
                         isAssigned = true;
-                        notificationService.sendLeadOfferNotification(offer.getId());
+                        notificationService.createAndSendLeadOfferNotification(offer.getId());
                         countBrokers++;
                     }
 

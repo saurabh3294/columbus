@@ -27,6 +27,7 @@ import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
+import com.proptiger.data.dto.external.marketplace.GcmMessage;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
@@ -107,7 +108,29 @@ public class NotificationService {
      */
     public List<MarketplaceNotificationType> getNotificationsForUser(int userId) {
         List<MarketplaceNotificationType> notificationTypes = notificationDao.getNotificationTypesForUser(userId);
+        return getFilteredAndOrderedNotificationTypes(notificationTypes);
+    }
 
+    /**
+     * 
+     * @param userId
+     *            notificationTypeId
+     * @return {@link List} of {@link Notification} grouped on the basis of
+     *         {@link MarketplaceNotificationType} in default order
+     */
+    public List<MarketplaceNotificationType> getNotificationsForUser(int userId, Integer notificationTypeId) {
+        List<MarketplaceNotificationType> notificationTypes;
+        if (notificationTypeId == null) {
+            notificationTypes = notificationDao.getNotificationTypesForUser(userId);
+        }
+        else {
+            notificationTypes = notificationDao.getNotificationTypesForUser(userId, notificationTypeId);
+        }
+        return getFilteredAndOrderedNotificationTypes(notificationTypes);
+    }
+
+    private List<MarketplaceNotificationType> getFilteredAndOrderedNotificationTypes(
+            List<MarketplaceNotificationType> notificationTypes) {
         List<MarketplaceNotificationType> finalNotificationTypes = new ArrayList<>();
         for (MarketplaceNotificationType notificationType : notificationTypes) {
             for (Notification notification : notificationType.getNotifications()) {
@@ -473,32 +496,63 @@ public class NotificationService {
      * @return
      */
 
-    public Notification sendLeadOfferNotification(int offerId) {
+    public Notification createAndSendLeadOfferNotification(int offerId) {
         LeadOffer offer = leadOfferDao.getLeadOfferWithRequirements(offerId);
         for (LeadRequirement leadRequirement : offer.getLead().getRequirements()) {
             leadRequirement.setLead(null);
         }
+
+        int notificationTypeId = NotificationType.LeadOffered.getId();
+
         Notification notification = createNotification(
                 offer.getAgentId(),
-                NotificationType.LeadOffered.getId(),
+                notificationTypeId,
                 offer.getId(),
                 SerializationUtils.objectToJson(offer));
 
-        if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_NEW_OFFER)) {
-            String gcmMessage = getGcmMessageContentForGroupableNotification(
-                    offer.getAgentId(),
-                    notification.getNotificationTypeId());
-            logger.debug("LEAD OFFER NOTIFICATION CONTENT === " + gcmMessage);
-
-            NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
-                    defaultNotificationType,
-                    notification.getUserId(),
-                    gcmMessage,
-                    Arrays.asList(MediumType.MarketplaceApp));
-            notificationCreatorService.createNotificationGenerated(request);
-
-        }
+        sendLeadOfferNotification(offer.getAgentId());
         return notification;
+    }
+
+    /**
+     * sends lead offer notification
+     * 
+     * @param userId
+     */
+    private void sendLeadOfferNotification(int userId) {
+        List<Notification> notifications = notificationDao.findByUserIdAndNotificationTypeId(
+                userId,
+                NotificationType.LeadOffered.getId());
+        List<Integer> offerIds = new ArrayList<>();
+        for (Notification notification : notifications) {
+            offerIds.add(notification.getObjectId());
+        }
+        String message;
+        if(offerIds.size() == 0){
+            throw new ProAPIException();
+        }
+        if(offerIds.size() == 1){
+            message = "One lead is waiting to be claimed.";
+        }
+        else{
+            message = offerIds.size() + " leads are waiting to be claimed.";
+        }
+
+        GcmMessage gcmMessage = new GcmMessage();
+        gcmMessage.setNotificationTypeId(NotificationType.LeadOffered.getId());
+        gcmMessage.setData(offerIds);
+        gcmMessage.setMessage(message);
+
+        sendGcmMessageUsingService(gcmMessage, userId);
+    }
+
+    private void sendGcmMessageUsingService(GcmMessage gcmMessage, int userId) {
+        NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
+                defaultNotificationType,
+                userId,
+                SerializationUtils.objectToJson(gcmMessage).toString(),
+                Arrays.asList(MediumType.MarketplaceApp));
+        notificationCreatorService.createNotificationGenerated(request);
     }
 
     /**
@@ -510,11 +564,11 @@ public class NotificationService {
      */
     private String getGcmMessageContentForGroupableNotification(int userId, int notificationTypeId) {
         MarketplaceNotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
-//        List<Notification> notifications = notificationDao
-//                .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
-//        for (Notification notification : notifications) {
-//            notification.setNotificationType(null);
-//        }
+        // List<Notification> notifications = notificationDao
+        // .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
+        // for (Notification notification : notifications) {
+        // notification.setNotificationType(null);
+        // }
         notificationType.setNotifications(new ArrayList<Notification>());
 
         return SerializationUtils.objectToJson(notificationType).toString();
@@ -661,7 +715,10 @@ public class NotificationService {
     public void deleteNotificationsOfLeadOffersExpired(List<Integer> leadIdList, int notificationTypeId) {
         String string = StringUtils.join(leadIdList, ",");
         if (string != "") {
-            notificationDao.deleteUsingNotificationTypeAndObjectId(string, notificationTypeId,LeadOfferStatus.Offered.getId());
+            notificationDao.deleteUsingNotificationTypeAndObjectId(
+                    string,
+                    notificationTypeId,
+                    LeadOfferStatus.Offered.getId());
         }
     }
 }
