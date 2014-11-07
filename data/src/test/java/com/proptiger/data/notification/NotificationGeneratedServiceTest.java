@@ -120,8 +120,11 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
             Assert.assertEquals(notificationGenerated.getNotificationType().getId(), message.getNotificationType()
                     .getId());
             Assert.assertEquals(
-                    notificationGenerated.getNotificationMessagePayload(),
-                    message.getNotificationMessagePayload());
+                    notificationGenerated.getNotificationMessagePayload().getExtraAttributes(),
+                    message.getNotificationMessagePayload().getExtraAttributes());
+            Assert.assertEquals(
+                    notificationGenerated.getNotificationMessagePayload().getMediumDetails(),
+                    message.getNotificationMessagePayload().getMediumDetails());
             Assert.assertEquals(notificationGenerated.getObjectId(), message.getNotificationMessagePayload()
                     .getNotificationTypePayload().getPrimaryKeyValue());
             Assert.assertEquals(
