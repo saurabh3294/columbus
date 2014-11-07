@@ -41,6 +41,9 @@ public class AndroidSender implements MediumSender {
     @Autowired
     private NotificationGeneratedService nGeneratedService;
 
+    @Autowired
+    private TemplateGenerator            templateGenerator;
+
     @Value("${app.android.key}")
     private String                       KEY_STRING;
 
@@ -64,16 +67,7 @@ public class AndroidSender implements MediumSender {
     }
 
     @Override
-    public boolean send(String template, NotificationGenerated nGenerated) {
-
-        MediumDetails mediumDetails = nGenerated.getNotificationMessagePayload().getMediumDetails();
-        DefaultMediumDetails defaultMediumDetails = null;
-        if (mediumDetails != null) {
-            defaultMediumDetails = (DefaultMediumDetails) mediumDetails;
-            if (defaultMediumDetails.getMessage() != null) {
-                template = defaultMediumDetails.getMessage();
-            }
-        }
+    public boolean send(NotificationGenerated nGenerated) {
 
         Integer userId = nGenerated.getUserId();
         if (userId == null) {
@@ -90,30 +84,18 @@ public class AndroidSender implements MediumSender {
             return true;
         }
 
-        return pushToAndroidDevice(template, gcmUsersList, nGenerated.getNotificationType().getName());
+        return pushToAndroidDevice(gcmUsersList, nGenerated);
     }
 
-    public boolean sendToMarketplaceApp(String template, NotificationGenerated nGenerated) {
-        return findUsersAndPushToAndroidDevice(template, AndroidApplication.Marketplace, nGenerated);
+    public boolean sendToMarketplaceApp(NotificationGenerated nGenerated) {
+        return findUsersAndPushToAndroidDevice(AndroidApplication.Marketplace, nGenerated);
     }
 
-    public boolean sendToProptigerApp(String template, NotificationGenerated nGenerated) {
-        return findUsersAndPushToAndroidDevice(template, AndroidApplication.Proptiger, nGenerated);
+    public boolean sendToProptigerApp(NotificationGenerated nGenerated) {
+        return findUsersAndPushToAndroidDevice(AndroidApplication.Proptiger, nGenerated);
     }
 
-    private boolean findUsersAndPushToAndroidDevice(
-            String template,
-            AndroidApplication androidApp,
-            NotificationGenerated nGenerated) {
-
-        MediumDetails mediumDetails = nGenerated.getNotificationMessagePayload().getMediumDetails();
-        DefaultMediumDetails defaultMediumDetails = null;
-        if (mediumDetails != null) {
-            defaultMediumDetails = (DefaultMediumDetails) mediumDetails;
-            if (defaultMediumDetails.getMessage() != null) {
-                template = defaultMediumDetails.getMessage();
-            }
-        }
+    private boolean findUsersAndPushToAndroidDevice(AndroidApplication androidApp, NotificationGenerated nGenerated) {
 
         Integer userId = nGenerated.getUserId();
         if (userId == null) {
@@ -134,11 +116,30 @@ public class AndroidSender implements MediumSender {
             return true;
         }
 
-        return pushToAndroidDevice(template, gcmUsersList, nGenerated.getNotificationType().getName());
+        return pushToAndroidDevice(gcmUsersList, nGenerated);
     }
 
-    private boolean pushToAndroidDevice(String template, List<GCMUser> gcmUsersList, String typeName) {
+    private boolean pushToAndroidDevice(List<GCMUser> gcmUsersList, NotificationGenerated nGenerated) {
         Boolean isSent = Boolean.FALSE;
+        String typeName = nGenerated.getNotificationType().getName();
+
+        String template = null;
+        MediumDetails mediumDetails = nGenerated.getNotificationMessagePayload().getMediumDetails();
+        DefaultMediumDetails defaultMediumDetails = null;
+        if (mediumDetails != null) {
+            defaultMediumDetails = (DefaultMediumDetails) mediumDetails;
+            template = defaultMediumDetails.getMessage();
+        }
+        
+        if (template == null) {
+            template = templateGenerator.generatePopulatedTemplate(nGenerated);
+        }
+        
+        if (template == null) {
+            logger.error("Template not found in DB/Payload while sending push notification for notification generated id: " + nGenerated
+                    .getId() + " and typeName: " + typeName);
+            return false;
+        }
 
         // Create a map of AppIdentifier to List of Reg Ids
         Map<AndroidApplication, List<String>> regIdMap = new HashMap<AndroidApplication, List<String>>();
@@ -199,11 +200,7 @@ public class AndroidSender implements MediumSender {
             }
         }
 
-        if (isSent) {
-            return true;
-        }
-
-        return false;
+        return isSent;
     }
 
     private Map<String, String> getDataMap(String template, String typeName) {

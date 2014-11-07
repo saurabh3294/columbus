@@ -19,9 +19,6 @@ public class NotificationSender {
     private static Logger                logger = LoggerFactory.getLogger(NotificationSender.class);
 
     @Autowired
-    private TemplateGenerator            templateGenerator;
-
-    @Autowired
     private NotificationGeneratedService nGeneratedService;
 
     public Integer sendNotification(MediumType medium) {
@@ -72,11 +69,7 @@ public class NotificationSender {
     }
 
     public boolean sendNotificationGenerated(NotificationGenerated nGenerated) {
-
-        String template = templateGenerator.generatePopulatedTemplate(nGenerated);
-
         MediumTypeConfig config = nGenerated.getNotificationMedium().getMediumTypeConfig();
-        return config.getMediumSenderObject().send(template, nGenerated);
-
+        return config.getMediumSenderObject().send(nGenerated);
     }
 }

@@ -16,12 +16,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineFactory;
 
 import com.proptiger.data.notification.model.NotificationGenerated;
+import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.service.NotificationTypeNotificationMediumMappingService;
 
 @Service
 public class TemplateGenerator {
 
-    private static Logger                                    logger = LoggerFactory.getLogger(TemplateGenerator.class);
+    private static Logger                                    logger         = LoggerFactory
+                                                                                    .getLogger(TemplateGenerator.class);
+
+    @Autowired
+    private NotificationTypeNotificationMediumMappingService ntNmMappingService;
 
     private VelocityEngine                                   velocityEngine = null;
 
@@ -37,15 +42,13 @@ public class TemplateGenerator {
             logger.error("Could not initialize velocity engine", e);
         }
     }
-    
-    @Autowired
-    private NotificationTypeNotificationMediumMappingService ntNmMappingService;
 
     public String generatePopulatedTemplate(NotificationGenerated nGenerated) {
+        NotificationMessagePayload payload = nGenerated.getNotificationMessagePayload();
         String template = ntNmMappingService.getTemplate(nGenerated.getNotificationType().getId(), nGenerated
                 .getNotificationMedium().getId());
         logger.debug("Template: " + template);
-        Map<String, Object> payloadDataMap = nGenerated.getNotificationMessagePayload().getExtraAttributes();
+        Map<String, Object> payloadDataMap = payload.getExtraAttributes();
         logger.debug("PayloadDataMap: " + payloadDataMap.toString());
 
         if (template == null || template.isEmpty()) {

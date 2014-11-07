@@ -43,27 +43,41 @@ public class SmsSender implements MediumSender {
     @Autowired
     private UserService         userService;
 
-    @Override
-    public boolean send(String template, NotificationGenerated nGenerated) {
+    @Autowired
+    private TemplateGenerator   templateGenerator;
 
-        MediumDetails mediumDetails = nGenerated.getNotificationMessagePayload().getMediumDetails();
-        DefaultMediumDetails defaultMediumDetails = null;
-        if (mediumDetails != null) {
-            defaultMediumDetails = (DefaultMediumDetails) mediumDetails;
-            if (defaultMediumDetails.getMessage() != null) {
-                template = defaultMediumDetails.getMessage();
-            }
-        }
+    @Override
+    public boolean send(NotificationGenerated nGenerated) {
 
         Integer userId = nGenerated.getUserId();
         if (userId == null) {
-            logger.error("Found null User Id while sending SMS.");
+            logger.error("Found null User Id while sending SMS for notification generated id: " + nGenerated.getId());
             return false;
         }
 
         UserContactNumber userContactNumber = userService.getTopPriorityContact(userId);
         if (userContactNumber == null) {
-            logger.error("No contact number found for UserId: " + userId + " while sending SMS.");
+            logger.error("No contact number found for UserId: " + userId
+                    + " while sending SMS for notification generated id: "
+                    + nGenerated.getId());
+            return false;
+        }
+
+        String template = null;
+        MediumDetails mediumDetails = nGenerated.getNotificationMessagePayload().getMediumDetails();
+        DefaultMediumDetails defaultMediumDetails = null;
+        if (mediumDetails != null) {
+            defaultMediumDetails = (DefaultMediumDetails) mediumDetails;
+            template = defaultMediumDetails.getMessage();
+        }
+        
+        if (template == null) {
+            template = templateGenerator.generatePopulatedTemplate(nGenerated);
+        }
+
+        if (template == null) {
+            logger.error("Template not found in DB/Payload while sending push notification for notification generated id: " + nGenerated
+                    .getId());
             return false;
         }
 

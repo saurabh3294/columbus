@@ -12,7 +12,7 @@ public class MarketplaceAppSender implements MediumSender {
     private AndroidSender androidSender;
 
     @Override
-    public boolean send(String template, NotificationGenerated nGenerated) {
-        return androidSender.sendToMarketplaceApp(template, nGenerated);
+    public boolean send(NotificationGenerated nGenerated) {
+        return androidSender.sendToMarketplaceApp(nGenerated);
     }
 }

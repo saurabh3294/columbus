@@ -31,8 +31,11 @@ public class EmailSender implements MediumSender {
     @Autowired
     private UserService         userService;
 
+    @Autowired
+    private TemplateGenerator   templateGenerator;
+
     @Override
-    public boolean send(String template, NotificationGenerated nGenerated) {
+    public boolean send(NotificationGenerated nGenerated) {
 
         Integer userId = nGenerated.getUserId();
         String typeName = nGenerated.getNotificationType().getName();
@@ -74,7 +77,10 @@ public class EmailSender implements MediumSender {
         }
         mailDetails.setMailTo(emailId);
 
-        MailBody mailBody = getMailBody(template);
+        MailBody mailBody = null;
+        if (mailDetails.getBody() == null || mailDetails.getSubject() == null) {
+            mailBody = getMailBody(nGenerated);
+        }
 
         if ((mailDetails.getBody() == null || mailDetails.getSubject() == null) && mailBody == null) {
             logger.error("Email subject/body not found in DB/Payload while sending email for notification generated id: " + nGenerated
@@ -110,7 +116,9 @@ public class EmailSender implements MediumSender {
         return true;
     }
 
-    private MailBody getMailBody(String template) {
+    private MailBody getMailBody(NotificationGenerated nGenerated) {
+        String template = templateGenerator.generatePopulatedTemplate(nGenerated);
+
         if (template == null || template.isEmpty()) {
             logger.info("Template is null.");
             return null;
