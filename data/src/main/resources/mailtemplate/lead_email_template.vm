@@ -671,7 +671,7 @@
                   Thank you for showing your trust and choosing Proptiger as a property advisor. 
                   
                   #if(${leadgeneration.enquiry.project})
-                  You have shown interest in buying a property in <b> ${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} </b> at <b> ${leadgeneration.enquiry.localityName} </b>. 
+                  You have shown interest in buying a property in <b> ${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} </b> at <b> ${leadgeneration.enquiry.project.locality.label} </b>. 
                   #elseif(${leadgeneration.enquiry.locality.label})
                   You have shown interest in buying a property in <b> ${leadgeneration.enquiry.locality.label} </b>. 
                   #else
