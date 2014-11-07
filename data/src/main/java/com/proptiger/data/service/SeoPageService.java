@@ -119,7 +119,7 @@ public class SeoPageService {
         SeoPage seoPage = applicationContext.getBean(SeoPageService.class).getSeoPageByTemplateId(
                 urlDetail.getTemplateId(),
                 url);
-        ProjectSeoTags projectSeoTags = getProjectSeoTags(url);
+        ProjectSeoTags projectSeoTags = applicationContext.getBean(SeoPageService.class).getProjectSeoTags(url);
         if (projectSeoTags != null) {
             copyProperties(projectSeoTags, seoPage);
         }
@@ -141,7 +141,8 @@ public class SeoPageService {
         }
     }
 
-    private ProjectSeoTags getProjectSeoTags(String url) {
+    @Cacheable(value = Constants.CacheName.SEO_TEMPLATE)
+    public ProjectSeoTags getProjectSeoTags(String url) {
         List<ProjectSeoTags> projectSeoTags = projectSeoTagsDao.findByUrlOrderByIdDesc(url, new LimitOffsetPageRequest(
                 0,
                 1));
@@ -266,7 +267,7 @@ public class SeoPageService {
         Gson gson = new Gson();
 
         if (urlDetail.getPropertyId() != null) {
-            property = propertyService.getProperty(urlDetail.getPropertyId());
+            property = propertyService.getPropertyFromSolr(urlDetail.getPropertyId());
             if (property == null) {
                 throw new ResourceNotAvailableException(ResourceType.PROPERTY, ResourceTypeAction.GET);
             }
@@ -288,7 +289,7 @@ public class SeoPageService {
         if (urlDetail.getProjectId() != null) {
             String json = "{\"fields\":[\"distinctBedrooms\"]}";
             Selector selector = gson.fromJson(json, Selector.class);
-            project = projectService.getProjectInfoDetails(selector, urlDetail.getProjectId());
+            project = projectService.getProjectInfoDetailsFromSolr(selector, urlDetail.getProjectId());
             if (project == null) {
                 throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
             }

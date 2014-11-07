@@ -303,6 +303,21 @@ public class PropertyService {
 
         return properties.get(0);
     }
+    
+    /*
+     *  Only Solr call, no DB call specific changes 
+     *  should be added in this method
+     */
+    public Property getPropertyFromSolr(int propertyId) {
+        String jsonSelector = "{\"paging\":{\"rows\":1},\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyId
+                + "}}]}}";
+        Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
+        List<Property> properties = propertyDao.getProperties(selector);
+        if (properties == null || properties.isEmpty())
+            throw new ResourceNotAvailableException(ResourceType.PROPERTY, ResourceTypeAction.GET);
+
+        return properties.get(0);
+    }
 
     /**
      * Tries to find a matching property from database based on other info
