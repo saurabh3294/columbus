@@ -105,7 +105,7 @@ public class NotificationTypeGeneratedService {
     @Transactional
     public void persistNotificationTypes(EventGenerated eventGenerated, List<NotificationTypeGenerated> ntGeneratedList) {
         saveOrUpdateTypes(ntGeneratedList);
-        subscriberConfigService.setLastEventDateReadByNotification(eventGenerated.getUpdatedDate());
+        subscriberConfigService.setLastEventDateReadByNotification(eventGenerated.getUpdatedAt());
     }
 
     public Iterable<NotificationTypeGenerated> saveOrUpdateTypes(Iterable<NotificationTypeGenerated> notificationTypes) {

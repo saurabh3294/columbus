@@ -4,14 +4,14 @@ import java.util.List;
 
 import com.proptiger.data.event.model.EventType;
 
-public class DBRawEventAttributeConfig {
+public class RawDBEventAttributeConfig {
     private String attributeName;
     private List<EventType> listEventTypes;
     
-    public DBRawEventAttributeConfig() {
+    public RawDBEventAttributeConfig() {
         super();
     }
-    public DBRawEventAttributeConfig(String attributeName, List<EventType> listEventTypes) {
+    public RawDBEventAttributeConfig(String attributeName, List<EventType> listEventTypes) {
         super();
         this.attributeName = attributeName;
         this.listEventTypes = listEventTypes;

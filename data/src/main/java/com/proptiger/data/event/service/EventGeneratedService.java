@@ -14,16 +14,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
-import com.proptiger.data.event.generator.model.DBRawEventAttributeConfig;
-import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
-import com.proptiger.data.event.model.DBRawEventTableLog;
+import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
+import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawDBEvent;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.payload.EventTypePayload;
-import com.proptiger.data.event.repo.DBRawEventTableLogDao;
 import com.proptiger.data.event.repo.EventGeneratedDao;
+import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.util.Serializer;
@@ -39,7 +39,7 @@ public class EventGeneratedService {
     private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Autowired
-    private DBRawEventTableLogDao             dbRawEventTableLogDao;
+    private RawEventTableDetailsDao           rawEventTableDetailsDao;
 
     @Autowired
     private RawEventToEventTypeMappingDao     dbEventMappingDao;
@@ -53,32 +53,32 @@ public class EventGeneratedService {
     private Gson                              serializer = new Gson();
 
     @Transactional
-    public void persistEvents(List<EventGenerated> eventGenerateds, DBRawEventTableLog dbRawEventTableLog) {
+    public void persistEvents(List<EventGenerated> eventGenerateds, RawEventTableDetails rawEventTableDetails) {
         logger.info(eventGenerateds.size() + " Events Being Persisting ");
 
         applicationContext.getBean(this.getClass()).saveOrUpdateEvents(eventGenerateds);
 
         logger.info(" Events Saved .");
 
-        dbRawEventTableLogDao.updateLastTransactionKeyValueById(
-                dbRawEventTableLog.getId(),
-                dbRawEventTableLog.getLastTransactionKeyValue());
+        rawEventTableDetailsDao.updateLastTransactionKeyValueById(
+                rawEventTableDetails.getId(),
+                rawEventTableDetails.getLastTransactionKeyValue());
 
-        logger.info(" Updated the Last Transaction Value " + dbRawEventTableLog.getLastTransactionKeyValue()
+        logger.info(" Updated the Last Transaction Value " + rawEventTableDetails.getLastTransactionKeyValue()
                 + " for table Config "
-                + dbRawEventTableLog.getId());
+                + rawEventTableDetails.getId());
     }
 
     public List<EventGenerated> getRawEvents() {
         List<EventGenerated> listEventGenerateds = eventGeneratedDao
-                .findByEventStatusOrderByCreatedDateAsc(EventGenerated.EventStatus.Raw);
+                .findByEventStatusOrderByCreatedAtAsc(EventGenerated.EventStatus.Raw);
         populateEventsDataAfterLoad(listEventGenerateds);
         return listEventGenerateds;
     }
 
     public List<EventGenerated> getProcessedEvents() {
         List<EventGenerated> listEventGenerateds = eventGeneratedDao
-                .findByEventStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(
+                .findByEventStatusAndExpiryDateLessThanEqualOrderByCreatedAtAsc(
                         EventGenerated.EventStatus.Processed,
                         new Date());
         populateEventsDataAfterLoad(listEventGenerateds);
@@ -87,7 +87,7 @@ public class EventGeneratedService {
 
     public List<EventGenerated> getVerifiedEventsFromDate(Date fromDate) {
         List<EventGenerated> listEventGenerateds = eventGeneratedDao
-                .findByEventStatusAndUpdatedDateGreaterThanOrderByUpdatedDateAsc(
+                .findByEventStatusAndUpdatedAtGreaterThanOrderByUpdatedAtAsc(
                         EventGenerated.EventStatus.Verified,
                         fromDate);
         populateEventsDataAfterLoad(listEventGenerateds);
@@ -97,7 +97,7 @@ public class EventGeneratedService {
     public List<EventGenerated> getProcessedEventsToBeMerged() {
 
         List<EventGenerated> listEventGenerateds = eventGeneratedDao
-                .findByEventStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(
+                .findByEventStatusAndExpiryDateGreaterThanOrderByCreatedAtAsc(
                         EventGenerated.EventStatus.Processed,
                         new Date());
         populateEventsDataAfterLoad(listEventGenerateds);
@@ -178,24 +178,24 @@ public class EventGeneratedService {
         logger.info(" Generate the Events from Raw Event " + rawDBEvent.getTransactionKeyValue());
 
         List<EventGenerated> eventGeneratedList = new ArrayList<EventGenerated>();
-        DBRawEventOperationConfig dbRawEventOperationConfig = rawDBEvent.getDbRawEventOperationConfig();
+        RawDBEventOperationConfig rawDBEventOperationConfig = rawDBEvent.getRawDBEventOperationConfig();
 
-        if (dbRawEventOperationConfig.getListEventTypes() != null) {
-            generateEvents(rawDBEvent, dbRawEventOperationConfig.getListEventTypes(), null, eventGeneratedList);
+        if (rawDBEventOperationConfig.getListEventTypes() != null) {
+            generateEvents(rawDBEvent, rawDBEventOperationConfig.getListEventTypes(), null, eventGeneratedList);
         }
 
         for (String attributeName : rawDBEvent.getNewDBValueMap().keySet()) {
             logger.debug(" Attribute Name " + attributeName);
 
-            DBRawEventAttributeConfig dbRawEventAttributeConfig = dbRawEventOperationConfig
-                    .getDBRawEventAttributeConfig(attributeName);
-            if (dbRawEventAttributeConfig != null && dbRawEventAttributeConfig.getListEventTypes() != null) {
+            RawDBEventAttributeConfig rawDBEventAttributeConfig = rawDBEventOperationConfig
+                    .getRawDBEventAttributeConfig(attributeName);
+            if (rawDBEventAttributeConfig != null && rawDBEventAttributeConfig.getListEventTypes() != null) {
                 logger.debug(" List of Events Mapped from Attribute Name " + Serializer
-                        .toJson(dbRawEventAttributeConfig.getListEventTypes()));
+                        .toJson(rawDBEventAttributeConfig.getListEventTypes()));
 
                 generateEvents(
                         rawDBEvent,
-                        dbRawEventAttributeConfig.getListEventTypes(),
+                        rawDBEventAttributeConfig.getListEventTypes(),
                         attributeName,
                         eventGeneratedList);
             }
@@ -218,11 +218,11 @@ public class EventGeneratedService {
             // TODO to seperate the payload set and new event generated in
             // seperate methods.
             EventTypePayload payload = eventType.getEventTypeConfig().getEventTypePayloadObject();
-            payload.setTransactionKeyName(rawDBEvent.getDbRawEventTableLog().getTransactionKeyName());
+            payload.setTransactionKeyName(rawDBEvent.getRawEventTableDetails().getTransactionKeyName());
             payload.setTransactionId(rawDBEvent.getTransactionKeyValue());
-            payload.setPrimaryKeyName(rawDBEvent.getDbRawEventTableLog().getPrimaryKeyName());
+            payload.setPrimaryKeyName(rawDBEvent.getRawEventTableDetails().getPrimaryKeyName());
             payload.setPrimaryKeyValue(rawDBEvent.getPrimaryKeyValue());
-            payload.setTransactionDateKeyName(rawDBEvent.getDbRawEventTableLog().getDateAttributeName());
+            payload.setTransactionDateKeyName(rawDBEvent.getRawEventTableDetails().getDateAttributeName());
             payload.setTransactionDateKeyValue(rawDBEvent.getTransactionDate());
             payload.populatePayloadValues(rawDBEvent, attributeName);
 

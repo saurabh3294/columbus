@@ -234,6 +234,33 @@ public class ProjectService {
         return project;
     }
     
+    /*
+     *  Only Solr call, no DB call specific changes 
+     *  should be added in this method
+     */
+    @Cacheable(value = Constants.CacheName.PROJECT_DETAILS, key = "#projectId+':'+#selector")
+    public Project getProjectInfoDetailsFromSolr(Selector selector, Integer projectId) {
+    	
+    	List<Project> projects = getProjectListByIds(new HashSet<Integer>(Arrays.asList(projectId)));
+    	if (projects == null || projects.size() < 1) {
+            throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+        }
+
+        Project project = projects.get(0);
+        Set<String> fields = selector.getFields();
+
+        if (fields == null || fields.contains("builder")) {
+            project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
+        }
+
+        if (fields == null || fields.contains("locality")) {
+            project.setLocality(localityService.getLocality(project.getLocalityId()));
+        }
+        List<Property> properties = getPropertyFromIdAndUpdateObjectField(project);
+        project.setProperties(properties);
+		return project;
+	}
+    
     @Cacheable(value = Constants.CacheName.PROJECT_DETAILS, key = "#projectId+':'+#selector")
     public Project getProjectDataBySelector(Selector selector, Integer projectId){
         List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(projectId)));
@@ -601,6 +628,22 @@ public class ProjectService {
         projectIds.add(projectId);
 
         List<Project> projects = getProjectsByIds(projectIds);
+
+        if (projects != null && projects.size() > 0)
+            return projects.get(0);
+
+        throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+    }
+    
+    /*
+     *  Only Solr call, no DB call specific changes 
+     *  should be added in this method
+     */
+    public Project getProjectDataFromSolr(int projectId) {
+        Set<Integer> projectIds = new HashSet<>();
+        projectIds.add(projectId);
+
+        List<Project> projects = getProjectListByIds(projectIds);
 
         if (projects != null && projects.size() > 0)
             return projects.get(0);

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.model.DBRawEventTableLog;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawEventToEventTypeMapping;
 import com.proptiger.data.event.repo.EventTypeProcessorDao;
@@ -35,7 +35,7 @@ public class EventTypeProcessorService {
 
         RawEventToEventTypeMapping eventTypeMapping = eventTypeMappingService.getMappingByEventTypeId(eventGenerated
                 .getEventType().getId());
-        DBRawEventTableLog dbRawEventTableLog = eventTypeMapping.getDbRawEventTableLog();
+        RawEventTableDetails dbRawEventTableLog = eventTypeMapping.getRawEventTableDetails();
 
         Number OldPrice = (Number) eventTypeProcessorDao.getOldValueOfEventTypeOnLastMonth(
                 dbRawEventTableLog.getHostName(),
@@ -59,7 +59,7 @@ public class EventTypeProcessorService {
     public Map<String, Object> getEventTransactionRow(EventGenerated eventGenerated) {
         RawEventToEventTypeMapping eventTypeMapping = eventTypeMappingService.getMappingByEventTypeId(eventGenerated
                 .getEventType().getId());
-        DBRawEventTableLog dbRawEventTableLog = eventTypeMapping.getDbRawEventTableLog();
+        RawEventTableDetails dbRawEventTableLog = eventTypeMapping.getRawEventTableDetails();
         Map<String, Object> transactionRow = rawDBEventService.getRawEventTransactionRow(
                 dbRawEventTableLog,
                 eventGenerated.getEventTypePayload().getTransactionId());

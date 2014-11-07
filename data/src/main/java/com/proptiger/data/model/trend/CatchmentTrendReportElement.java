@@ -43,9 +43,9 @@ public class CatchmentTrendReportElement implements Serializable {
 
     private String                             bhkSizeRange;
 
-    private int                                totalUnits;
+    private Integer                            totalUnits;
 
-    private int                                launchedUnits;
+    private Integer                            launchedUnits;
 
     private String                             projectBhkSizeRange;
 
@@ -155,19 +155,19 @@ public class CatchmentTrendReportElement implements Serializable {
         this.bhkSizeRange = bhkSizeRange;
     }
 
-    public int getTotalUnits() {
+    public Integer getTotalUnits() {
         return totalUnits;
     }
 
-    public void setTotalUnits(int totalUnits) {
+    public void setTotalUnits(Integer totalUnits) {
         this.totalUnits = totalUnits;
     }
 
-    public int getLaunchedUnits() {
+    public Integer getLaunchedUnits() {
         return launchedUnits;
     }
 
-    public void setLaunchedUnits(int launchedUnits) {
+    public void setLaunchedUnits(Integer launchedUnits) {
         this.launchedUnits = launchedUnits;
     }
 
@@ -188,19 +188,18 @@ public class CatchmentTrendReportElement implements Serializable {
     }
 
     public List<List<Object>> getReportRows(List<Date> monthlist) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         List<List<Object>> reportRows = new ArrayList<List<Object>>();
         List<Object> commonData = Arrays.asList(new Object[] {
                 projectName,
                 builderName,
                 phaseName,
-                sdf.format(launchDate),
-                sdf.format(completionDate),
+                getDateDisplay(launchDate),
+                getDateDisplay(completionDate),
                 locality,
                 latitude,
                 longitude,
                 projectStatus,
-                projectArea.intValue(),
+                projectArea,
                 launchPrice,
                 getBhkDisplay(bhk),
                 bhkSizeRange,
@@ -219,6 +218,11 @@ public class CatchmentTrendReportElement implements Serializable {
         }
 
         return reportRows;
+    }
+    
+    private String getDateDisplay(Date date){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return (date == null ? "null" : sdf.format(date));
     }
 
     public static List<Object[]> getReportColumns(List<Date> monthList) {

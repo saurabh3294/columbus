@@ -6,9 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.constants.EventConstants;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.processor.DBEventProcessor;
@@ -36,12 +36,15 @@ public class DBEventGenerator implements EventGeneratorInterface {
     @Autowired
     private RawDBEventService     rawDBEventService;
 
+    @Value("${event.raw.maxCount}")
+    private Integer               MAX_RAW_EVENT_COUNT;
+
     @Override
     public boolean isEventGenerationRequired() {
 
         Long rawEventCount = eventGeneratedService.getRawEventCount();
 
-        if (rawEventCount > EventConstants.MAX_RAW_EVENT_COUNT) {
+        if (rawEventCount > MAX_RAW_EVENT_COUNT) {
             return false;
         }
 
@@ -50,7 +53,7 @@ public class DBEventGenerator implements EventGeneratorInterface {
 
     @Override
     public Integer generateEvents() {
-        //logger.info(" Generate Raw Events.");
+        // logger.info(" Generate Raw Events.");
 
         Integer eventCount = 0;
         List<RawDBEvent> rawDBEvents = rawDBEventGenerator.getRawDBEvents();
@@ -85,7 +88,7 @@ public class DBEventGenerator implements EventGeneratorInterface {
             eventCount += events.size();
 
             // persist the events and update the last date in dbRawEventTableLog
-            eventGeneratedService.persistEvents(events, rawDBEvent.getDbRawEventTableLog());
+            eventGeneratedService.persistEvents(events, rawDBEvent.getRawEventTableDetails());
         }
 
         return eventCount;

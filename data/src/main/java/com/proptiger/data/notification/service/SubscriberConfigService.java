@@ -103,7 +103,7 @@ public class SubscriberConfigService {
             
             if (eventGenerated != null) {
                 // Subtracting 1 second to include current events.
-                lastEventDate = DateUtil.addSeconds(eventGenerated.getCreatedDate(), -1);
+                lastEventDate = DateUtil.addSeconds(eventGenerated.getCreatedAt(), -1);
             }
             else {
                 lastEventDate = new Date();
