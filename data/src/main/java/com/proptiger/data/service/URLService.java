@@ -126,7 +126,7 @@ public class URLService {
                 responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 Property property = null;
                 try {
-                    property = propertyService.getProperty(urlDetail.getPropertyId());
+                    property = propertyService.getPropertyFromSolr(urlDetail.getPropertyId());
                 }
                 catch (ResourceNotAvailableException e) {
                     property = null;
@@ -146,7 +146,7 @@ public class URLService {
                 responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 Project project = null;
                 try {
-                    project = projectService.getProjectData(urlDetail.getProjectId());
+                    project = projectService.getProjectDataFromSolr(urlDetail.getProjectId());
                 }
                 catch (ResourceNotAvailableException e) {
                     project = null;
