@@ -30,6 +30,21 @@ public class NotificationMessagePayload extends BaseModel {
 
     private MediumDetails                          mediumDetails;
 
+    public NotificationMessagePayload() {
+
+    }
+
+    public NotificationMessagePayload(NotificationMessagePayload payload) {
+        this.notificationTypePayload = payload.getNotificationTypePayload();
+        this.notificationMessagePayloads = payload.getNotificationMessagePayloads();
+        this.notificationMessageUpdateHistories = payload.getNotificationMessageUpdateHistories();
+        this.fromEmail = payload.getFromEmail();
+        this.ccList = payload.getCcList();
+        this.bccList = payload.getBccList();
+        this.mediumDetails = payload.getMediumDetails();
+        this.extraAttributes = payload.getExtraAttributes();
+    }
+
     public List<NotificationMessageUpdateHistory> getNotificationMessageUpdateHistories() {
         return notificationMessageUpdateHistories;
     }

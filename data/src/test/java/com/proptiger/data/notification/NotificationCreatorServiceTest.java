@@ -32,7 +32,7 @@ public class NotificationCreatorServiceTest extends AbstractTest {
                 "This is a sample template for XYZ"));
 
         Assert.assertNotNull(request);
-        notificationCreatorService.createNotificationGenerated(request);
+        // notificationCreatorService.createNotificationGenerated(request);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class NotificationCreatorServiceTest extends AbstractTest {
         templateMap.put(Tokens.CouponIssued.UnitName.name(), "2BHK + 2T");
         templateMap.put(Tokens.CouponIssued.UserName.name(), "Sahil Garg");
 
-        String ccList[] = { "sahil.garg@proptiger.com" };
+        String ccList[] = { "garg.sahil25@gmail.com" };
         String fromEmail = "customer.service@proptiger.com";
 
         Map<MediumType, MediumDetails> mediumTypes = new HashMap<MediumType, MediumDetails>();

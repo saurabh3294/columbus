@@ -224,7 +224,10 @@ public class NotificationGeneratedService {
         nGenerated.setUserId(notificationMessage.getUserId());
         nGenerated.setNotificationMedium(notificationMedium);
         nGenerated.setNotificationMessage(notificationMessage);
-        nGenerated.setNotificationMessagePayload(notificationMessage.getNotificationMessagePayload());
+
+        NotificationMessagePayload notificationMessagePayload = new NotificationMessagePayload(
+                notificationMessage.getNotificationMessagePayload());
+        nGenerated.setNotificationMessagePayload(notificationMessagePayload);
         nGenerated.setNotificationType(notificationMessage.getNotificationType());
 
         logger.debug(Serializer.toJson(notificationMessage));
@@ -249,21 +252,23 @@ public class NotificationGeneratedService {
      */
     public List<NotificationGenerated> createNotificationGenerated(
             List<NotificationMessage> nMessages,
-            Map<MediumType, MediumDetails> mediumTypes) {
+            Map<MediumType, ? extends MediumDetails> mediumTypes) {
         if (mediumTypes == null) {
             return generateNotficationGenerated(nMessages);
         }
         List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
         NotificationType defaultNotificationType = notificationTypeService.findDefaultNotificationType();
 
-        for (Entry<MediumType, MediumDetails> entry : mediumTypes.entrySet()) {
-            NotificationMedium nMedium = notificationMediumService.findNotificationMediumByMediumType(entry.getKey());
+        for (Entry<MediumType, ? extends MediumDetails> entry : mediumTypes.entrySet()) {
+            MediumType mediumType = entry.getKey();
+            MediumDetails mediumDetails = entry.getValue();
+            NotificationMedium nMedium = notificationMediumService.findNotificationMediumByMediumType(mediumType);
             for (NotificationMessage nMessage : nMessages) {
                 if (nMessage.getNotificationType() == null) {
                     nMessage.setNotificationType(defaultNotificationType);
                 }
                 NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);
-                nGenerated.getNotificationMessagePayload().setMediumDetails(entry.getValue());
+                nGenerated.getNotificationMessagePayload().setMediumDetails(mediumDetails);
                 generatedList.add(nGenerated);
             }
         }
