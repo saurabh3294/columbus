@@ -23,7 +23,7 @@ public class PriceChangeProcessor extends DBEventProcessor {
 
     @Override
     public boolean populateEventSpecificData(EventGenerated event) {
-        logger.info(" Populating the Event Type Old data.");
+        logger.info(" Populating the Price Change Event Type Old data.");
 
         /**
          * TODO for Now getting the transaction. Remove this query and getting
