@@ -34,6 +34,8 @@ public class URLDetail {
     private Integer  minBudget;
     private Integer  maxBudget;
     private String   fallBackUrl;
+    private Integer	 objectId;
+    private Integer  imageId;
     /**
      * Default Value of bedroomString is empty string. Do not change it.
      */
@@ -210,4 +212,20 @@ public class URLDetail {
     public void setOverviewType(String overviewType) {
         this.overviewType = overviewType;
     }
+
+	public Integer getObjectId() {
+		return objectId;
+	}
+
+	public void setObjectId(Integer objectId) {
+		this.objectId = objectId;
+	}
+
+	public Integer getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(Integer imageId) {
+		this.imageId = imageId;
+	}
 }

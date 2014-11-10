@@ -26,6 +26,7 @@ import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Suburb;
+import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.init.NullAwareBeanUtilsBean;
@@ -65,6 +66,9 @@ public class URLService {
 
     @Autowired
     private PortfolioService  portfolioService;
+    
+    @Autowired
+    private ImageService	  imageService;
 
     public ValidURLResponse getURLStatus(String url) {
         URLDetail urlDetail = null;
@@ -349,6 +353,18 @@ public class URLService {
                     }
                 }
                 break;
+            case IMAGE_PAGE_URL:
+            	responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
+            	if (urlDetail.getObjectId() != null && urlDetail.getImageId() != null) {
+            		Image image = imageService.getImage(urlDetail.getImageId());
+            		if (image.getObjectId() == urlDetail.getObjectId() && image.getPageUrl().equals(urlDetail.getUrl())) {
+            			responseStatus = HttpStatus.SC_OK;
+            		}
+            		else {
+            			redirectUrl = image.getPageUrl();
+            		}
+            	}
+            	break;
             default:
                 responseStatus = HttpStatus.SC_NOT_FOUND;
                 break;
