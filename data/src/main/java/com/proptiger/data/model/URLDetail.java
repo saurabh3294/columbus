@@ -33,9 +33,9 @@ public class URLDetail {
     private Integer  bedrooms;
     private Integer  minBudget;
     private Integer  maxBudget;
-    private String   fallBackUrl;
-    private Integer	 objectId;
-    private Integer  imageId;
+	private String fallBackUrl;
+	private Integer objectId;
+	private Integer imageId;
     /**
      * Default Value of bedroomString is empty string. Do not change it.
      */
