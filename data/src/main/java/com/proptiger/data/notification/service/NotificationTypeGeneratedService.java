@@ -13,13 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypeUpdateHistory;
+import com.proptiger.data.notification.processor.NotificationTypeProcessor;
 import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
 
 @Service
@@ -63,7 +63,9 @@ public class NotificationTypeGeneratedService {
             ntGenerated.setNotificationTypePayload((NotificationTypePayload) new Gson().fromJson(
                     ntGenerated.getData(),
                     ntGenerated.getNotificationType().getNotificationTypeConfig().getDataClassName()));
-            logger.debug("Created payload object " + ntGenerated.getNotificationTypePayload() + "for notificationTypeGenerated ID " + ntGenerated.getId());
+            logger.debug("Created payload object " + ntGenerated.getNotificationTypePayload()
+                    + "for notificationTypeGenerated ID "
+                    + ntGenerated.getId());
         }
         return ntGeneratedList;
     }
@@ -73,26 +75,24 @@ public class NotificationTypeGeneratedService {
         List<NotificationTypeGenerated> notificationTypeGeneratedList = new ArrayList<NotificationTypeGenerated>();
         List<NotificationType> notificationTypeList = ntMappingService.getNotificationTypesByEventType(eventGenerated
                 .getEventType());
-        for (NotificationType notificationType : notificationTypeList) {
-            NotificationTypePayload payload = notificationType.getNotificationTypeConfig()
-                    .getNotificationTypePayloadObject();
 
-            EventTypePayload eventTypePayload = eventGenerated.getEventTypePayload();
-            payload.setPrimaryKeyName(eventTypePayload.getPrimaryKeyName());
-            payload.setPrimaryKeyValue(eventTypePayload.getPrimaryKeyValue());
-            payload.populatePayloadValues(eventTypePayload);
-            
-            // TODO to move the code to create NotificationTypeGenerated function.
+        for (NotificationType notificationType : notificationTypeList) {
+
+            NotificationTypeProcessor processor = notificationType.getNotificationTypeConfig()
+                    .getNotificationTypeProcessorObject();
+            NotificationTypePayload payload = processor.getNotificationTypePayload(eventGenerated, notificationType);
+
             NotificationTypeGenerated ntGenerated = new NotificationTypeGenerated();
             ntGenerated.setEventGeneratedId(eventGenerated.getId());
             ntGenerated.setNotificationType(notificationType);
             ntGenerated.setNotificationTypePayload(payload);
             notificationTypeGeneratedList.add(ntGenerated);
         }
+
         return notificationTypeGeneratedList;
     }
-    
-    public NotificationTypeGenerated createNotificationTypeGenerated(NotificationMessage nMessage){
+
+    public NotificationTypeGenerated createNotificationTypeGenerated(NotificationMessage nMessage) {
         NotificationTypeGenerated ntGenerated = new NotificationTypeGenerated();
         ntGenerated.setNotificationType(nMessage.getNotificationType());
         ntGenerated.setNotificationTypePayload(nMessage.getNotificationMessagePayload().getNotificationTypePayload());
@@ -130,7 +130,7 @@ public class NotificationTypeGeneratedService {
         notificationTypeGeneratedDao.save(notificationType);
         return notificationType;
     }
-    
+
     public NotificationTypeGenerated saveOrFlushType(NotificationTypeGenerated notificationType) {
         populateNotificationTypeDataBeforeSave(notificationType);
         /*
@@ -139,7 +139,7 @@ public class NotificationTypeGeneratedService {
          */
         return notificationTypeGeneratedDao.saveAndFlush(notificationType);
     }
-    
+
     private void populateNotificationTypeDataBeforeSave(NotificationTypeGenerated ntGenerated) {
         NotificationTypePayload payload = ntGenerated.getNotificationTypePayload();
         ntGenerated.setData(serializer.toJson(payload));

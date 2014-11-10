@@ -19,8 +19,8 @@ import com.proptiger.data.notification.repo.NotificationTypeDao;
 
 @Service
 public class NotificationTypeService {
-    private static Logger       logger = LoggerFactory.getLogger(NotificationTypeService.class);
-    
+    private static Logger       logger                    = LoggerFactory.getLogger(NotificationTypeService.class);
+
     private static final String DEFAULT_NOTIFICATION_TYPE = "default";
 
     @Autowired
@@ -66,6 +66,8 @@ public class NotificationTypeService {
             e.printStackTrace();
         }
 
+        notificationTypeConfig.setNotificationTypeProcessorObject(applicationContext.getBean(notificationTypeConfig
+                .getNotificationTypeProcessorClassName()));
         notificationTypeConfig.setNotificationMessageProcessorObject(applicationContext.getBean(notificationTypeConfig
                 .getNotificationMessageProcessorClassName()));
 
@@ -214,11 +216,12 @@ public class NotificationTypeService {
         populateNotificationTypeConfig(nType);
         return nType;
     }
-    
+
     public NotificationType findByName(String notificationTypeName) {
         List<NotificationType> nTypes = notificationTypeDao.findByName(notificationTypeName);
         if (nTypes == null || nTypes.size() != 1) {
-            throw new NotificationTypeNotFoundException("Zero or more than one Notification Type : " + notificationTypeName + " found in DB");
+            throw new NotificationTypeNotFoundException(
+                    "Zero or more than one Notification Type : " + notificationTypeName + " found in DB");
         }
         NotificationType nType = nTypes.get(0);
         populateNotificationTypeConfig(nType);
@@ -228,7 +231,8 @@ public class NotificationTypeService {
     public NotificationType findDefaultNotificationType() {
         List<NotificationType> nTypes = notificationTypeDao.findByName(DEFAULT_NOTIFICATION_TYPE);
         if (nTypes == null || nTypes.size() != 1) {
-            throw new NotificationTypeNotFoundException("Zero or more than one Notification Type : " + DEFAULT_NOTIFICATION_TYPE + " found in DB");
+            throw new NotificationTypeNotFoundException(
+                    "Zero or more than one Notification Type : " + DEFAULT_NOTIFICATION_TYPE + " found in DB");
         }
         NotificationType nType = nTypes.get(0);
         populateNotificationTypeConfig(nType);
