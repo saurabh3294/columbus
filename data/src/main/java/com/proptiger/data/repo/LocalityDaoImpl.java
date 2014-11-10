@@ -118,7 +118,8 @@ public class LocalityDaoImpl {
         }
 
         Selector selector = new Selector();
-
+        selector.setPaging(new Paging(0, localityIds.size()));
+        
         Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
         List<Map<String, Map<String, Object>>> list = new ArrayList<>();
         Map<String, Map<String, Object>> searchType = new HashMap<>();
@@ -134,9 +135,6 @@ public class LocalityDaoImpl {
             selector.setFields(propertySelector.getFields());
             selector.setPaging(propertySelector.getPaging());
         }
-
-        if (selector.getPaging() == null)
-            selector.setPaging(new Paging(0, localityIds.size()));
 
         return getLocalities(selector);
     }
