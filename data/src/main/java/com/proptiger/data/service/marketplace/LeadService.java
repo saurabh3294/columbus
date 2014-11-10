@@ -1,7 +1,5 @@
 package com.proptiger.data.service.marketplace;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,14 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.model.cms.Company;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.enums.NotificationType;
-import com.proptiger.data.model.Company;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
-import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.CityService;
@@ -27,11 +28,6 @@ import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.data.util.UtilityClass;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ProAPIException;
 
 /**
  * @author Anubhav

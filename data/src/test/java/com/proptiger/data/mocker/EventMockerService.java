@@ -7,8 +7,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.enums.DBOperation;
-import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
-import com.proptiger.data.event.model.DBRawEventTableLog;
+import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.EventType;
@@ -46,7 +46,7 @@ public class EventMockerService {
     
     public RawDBEvent getMockInsertRawDBEvent() {       
           
-        DBRawEventTableLog tableLog = new DBRawEventTableLog();
+        RawEventTableDetails tableLog = new RawEventTableDetails();
         tableLog.setId(1);
         tableLog.setHostName("hostName");
         tableLog.setDateAttributeName("dateAttributeName");
@@ -58,13 +58,13 @@ public class EventMockerService {
         List<EventType> eventTypeList = new ArrayList<EventType>();
         eventTypeList.add(getMockEventType());
         
-        DBRawEventOperationConfig operationConfig = new DBRawEventOperationConfig();
+        RawDBEventOperationConfig operationConfig = new RawDBEventOperationConfig();
         operationConfig.setDbOperation(DBOperation.INSERT);
         operationConfig.setListEventTypes(eventTypeList);
         
         RawDBEvent rawDBEvent = new RawDBEvent();
-        rawDBEvent.setDbRawEventTableLog(tableLog);
-        rawDBEvent.setDbRawEventOperationConfig(operationConfig);
+        rawDBEvent.setRawEventTableDetails(tableLog);
+        rawDBEvent.setRawDBEventOperationConfig(operationConfig);
         rawDBEvent.setTransactionKeyValue(100);
         rawDBEvent.setPrimaryKeyValue(500);
         rawDBEvent.setTransactionDate(new Date());

@@ -13,17 +13,17 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.enums.SortOrder;
-import com.proptiger.data.model.LandMark;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.Selector;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.model.cms.LandMark;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.repo.LandMarkDao;
 import com.proptiger.data.repo.LocalityDao;
-import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.UtilityClass;
 
 /**
  * 

@@ -13,10 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.model.user.User;
+import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
-import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
@@ -122,37 +122,6 @@ public class NotificationMessageService {
     }
 
     /**
-     * This method is used by marketplace project for creating Notification
-     * Message and adding template in its payload
-     * 
-     * @param notificationType
-     * @param userId
-     * @param template
-     * @return
-     */
-    public NotificationMessage createNotificationMessage(String notificationType, int userId, String template) {
-        Map<String, Object> payloadMap = new HashMap<String, Object>();
-        payloadMap.put(Tokens.Default.Template.name(), template);
-        return createNotificationMessage(notificationType, userId, payloadMap);
-    }
-
-    /**
-     * This method is used by external clients for creating Notification Message
-     * and adding payloadMap in it
-     * 
-     * @param notificationType
-     * @param userId
-     * @param payloadMap
-     * @return
-     */
-    public NotificationMessage createNotificationMessage(
-            String notificationType,
-            int userId,
-            Map<String, Object> payloadMap) {
-        return createNotificationMessage(notificationType, userId, payloadMap, null, null, null);
-    }
-
-    /**
      * This method is used by external clients for creating Notification Message
      * and adding payloadMap in it
      * 
@@ -164,7 +133,7 @@ public class NotificationMessageService {
      * @return
      */
     public NotificationMessage createNotificationMessage(
-            String notificationType,
+            NotificationTypeEnum notificationType,
             int userId,
             Map<String, Object> payloadMap,
             String fromEmail,
@@ -176,31 +145,15 @@ public class NotificationMessageService {
             notiType = notiTypeService.findDefaultNotificationType();
         }
         else {
-            notiType = notiTypeService.findByName(notificationType);
+            notiType = notiTypeService.findByName(notificationType.getName());
         }
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setExtraAttributes(payloadMap);
         payload.setFromEmail(fromEmail);
         payload.setCcList(ccList);
         payload.setBccList(bccList);
-        NotificationMessage notificationMessage =  new NotificationMessage(userId, payload, notiType);
+        NotificationMessage notificationMessage = new NotificationMessage(userId, payload, notiType);
         return saveOrFlush(notificationMessage);
-    }
-
-    /**
-     * This method is used by marketplace project for creating Notification
-     * Messages and adding email subject and body in its payload
-     * 
-     * @param userId
-     * @param subject
-     * @param body
-     * @return
-     */
-    public NotificationMessage createNotificationMessage(int userId, String subject, String body) {
-        Map<String, Object> payloadMap = new HashMap<String, Object>();
-        payloadMap.put(Tokens.Default.Subject.name(), subject);
-        payloadMap.put(Tokens.Default.Body.name(), body);
-        return createNotificationMessage(null, userId, payloadMap);
     }
 
     public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId, Object primaryKeyId) {

@@ -11,14 +11,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.Status;
-import com.proptiger.data.model.Listing;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.Status;
+import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.cms.ProjectSupply;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.data.model.ProjectPhase;
-import com.proptiger.data.model.ProjectSupply;
-import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SecondaryPrice;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.ProjectPhaseDao;
 
 /**

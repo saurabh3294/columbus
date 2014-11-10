@@ -4,7 +4,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
-import com.proptiger.data.util.Constants;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.Constants;
 
 /**
  * This is an implementations of Pageable inteface to provide functionality of

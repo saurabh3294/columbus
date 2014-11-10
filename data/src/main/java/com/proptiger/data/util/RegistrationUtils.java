@@ -5,11 +5,11 @@ import java.util.Set;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.data.internal.dto.RegisterUser;
-import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * Util class to validate user registration data
@@ -35,7 +35,9 @@ public class RegistrationUtils {
             register.setConfirmPassword(register.getPassword());
         }
         validateName(register.getFullName());
-        validateEmail(register.getEmail());
+        if (!validateEmail(register.getEmail())) {
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_EMAIL);
+        }
         String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
                 register.getPassword(),
                 register.getConfirmPassword());
@@ -49,23 +51,28 @@ public class RegistrationUtils {
 
     private static void validateContactNumber(Set<UserContactNumber> contacts) {
         // TODO can check minimum and maximum length of phone number as well
-        if(contacts != null){
+        if (contacts != null) {
             Iterator<UserContactNumber> it = contacts.iterator();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 UserContactNumber contact = it.next();
                 if (contact.getContactNumber() == null || contact.getContactNumber().isEmpty()) {
-                    throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_CONTACT_NUMBER);
+                    throw new BadRequestException(
+                            ResponseCodes.BAD_REQUEST,
+                            ResponseErrorMessages.INVALID_CONTACT_NUMBER);
                 }
             }
         }
-        else{
+        else {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_CONTACT_NUMBER);
         }
     }
 
-    private static void validateEmail(String email) {
+    public static boolean validateEmail(String email) {
         if (!EmailValidator.getInstance().isValid(email)) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_EMAIL);
+            return false;
+        }
+        else {
+            return true;
         }
     }
 

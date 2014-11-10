@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.model.VideoLinks;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.cms.VideoLinks;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.repo.VideoLinksDao;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
 
 @Service

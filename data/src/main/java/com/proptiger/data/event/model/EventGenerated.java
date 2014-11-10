@@ -15,12 +15,12 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.proptiger.data.event.legacy.Event;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 
 @Entity
 @Table(name = "notification.event_generated")
-public class EventGenerated extends Event {
+public class EventGenerated extends BaseModel {
 
     /**
      * 
@@ -45,14 +45,6 @@ public class EventGenerated extends Event {
     @Column(name = "event_type_id")
     private Integer          eventTypeId;
 
-    @Column(name = "created_date", updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date             createdDate;
-
-    @Column(name = "updated_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date             updatedDate;
-
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private EventStatus      eventStatus;
@@ -69,14 +61,22 @@ public class EventGenerated extends Event {
     @Transient
     private EventTypePayload eventTypePayload;
 
+    @Column(name = "created_at", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date             createdAt;
+
+    @Column(name = "updated_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date             updatedAt;
+
     @PreUpdate
     public void autoUpdateFields() {
-        this.updatedDate = new Date();
+        this.updatedAt = new Date();
     }
 
     @PrePersist
     public void autoPopulateFields() {
-        this.createdDate = new Date();
+        this.createdAt = new Date();
         this.eventStatus = EventStatus.Raw;
 
         autoUpdateFields();
@@ -104,22 +104,6 @@ public class EventGenerated extends Event {
 
     public void setEventType(EventType eventType) {
         this.eventType = eventType;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public Date getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(Date updatedDate) {
-        this.updatedDate = updatedDate;
     }
 
     public EventStatus getEventStatus() {
@@ -169,4 +153,21 @@ public class EventGenerated extends Event {
     public void setEventTypeId(Integer eventTypeId) {
         this.eventTypeId = eventTypeId;
     }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
 }

@@ -17,7 +17,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 

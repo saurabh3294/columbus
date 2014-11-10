@@ -20,6 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -31,9 +37,9 @@ import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.notification.enums.MediumType;
-import com.proptiger.data.notification.model.NotificationMessage;
-import com.proptiger.data.notification.service.NotificationGeneratedService;
-import com.proptiger.data.notification.service.NotificationMessageService;
+import com.proptiger.data.notification.enums.NotificationTypeEnum;
+import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
+import com.proptiger.data.notification.service.external.NotificationCreatorService;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
@@ -41,13 +47,7 @@ import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SerializationUtils;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.UnauthorizedException;
 import com.rits.cloning.Cloner;
 
 /**
@@ -58,37 +58,35 @@ import com.rits.cloning.Cloner;
 @Service
 public class NotificationService {
     @Autowired
-    private NotificationDao                notificationDao;
+    private NotificationDao                   notificationDao;
 
     @Autowired
-    private MarketplaceNotificationTypeDao notificationTypeDao;
+    private MarketplaceNotificationTypeDao    notificationTypeDao;
 
     @Autowired
-    private LeadTaskDao                    taskDao;
+    private LeadTaskDao                       taskDao;
 
     @Autowired
-    private LeadOfferDao                   leadOfferDao;
+    private LeadOfferDao                      leadOfferDao;
 
     @Autowired
-    private LeadDao                        leadDao;
+    private LeadDao                           leadDao;
 
     @Autowired
-    NotificationGeneratedService           generatedService;
+    NotificationCreatorService                notificationCreatorService;
+
+    public static final List<Integer>         allMasterTaskIdsButCall = new ArrayList<>();
+
+    private static final NotificationTypeEnum defaultNotificationType = NotificationTypeEnum.MarketplaceDefault;
 
     @Autowired
-    NotificationMessageService             notificationMessageService;
-
-    public static final List<Integer>      allMasterTaskIdsButCall = new ArrayList<>();
-
-    private static final String            defaultNotificationType = "marketplace_default";
+    UserService                               userService;
 
     @Autowired
-    UserService                            userService;
+    MailSender                                mailSender;
 
-    @Autowired
-    MailSender                             mailSender;
-
-    private static Logger                  logger                  = LoggerFactory.getLogger(NotificationService.class);
+    private static Logger                     logger                  = LoggerFactory
+                                                                              .getLogger(NotificationService.class);
 
     static {
         for (LeadTaskName leadTask : LeadTaskName.values()) {
@@ -194,12 +192,13 @@ public class NotificationService {
                             notification.getUserId(),
                             notificationTypeId);
                     logger.debug("SENDING TASK NOTIFICATION  = " + gcmMessage);
-                    generatedService.createNotificationGenerated(
-                            Arrays.asList(notificationMessageService.createNotificationMessage(
-                                    defaultNotificationType,
-                                    notification.getUserId(),
-                                    gcmMessage)),
+
+                    NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
+                            defaultNotificationType,
+                            notification.getUserId(),
+                            gcmMessage,
                             Arrays.asList(MediumType.MarketplaceApp));
+                    notificationCreatorService.createNotificationGenerated(request);
                 }
             }
         }
@@ -436,9 +435,13 @@ public class NotificationService {
             String message = SerializationUtils.objectToJson(notificationType).toString();
             if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_ALL)) {
                 logger.debug("SENDING TASK NOTIFICATION == " + message);
-                generatedService.createNotificationGenerated(Arrays.asList(notificationMessageService
-                        .createNotificationMessage(defaultNotificationType, userId, message)), Arrays
-                        .asList(MediumType.MarketplaceApp));
+
+                NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
+                        defaultNotificationType,
+                        userId,
+                        message,
+                        Arrays.asList(MediumType.MarketplaceApp));
+                notificationCreatorService.createNotificationGenerated(request);
             }
         }
     }
@@ -481,9 +484,13 @@ public class NotificationService {
                     notification.getNotificationTypeId());
             logger.debug("LEAD OFFER NOTIFICATION CONTENT === " + gcmMessage);
 
-            generatedService.createNotificationGenerated(Arrays.asList(notificationMessageService
-                    .createNotificationMessage(defaultNotificationType, notification.getUserId(), gcmMessage)), Arrays
-                    .asList(MediumType.MarketplaceApp));
+            NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
+                    defaultNotificationType,
+                    notification.getUserId(),
+                    gcmMessage,
+                    Arrays.asList(MediumType.MarketplaceApp));
+            notificationCreatorService.createNotificationGenerated(request);
+
         }
         return notification;
     }
@@ -601,9 +608,8 @@ public class NotificationService {
 
     public void sendEmail(int userId, String subject, String content) {
         if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_SENDEMAIL_USING_SERVICE)) {
-            generatedService.createNotificationGenerated(
-                    Arrays.asList(new NotificationMessage(userId, subject, content)),
-                    Arrays.asList(MediumType.Email));
+            NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(userId, subject, content);
+            notificationCreatorService.createNotificationGenerated(request);
         }
         else {
             MailBody mailBody = new MailBody();

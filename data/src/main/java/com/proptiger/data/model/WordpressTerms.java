@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.proptiger.core.model.BaseModel;
+
 @Entity
 @Table(name = "wp_terms")
 public class WordpressTerms extends BaseModel {

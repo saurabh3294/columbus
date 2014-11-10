@@ -9,14 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.model.AmenityMaster;
-import com.proptiger.data.model.Listing;
-import com.proptiger.data.model.ListingAmenity;
-import com.proptiger.data.model.ProjectCMSAmenity;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.model.cms.AmenityMaster;
+import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.cms.ListingAmenity;
+import com.proptiger.core.model.cms.ProjectCMSAmenity;
 import com.proptiger.data.repo.marketplace.ListingAmenitiesDao;
 import com.proptiger.data.service.AmenityMasterService;
 import com.proptiger.data.service.ProjectAmenityService;
-import com.proptiger.exception.BadRequestException;
 
 /**
  * @author Rajeev Pandey

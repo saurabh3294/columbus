@@ -10,24 +10,24 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.enums.ConstructionStatus;
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.EntityType;
-import com.proptiger.data.enums.Status;
-import com.proptiger.data.enums.UnitType;
-import com.proptiger.data.model.Listing;
-import com.proptiger.data.model.ListingPrice.CustomCurrentListingPrice;
+import com.proptiger.core.enums.ConstructionStatus;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.EntityType;
+import com.proptiger.core.enums.Status;
+import com.proptiger.core.enums.UnitType;
+import com.proptiger.core.exception.ResourceNotFoundException;
+import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.cms.ListingPrice.CustomCurrentListingPrice;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.ProjectPhase.CustomCurrentPhaseSecondaryPrice;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.ListingPriceDao;
 import com.proptiger.data.repo.ProjectAvailabilityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.ProjectPhaseDao;
 import com.proptiger.data.repo.SecondaryPriceDao;
-import com.proptiger.data.util.UtilityClass;
-import com.proptiger.exception.ResourceNotFoundException;
 
 /**
  * 

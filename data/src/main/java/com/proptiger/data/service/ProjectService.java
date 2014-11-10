@@ -22,38 +22,37 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.enums.SortOrder;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.cms.CouponCatalogue;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.ProjectDB;
+import com.proptiger.core.model.cms.ProjectSpecification;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.cms.TableAttributes;
+import com.proptiger.core.model.proptiger.Bank;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.SortBy;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.model.Bank;
-import com.proptiger.data.model.CouponCatalogue;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.ProjectDB;
-import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.model.ProjectSpecification;
-import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.TableAttributes;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.ProjectSolrDao;
 import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
-import com.proptiger.data.util.UtilityClass;
-import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 
@@ -221,6 +220,33 @@ public class ProjectService {
         
         return project;
     }
+    
+    /*
+     *  Only Solr call, no DB call specific changes 
+     *  should be added in this method
+     */
+    @Cacheable(value = Constants.CacheName.PROJECT_DETAILS, key = "#projectId+':'+#selector")
+    public Project getProjectInfoDetailsFromSolr(Selector selector, Integer projectId) {
+    	
+    	List<Project> projects = getProjectListByIds(new HashSet<Integer>(Arrays.asList(projectId)));
+    	if (projects == null || projects.size() < 1) {
+            throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+        }
+
+        Project project = projects.get(0);
+        Set<String> fields = selector.getFields();
+
+        if (fields == null || fields.contains("builder")) {
+            project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
+        }
+
+        if (fields == null || fields.contains("locality")) {
+            project.setLocality(localityService.getLocality(project.getLocalityId()));
+        }
+        List<Property> properties = getPropertyFromIdAndUpdateObjectField(project);
+        project.setProperties(properties);
+		return project;
+	}
     
     @Cacheable(value = Constants.CacheName.PROJECT_DETAILS, key = "#projectId+':'+#selector")
     public Project getProjectDataBySelector(Selector selector, Integer projectId){
@@ -595,6 +621,22 @@ public class ProjectService {
 
         throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
     }
+    
+    /*
+     *  Only Solr call, no DB call specific changes 
+     *  should be added in this method
+     */
+    public Project getProjectDataFromSolr(int projectId) {
+        Set<Integer> projectIds = new HashSet<>();
+        projectIds.add(projectId);
+
+        List<Project> projects = getProjectListByIds(projectIds);
+
+        if (projects != null && projects.size() > 0)
+            return projects.get(0);
+
+        throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+    }
 
     public PaginatedResponse<List<Project>> getHighestReturnProjects(
             String locationType,
@@ -608,7 +650,7 @@ public class ProjectService {
                 + locationId
                 + "}},{\"range\":{\"projectAvgPriceRiseMonths\":{\"from\":1},\"projectAvgPriceRisePercentage\":{\"from\":"
                 + minimumPriceRise
-                + "}}}]},\"sort\":[{\"field\":\"projectPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
+                + "}}}]},\"sort\":[{\"field\":\"projectAvgPriceRisePercentage\",\"sortOrder\":\"DESC\"}]}";
 
         Selector selector = new Gson().fromJson(json, Selector.class);
         PaginatedResponse<List<Project>> paginatedResponse = projectDao.getProjects(selector);

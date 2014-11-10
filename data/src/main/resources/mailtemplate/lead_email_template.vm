@@ -1,0 +1,705 @@
+#parse("./mailtemplate/VM_global_library.vm")
+
+#if ($leadgeneration.leadMailFlag == 'leadAcceptance')
+    
+ <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+   <tr>
+      <td>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="24">
+                  <table width="120" border="0" cellspacing="0" cellpadding="0">
+                     <tr>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                     </tr>
+                     <tr>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                     </tr>
+                  </table>
+               </td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                  Dear ${leadgeneration.enquiry.name}, <br /><br />
+                  Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
+                  We have received your enquiry regarding <b>${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} - ${leadgeneration.enquiry.project.locality.suburb.city.label} </b>. Our Sales team will 
+                  get in touch with you soon. 
+                  
+                  For more details about this project, please visit <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.project.URL}">${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} - ${leadgeneration.enquiry.project.locality.suburb.city.label}</a>. <br /><br />
+                 
+                  For more options in ${leadgeneration.enquiry.project.locality.label}, please click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.project.locality.url}" target="_blank">here</a>. Or for all properties in ${leadgeneration.enquiry.project.locality.suburb.city.label}, click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.project.locality.suburb.city.url}" target="_blank">here</a>.<br /><br />
+                  You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />
+                  <strong>How does PropTiger Work?</strong><br /><br />
+                  <strong>Step 1: Search for Properties </strong><br /><br />
+                  Visit <a href="http://www.proptiger.com" style="color:#1155cc; text-decoration:none;" target="_blank">http://www.proptiger.com</a> to browse, compare, and select a property from a vast database 
+                  of properties from best builders. We provide comprehensive information on location, builder, 
+                  unique selling points of the project, layout plan, floor plans, pricing, specifications and amenities 
+                  on all properties.<br /><br />
+                  <strong>Step 2: Select the Property that meets your criteria</strong><br /><br />
+                  <ul style="margin:0px 15px; padding:0px;">
+                     <li>Shortlist the properties you like on our website. </li>
+                     <li> Call/Meet our advisors who will help you review the shortlisted properties and suggest 
+                        more properties that suit your requirement. 
+                     </li>
+                  </ul>
+                  <br />
+                  <strong>Step 3: Book the Property </strong><br />
+                  <strong>All our services are Free of Cost for our customers.</strong><br /><br />
+                  Once you have decided on the property of your choice, we help you with<br /><br />
+                  <strong>A) Documentation</strong><br />
+                  <ul>
+                     <li> Our Sales team will help you choose the apartment and fill up the application form and other 
+                        necessary documents
+                     </li>
+                     <li> We have a Home Loan team <a style="color:#1155cc; text-decoration:none;" href="mailto:homeloan@proptiger.com" target="_blank">homeloan@proptiger.com</a> which can help you procure a home 
+                        loan for your apartment
+                     </li>
+                  </ul>
+                  <strong>B) After Sales Customer Service</strong><br />
+                  <ul>
+                     <li> We have an in-house Customer Service team to help our customers with any queries they have 
+                        post the purchase of an apartment
+                     </li>
+                     <li> We also help with installment cheque pick up from your doorstep</li>
+                     <li> Receipt delivery to your doorstep </li>
+                  </ul>
+                  We thank you for your interest.<br /><br />
+                  Please add <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a> to your contacts, to easily send and get messages from 
+                  PropTiger.com.<br /><br />
+                  Yours sincerely, <br /><br />
+                  The PropTiger Family<br />
+                  <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                  <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
+                  <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
+                  <div style="padding-left:40px"><a href="http://www.proptiger.com/property-portfolio-tracker.php?utm_source=internal&utm_medium=email&utm_campaign=my-portfolio&utm_content=leads"><img src="${IMG_SERVER}images/portfolio_tracker_banner.png"/><a></div><br /><br />
+                  <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
+                  notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788</td>
+            </tr>
+         </table>
+      </td>
+   </tr>
+</table>
+#end
+
+#if ($leadgeneration.leadMailFlag == 'leadAcceptancewithoutproject')
+    
+ <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+   <tr>
+      <td>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="24">
+                  <table width="120" border="0" cellspacing="0" cellpadding="0">
+                     <tr>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                     </tr>
+                     <tr>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                     </tr>
+                  </table>
+               </td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                  Dear ${leadgeneration.enquiry.name}, <br /><br />
+                  Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
+                  
+                  #if(${leadgeneration.enquiry.locality})
+                  We have received your enquiry regarding <b>${leadgeneration.enquiry.locality.label} - ${leadgeneration.enquiry.locality.suburb.city.label}</b>. Our Sales team will 
+                  get in touch with you soon. 
+                  
+                  For more options in ${leadgeneration.enquiry.locality.label}, please click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.locality.url}" target="_blank">here</a>. Or for all properties in 
+                  ${leadgeneration.enquiry.locality.suburb.city.label}, click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.locality.suburb.city.url}" target="_blank">here</a>.<br /><br />
+                  
+                  #elseif(${leadgeneration.enquiry.city})
+                  We have received your enquiry regarding <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.city.url}" >${leadgeneration.enquiry.city.label}</a>. Our Sales team will get in touch with you soon.
+                  
+                  #else
+                  We have received your enquiry. Our Sales team will get in touch with you soon.
+                  #end
+                  
+                  You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />
+                  <strong>How does PropTiger Work?</strong><br /><br />
+                  <strong>Step 1: Search for Properties </strong><br /><br />
+                  Visit <a href="http://www.proptiger.com" style="color:#1155cc; text-decoration:none;" target="_blank">http://www.proptiger.com</a> to browse, compare, and select a property from a vast database 
+                  of properties from best builders. We provide comprehensive information on location, builder, 
+                  unique selling points of the project, layout plan, floor plans, pricing, specifications and amenities 
+                  on all properties.<br /><br />
+                  <strong>Step 2: Select the Property that meets your criteria</strong><br /><br />
+                  <ul style="margin:0px 15px; padding:0px;">
+                     <li>Shortlist the properties you like on our website. </li>
+                     <li> Call/Meet our advisors who will help you review the shortlisted properties and suggest 
+                        more properties that suit your requirement. 
+                     </li>
+                  </ul>
+                  <br />
+                  <strong>Step 3: Book the Property </strong><br />
+                  <strong>All our services are Free of Cost for our customers.</strong><br /><br />
+                  Once you have decided on the property of your choice, we help you with<br /><br />
+                  <strong>A) Documentation</strong><br />
+                  <ul>
+                     <li> Our Sales team will help you choose the apartment and fill up the application form and other 
+                        necessary documents
+                     </li>
+                     <li> We have a Home Loan team <a style="color:#1155cc; text-decoration:none;" href="mailto:homeloan@proptiger.com" target="_blank">homeloan@proptiger.com</a> which can help you procure a home 
+                        loan for your apartment
+                     </li>
+                  </ul>
+                  <strong>B) After Sales Customer Service</strong><br />
+                  <ul>
+                     <li> We have an in-house Customer Service team to help our customers with any queries they have 
+                        post the purchase of an apartment
+                     </li>
+                     <li> We also help with installment cheque pick up from your doorstep</li>
+                     <li> Receipt delivery to your doorstep </li>
+                  </ul>
+                  We thank you for your interest.<br /><br />
+                  Please add <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a> to your contacts, to easily send and get messages from 
+                  PropTiger.com.<br /><br />
+                  Yours sincerely, <br /><br />
+                  The PropTiger Family<br />
+                  <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                  <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
+                  <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
+                  <div style="padding-left:40px"><a href="http://www.proptiger.com/property-portfolio-tracker.php?utm_source=internal&utm_medium=email&utm_campaign=my-portfolio&utm_content=leads"><img src="${IMG_SERVER}images/portfolio_tracker_banner.png"/><a></div><br /><br />
+                  <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
+                  notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788</td>
+            </tr>
+         </table>
+      </td>
+   </tr>
+</table>
+#end
+
+#if($leadgeneration.leadMailFlag == 'homeloan')
+    
+ <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+   <tr>
+      <td>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="24">
+                  <table width="120" border="0" cellspacing="0" cellpadding="0">
+                     <tr>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                     </tr>
+                     <tr>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                     </tr>
+                  </table>
+               </td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                  Dear ${leadgeneration.enquiry.name}, <br /><br />
+                  Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
+                  We have received your enquiry for <b> ${leadgeneration.enquiry.city.label}</b>. Our team will get in touch with you soon. 
+                  
+                  For more information about properties in ${leadgeneration.enquiry.city.label}, click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.city.url}" target="_blank">here</a>.<br /><br />
+                  You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />
+                  <strong>How does PropTiger Work?</strong><br /><br />
+                  <strong>Step 1: Search for Properties </strong><br /><br />
+                  Visit <a href="http://www.proptiger.com" style="color:#1155cc; text-decoration:none;" target="_blank">http://www.proptiger.com</a> to browse, compare, and select a property from a vast database 
+                  of properties from best builders. We provide comprehensive information on location, builder, 
+                  unique selling points of the project, layout plan, floor plans, pricing, specifications and amenities 
+                  on all properties.<br /><br />
+                  <strong>Step 2: Select the Property that meets your criteria</strong><br /><br />
+                  <ul style="margin:0px 15px; padding:0px;">
+                     <li>Shortlist the properties you like on our website. </li>
+                     <li> Call/Meet our advisors who will help you review the shortlisted properties and suggest 
+                        more properties that suit your requirement. 
+                     </li>
+                  </ul>
+                  <br />
+                  <strong>Step 3: Book the Property </strong><br />
+                  <strong>All our services are Free of Cost for our customers.</strong><br /><br />
+                  Once you have decided on the property of your choice, we help you with<br /><br />
+                  <strong>A) Documentation</strong><br />
+                  <ul>
+                     <li> Our Sales team will help you choose the apartment and fill up the application form and other 
+                        necessary documents
+                     </li>
+                     <li> We have a Home Loan team <a style="color:#1155cc; text-decoration:none;" href="mailto:homeloan@proptiger.com" target="_blank">homeloan@proptiger.com</a> which can help you procure a home 
+                        loan for your apartment
+                     </li>
+                  </ul>
+                  <strong>B) After Sales Customer Service</strong><br />
+                  <ul>
+                     <li> We have an in-house Customer Service team to help our customers with any queries they have 
+                        post the purchase of an apartment
+                     </li>
+                     <li> We also help with installment cheque pick up from your doorstep</li>
+                     <li> Receipt delivery to your doorstep </li>
+                  </ul>
+                  We thank you for your interest.<br /><br />
+                  Please add <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a> to your contacts, to easily send and get messages from 
+                  PropTiger.com.<br /><br />
+                  Yours sincerely, <br /><br />
+                  The PropTiger Family<br />
+                  <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                  <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
+                  <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
+                  <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
+                  notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788</td>
+            </tr>
+         </table>
+      </td>
+   </tr>
+</table>
+#end
+
+#if($leadgeneration.leadMailFlag == 'googlepage-withoutproject')
+    
+ <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+   <tr>
+      <td>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="24">
+                  <table width="120" border="0" cellspacing="0" cellpadding="0">
+                     <tr>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                     </tr>
+                     <tr>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                     </tr>
+                  </table>
+               </td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                  Dear ${leadgeneration.enquiry.name}, <br /><br />
+                  Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
+                  We have received your enquiry; our Sales team will get in touch with you soon. 
+                  <br />
+                  You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />
+                  <strong>How does PropTiger Work?</strong><br /><br />
+                  <strong>Step 1: Search for Properties </strong><br /><br />
+                  Visit <a href="http://www.proptiger.com" style="color:#1155cc; text-decoration:none;" target="_blank">http://www.proptiger.com</a> to browse, compare, and select a property from a vast database 
+                  of properties from best builders. We provide comprehensive information on location, builder, 
+                  unique selling points of the project, layout plan, floor plans, pricing, specifications and amenities 
+                  on all properties.<br /><br />
+                  <strong>Step 2: Select the Property that meets your criteria</strong><br /><br />
+                  <ul style="margin:0px 15px; padding:0px;">
+                     <li>Shortlist the properties you like on our website. </li>
+                     <li> Call/Meet our advisors who will help you review the shortlisted properties and suggest 
+                        more properties that suit your requirement. 
+                     </li>
+                  </ul>
+                  <br />
+                  <strong>Step 3: Book the Property </strong><br />
+                  <strong>All our services are Free of Cost for our customers.</strong><br /><br />
+                  Once you have decided on the property of your choice, we help you with<br /><br />
+                  <strong>A) Documentation</strong><br />
+                  <ul>
+                     <li> Our Sales team will help you choose the apartment and fill up the application form and other 
+                        necessary documents
+                     </li>
+                     <li> We have a Home Loan team <a style="color:#1155cc; text-decoration:none;" href="mailto:homeloan@proptiger.com" target="_blank">homeloan@proptiger.com</a> which can help you procure a home 
+                        loan for your apartment
+                     </li>
+                  </ul>
+                  <strong>B) After Sales Customer Service</strong><br />
+                  <ul>
+                     <li> We have an in-house Customer Service team to help our customers with any queries they have 
+                        post the purchase of an apartment
+                     </li>
+                     <li> We also help with installment cheque pick up from your doorstep</li>
+                     <li> Receipt delivery to your doorstep </li>
+                  </ul>
+                  We thank you for your interest.<br /><br />
+                  Please add <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a> to your contacts, to easily send and get messages from 
+                  PropTiger.com.<br /><br />
+                  Yours sincerely, <br /><br />
+                  The PropTiger Family<br />
+                  <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                  <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
+                  <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
+                  <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
+                  notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788</td>
+            </tr>
+         </table>
+      </td>
+   </tr>
+</table>
+#end
+
+
+#if($leadgeneration.leadMailFlag == 'leadAcceptanceResale')
+    
+ <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+   <tr>
+      <td>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="24">
+                  <table width="120" border="0" cellspacing="0" cellpadding="0">
+                     <tr>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                     </tr>
+                     <tr>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                     </tr>
+                  </table>
+               </td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                  Dear ${leadgeneration.enquiry.name}, <br /><br />
+                  Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
+                  We have received your enquiry regarding 
+                  #foreach($project in ${leadgeneration.projects})
+                  #set ($last = $foreach.last)
+                  	#if ($last != true)
+                  		<a href=http://www.proptiger.com/$project.URL style='text-decoration:none;'> $project.builder.name $project.name </a>,  
+                  	#else
+                  		<a href=http://www.proptiger.com/$project.URL style='text-decoration:none;'> $project.builder.name $project.name </a>
+                  	#end
+                  #end
+                  </b> -  
+                  Our Sales team will get in touch with you soon. 
+                  <br /><br />
+                 
+                  For more options please click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com" target="_blank">here</a><br /><br />
+                  You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />
+                  <strong>How does PropTiger Work?</strong><br /><br />
+                  <strong>Step 1: Search for Properties </strong><br /><br />
+                  Visit <a href="http://www.proptiger.com" style="color:#1155cc; text-decoration:none;" target="_blank">http://www.proptiger.com</a> to browse, compare, and select a property from a vast database 
+                  of properties from best builders. We provide comprehensive information on location, builder, 
+                  unique selling points of the project, layout plan, floor plans, pricing, specifications and amenities 
+                  on all properties.<br /><br />
+                  <strong>Step 2: Select the Property that meets your criteria</strong><br /><br />
+                  <ul style="margin:0px 15px; padding:0px;">
+                     <li>Shortlist the properties you like on our website. </li>
+                     <li> Call/Meet our advisors who will help you review the shortlisted properties and suggest 
+                        more properties that suit your requirement. 
+                     </li>
+                  </ul>
+                  <br />
+                  <strong>Step 3: Book the Property </strong><br />
+                  <strong>All our services are Free of Cost for our customers.</strong><br /><br />
+                  Once you have decided on the property of your choice, we help you with<br /><br />
+                  <strong>A) Documentation</strong><br />
+                  <ul>
+                     <li> Our Sales team will help you choose the apartment and fill up the application form and other 
+                        necessary documents
+                     </li>
+                     <li> We have a Home Loan team <a style="color:#1155cc; text-decoration:none;" href="mailto:homeloan@proptiger.com" target="_blank">homeloan@proptiger.com</a> which can help you procure a home 
+                        loan for your apartment
+                     </li>
+                  </ul>
+                  <strong>B) After Sales Customer Service</strong><br />
+                  <ul>
+                     <li> We have an in-house Customer Service team to help our customers with any queries they have 
+                        post the purchase of an apartment
+                     </li>
+                     <li> We also help with installment cheque pick up from your doorstep</li>
+                     <li> Receipt delivery to your doorstep </li>
+                  </ul>
+                  We thank you for your interest.<br /><br />
+                  Please add <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a> to your contacts, to easily send and get messages from 
+                  PropTiger.com.<br /><br />
+                  Yours sincerely, <br /><br />
+                  The PropTiger Family<br />
+                  <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                  <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
+                  <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
+                  <div style="padding-left:40px"><a href="http://www.proptiger.com/property-portfolio-tracker.php?utm_source=internal&utm_medium=email&utm_campaign=my-portfolio&utm_content=leads"><img src="${IMG_SERVER}images/portfolio_tracker_banner.png"/><a></div><br /><br />
+                  <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
+                  notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788</td>
+            </tr>
+         </table>
+      </td>
+   </tr>
+</table>
+#end
+
+#if($leadgeneration.leadMailFlag == 'my-portfolio')
+
+<table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+   <tr>
+      <td>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="24">
+                  <table width="120" border="0" cellspacing="0" cellpadding="0">
+                     <tr>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                     </tr>
+                     <tr>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                     </tr>
+                  </table>
+               </td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                  Dear ${leadgeneration.enquiry.name}, <br /><br />
+                  Greetings from PropTiger.com and thank you for showing interest in reselling your property. <br /><br />
+                  We have received your enquiry for resale regarding ${leadgeneration.enquiry.projectName} in ${leadgeneration.enquiry.cityName}
+                  <br />
+                  - Our Sales team will get in touch with you soon.
+                   
+                  <br /><br />
+                  You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.
+                   <br /><br />
+                  Please add <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a> to your contacts, to easily send and get messages from 
+                  PropTiger.com.<br /><br />
+                  Yours sincerely, <br /><br />
+                  The PropTiger Family<br />
+                  <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                  <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:cutomer.service@proptiger.com">cutomer.service@proptiger.com</a><br />
+                  <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
+                  <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
+                  notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:cutomer.service@proptiger.com">cutomer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788</td>
+            </tr>
+         </table>
+      </td>
+   </tr>
+</table>
+
+#end
+
+
+#if($leadgeneration.leadMailFlag == 'google_buy_sell')
+    
+     <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+   <tr>
+      <td>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="24">
+                  <table width="120" border="0" cellspacing="0" cellpadding="0">
+                     <tr>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                     </tr>
+                     <tr>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                     </tr>
+                  </table>
+               </td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                  A client is interested to sell a property with following details:<br><br>
+                    <b>Client Name: </b>${leadgeneration.enquiry.name}<br>
+                    <b>Email: </b>${leadgeneration.enquiry.email}<br>
+                    <b>Phone Number:</b>${leadgeneration.enquiry.phone}<br>
+                    <b>Country of residence: </b>${leadgeneration.enquiry.country}<br>
+                    <b>Project of Interest: </b>${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName}<br>
+                    <b>Query: </b>${leadgeneration.enquiry.query}
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+             <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:11px; line-height:18px; padding:10px; color:#c2c2c2;">
+                  The lead is collected from URL:google_page_buy_sell.php
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788</td>
+            </tr>
+         </table>
+      </td>
+   </tr>
+</table>
+    
+#end
+
+#if($leadgeneration.leadMailFlag == 'google_buy_sell_client')
+    
+    <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+   <tr>
+      <td>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="24">
+                  <table width="120" border="0" cellspacing="0" cellpadding="0">
+                     <tr>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                     </tr>
+                     <tr>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                     </tr>
+                  </table>
+               </td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                  Dear ${leadgeneration.enquiry.name}, <br /><br />
+                  Greetings from PropTiger.com, your first port of call to buy or sell a residential property. <br /><br />
+                  We have received your sale request for <b>${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} - ${leadgeneration.enquiry.project.locality.suburb.city.label} </b>. Our team will 
+                  get in touch with you soon to take this forward. 
+                    <br /><br />
+                  You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />
+   We thank you for your interest.<br /><br />
+                  Please add <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a> to your contacts, to easily send and get messages from   PropTiger.com.<br /><br />
+                  Yours sincerely, <br /><br />
+                  The PropTiger Family<br />
+                  <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                  <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
+                  <strong>Call:</strong> +91 92788 92788 (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
+                  <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
+                  notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788</td>
+            </tr>
+         </table>
+      </td>
+   </tr>
+</table>
+
+#end
+
+#if($leadgeneration.leadMailFlag == 'non_serving_cities')
+    
+    <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+   <tr>
+      <td>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+               <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+               <td width="24">
+                  <table width="120" border="0" cellspacing="0" cellpadding="0">
+                     <tr>
+                        <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                     </tr>
+                     <tr>
+                        <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                     </tr>
+                  </table>
+               </td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+               <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                  Dear ${leadgeneration.enquiry.name}, <br /><br />
+                  Thank you for showing your trust and choosing Proptiger as a property advisor. 
+                  
+                  #if(${leadgeneration.enquiry.project})
+                  You have shown interest in buying a property in <b> ${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} </b> at <b> ${leadgeneration.enquiry.project.locality.label} </b>. 
+                  #elseif(${leadgeneration.enquiry.locality.label})
+                  You have shown interest in buying a property in <b> ${leadgeneration.enquiry.locality.label} </b>. 
+                  #else
+                  You have shown interest in buying a property in <b> ${leadgeneration.enquiry.cityName} </b>. 
+                  #end
+                  
+                  Unfortunately, Proptiger does not offer active assistance in <b> ${leadgeneration.enquiry.cityName} </b> as of now. We will get in touch with you, when we have initiated the services in the area. 
+				  <br /><br />
+				  Once again, thank you for showing interest in availing services of Proptiger.
+				  <br /><br />
+                  Regards, <br /><br />
+                  Proptiger Team<br />
+                  <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                  <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a><br />
+                  <strong>Call:</strong> +91 92788 92788 (9AM to 7:30PM)<br /><br />
+                  <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
+                  notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:customer.service@proptiger.com">customer.service@proptiger.com</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+               </td>
+               <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+            </tr>
+         </table>
+         <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+               <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788</td>
+            </tr>
+         </table>
+      </td>
+   </tr>
+</table>
+
+#end

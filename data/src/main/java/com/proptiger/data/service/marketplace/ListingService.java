@@ -16,27 +16,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.EntityType;
-import com.proptiger.data.enums.ListingCategory;
-import com.proptiger.data.enums.Status;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
-import com.proptiger.data.model.Listing;
-import com.proptiger.data.model.ListingAmenity;
-import com.proptiger.data.model.ListingPrice;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.EntityType;
+import com.proptiger.core.enums.ListingCategory;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.Status;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ResourceAlreadyExistException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.cms.ListingAmenity;
+import com.proptiger.core.model.cms.ListingPrice;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.model.ProjectPhase;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.util.JsonUtil;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ResourceAlreadyExistException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * @author Rajeev Pandey

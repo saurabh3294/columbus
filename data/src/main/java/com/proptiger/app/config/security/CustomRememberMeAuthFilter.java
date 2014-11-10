@@ -10,7 +10,7 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
-import com.proptiger.data.util.SecurityContextUtils;
+import com.proptiger.core.util.SecurityContextUtils;
 
 /**
  * Custom implementation of remember me filter to set active user data in

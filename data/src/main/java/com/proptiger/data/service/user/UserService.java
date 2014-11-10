@@ -27,42 +27,51 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.enums.Application;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.Application;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.proptiger.CompanySubscription;
+import com.proptiger.core.model.proptiger.Dashboard;
+import com.proptiger.core.model.proptiger.Enquiry;
+import com.proptiger.core.model.proptiger.Permission;
+import com.proptiger.core.model.proptiger.SubscriptionPermission;
+import com.proptiger.core.model.proptiger.SubscriptionSection;
+import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.model.user.User.WhoAmIDetail;
+import com.proptiger.core.model.user.UserAttribute;
+import com.proptiger.core.model.user.UserAuthProviderDetail;
+import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.model.user.UserPreference;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.service.ApplicationNameService;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.SecurityContextUtils;
+import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.enums.AuthProvider;
-import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomCity;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
-import com.proptiger.data.model.CompanySubscription;
-import com.proptiger.data.model.Enquiry;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ForumUserToken;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.ProjectDiscussionSubscription;
-import com.proptiger.data.model.SubscriptionPermission;
-import com.proptiger.data.model.SubscriptionSection;
-import com.proptiger.data.model.UserPreference;
-import com.proptiger.data.model.UserSubscriptionMapping;
-import com.proptiger.data.model.user.Dashboard;
-import com.proptiger.data.model.user.User;
-import com.proptiger.data.model.user.User.WhoAmIDetail;
-import com.proptiger.data.model.user.UserAttribute;
-import com.proptiger.data.model.user.UserAuthProviderDetail;
-import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
@@ -79,16 +88,8 @@ import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PasswordUtils;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.RegistrationUtils;
-import com.proptiger.data.util.SecurityContextUtils;
-import com.proptiger.data.util.UtilityClass;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.UnauthorizedException;
 
 /**
  * Service class to get if user have already enquired about an entity
@@ -100,17 +101,19 @@ import com.proptiger.exception.UnauthorizedException;
 public class UserService {
     private static final String TYPE = "type";
 
-    public enum UserCommunicationType{email, contact};
-    
-    private static final Object TOKEN = "token";
+    public enum UserCommunicationType {
+        email, contact
+    };
+
+    private static final Object              TOKEN  = "token";
 
     private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    private B2BAttributeService        b2bAttributeService;
+    private B2BAttributeService              b2bAttributeService;
 
     @Value("${b2b.price-inventory.max.month.dblabel}")
-    private String                     currentMonthDbLabel;
+    private String                           currentMonthDbLabel;
 
     private String                           currentMonth;
 
@@ -173,7 +176,7 @@ public class UserService {
 
     @Autowired
     private DashboardService                 dashboardService;
-	
+
     @Autowired
     private UserAttributeDao                 userAttributeDao;
 
@@ -181,7 +184,7 @@ public class UserService {
     private void initialize() {
         currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
     }
-    
+
     public boolean isRegistered(String email) {
         User user = userDao.findByEmail(email);
         if (user != null && user.isRegistered()) {
@@ -199,9 +202,9 @@ public class UserService {
      * @return {@link CustomUser}
      */
     @Transactional
-    public CustomUser getUserDetails(Integer userId, Application application) {
+    public CustomUser getUserDetails(Integer userId, Application application, boolean needDashboards) {
         User user = userDao.findById(userId);
-        CustomUser customUser = createCustomUserObj(user, application, true);
+        CustomUser customUser = createCustomUserObj(user, application, needDashboards);
         return customUser;
     }
 
@@ -212,21 +215,21 @@ public class UserService {
         customUser.setFirstName(user.getFullName());
         customUser.setContactNumber(user.getPriorityContactNumber());
         customUser.setProfileImageUrl(user.getProfileImageUrl());
-        if(needDashboards){
+        if (needDashboards) {
             List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
             customUser.setDashboards(dashboards);
         }
-       
-        if(application.equals(Application.B2B)){
+
+        if (application.equals(Application.B2B)) {
             setAppDetails(customUser, user);
         }
         return customUser;
     }
-    
+
     @Transactional
-    public CustomUser getUserDetailsByEmail(String email){
+    public CustomUser getUserDetailsByEmail(String email) {
         User user = userDao.findByEmail(email);
-        if(user == null){
+        if (user == null) {
             throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, ResponseErrorMessages.EMAIL_NOT_REGISTERED);
         }
         CustomUser customUser = createCustomUserObj(user, Application.DEFAULT, false);
@@ -295,36 +298,36 @@ public class UserService {
         for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
             permission = subscriptionPermission.getPermission();
             objectTypeId = permission.getObjectTypeId();
-            if(objectTypeId == DomainObject.city.getObjectTypeId()){
+            if (objectTypeId == DomainObject.city.getObjectTypeId()) {
                 subscribedIdsCity.add(permission.getObjectId());
             }
-            else if(objectTypeId == DomainObject.locality.getObjectTypeId()){
+            else if (objectTypeId == DomainObject.locality.getObjectTypeId()) {
                 subscribedIdsLocality.add(permission.getObjectId());
             }
         }
-        
+
         /* Populating UserType */
-        
-        if(subscribedIdsCity.isEmpty() && subscribedIdsLocality.isEmpty()){
+
+        if (subscribedIdsCity.isEmpty() && subscribedIdsLocality.isEmpty()) {
             return userAppSubscription;
         }
-        else if(subscribedIdsCity.isEmpty()){
+        else if (subscribedIdsCity.isEmpty()) {
             userAppSubscription.setUserType(DomainObject.locality.toString());
         }
-        else{
+        else {
             userAppSubscription.setUserType(DomainObject.city.toString());
         }
-        
+
         /* Populating Locality List */
-        
+
         List<Locality> localityList = getLocalityListByCityIdList(subscribedIdsCity);
-        
-        if(!subscribedIdsLocality.isEmpty()){
+
+        if (!subscribedIdsLocality.isEmpty()) {
             localityList.addAll(localityService.findByLocalityIdList(subscribedIdsLocality).getResults());
         }
-        
+
         if (!localityList.isEmpty()) {
-            
+
             @SuppressWarnings("unchecked")
             Map<Integer, List<Locality>> cityGroupedLocalities = (Map<Integer, List<Locality>>) UtilityClass
                     .groupFieldsAsPerKeys(localityList, Arrays.asList("cityId"));
@@ -356,7 +359,7 @@ public class UserService {
         }
         return userAppSubscription;
     }
-    
+
     private List<Locality> getLocalityListByCityIdList(List<Integer> subscribedIdsCity) {
 
         if (subscribedIdsCity.isEmpty()) {
@@ -369,7 +372,7 @@ public class UserService {
 
         return (localityService.getLocalities(new Gson().fromJson(json, Selector.class)).getResults());
     }
-    
+
     /**
      * Get if user have already enquired a entity
      * 
@@ -502,10 +505,10 @@ public class UserService {
         if (user == null) {
             user = userDao.saveAndFlush(toCreate);
         }
-        else if(user.isRegistered()){
+        else if (user.isRegistered()) {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
         }
-        else if(!user.isRegistered()){
+        else if (!user.isRegistered()) {
             user.setRegistered(true);
             user = userDao.saveAndFlush(user);
         }
@@ -563,20 +566,46 @@ public class UserService {
      * send a password recovery mail
      * 
      * @param email
+     * @param changePassword 
+     * @param token 
      * @return
      */
-    public String resetPassword(String email) {
-        User user = userDao.findByEmail(email);
-        if (user == null || !user.isRegistered()) {
-            return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
+    public Object resetPassword(String email, String token, ChangePassword changePassword) {
+        if (email != null && !email.isEmpty()) {
+            User user = userDao.findByEmail(email);
+            if (user == null || !user.isRegistered()) {
+                throw new BadRequestException(ResponseErrorMessages.EMAIL_NOT_REGISTERED);
+            }
+            ForumUserToken forumUserToken = createForumUserToken(user.getId());
+            StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append("/").append(
+                    PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_RESET_PASSWORD_PAGE)).append(
+                    "?token=" + forumUserToken.getToken());
+            ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
+                    user.getFullName(),
+                    retrivePasswordLink.toString());
+            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
+            MailDetails details = new MailDetails(mailBody).setMailTo(email);
+            mailSender.sendMailUsingAws(details);
+            return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
         }
-        ForumUserToken forumUserToken = createForumUserToken(user.getId());
-        String retrivePasswordLink = proptigerUrl + "/forgotpass.php?token=" + forumUserToken.getToken();
-        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(user.getFullName(), retrivePasswordLink);
-        MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
-        MailDetails details = new MailDetails(mailBody).setMailTo(email);
-        mailSender.sendMailUsingAws(details);
-        return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
+        else if (token != null && !token.isEmpty()) {
+            ForumUserToken forumUserToken = forumUserTokenDao.findByToken(token);
+            if (forumUserToken == null || changePassword == null) {
+                throw new BadRequestException("Invalid token "+token);
+            }
+            String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
+                    changePassword.getNewPassword(),
+                    changePassword.getConfirmNewPassword());
+            User user = userDao.findOne(forumUserToken.getUserId());
+            user.setPassword(encodedPass);
+            user = userDao.save(user);
+            SecurityContextUtils.autoLogin(user);
+            forumUserTokenDao.delete(forumUserToken);
+            return getUserDetails(user.getId(), Application.DEFAULT, false);
+        }
+        else{
+            throw new BadRequestException("Invalid input");
+        }
     }
 
     private ForumUserToken createForumUserToken(Integer userId) {
@@ -672,6 +701,14 @@ public class UserService {
         patchUser(user);
         return user;
     }
+    
+    public User findOrCreateUser(User user) {
+        if (user.getId() != 0) {
+            return userDao.findOne(user.getId());
+        } else {
+            return createUser(user);
+        }
+    }
 
     /**
      * 
@@ -683,14 +720,13 @@ public class UserService {
      * @return
      */
     private void patchUser(User user) {
-        
-        
+
         // checking and creating user attributes.
         createUserAttributes(user);
         updateContactNumbers(user);
     }
 
-    private void updateContactNumbers(User user) {
+    public void updateContactNumbers(User user) {
         Set<UserContactNumber> contactNumbers = user.getContactNumbers();
 
         if (contactNumbers == null || contactNumbers.isEmpty()) {
@@ -806,18 +842,18 @@ public class UserService {
     public User getUserById(int userId) {
         return userDao.findOne(userId);
     }
-    
-    public Map<Integer, User> getUsers(Set<Integer> userIds){
+
+    public Map<Integer, User> getUsers(Set<Integer> userIds) {
         Map<Integer, User> usersMap = new HashMap<>();
-        if(userIds != null && !userIds.isEmpty()){
+        if (userIds != null && !userIds.isEmpty()) {
             List<User> users = userDao.findByIdIn(userIds);
-            for(User u: users){
+            for (User u : users) {
                 usersMap.put(u.getId(), u);
             }
         }
         return usersMap;
     }
-    
+
     public UserContactNumber getTopPriorityContact(int userId) {
         List<UserContactNumber> contacts = contactNumberDao.findByUserIdOrderByPriorityAsc(userId);
         if (contacts.isEmpty()) {
@@ -825,9 +861,11 @@ public class UserService {
         }
         return contacts.get(0);
     }
-    
+
     /**
-     * This method will return the attributes of the user based on the attribute value provided.
+     * This method will return the attributes of the user based on the attribute
+     * value provided.
+     * 
      * @param userId
      * @param attributeValue
      * @return
@@ -837,22 +875,24 @@ public class UserService {
     }
 
     public void enrichUserDetails(User user) {
-        user.setContactNumbers(new HashSet<UserContactNumber>(contactNumberDao.findByUserIdOrderByPriorityAsc(user.getId())));
+        user.setContactNumbers(new HashSet<UserContactNumber>(contactNumberDao.findByUserIdOrderByPriorityAsc(user
+                .getId())));
         user.setAttributes(userAttributeDao.findByUserId(user.getId()));
     }
 
     /**
      * Mark user communication type as verified for valid token and email
+     * 
      * @param type
      * @param token
      */
     public void validateUserCommunicationDetails(UserCommunicationType type, String token) {
         ForumUserToken userToken = forumUserTokenDao.findByToken(token);
         Calendar cal = Calendar.getInstance();
-        if(userToken == null){
+        if (userToken == null) {
             throw new BadRequestException("Invalid token");
         }
-        if(userToken.getExpirationDate().before(cal.getTime())){
+        if (userToken.getExpirationDate().before(cal.getTime())) {
             throw new BadRequestException("Token expired");
         }
         User user = userDao.findById(userToken.getUserId());
@@ -867,30 +907,63 @@ public class UserService {
                 // do nothing
                 break;
         }
-        //set verified as true
+        // set verified as true
         userDao.save(user);
-        //delete the token
+        // delete the token
         forumUserTokenDao.delete(userToken);
     }
-    
-    public static class UserRegisterMailTemplate{
+
+    public static class UserRegisterMailTemplate {
         private String fullName;
         private String email;
         private String emailValidationLink;
-        public UserRegisterMailTemplate(String userName, String email, String validationLink){
+
+        public UserRegisterMailTemplate(String userName, String email, String validationLink) {
             this.fullName = userName;
             this.email = email;
             this.emailValidationLink = validationLink;
         }
+
         public String getFullName() {
             return fullName;
         }
+
         public String getEmail() {
             return email;
         }
+
         public String getEmailValidationLink() {
             return emailValidationLink;
         }
-        
+    }
+
+    public User updateUserDetails(UserDetails user, ActiveUser activeUser) {
+
+        user.setId(activeUser.getUserIdentifier());
+        User originalUser = getUserById(user.getId());
+
+        if (user.getFullName() != null) {
+            originalUser.setFullName(user.getFullName());
+        }
+        if (user.getOldPassword() != null && user.getPassword() != null && user.getConfirmPassword() != null) {
+
+            ChangePassword changePassword = new ChangePassword();
+            changePassword.setOldPassword(user.getOldPassword());
+            changePassword.setNewPassword(user.getPassword());
+            changePassword.setConfirmNewPassword(user.getConfirmPassword());
+
+            changePassword(activeUser, changePassword);
+
+            originalUser.setPassword(changePassword.getNewPassword());
+        }
+        if (user.getCountryId() != null) {
+            originalUser.setCountryId(user.getCountryId());
+        }
+        if (user.getContactNumbers() != null && !user.getContactNumbers().isEmpty()) {
+            updateContactNumbers(user);
+        }
+
+        originalUser = userDao.saveAndFlush(originalUser);
+        return originalUser;
     }
 }

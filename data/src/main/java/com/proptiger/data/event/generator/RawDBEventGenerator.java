@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
-import com.proptiger.data.event.model.DBRawEventTableLog;
+import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.service.RawDBEventService;
 import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
@@ -33,12 +33,12 @@ public class RawDBEventGenerator {
     public List<RawDBEvent> getRawDBEvents() {
 
         List<RawDBEvent> finalRawDBEventList = new ArrayList<RawDBEvent>();
-        List<DBRawEventTableConfig> dbRawEventTableConfigs = eventTypeMappingService.getDbRawEventTableConfigs();
-        logger.info("Iterating " + dbRawEventTableConfigs.size() + " table configurations.");
+        List<RawDBEventTableConfig> rawDBEventTableConfigs = eventTypeMappingService.getRawDBEventTableConfigs();
+        logger.info("Iterating " + rawDBEventTableConfigs.size() + " table configurations.");
 
-        for (DBRawEventTableConfig dbRawEventTableConfig : dbRawEventTableConfigs) {
+        for (RawDBEventTableConfig rawDBEventTableConfig : rawDBEventTableConfigs) {
 
-            List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(dbRawEventTableConfig);
+            List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(rawDBEventTableConfig);
             finalRawDBEventList.addAll(rawDBEvents);
 
             // Updating the last accessed Transaction Key after generating the
@@ -47,10 +47,10 @@ public class RawDBEventGenerator {
             // rows have been inserted.
             // as we are taking the configuration on static not every db call.
             if (!rawDBEvents.isEmpty()) {
-                DBRawEventTableLog dbRawEventTableLog = dbRawEventTableConfig.getDbRawEventTableLog();
-                dbRawEventTableLog.setLastTransactionKeyValue(getLastAccessedTransactionId(
+                RawEventTableDetails rawEventTableDetails = rawDBEventTableConfig.getRawEventTableDetails();
+                rawEventTableDetails.setLastTransactionKeyValue(getLastAccessedTransactionId(
                         rawDBEvents,
-                        dbRawEventTableConfig.getDbRawEventTableLog().getTransactionKeyName()));
+                        rawDBEventTableConfig.getRawEventTableDetails().getTransactionKeyName()));
             }
         }
 

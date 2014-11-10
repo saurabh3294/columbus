@@ -25,13 +25,17 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.enums.ConstructionStatus;
-import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.EntityType;
-import com.proptiger.data.enums.Status;
-import com.proptiger.data.enums.UnitType;
-import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.DateUtil;
+import com.proptiger.core.enums.ConstructionStatus;
+import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.EntityType;
+import com.proptiger.core.enums.Status;
+import com.proptiger.core.enums.UnitType;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.cms.ProjectSupply;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.DateUtil;
 
 /**
  * Model for project phases

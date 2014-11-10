@@ -12,24 +12,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.enums.portfolio.WidgetDisplayStatus;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.WidgetDisplayStatus;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ConstraintViolationException;
+import com.proptiger.core.exception.DuplicateNameResourceException;
+import com.proptiger.core.exception.DuplicateResourceException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.proptiger.Dashboard;
+import com.proptiger.core.model.proptiger.Dashboard.DashboardType;
+import com.proptiger.core.model.proptiger.DashboardWidgetMapping;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.internal.dto.DashboardDto;
-import com.proptiger.data.model.user.Dashboard;
-import com.proptiger.data.model.user.DashboardWidgetMapping;
-import com.proptiger.data.model.user.Dashboard.DashboardType;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.user.DashboardDao;
 import com.proptiger.data.repo.user.DashboardWidgetMappingDao;
 import com.proptiger.data.repo.user.WidgetDao;
-import com.proptiger.data.util.Constants;
-import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ConstraintViolationException;
-import com.proptiger.exception.DuplicateNameResourceException;
-import com.proptiger.exception.DuplicateResourceException;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * Dashboard service class to provide CRUD operation over Dashboard resource

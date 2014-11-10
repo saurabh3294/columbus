@@ -31,27 +31,30 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.enums.SortOrder;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.cms.LandMark;
+import com.proptiger.core.model.cms.LandMarkTypes;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Suburb;
+import com.proptiger.core.model.proptiger.LocalityRatings.LocalityAverageRatingByCategory;
+import com.proptiger.core.model.proptiger.LocalityRatings.LocalityRatingDetails;
+import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.filter.Operator;
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
-import com.proptiger.data.model.LandMark;
-import com.proptiger.data.model.LandMarkTypes;
-import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.LocalityRatings;
-import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
-import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;
-import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.trend.Trend;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
@@ -59,10 +62,6 @@ import com.proptiger.data.service.trend.TrendService;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
 import com.proptiger.data.thirdparty.SEC;
-import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * @author mandeep
@@ -453,14 +452,7 @@ public class LocalityService {
         // meaning.
         Date date = new DateTime().minusWeeks(enquiryInWeeks).toDate();
         String dateStr = new SimpleDateFormat("YYYY-MM-DD hh\\:mm\\:ss").format(date);
-        List<Integer> localityIds = new ArrayList<Integer>();
-
         List<Locality> result = localityDao.getPopularLocalities(cityId, suburbId, dateStr, selector);
-        for(Locality locality : result) {
-            localityIds.add(locality.getLocalityId());
-        }
-        
-        result = localityDao.findByLocalityIds(localityIds, selector).getResults();
         for (Locality locality : result) {
             updateLocalityRatingAndReviewDetails(locality);
         }

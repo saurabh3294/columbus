@@ -18,17 +18,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.proptiger.data.enums.portfolio.ListingStatus;
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.ListingStatus;
+import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.model.Subscription;
 import com.proptiger.data.model.user.portfolio.Portfolio;
-import com.proptiger.data.model.user.portfolio.PortfolioListing;
-import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.SubscriptionService;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
-import com.proptiger.data.util.Constants;
 
 /**
  * @author Rajeev Pandey

@@ -12,6 +12,7 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**

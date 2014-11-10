@@ -18,9 +18,9 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.proptiger.app.config.security.CustomAccessDeniedHandler;
-import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
+import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 
 /**
  * This filter blocks a request coming from non white listed IP for API regex
@@ -32,7 +32,7 @@ import com.proptiger.data.util.PropertyReader;
 public class IPBasedAPIAccessFilter implements Filter {
 
     //change API regex, for example /data/v1/entity/city.*
-    private final String              API_REGEX = "/data/v1/(coupon/.*|transaction/offline-coupon\\?.*)";
+    private final String              API_REGEX = "/data/v1/(coupon/.*|transaction/offline-coupon\\?.*|entity/notification/sender)";
     private RequestMatcher            requestMatcher;
     private Set<String>               whiteListIps;
     @Autowired

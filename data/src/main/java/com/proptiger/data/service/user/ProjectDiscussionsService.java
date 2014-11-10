@@ -17,14 +17,17 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.Project;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.exception.ResourceAlreadyExistException;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.user.User;
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.user.ProjectCommentLikes;
-import com.proptiger.data.model.user.User;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.user.ProjectDiscussionsDao;
 import com.proptiger.data.repo.user.portfolio.ProjectCommentLikesDao;
@@ -32,9 +35,6 @@ import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.Caching;
-import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.PropertyReader;
-import com.proptiger.exception.ResourceAlreadyExistException;
 
 @Service
 public class ProjectDiscussionsService {

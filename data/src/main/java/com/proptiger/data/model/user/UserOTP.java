@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
-import com.proptiger.data.model.BaseModel;
+import com.proptiger.core.model.BaseModel;
 
 /**
  * @author Rajeev Pandey

@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.proptiger.core.model.BaseModel;
+
 @Entity
 @Table(name = "cms.b2b_properties")
 public class B2BAttribute extends BaseModel {

@@ -17,11 +17,11 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.core.model.BaseModel;
+import com.proptiger.core.model.cms.Company;
+import com.proptiger.core.model.cms.CompanyCoverage;
+import com.proptiger.core.model.cms.Locality;
 import com.proptiger.data.enums.ActivationStatus;
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.Company;
-import com.proptiger.data.model.CompanyCoverage;
-import com.proptiger.data.model.Locality;
 
 /**
  * @author Rajeev Pandey
