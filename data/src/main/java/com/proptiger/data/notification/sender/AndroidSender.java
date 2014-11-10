@@ -19,10 +19,11 @@ import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
 import com.proptiger.data.enums.AndroidApplication;
+import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.model.GCMUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.service.GCMUserService;
 
@@ -39,6 +40,9 @@ public class AndroidSender implements MediumSender {
 
     @Autowired
     private NotificationGeneratedService nGeneratedService;
+
+    @Autowired
+    private TemplateGenerator            templateGenerator;
 
     @Value("${app.android.key}")
     private String                       KEY_STRING;
@@ -63,12 +67,9 @@ public class AndroidSender implements MediumSender {
     }
 
     @Override
-    public boolean send(
-            String template,
-            Integer userId,
-            NotificationGenerated nGenerated,
-            NotificationSenderPayload payload) {
+    public boolean send(NotificationGenerated nGenerated) {
 
+        Integer userId = nGenerated.getUserId();
         if (userId == null) {
             logger.error("Found null User Id while sending Push Notification.");
             return false;
@@ -83,23 +84,20 @@ public class AndroidSender implements MediumSender {
             return true;
         }
 
-        return pushToAndroidDevice(template, gcmUsersList, nGenerated.getNotificationType().getName());
+        return pushToAndroidDevice(gcmUsersList, nGenerated);
     }
 
-    public boolean sendToMarketplaceApp(String template, Integer userId, NotificationGenerated nGenerated) {
-        return findUsersAndPushToAndroidDevice(template, userId, AndroidApplication.Marketplace, nGenerated);
+    public boolean sendToMarketplaceApp(NotificationGenerated nGenerated) {
+        return findUsersAndPushToAndroidDevice(AndroidApplication.Marketplace, nGenerated);
     }
 
-    public boolean sendToProptigerApp(String template, Integer userId, NotificationGenerated nGenerated) {
-        return findUsersAndPushToAndroidDevice(template, userId, AndroidApplication.Proptiger, nGenerated);
+    public boolean sendToProptigerApp(NotificationGenerated nGenerated) {
+        return findUsersAndPushToAndroidDevice(AndroidApplication.Proptiger, nGenerated);
     }
 
-    private boolean findUsersAndPushToAndroidDevice(
-            String template,
-            Integer userId,
-            AndroidApplication androidApp,
-            NotificationGenerated nGenerated) {
+    private boolean findUsersAndPushToAndroidDevice(AndroidApplication androidApp, NotificationGenerated nGenerated) {
 
+        Integer userId = nGenerated.getUserId();
         if (userId == null) {
             logger.error("Found null User Id while sending Push Notification for " + androidApp.name()
                     + " AndroidApplication");
@@ -118,11 +116,30 @@ public class AndroidSender implements MediumSender {
             return true;
         }
 
-        return pushToAndroidDevice(template, gcmUsersList, nGenerated.getNotificationType().getName());
+        return pushToAndroidDevice(gcmUsersList, nGenerated);
     }
 
-    private boolean pushToAndroidDevice(String template, List<GCMUser> gcmUsersList, String typeName) {
+    private boolean pushToAndroidDevice(List<GCMUser> gcmUsersList, NotificationGenerated nGenerated) {
         Boolean isSent = Boolean.FALSE;
+        String typeName = nGenerated.getNotificationType().getName();
+
+        String template = null;
+        MediumDetails mediumDetails = nGenerated.getNotificationMessagePayload().getMediumDetails();
+        DefaultMediumDetails defaultMediumDetails = null;
+        if (mediumDetails != null) {
+            defaultMediumDetails = (DefaultMediumDetails) mediumDetails;
+            template = defaultMediumDetails.getMessage();
+        }
+        
+        if (template == null) {
+            template = templateGenerator.generatePopulatedTemplate(nGenerated);
+        }
+        
+        if (template == null) {
+            logger.error("Template not found in DB/Payload while sending push notification for notification generated id: " + nGenerated
+                    .getId() + " and typeName: " + typeName);
+            return false;
+        }
 
         // Create a map of AppIdentifier to List of Reg Ids
         Map<AndroidApplication, List<String>> regIdMap = new HashMap<AndroidApplication, List<String>>();
@@ -183,11 +200,7 @@ public class AndroidSender implements MediumSender {
             }
         }
 
-        if (isSent) {
-            return true;
-        }
-
-        return false;
+        return isSent;
     }
 
     private Map<String, String> getDataMap(String template, String typeName) {

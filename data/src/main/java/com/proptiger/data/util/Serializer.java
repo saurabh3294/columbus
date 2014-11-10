@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.proptiger.data.internal.dto.mail.MediumDetails;
 
 public class Serializer {
     private static Serializer  serializer;
@@ -21,7 +22,7 @@ public class Serializer {
                 .excludeFieldsWithModifiers(Modifier.TRANSIENT)
                 .addSerializationExclusionStrategy(jsonExclusionStrategy)
                 .addDeserializationExclusionStrategy(jsonExclusionStrategy)
-                .serializeNulls();
+                .registerTypeAdapter(MediumDetails.class, new InterfaceAdapter<MediumDetails>());
 
         gson = gsonBuilder.create();
     }
