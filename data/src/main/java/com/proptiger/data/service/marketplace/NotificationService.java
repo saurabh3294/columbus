@@ -29,6 +29,7 @@ import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.marketplace.Lead;
@@ -196,8 +197,8 @@ public class NotificationService {
                     NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                             defaultNotificationType,
                             notification.getUserId(),
-                            gcmMessage,
-                            Arrays.asList(MediumType.MarketplaceApp));
+                            new DefaultMediumDetails(gcmMessage),
+                            MediumType.MarketplaceApp);
                     notificationCreatorService.createNotificationGenerated(request);
                 }
             }
@@ -439,8 +440,8 @@ public class NotificationService {
                 NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                         defaultNotificationType,
                         userId,
-                        message,
-                        Arrays.asList(MediumType.MarketplaceApp));
+                        new DefaultMediumDetails(message),
+                        MediumType.MarketplaceApp);
                 notificationCreatorService.createNotificationGenerated(request);
             }
         }
@@ -487,8 +488,8 @@ public class NotificationService {
             NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                     defaultNotificationType,
                     notification.getUserId(),
-                    gcmMessage,
-                    Arrays.asList(MediumType.MarketplaceApp));
+                    new DefaultMediumDetails(gcmMessage),
+                    MediumType.MarketplaceApp);
             notificationCreatorService.createNotificationGenerated(request);
 
         }
@@ -608,7 +609,9 @@ public class NotificationService {
 
     public void sendEmail(int userId, String subject, String content) {
         if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_SENDEMAIL_USING_SERVICE)) {
-            NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(userId, subject, content);
+            NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(userId, new MailDetails(
+                    subject,
+                    content));
             notificationCreatorService.createNotificationGenerated(request);
         }
         else {
