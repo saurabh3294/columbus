@@ -83,7 +83,6 @@ import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
-import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
