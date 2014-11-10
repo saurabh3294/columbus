@@ -218,12 +218,7 @@ public class ResponseInterceptorListing {
     }
 
     private MultiKeyMap getUserSubscriptionMap() {
-        try {
-            ActiveUser activeUser = (ActiveUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
-        }
-        catch (Exception e) {
-            return null;
-        }
+        ActiveUser activeUser = (ActiveUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
     }
 }
