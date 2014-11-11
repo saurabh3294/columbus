@@ -19,21 +19,23 @@ public class URLDetail {
     private String   url;
 
     @NotNull(message = "The template Id field should not be empty.")
-    private String   templateId;
+	private String templateId;
 
-    private PageType pageType;
-    private String   cityName;
-    private Integer  cityId;
-    private Integer  localityId;
-    private Integer  projectId;
-    private Integer  builderId;
-    private Integer  suburbId;
-    private Integer  propertyId;
-    private Integer  portfolioId;
-    private Integer  bedrooms;
-    private Integer  minBudget;
-    private Integer  maxBudget;
-    private String   fallBackUrl;
+	private PageType pageType;
+	private String cityName;
+	private Integer cityId;
+	private Integer localityId;
+	private Integer projectId;
+	private Integer builderId;
+	private Integer suburbId;
+	private Integer propertyId;
+	private Integer portfolioId;
+	private Integer bedrooms;
+	private Integer minBudget;
+	private Integer maxBudget;
+	private String fallBackUrl;
+	private Integer objectId;
+	private Integer imageId;
     /**
      * Default Value of bedroomString is empty string. Do not change it.
      */
@@ -210,4 +212,20 @@ public class URLDetail {
     public void setOverviewType(String overviewType) {
         this.overviewType = overviewType;
     }
+
+	public Integer getObjectId() {
+		return objectId;
+	}
+
+	public void setObjectId(Integer objectId) {
+		this.objectId = objectId;
+	}
+
+	public Integer getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(Integer imageId) {
+		this.imageId = imageId;
+	}
 }
