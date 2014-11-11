@@ -4,11 +4,11 @@ package com.proptiger.data.internal.dto.mail;
  * @author Rajeev Pandey
  * 
  */
-public class MailBody {
+public class MailBody extends MediumDetails {
 
     private String subject;
     private String body;
-
+    
     public String getSubject() {
         return subject;
     }

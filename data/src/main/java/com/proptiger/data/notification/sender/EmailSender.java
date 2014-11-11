@@ -13,8 +13,7 @@ import com.proptiger.core.model.user.User;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.data.notification.model.payload.EmailSenderPayload;
-import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
+import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.service.mail.AmazonMailSender;
 import com.proptiger.data.service.user.UserService;
 
@@ -32,17 +31,17 @@ public class EmailSender implements MediumSender {
     @Autowired
     private UserService         userService;
 
+    @Autowired
+    private TemplateGenerator   templateGenerator;
+
     @Override
-    public boolean send(String template, Integer userId,  NotificationGenerated nGenerated, NotificationSenderPayload payload) {
-        
+    public boolean send(NotificationGenerated nGenerated) {
+
+        Integer userId = nGenerated.getUserId();
         String typeName = nGenerated.getNotificationType().getName();
-        if (userId == null || template == null || payload == null) {
-            logger.error("Found UserId: " + userId
-                    + " template: "
-                    + template
-                    + " payload: "
-                    + payload
-                    + " typeName: "
+        if (userId == null) {
+            logger.error("UserId not found for notification generated id: " + nGenerated.getId()
+                    + " and typeName: "
                     + typeName
                     + " while sending email.");
             return false;
@@ -50,38 +49,76 @@ public class EmailSender implements MediumSender {
 
         User user = userService.getUserById(userId);
         if (user == null) {
-            logger.error("No user found with UserId: " + userId + " while sending email.");
+            logger.error("No user found with UserId: " + userId
+                    + " while sending email for notification generated id: "
+                    + nGenerated.getId()
+                    + " and typeName: "
+                    + typeName);
             return false;
         }
 
         String emailId = user.getEmail();
         if (emailId == null) {
-            logger.error("No email found for UserId: " + userId + " while sending email.");
+            logger.error("No email found for UserId: " + userId
+                    + " while sending email for notification generated id: "
+                    + nGenerated.getId()
+                    + " and typeName: "
+                    + typeName);
             return false;
         }
 
-        MailBody mailBody = getMailBody(template);
-
-        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(emailId);
-        EmailSenderPayload emailSenderPayload = (EmailSenderPayload) payload;
-        if (emailSenderPayload.getFromEmail() != null) {
-            mailDetails.setFrom(emailSenderPayload.getFromEmail());
+        NotificationMessagePayload payload = nGenerated.getNotificationMessagePayload();
+        MailDetails mailDetails;
+        if (payload.getMediumDetails() != null) {
+            mailDetails = (MailDetails) payload.getMediumDetails();
         }
-        List<String> ccList = emailSenderPayload.getCcList();
+        else {
+            mailDetails = new MailDetails();
+        }
+        mailDetails.setMailTo(emailId);
+
+        MailBody mailBody = null;
+        if (mailDetails.getBody() == null || mailDetails.getSubject() == null) {
+            mailBody = getMailBody(nGenerated);
+        }
+
+        if ((mailDetails.getBody() == null || mailDetails.getSubject() == null) && mailBody == null) {
+            logger.error("Email subject/body not found in DB/Payload while sending email for notification generated id: " + nGenerated
+                    .getId() + " and typeName: " + typeName);
+            return false;
+        }
+
+        if (mailDetails.getSubject() == null) {
+            mailDetails.setSubject(mailBody.getSubject());
+        }
+
+        if (mailDetails.getBody() == null) {
+            mailDetails.setBody(mailBody.getBody());
+        }
+
+        // TODO: Below code is deprecated,
+        // it is added just for backward compatibility.
+        if (payload.getFromEmail() != null) {
+            mailDetails.setFrom(payload.getFromEmail());
+        }
+        List<String> ccList = payload.getCcList();
         if (ccList != null && !ccList.isEmpty()) {
             mailDetails.setMailCC(ccList.toArray(new String[ccList.size()]));
         }
-        List<String> bccList = emailSenderPayload.getBccList();
+        List<String> bccList = payload.getBccList();
         if (bccList != null && !bccList.isEmpty()) {
             mailDetails.setMailBCC(bccList.toArray(new String[bccList.size()]));
         }
+
         logger.debug("Sending email with mailDetails: " + mailDetails);
         amazonMailSender.sendMail(mailDetails);
 
         return true;
     }
 
-    private MailBody getMailBody(String template) {
+    private MailBody getMailBody(NotificationGenerated nGenerated) {
+        String template = templateGenerator.generatePopulatedTemplate(nGenerated);
+
         if (template == null || template.isEmpty()) {
             logger.info("Template is null.");
             return null;
