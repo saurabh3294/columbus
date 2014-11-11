@@ -107,49 +107,6 @@ public class URLService {
         catch (Exception e) {
             throw new ProAPIException(e);
         }
-        
-		if (urlDetail.getPageType().equals(PageType.IMAGE_PAGE_URL)) {
-			URLDetail newUrlDetail = new URLDetail();
-			PageType pageType = setNewUrlDetails(urlDetail.getObjectId(), urlDetail.getObjectId(), newUrlDetail);
-			newUrlDetail.setPageType(pageType);
-			newUrlDetail.setUrl("");
-			
-			ValidURLResponse urlResponse = validateUrl(newUrlDetail, hasTrailingSlace, URLRequestParamString);
-			String redirectionUrl = urlResponse.getRedirectUrl();
-			Integer objectIdFromRedirectUrl = getObjectIdFromRedirectUrl(redirectionUrl);
-			
-			//If object-Id corresponds to city in the page_url, then HttpStatus for that city will
-			//be either 200 or 301, if HttpStatus is 200 redirection url will be null else it will
-			//be Empty. so in case of 301 HttpStatus city is either inactive or invalid and redirection
-			//url be empty and nothing can be extracted from this, but in case of HttpStatus
-			//200 city is active and hence directly assigning cityId to objectIdFromRedirectUrl as
-			//redirection url will be null.
-			if (pageType.equals(PageType.CITY_URLS) && urlResponse.getHttpStatus() == HttpStatus.SC_OK) {
-				objectIdFromRedirectUrl = urlDetail.getObjectId();
-				urlResponse = new ValidURLResponse(HttpStatus.SC_MOVED_PERMANENTLY, null);
-			}
-			
-			Image image = imageService.getImage(urlDetail.getImageId());
-			if (image != null && objectIdFromRedirectUrl != null 
-					&& urlResponse.getHttpStatus() == HttpStatus.SC_MOVED_PERMANENTLY
-					&& image.isActive()
-					&& urlDetail.getObjectId().equals(objectIdFromRedirectUrl)) {
-				if (image.getPageUrl().equals(urlDetail.getUrl())) {
-					return new ValidURLResponse(HttpStatus.SC_OK, null);
-				} else {
-					return new ValidURLResponse(
-							HttpStatus.SC_MOVED_PERMANENTLY, image.getPageUrl());
-				}
-			} else if (image != null
-					&& urlResponse.getHttpStatus() == HttpStatus.SC_MOVED_PERMANENTLY
-					&& !urlDetail.getObjectId().equals(objectIdFromRedirectUrl)) {
-				return new ValidURLResponse(HttpStatus.SC_MOVED_PERMANENTLY,
-						urlResponse.getRedirectUrl());
-			} else {
-				return new ValidURLResponse(HttpStatus.SC_NOT_FOUND, null);
-			}
-
-		}
         return validateUrl(urlDetail, hasTrailingSlace, URLRequestParamString);
     }
 
@@ -167,7 +124,7 @@ public class URLService {
 		
 		if (domainObject.equals(DomainObject.locality) || domainObject.getText().equals(DomainObject.suburb)) {
 			newUrlDetail.setLocalityId(objectId);
-			return PageType.LOCALITY_SUBURB_LISTING;
+			return PageType.LOCALITY_SUBURB_OVERVIEW;
 		}
 		
 		if (domainObject.equals(DomainObject.city)) {
@@ -427,6 +384,61 @@ public class URLService {
                     responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 }
                 break;
+            case IMAGE_PAGE_URL:
+            	responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
+            	URLDetail newUrlDetail = new URLDetail();
+    			PageType objectIdToPageType = setNewUrlDetails(urlDetail.getObjectId(), urlDetail.getObjectId(), newUrlDetail);
+    			newUrlDetail.setPageType(objectIdToPageType);
+    			newUrlDetail.setUrl("");
+    			
+    			ValidURLResponse urlResponse = validateUrl(newUrlDetail, false, "");
+    			String redirectionUrl = urlResponse.getRedirectUrl();
+    			Integer objectIdFromRedirectUrl = getObjectIdFromRedirectUrl(redirectionUrl);
+    			
+    			//If object-Id corresponds to city in the page_url, then HttpStatus for that city will
+    			//be either 200 or 301, if HttpStatus is 200 redirection url will be null else it will
+    			//be Empty. so in case of 301 HttpStatus city is either inactive or invalid and redirection
+    			//url be empty and nothing can be extracted from this, but in case of HttpStatus
+    			//200 city is active and hence directly assigning cityId to objectIdFromRedirectUrl as
+    			//redirection url will be null.
+    			if (pageType.equals(PageType.CITY_URLS) && urlResponse.getHttpStatus() == HttpStatus.SC_OK) {
+    				objectIdFromRedirectUrl = urlDetail.getObjectId();
+    				urlResponse = new ValidURLResponse(HttpStatus.SC_MOVED_PERMANENTLY, "");
+    			}
+    			
+    			Image image = imageService.getImage(urlDetail.getImageId());
+    			/*
+    			 * HttpStatus is 301, domain object is active and image is active then,
+    			 * either url will be same as image object page url or different.
+    			 * if both are same then HttpStatus will be 200 else 301 and redirection
+    			 * url will be image object page url.
+    			 */
+    			if (image != null && objectIdFromRedirectUrl != null 
+    					&& urlResponse.getHttpStatus() == HttpStatus.SC_MOVED_PERMANENTLY
+    					&& image.isActive()
+    					&& urlDetail.getObjectId().equals(objectIdFromRedirectUrl)) {
+    				if (image.getPageUrl().equals(urlDetail.getUrl())) {
+    					responseStatus = HttpStatus.SC_OK;
+    				} 
+    				else {
+    					redirectUrl = image.getPageUrl();
+    				}
+    			} 
+    			/*
+    			 * if Domain object id null or not null and not equal to object id
+    			 * and HttpStatus is 301 and image active/inactive then redirect url to urlResponse's redirection url 
+    			 */
+    			else if (image != null
+    					&& urlResponse.getHttpStatus() == HttpStatus.SC_MOVED_PERMANENTLY) {
+    				redirectUrl = urlResponse.getRedirectUrl();
+    			}
+    			/*
+    			 * HttpStatus is 404 or image is null
+    			 */
+    			else {
+    				responseStatus = HttpStatus.SC_NOT_FOUND;
+    			}
+            	break;
             case STATIC_URLS:
             case DIWALI_MELA_URL:
                 responseStatus = HttpStatus.SC_OK;
