@@ -1,5 +1,7 @@
 package com.proptiger.data.internal.dto.mail;
 
+import com.proptiger.data.notification.enums.MediumType;
+
 /**
  * @author Rajeev Pandey
  * 
@@ -19,22 +21,26 @@ public class MailDetails extends MailBody {
     private String   replyTo;
 
     public MailDetails() {
+        this.setMediumType(MediumType.Email);
     }
 
     public MailDetails(String subject, String body) {
         this.setSubject(subject);
         this.setBody(body);
+        this.setMediumType(MediumType.Email);
     }
 
     public MailDetails(MailBody mailBody) {
         this.setSubject(mailBody.getSubject());
         this.setBody(mailBody.getBody());
+        this.setMediumType(mailBody.getMediumType());
     }
 
     public MailDetails(String[] mailCC, String[] mailBCC, String from) {
         this.mailCC = mailCC;
         this.mailBCC = mailBCC;
         this.from = from;
+        this.setMediumType(MediumType.Email);
     }
 
     public String[] getMailTo() {

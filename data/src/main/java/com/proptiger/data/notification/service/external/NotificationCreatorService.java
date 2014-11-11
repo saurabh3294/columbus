@@ -41,6 +41,6 @@ public class NotificationCreatorService {
             notificationMessages.add(message);
         }
 
-        return notificationGeneratedService.createNotificationGenerated(notificationMessages, request.getMediumTypes());
+        return notificationGeneratedService.createNotificationGenerated(notificationMessages, request.getMediumDetails());
     }
 }
