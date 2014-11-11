@@ -126,6 +126,8 @@ public class LeadService {
                 cycleIdInt = 0;
             }
 
+         if(cycleIdInt < PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_BIDDING_CYCLE_COUNT))
+         {
             Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(
                     lead.getId(),
                     maxPhaseIdMapLeadId.get(lead.getId()));
@@ -153,7 +155,9 @@ public class LeadService {
                     }
                 }
             }
+          }
         }
+        
         if (!isAssigned) {
             throw new ProAPIException("Error in Assigning lead id: " + leadId);
         }
