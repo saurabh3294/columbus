@@ -9,8 +9,14 @@ import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.processor.DefaultDBEventProcessor;
 import com.proptiger.data.event.processor.PriceChangeProcessor;
-import com.proptiger.data.event.processor.SeoProjectChangeProcessor;
-import com.proptiger.data.event.processor.SeoPropertyChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoBuilderChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoBuilderDeleteProcessor;
+import com.proptiger.data.event.processor.seo.SeoLocalityChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoLocalityDeleteProcessor;
+import com.proptiger.data.event.processor.seo.SeoProjectChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoProjectDeleteProcessor;
+import com.proptiger.data.event.processor.seo.SeoPropertyChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoPropertyDeleteProcessor;
 import com.proptiger.data.event.verification.DBEventVerification;
 import com.proptiger.data.event.verification.DefaultDBEventVerification;
 import com.proptiger.data.event.verification.PriceChangeVerification;
@@ -39,6 +45,30 @@ public class EventTypeConfig extends BaseModel {
         eventTypeConfigMap.put("property_url_generation", new EventTypeConfig(
                 DefaultEventTypePayload.class,
                 SeoPropertyChangeProcessor.class,
+                null));
+        eventTypeConfigMap.put("project_url_delete", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoProjectDeleteProcessor.class,
+                null));
+        eventTypeConfigMap.put("property_url_delete", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoPropertyDeleteProcessor.class,
+                null));
+        eventTypeConfigMap.put("locality_url_generation", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoLocalityChangeProcessor.class,
+                null));
+        eventTypeConfigMap.put("locality_url_delete", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoLocalityDeleteProcessor.class,
+                null));
+        eventTypeConfigMap.put("builder_url_generation", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoBuilderChangeProcessor.class,
+                null));
+        eventTypeConfigMap.put("builder_url_delete", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoBuilderDeleteProcessor.class,
                 null));
         
     }
