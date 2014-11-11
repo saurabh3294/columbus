@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 
 @Service
 public class MarketplaceAppSender implements MediumSender {
@@ -13,7 +12,7 @@ public class MarketplaceAppSender implements MediumSender {
     private AndroidSender androidSender;
 
     @Override
-    public boolean send(String template, Integer userId, NotificationGenerated nGenerated, NotificationSenderPayload payload) {
-        return androidSender.sendToMarketplaceApp(template, userId, nGenerated);
+    public boolean send(NotificationGenerated nGenerated) {
+        return androidSender.sendToMarketplaceApp(nGenerated);
     }
 }

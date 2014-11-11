@@ -14,14 +14,25 @@ public class MailDetails extends MailBody {
     private String[] mailTo;
     private String[] mailCC;
     private String[] mailBCC;
-    private String replyTo;
+    private String   replyTo;
 
     public MailDetails() {
+    }
+
+    public MailDetails(String subject, String body) {
+        this.setSubject(subject);
+        this.setBody(body);
     }
 
     public MailDetails(MailBody mailBody) {
         this.setSubject(mailBody.getSubject());
         this.setBody(mailBody.getBody());
+    }
+
+    public MailDetails(String[] mailCC, String[] mailBCC, String from) {
+        this.mailCC = mailCC;
+        this.mailBCC = mailBCC;
+        this.from = from;
     }
 
     public String[] getMailTo() {
@@ -100,5 +111,5 @@ public class MailDetails extends MailBody {
         str += " replyTo: " + replyTo;
         return str;
     }
-    
+
 }

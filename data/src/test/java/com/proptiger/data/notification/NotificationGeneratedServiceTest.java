@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.mocker.NotificationMockerService;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
-import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationMessage;
@@ -42,9 +43,9 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
 
     @Test
     public void testCreateNotificationGenerated() {
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Sms);
-        mediumTypes.add(MediumType.Email);
+        Map<MediumType, MediumDetails> mediumTypes = new HashMap<MediumType, MediumDetails>();
+        mediumTypes.put(MediumType.Sms, null);
+        mediumTypes.put(MediumType.Email, null);
 
         NotificationMessage message = notificationMockerService.getMockNotificationMessage();
 
@@ -58,10 +59,10 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
         nGeneratedService.setNotificationTypeService(notificationTypeService);
 
         NotificationMediumService notificationMediumService = mock(NotificationMediumService.class);
-        when(notificationMediumService.findNotificationMediumByMediumType(mediumTypes.get(0))).thenReturn(
-                notificationMockerService.getMockNotificationMedium(mediumTypes.get(0)));
-        when(notificationMediumService.findNotificationMediumByMediumType(mediumTypes.get(1))).thenReturn(
-                notificationMockerService.getMockNotificationMedium(mediumTypes.get(1)));
+        when(notificationMediumService.findNotificationMediumByMediumType(MediumType.Sms)).thenReturn(
+                notificationMockerService.getMockNotificationMedium(MediumType.Sms));
+        when(notificationMediumService.findNotificationMediumByMediumType(MediumType.Email)).thenReturn(
+                notificationMockerService.getMockNotificationMedium(MediumType.Email));
         nGeneratedService.setNotificationMediumService(notificationMediumService);
 
         NotificationGeneratedDao notificationGeneratedDao = mock(NotificationGeneratedDao.class);
@@ -119,8 +120,11 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
             Assert.assertEquals(notificationGenerated.getNotificationType().getId(), message.getNotificationType()
                     .getId());
             Assert.assertEquals(
-                    notificationGenerated.getNotificationMessagePayload(),
-                    message.getNotificationMessagePayload());
+                    notificationGenerated.getNotificationMessagePayload().getExtraAttributes(),
+                    message.getNotificationMessagePayload().getExtraAttributes());
+            Assert.assertEquals(
+                    notificationGenerated.getNotificationMessagePayload().getMediumDetails(),
+                    message.getNotificationMessagePayload().getMediumDetails());
             Assert.assertEquals(notificationGenerated.getObjectId(), message.getNotificationMessagePayload()
                     .getNotificationTypePayload().getPrimaryKeyValue());
             Assert.assertEquals(

@@ -36,9 +36,6 @@ public class MediumTypeService {
     private void setMediumTypeConfigAttribute(MediumTypeConfig mediumTypeConfig) {
         try {
             mediumTypeConfig.setMediumSenderObject(applicationContext.getBean(mediumTypeConfig.getSenderClassName()));
-            if (mediumTypeConfig.getPayloadClassName() != null) {
-                mediumTypeConfig.setNotificationSenderPayloadObject(mediumTypeConfig.getPayloadClassName().newInstance());
-            }
         }
         catch (Exception e) {
             e.printStackTrace();
