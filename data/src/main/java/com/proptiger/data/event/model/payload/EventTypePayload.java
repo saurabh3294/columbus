@@ -13,8 +13,8 @@ public abstract class EventTypePayload implements Serializable {
     /**
      * 
      */
-    private static final long serialVersionUID = 6402700328521298042L;
-    
+    private static final long            serialVersionUID = 6402700328521298042L;
+
     private String                       transactionKeyName;
     private Object                       transactionId;
     private String                       primaryKeyName;
@@ -26,6 +26,7 @@ public abstract class EventTypePayload implements Serializable {
     private Date                         eventCreatedDateKeyValue;
 
     private List<EventTypeUpdateHistory> eventTypeUpdateHistories;
+    private List<EventTypePayload>       childEventTypePayloads;
 
     public List<EventTypeUpdateHistory> getEventTypeUpdateHistories() {
         return eventTypeUpdateHistories;
@@ -99,6 +100,14 @@ public abstract class EventTypePayload implements Serializable {
 
     public void setEventCreatedDateKeyValue(Date eventCreatedDateKeyValue) {
         this.eventCreatedDateKeyValue = eventCreatedDateKeyValue;
+    }
+
+    public List<EventTypePayload> getChildEventTypePayloads() {
+        return childEventTypePayloads;
+    }
+
+    public void setChildEventTypePayloads(List<EventTypePayload> childEventTypePayloads) {
+        this.childEventTypePayloads = childEventTypePayloads;
     }
 
 }

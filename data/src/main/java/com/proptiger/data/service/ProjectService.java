@@ -714,9 +714,7 @@ public class ProjectService {
                 + ";version=="
                 + DataVersion.Website
                 + ";activeStatus=="
-                + Status.Active
-                + ";residentialFlag=="
-                + ResidentialFlag.Residential);
+                + Status.Active +";residentialFlag=="+ResidentialFlag.Residential);
 
         PaginatedResponse<List<Project>> projects = getProjects(fiqlSelector);
         if (projects == null || projects.getResults() == null || projects.getResults().isEmpty()) {

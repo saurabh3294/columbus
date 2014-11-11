@@ -9,6 +9,8 @@ import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.processor.DefaultDBEventProcessor;
 import com.proptiger.data.event.processor.PriceChangeProcessor;
+import com.proptiger.data.event.processor.SeoProjectChangeProcessor;
+import com.proptiger.data.event.processor.SeoPropertyChangeProcessor;
 import com.proptiger.data.event.verification.DBEventVerification;
 import com.proptiger.data.event.verification.DefaultDBEventVerification;
 import com.proptiger.data.event.verification.PriceChangeVerification;
@@ -30,6 +32,15 @@ public class EventTypeConfig extends BaseModel {
                 DefaultEventTypePayload.class,
                 PriceChangeProcessor.class,
                 PriceChangeVerification.class));
+        eventTypeConfigMap.put("project_url_generation", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoProjectChangeProcessor.class,
+                null));
+        eventTypeConfigMap.put("property_url_generation", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoPropertyChangeProcessor.class,
+                null));
+        
     }
 
     private Class<? extends EventTypePayload>    dataClassName         = DefaultEventTypePayload.class;
