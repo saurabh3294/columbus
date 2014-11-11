@@ -70,10 +70,10 @@ public class ResponseInterceptorListing {
         for (Object element : projectItemsList) {
             int localityId = getEntityIdFromResponseElement(element, "localityId");
             int cityId = extractCityIdFromProjectListingResponse(element);
-            if (!((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+            if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
                     objTypeIdCity,
-                    cityId) != null))) {
-                ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                    cityId) != null)) {
+                ((Map<String, Object>) element).put(fieldTagAuthorized, true);
             }
         }
     }
@@ -94,10 +94,10 @@ public class ResponseInterceptorListing {
             int localityId = getEntityIdFromResponseElement(element, "localityId");
             int cityId = getEntityIdFromResponseElement(element, "cityId");
 
-            if (!((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+            if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
                     objTypeIdCity,
-                    cityId) != null))) {
-                ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                    cityId) != null)) {
+                ((Map<String, Object>) element).put(fieldTagAuthorized, true);
             }
         }
     }
@@ -116,8 +116,8 @@ public class ResponseInterceptorListing {
         List<Object> resultList = (List<Object>) data;
         for (Object element : resultList) {
             int cityId = getEntityIdFromResponseElement(element, "id");
-            if (!(userSubscriptionMap.containsKey(objTypeIdCity, cityId))) {
-                ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+            if (userSubscriptionMap.containsKey(objTypeIdCity, cityId)) {
+                ((Map<String, Object>) element).put(fieldTagAuthorized, true);
             }
         }
     }
@@ -142,33 +142,33 @@ public class ResponseInterceptorListing {
 
             if (entityType.equalsIgnoreCase(objTypeTextCity)) {
                 cityId = extractEntityIdFromTypeaheadResponseId(typeAheadRespId);
-                if (!(userSubscriptionMap.get(objTypeIdCity, cityId) != null)) {
-                    ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                if (userSubscriptionMap.get(objTypeIdCity, cityId) != null) {
+                    ((Map<String, Object>) element).put(fieldTagAuthorized, true);
                 }
             }
             else if (entityType.equalsIgnoreCase(objTypeTextLocality)) {
                 localityId = extractEntityIdFromTypeaheadResponseId(typeAheadRespId);
                 cityId = getEntityIdFromResponseElement(element, "cityId");
-                if (!((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+                if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
                         objTypeIdCity,
-                        cityId) != null))) {
-                    ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                        cityId) != null)) {
+                    ((Map<String, Object>) element).put(fieldTagAuthorized, true);
                 }
             }
             else if (entityType.equalsIgnoreCase(objTypeTextProject)) {
                 cityId = getEntityIdFromResponseElement(element, "cityId");
                 localityId = getEntityIdFromResponseElement(element, "localityId");
-                if (!((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+                if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
                         objTypeIdCity,
-                        cityId) != null))) {
-                    ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                        cityId) != null)) {
+                    ((Map<String, Object>) element).put(fieldTagAuthorized, true);
                 }
             }
             else if (entityType.equalsIgnoreCase(objTypeTextBuilder)) {
                 String[] typeAheadIdParts = typeAheadRespId.split(typeAheadIdSeparator);
                 int builderId = Integer.parseInt(typeAheadIdParts[typeAheadIdParts.length - 1]);
-                if (!(userSubscriptionMap.containsKey(objTypeIdBuilder, builderId))) {
-                    ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                if (userSubscriptionMap.containsKey(objTypeIdBuilder, builderId)) {
+                    ((Map<String, Object>) element).put(fieldTagAuthorized, true);
                 }
             }
         }
@@ -218,7 +218,12 @@ public class ResponseInterceptorListing {
     }
 
     private MultiKeyMap getUserSubscriptionMap() {
-        ActiveUser activeUser = (ActiveUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
+        try {
+            ActiveUser activeUser = (ActiveUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
 }
