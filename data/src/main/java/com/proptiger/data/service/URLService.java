@@ -69,6 +69,8 @@ public class URLService {
     
     @Autowired
     private ImageService	  imageService;
+    
+    private static Pattern PATTERN = Pattern.compile("^*(\\d+)(?:/.*)*$");
 
     public ValidURLResponse getURLStatus(String url) {
         URLDetail urlDetail = null;
@@ -105,7 +107,107 @@ public class URLService {
         catch (Exception e) {
             throw new ProAPIException(e);
         }
-        PageType pageType = urlDetail.getPageType();
+        
+		if (urlDetail.getPageType().equals(PageType.IMAGE_PAGE_URL)) {
+			URLDetail newUrlDetail = new URLDetail();
+			PageType pageType = setNewUrlDetails(urlDetail.getObjectId(), urlDetail.getObjectId(), newUrlDetail);
+			newUrlDetail.setPageType(pageType);
+			newUrlDetail.setUrl("");
+			
+			ValidURLResponse urlResponse = validateUrl(newUrlDetail, hasTrailingSlace, URLRequestParamString);
+			String redirectionUrl = urlResponse.getRedirectUrl();
+			Integer objectIdFromRedirectUrl = getObjectIdFromRedirectUrl(redirectionUrl);
+			
+			//If object-Id corresponds to city in the page_url, then HttpStatus for that city will
+			//be either 200 or 301, if HttpStatus is 200 redirection url will be null else it will
+			//be Empty. so in case of 301 HttpStatus city is either inactive or invalid and redirection
+			//url be empty and nothing can be extracted from this, but in case of HttpStatus
+			//200 city is active and hence directly assigning cityId to objectIdFromRedirectUrl as
+			//redirection url will be null.
+			if (pageType.equals(PageType.CITY_URLS) && urlResponse.getHttpStatus() == HttpStatus.SC_OK) {
+				objectIdFromRedirectUrl = urlDetail.getObjectId();
+				urlResponse = new ValidURLResponse(HttpStatus.SC_MOVED_PERMANENTLY, null);
+			}
+			
+			Image image = imageService.getImage(urlDetail.getImageId());
+			if (image != null && objectIdFromRedirectUrl != null 
+					&& urlResponse.getHttpStatus() == HttpStatus.SC_MOVED_PERMANENTLY
+					&& image.isActive()
+					&& urlDetail.getObjectId().equals(objectIdFromRedirectUrl)) {
+				if (image.getPageUrl().equals(urlDetail.getUrl())) {
+					return new ValidURLResponse(HttpStatus.SC_OK, null);
+				} else {
+					return new ValidURLResponse(
+							HttpStatus.SC_MOVED_PERMANENTLY, image.getPageUrl());
+				}
+			} else if (image != null
+					&& urlResponse.getHttpStatus() == HttpStatus.SC_MOVED_PERMANENTLY
+					&& !urlDetail.getObjectId().equals(objectIdFromRedirectUrl)) {
+				return new ValidURLResponse(HttpStatus.SC_MOVED_PERMANENTLY,
+						urlResponse.getRedirectUrl());
+			} else {
+				return new ValidURLResponse(HttpStatus.SC_NOT_FOUND, null);
+			}
+
+		}
+        return validateUrl(urlDetail, hasTrailingSlace, URLRequestParamString);
+    }
+
+	private PageType setNewUrlDetails(Integer objectId, Integer integer, URLDetail newUrlDetail) {
+		DomainObject domainObject = DomainObject.getDomainInstance(new Long(objectId));
+		if (domainObject.equals(DomainObject.property)) {
+			newUrlDetail.setPropertyId(objectId);
+			return PageType.PROPERTY_URLS;
+		}
+		
+		if (domainObject.equals(DomainObject.project)) {
+			newUrlDetail.setProjectId(objectId);
+			return PageType.PROJECT_URLS;
+		}
+		
+		if (domainObject.equals(DomainObject.locality) || domainObject.getText().equals(DomainObject.suburb)) {
+			newUrlDetail.setLocalityId(objectId);
+			return PageType.LOCALITY_SUBURB_LISTING;
+		}
+		
+		if (domainObject.equals(DomainObject.city)) {
+			City city = null;
+			try {
+				city = cityService.getCity(objectId);
+			}
+			catch (Exception e) {
+				city = null;
+			}
+			if (city == null) {
+				return PageType.InvalidUrl;
+			}
+			newUrlDetail.setCityName(city.getLabel());
+			return PageType.CITY_URLS;
+		}
+		
+		if (domainObject.equals(DomainObject.builder)) {
+			newUrlDetail.setBuilderId(objectId);
+			return PageType.BUILDER_URLS;
+		}
+		return PageType.InvalidUrl;
+	}
+
+	private Integer getObjectIdFromRedirectUrl(String url) {
+		if (url == null || url.isEmpty()) {
+			return null;
+		}
+
+		Matcher matcher = PATTERN.matcher(url);
+		if (matcher.find()) {
+			return new Integer(matcher.group(1));
+		}
+
+		return null;
+	}
+
+	private ValidURLResponse validateUrl(URLDetail urlDetail,
+			boolean hasTrailingSlace, String URLRequestParamString) {
+		PageType pageType = urlDetail.getPageType();
         int responseStatus = HttpStatus.SC_OK;
         String redirectUrl = null, domainUrl = null;
 
@@ -353,18 +455,6 @@ public class URLService {
                     }
                 }
                 break;
-            case IMAGE_PAGE_URL:
-            	responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
-            	if (urlDetail.getObjectId() != null && urlDetail.getImageId() != null) {
-            		Image image = imageService.getImage(urlDetail.getImageId());
-            		if (image.getObjectId() == urlDetail.getObjectId() && image.getPageUrl().equals(urlDetail.getUrl())) {
-            			responseStatus = HttpStatus.SC_OK;
-            		}
-            		else {
-            			redirectUrl = image.getPageUrl();
-            		}
-            	}
-            	break;
             default:
                 responseStatus = HttpStatus.SC_NOT_FOUND;
                 break;

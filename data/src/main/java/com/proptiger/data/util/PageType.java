@@ -26,7 +26,7 @@ public enum PageType {
     PORTFOLIO_URLS("^portfolio/(?:index|dashboard|enquiredproperty|savedsearches|recentlyviewed|myfavorites|property/([\\d]+))$", new String[]{"portfolioId"}),
     NEWS_URLS("^(?:news|blog)(?:/category/([\\w]+)|(?:/category/(?:real-estate|home-loan|real-estate-news|real-estate-tips|interior-decorating-design|home-loans))|/(?:[\\w]+(?:\\-[\\w]+)*)|/(?:\\?p=(\\d+)))?/?$",new String[] {"cityName"}),
     DIWALI_MELA_URL("^grand-diwali-mela(.*)", new String[]{}),
-    IMAGE_PAGE_URL("gallery/(?:[\\w]+(?:-[\\w]+)*)-(\\d+)-(\\d+).(?:[\\w]+)", new String[] {"objectId", "imageId"}),
+    IMAGE_PAGE_URL("^gallery/(?:[\\w]+(?:-[\\w]+)*)-(\\d+)-(\\d+).(?:[\\w]+)$", new String[] {"objectId", "imageId"}),
     InvalidUrl("(.*)", new String[]{"URL"});
 
     private String   regex;
