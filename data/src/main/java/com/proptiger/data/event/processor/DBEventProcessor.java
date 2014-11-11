@@ -53,34 +53,15 @@ public abstract class DBEventProcessor implements EventProcessor {
 
     public List<EventGenerated> processProcessedEvents(List<EventGenerated> events) {
         Map<String, List<EventGenerated>> groupEventMap = groupEventsByKey(events);
-        List<EventGenerated> discardedEvents = new ArrayList<EventGenerated>();
-
+        EventStatus eventStatus = null;
+        
         // TODO to process them in separate threads
         for (Map.Entry<String, List<EventGenerated>> entry : groupEventMap.entrySet()) {
-
-            for (EventGenerated eventGenerated : entry.getValue()) {
-                eventGenerated.setEventStatus(EventStatus.Discarded);
-                discardedEvents.add(eventGenerated);
+            eventStatus = EventStatus.Verified;
+            if( entry.getValue().get(0).getEventType().getVerficationRequired() > 0){
+                eventStatus = EventStatus.PendingVerification;
             }
-
-            /*
-             * In Price Change, Only first latest event(by date) has to be
-             * considered for verification. Rest have to be discarded.
-             */
-            EventGenerated firstEvent = entry.getValue().get(0);
-            // removing the first Event from discarded list.
-            discardedEvents.remove(firstEvent);
-            firstEvent.setEventStatus(EventStatus.Verified);
-            updateEventHistories(firstEvent, EventStatus.Verified);
-            updateEventExpiryTime(firstEvent);
-            // Updating the Event in the database.
-            EventGenerated newEventGenerated = eventGeneratedService.saveOrUpdateOneEvent(firstEvent);
-            // Event has been marked Successfully for pending verification.
-            // Hence, sending it to verfication.
-            if (newEventGenerated.getEventStatus().name().equals(EventStatus.Verified.name())) {
-                newEventGenerated.getEventType().getEventTypeConfig().getEventVerificationObject()
-                        .verifyEvents(newEventGenerated);
-            }
+            handleProcessedEventsStrategy(entry, eventStatus);
         }
 
         // Updating the discarded events in the database. Here there is no need
@@ -97,16 +78,95 @@ public abstract class DBEventProcessor implements EventProcessor {
         return true;
     }
     
+    protected void handleProcessedEventsStrategy(Map.Entry<String, List<EventGenerated>> entry, EventStatus verificationStatus){
+        
+        EventType eventType = entry.getValue().get(0).getEventType();
+        
+        if(eventType.getStrategy().equals(EventType.Strategy.SUPPRESS)){
+            suppressProcessedEvents(entry, verificationStatus);
+        }
+        else if(eventType.getStrategy().equals(EventType.Strategy.MERGE)){
+            mergeProcessedEvents(entry, verificationStatus);
+        }
+        else {
+            noStrategyProcessedEvents(entry, verificationStatus);
+        }
+        
+    }
+    
+    protected void noStrategyProcessedEvents(Map.Entry<String, List<EventGenerated>> entry, EventStatus verficationEventStatus) {
+        for(EventGenerated eventGenerated: entry.getValue()){
+            updateEventStatus(eventGenerated, verficationEventStatus);
+        }
+    }
+    protected void suppressProcessedEvents( Map.Entry<String, List<EventGenerated>> entry, EventStatus verficationEventStatus){
+        List<EventGenerated> discardedEvents = new ArrayList<EventGenerated>();
+
+        for (EventGenerated eventGenerated : entry.getValue()) {
+            eventGenerated.setEventStatus(EventStatus.Discarded);
+            discardedEvents.add(eventGenerated);
+        }
+
+        /*
+         * In Price Change, Only first latest event(by date) has to be
+         * considered for verification. Rest have to be discarded.
+         */
+        EventGenerated firstEvent = entry.getValue().get(0);
+        // removing the first Event from discarded list.
+        discardedEvents.remove(firstEvent);
+        updateEventStatus(firstEvent, verficationEventStatus);
+        
+        // Updating the Event in the database.
+        EventGenerated newEventGenerated = eventGeneratedService.saveOrUpdateOneEvent(firstEvent);
+        // Event has been marked Successfully for pending verification.
+        // Hence, sending it to verfication.
+        if (newEventGenerated.getEventStatus().name().equals(verficationEventStatus.name())) {
+            newEventGenerated.getEventType().getEventTypeConfig().getEventVerificationObject()
+                    .verifyEvents(newEventGenerated);
+        }
+    }
+
+    protected void mergeProcessedEvents(Map.Entry<String, List<EventGenerated>> entry, EventStatus verficationEventStatus) {
+        List<EventGenerated> mergedEvents = new ArrayList<EventGenerated>();
+        List<EventTypePayload> childEventTypePayloads = new ArrayList<EventTypePayload>();
+
+        for (EventGenerated eventGenerated : entry.getValue()) {
+            eventGenerated.setEventStatus(EventStatus.Merged);
+            mergedEvents.add(eventGenerated);
+            childEventTypePayloads.add(eventGenerated.getEventTypePayload());
+        }
+
+        /*
+         * In Price Change, Only first latest event(by date) has to be
+         * considered for verification. Rest have to be discarded.
+         */
+        EventGenerated firstEvent = entry.getValue().get(0);
+        // removing the first Event from discarded list.
+        mergedEvents.remove(firstEvent);
+        childEventTypePayloads.remove(0);
+        updateEventStatus(firstEvent, verficationEventStatus);
+        firstEvent.getEventTypePayload().setChildEventTypePayloads(childEventTypePayloads);
+        
+        // Updating the Event in the database.
+        EventGenerated newEventGenerated = eventGeneratedService.saveOrUpdateOneEvent(firstEvent);
+        // Event has been marked Successfully for pending verification.
+        // Hence, sending it to verfication.
+        if (newEventGenerated.getEventStatus().name().equals(verficationEventStatus.name())) {
+            newEventGenerated.getEventType().getEventTypeConfig().getEventVerificationObject()
+                    .verifyEvents(newEventGenerated);
+        }
+    }
+    
     protected void handleRawEventsStrategy(Map.Entry<String, List<EventGenerated>> entry,
             Map<String, List<EventGenerated>> allCurrentProcessedEvents,
             Map<EventStatus, List<EventGenerated>> updateEventsByOldStatusMap){
         
         EventType eventType = entry.getValue().get(0).getEventType();
         
-        if(eventType.getStrategy() == EventType.Strategy.SUPPRESS){
+        if(eventType.getStrategy().equals(EventType.Strategy.SUPPRESS)){
             suppressRawEvents(entry, allCurrentProcessedEvents, updateEventsByOldStatusMap);
         }
-        else if(eventType.getStrategy() == EventType.Strategy.MERGE){
+        else if(eventType.getStrategy().equals(EventType.Strategy.MERGE)){
             mergeRawEvents(entry, allCurrentProcessedEvents, updateEventsByOldStatusMap);
         }
         else {
@@ -181,6 +241,7 @@ public abstract class DBEventProcessor implements EventProcessor {
          * considered. Rest have to be discarded.
          */
         EventGenerated lastEvent = entry.getValue().get(size);
+        lastEvent.getEventTypePayload().setChildEventTypePayloads(childEventTypePayloads);
         updateEventStatus(lastEvent, EventStatus.Processed);
         logger.info(new Gson().toJson(lastEvent.getEventTypePayload()));
     }
