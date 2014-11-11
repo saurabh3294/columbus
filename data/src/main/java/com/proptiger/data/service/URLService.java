@@ -26,6 +26,7 @@ import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Suburb;
+import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.init.NullAwareBeanUtilsBean;
@@ -65,6 +66,11 @@ public class URLService {
 
     @Autowired
     private PortfolioService  portfolioService;
+    
+    @Autowired
+    private ImageService	  imageService;
+    
+    private static Pattern PATTERN = Pattern.compile("^*(\\d+)(?:/.*)*$");
 
     public ValidURLResponse getURLStatus(String url) {
         URLDetail urlDetail = null;
@@ -101,7 +107,64 @@ public class URLService {
         catch (Exception e) {
             throw new ProAPIException(e);
         }
-        PageType pageType = urlDetail.getPageType();
+        return validateUrl(urlDetail, hasTrailingSlace, URLRequestParamString);
+    }
+
+	private PageType setNewUrlDetails(Integer objectId, Integer integer, URLDetail newUrlDetail) {
+		DomainObject domainObject = DomainObject.getDomainInstance(new Long(objectId));
+		if (domainObject.equals(DomainObject.property)) {
+			newUrlDetail.setPropertyId(objectId);
+			return PageType.PROPERTY_URLS;
+		}
+		
+		if (domainObject.equals(DomainObject.project)) {
+			newUrlDetail.setProjectId(objectId);
+			return PageType.PROJECT_URLS;
+		}
+		
+		if (domainObject.equals(DomainObject.locality) || domainObject.getText().equals(DomainObject.suburb)) {
+			newUrlDetail.setLocalityId(objectId);
+			return PageType.LOCALITY_SUBURB_OVERVIEW;
+		}
+		
+		if (domainObject.equals(DomainObject.city)) {
+			City city = null;
+			try {
+				city = cityService.getCity(objectId);
+			}
+			catch (Exception e) {
+				city = null;
+			}
+			if (city == null) {
+				return PageType.InvalidUrl;
+			}
+			newUrlDetail.setCityName(city.getLabel());
+			return PageType.CITY_URLS;
+		}
+		
+		if (domainObject.equals(DomainObject.builder)) {
+			newUrlDetail.setBuilderId(objectId);
+			return PageType.BUILDER_URLS;
+		}
+		return PageType.InvalidUrl;
+	}
+
+	private Integer getObjectIdFromRedirectUrl(String url) {
+		if (url == null || url.isEmpty()) {
+			return null;
+		}
+
+		Matcher matcher = PATTERN.matcher(url);
+		if (matcher.find()) {
+			return new Integer(matcher.group(1));
+		}
+
+		return null;
+	}
+
+	private ValidURLResponse validateUrl(URLDetail urlDetail,
+			boolean hasTrailingSlace, String URLRequestParamString) {
+		PageType pageType = urlDetail.getPageType();
         int responseStatus = HttpStatus.SC_OK;
         String redirectUrl = null, domainUrl = null;
 
@@ -321,6 +384,61 @@ public class URLService {
                     responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 }
                 break;
+            case IMAGE_PAGE_URL:
+            	responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
+            	URLDetail newUrlDetail = new URLDetail();
+    			PageType objectIdToPageType = setNewUrlDetails(urlDetail.getObjectId(), urlDetail.getObjectId(), newUrlDetail);
+    			newUrlDetail.setPageType(objectIdToPageType);
+    			newUrlDetail.setUrl("");
+    			
+    			ValidURLResponse urlResponse = validateUrl(newUrlDetail, false, "");
+    			String redirectionUrl = urlResponse.getRedirectUrl();
+    			Integer objectIdFromRedirectUrl = getObjectIdFromRedirectUrl(redirectionUrl);
+    			
+    			//If object-Id corresponds to city in the page_url, then HttpStatus for that city will
+    			//be either 200 or 301, if HttpStatus is 200 redirection url will be null else it will
+    			//be Empty. so in case of 301 HttpStatus city is either inactive or invalid and redirection
+    			//url be empty and nothing can be extracted from this, but in case of HttpStatus
+    			//200 city is active and hence directly assigning cityId to objectIdFromRedirectUrl as
+    			//redirection url will be null.
+    			if (pageType.equals(PageType.CITY_URLS) && urlResponse.getHttpStatus() == HttpStatus.SC_OK) {
+    				objectIdFromRedirectUrl = urlDetail.getObjectId();
+    				urlResponse = new ValidURLResponse(HttpStatus.SC_MOVED_PERMANENTLY, "");
+    			}
+    			
+    			Image image = imageService.getImage(urlDetail.getImageId());
+    			/*
+    			 * HttpStatus is 301, domain object is active and image is active then,
+    			 * either url will be same as image object page url or different.
+    			 * if both are same then HttpStatus will be 200 else 301 and redirection
+    			 * url will be image object page url.
+    			 */
+    			if (image != null && objectIdFromRedirectUrl != null 
+    					&& urlResponse.getHttpStatus() == HttpStatus.SC_MOVED_PERMANENTLY
+    					&& image.isActive()
+    					&& urlDetail.getObjectId().equals(objectIdFromRedirectUrl)) {
+    				if (image.getPageUrl().equals(urlDetail.getUrl())) {
+    					responseStatus = HttpStatus.SC_OK;
+    				} 
+    				else {
+    					redirectUrl = image.getPageUrl();
+    				}
+    			} 
+    			/*
+    			 * if Domain object id null or not null and not equal to object id
+    			 * and HttpStatus is 301 and image active/inactive then redirect url to urlResponse's redirection url 
+    			 */
+    			else if (image != null
+    					&& urlResponse.getHttpStatus() == HttpStatus.SC_MOVED_PERMANENTLY) {
+    				redirectUrl = urlResponse.getRedirectUrl();
+    			}
+    			/*
+    			 * HttpStatus is 404 or image is null
+    			 */
+    			else {
+    				responseStatus = HttpStatus.SC_NOT_FOUND;
+    			}
+            	break;
             case STATIC_URLS:
             case DIWALI_MELA_URL:
                 responseStatus = HttpStatus.SC_OK;
