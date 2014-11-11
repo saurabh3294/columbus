@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.model.user.User;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
@@ -440,7 +441,18 @@ public class NotificationService {
     public void sendTaskOverDueNotification() {
         int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
         List<Notification> notifications = notificationDao.findByNotificationTypeId(notificationTypeId);
-        sendTaskNotificationToUsers(notificationTypeId, notifications);
+        Map<Integer, List<Notification>> map = groupNotificationsByUser(notifications);
+        for (Integer userId : map.keySet()) {
+            List<Notification> userNotifications = map.get(userId);
+            String message = getTaskOverDueNotificationMessage(userNotifications);
+
+            GcmMessage gcmMessage = new GcmMessage();
+            gcmMessage.setNotificationTypeId(notificationTypeId);
+            gcmMessage.setMessage(message);
+            gcmMessage.setData(getObjectIdsFromNotifications(userNotifications));
+
+            sendGcmMessageUsingService(gcmMessage, userId);
+        }
     }
 
     /**
@@ -451,26 +463,121 @@ public class NotificationService {
         List<Notification> notifications = notificationDao.findByNotificationTypeIdAndMasterTaskIdIn(
                 notificationTypeId,
                 allMasterTaskIdsButCall);
-        sendTaskNotificationToUsers(notificationTypeId, notifications);
+        Map<Integer, List<Notification>> map = groupNotificationsByUser(notifications);
+        for (Integer userId : map.keySet()) {
+            List<Notification> userNotifications = map.get(userId);
+            String message = getTaskDueNotificationMessage(userNotifications);
+
+            GcmMessage gcmMessage = new GcmMessage();
+            gcmMessage.setNotificationTypeId(notificationTypeId);
+            gcmMessage.setMessage(message);
+            gcmMessage.setData(getObjectIdsFromNotifications(userNotifications));
+
+            sendGcmMessageUsingService(gcmMessage, userId);
+        }
     }
 
-    private void sendTaskNotificationToUsers(int notificationTypeId, List<Notification> notifications) {
-        Map<Integer, List<Notification>> map = groupNotificationsByUser(notifications);
-        MarketplaceNotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
-        for (Integer userId : map.keySet()) {
-            notificationType.setNotifications(map.get(userId));
-            String message = SerializationUtils.objectToJson(notificationType).toString();
-            if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_ALL)) {
-                logger.debug("SENDING TASK NOTIFICATION == " + message);
-
-                NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
-                        defaultNotificationType,
-                        userId,
-                        new DefaultMediumDetails(message),
-                        MediumType.MarketplaceApp);
-                notificationCreatorService.createNotificationGenerated(request);
-            }
+    private String getTaskDueNotificationMessage(List<Notification> notifications) {
+        List<Integer> taskIds = new ArrayList<>();
+        for (Notification notification : notifications) {
+            taskIds.add(notification.getObjectId());
         }
+        List<LeadTask> tasks = taskDao.findById(taskIds);
+        Notification notification = notifications.get(0);
+
+        String message = "";
+
+        if (tasks.size() == 1) {
+            User user = userService.getUserById(notification.getUserId());
+            LeadTask task = tasks.get(0);
+            message = "Your " + task.getTaskStatus().getMasterLeadTask().getSingularDisplayName()
+                    + " with "
+                    + user.getFullName()
+                    + ", "
+                    + task.getLeadOfferId()
+                    + " is due at "
+                    + DateUtil.getReadableDateFromDate(task.getScheduledFor())
+                    + ", "
+                    + DateUtil.getHHMMTimeFromDate(task.getScheduledFor())
+                    + ". Please update.";
+        }
+        else {
+            Map<Integer, List<LeadTask>> mappedTasks = mapTaskOnType(tasks);
+
+            message = "You have ";
+
+            List<String> midContents = new ArrayList<>();
+            for (Integer typeId : mappedTasks.keySet()) {
+                int size = mappedTasks.get(typeId).size();
+                LeadTask task = mappedTasks.get(typeId).get(0);
+                String content = Integer.toString(size);
+                if (size == 1) {
+                    content = "1 " + task.getTaskStatus().getMasterLeadTask().getSingularDisplayName();
+                }
+                else {
+                    content = size + " " + task.getTaskStatus().getMasterLeadTask().getPluralDisplayName();
+                }
+                midContents.add(content);
+            }
+            message += com.proptiger.core.util.StringUtils.toSentence(midContents);
+            message += " due. Please update your tasks.";
+        }
+        return message;
+    }
+
+    private String getTaskOverDueNotificationMessage(List<Notification> notifications) {
+        List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
+        List<LeadTask> tasks = taskDao.findById(taskIds);
+        Notification notification = notifications.get(0);
+
+        String message = "";
+
+        if (tasks.size() == 1) {
+            User user = userService.getUserById(notification.getUserId());
+            LeadTask task = tasks.get(0);
+            message = "Your " + task.getTaskStatus().getMasterLeadTask().getSingularDisplayName()
+                    + " with "
+                    + user.getFullName()
+                    + ", "
+                    + task.getLeadOfferId()
+                    + " is overdue by "
+                    + DateUtil.getHumanReadableTimeDifference(new Date().getTime() - task.getScheduledFor().getTime())
+                    + ". Please update.";
+        }
+        else {
+            Map<Integer, List<LeadTask>> mappedTasks = mapTaskOnType(tasks);
+
+            message = "You have ";
+
+            List<String> midContents = new ArrayList<>();
+            for (Integer typeId : mappedTasks.keySet()) {
+                int size = mappedTasks.get(typeId).size();
+                LeadTask task = mappedTasks.get(typeId).get(0);
+                String content = Integer.toString(size);
+                if (size == 1) {
+                    content = "1 " + task.getTaskStatus().getMasterLeadTask().getSingularDisplayName();
+                }
+                else {
+                    content = size + " " + task.getTaskStatus().getMasterLeadTask().getPluralDisplayName();
+                }
+                midContents.add(content);
+            }
+            message += com.proptiger.core.util.StringUtils.toSentence(midContents);
+            message += " overdue. Please update your tasks.";
+        }
+        return message;
+    }
+
+    private Map<Integer, List<LeadTask>> mapTaskOnType(List<LeadTask> tasks) {
+        Map<Integer, List<LeadTask>> mappedTasks = new HashMap<>();
+        for (LeadTask task : tasks) {
+            int typeId = task.getTaskStatus().getMasterLeadTask().getId();
+            if (!mappedTasks.containsKey(typeId)) {
+                mappedTasks.put(typeId, new ArrayList<LeadTask>());
+            }
+            mappedTasks.get(typeId).add(task);
+        }
+        return mappedTasks;
     }
 
     /**
@@ -524,16 +631,14 @@ public class NotificationService {
         List<Notification> notifications = notificationDao.findByUserIdAndNotificationTypeId(
                 userId,
                 NotificationType.LeadOffered.getId());
-        List<Integer> offerIds = new ArrayList<>();
-        for (Notification notification : notifications) {
-            offerIds.add(notification.getObjectId());
-        }
+        List<Integer> offerIds = getObjectIdsFromNotifications(notifications);
+
         String message;
         if (offerIds.size() == 0) {
             throw new ProAPIException();
         }
         if (offerIds.size() == 1) {
-            message = "One lead is waiting to be claimed.";
+            message = "1 lead is waiting to be claimed.";
         }
         else {
             message = offerIds.size() + " leads are waiting to be claimed.";
@@ -545,6 +650,14 @@ public class NotificationService {
         gcmMessage.setMessage(message);
 
         sendGcmMessageUsingService(gcmMessage, userId);
+    }
+
+    private List<Integer> getObjectIdsFromNotifications(List<Notification> notifications) {
+        List<Integer> objectIds = new ArrayList<>();
+        for (Notification notification : notifications) {
+            objectIds.add(notification.getObjectId());
+        }
+        return objectIds;
     }
 
     private void sendGcmMessageUsingService(GcmMessage gcmMessage, int userId) {
