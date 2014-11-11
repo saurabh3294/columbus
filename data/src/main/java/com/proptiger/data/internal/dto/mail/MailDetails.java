@@ -6,6 +6,8 @@ package com.proptiger.data.internal.dto.mail;
  */
 public class MailDetails extends MailBody {
 
+    private static final long serialVersionUID = -1313419432726880887L;
+    
     /*
      * this from mail address will have higher priority than from address being
      * used in AmazonMailSender class
