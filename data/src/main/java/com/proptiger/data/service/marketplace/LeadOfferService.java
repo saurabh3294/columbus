@@ -539,6 +539,7 @@ public class LeadOfferService {
                     }
                     else {
                         leadOfferInDB.setOtherReason(leadOffer.getOtherReason());
+                        leadOfferInDB.setDeclineReasonId(leadOffer.getDeclineReasonId());
                     }
                 }
                 else {
