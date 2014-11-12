@@ -124,6 +124,7 @@ public class URLService {
 		
 		if (domainObject.equals(DomainObject.locality) || domainObject.getText().equals(DomainObject.suburb)) {
 			newUrlDetail.setLocalityId(objectId);
+			newUrlDetail.setOverviewType("overview");
 			return PageType.LOCALITY_SUBURB_OVERVIEW;
 		}
 		
