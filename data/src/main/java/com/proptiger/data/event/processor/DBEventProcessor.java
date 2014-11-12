@@ -26,7 +26,7 @@ public abstract class DBEventProcessor implements EventProcessor {
     private static Logger         logger = LoggerFactory.getLogger(DBEventProcessor.class);
 
     @Autowired
-    private EventGeneratedService eventGeneratedService;
+    protected EventGeneratedService eventGeneratedService;
 
     public List<EventGenerated> processRawEvents(List<EventGenerated> events) {
         List<EventGenerated> processedEvents = eventGeneratedService.getProcessedEventsToBeMerged();
@@ -294,7 +294,7 @@ public abstract class DBEventProcessor implements EventProcessor {
         eventGenerated.setExpiryDate(expiredDate);
     }
     
-    private void updateEventStatus(EventGenerated eventGenerated, EventStatus eventStatus){
+    protected void updateEventStatus(EventGenerated eventGenerated, EventStatus eventStatus){
         eventGenerated.setEventStatus(eventStatus);
         updateEventHistories(eventGenerated, eventStatus);
         updateEventExpiryTime(eventGenerated);

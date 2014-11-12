@@ -24,6 +24,7 @@ public abstract class EventTypePayload implements Serializable {
     private Date                         transactionDateKeyValue;
     private String                       eventCreatedDateKeyName;
     private Date                         eventCreatedDateKeyValue;
+    private String                       eventChangeAttributeName;
 
     private List<EventTypeUpdateHistory> eventTypeUpdateHistories;
     private List<EventTypePayload>       childEventTypePayloads;
@@ -52,7 +53,11 @@ public abstract class EventTypePayload implements Serializable {
         this.primaryKeyValue = idValue;
     }
 
-    public abstract void populatePayloadValues(RawDBEvent rawDBEvent, String attributeName);
+    public void populatePayloadValues(RawDBEvent rawDBEvent, String attributeName){
+        this.eventChangeAttributeName = attributeName;
+    }
+    
+    public abstract Object getPayloadValues();
 
     public Object getTransactionId() {
         return transactionId;
@@ -108,6 +113,14 @@ public abstract class EventTypePayload implements Serializable {
 
     public void setChildEventTypePayloads(List<EventTypePayload> childEventTypePayloads) {
         this.childEventTypePayloads = childEventTypePayloads;
+    }
+
+    public String getEventChangeAttributeName() {
+        return eventChangeAttributeName;
+    }
+
+    public void setEventChangeAttributeName(String eventChangeAttributeName) {
+        this.eventChangeAttributeName = eventChangeAttributeName;
     }
 
 }

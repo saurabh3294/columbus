@@ -23,7 +23,7 @@ public class SeoBuilderDeleteProcessor extends DBEventProcessor {
         /**
          * in case of update event, checking the value.
          */
-        if (newValue != null && newValue.getClass().equals(Double.class)) {
+        if (newValue != null && newValue.getClass().equals(Integer.class)) {
             Number number = (Number)newValue;
             if (number.intValue() == 1) {
                 return true;

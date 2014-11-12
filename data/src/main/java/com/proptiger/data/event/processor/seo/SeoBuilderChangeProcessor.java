@@ -24,7 +24,7 @@ public class SeoBuilderChangeProcessor extends DBEventProcessor {
         /**
          * in case of update event, checking the value.
          */
-        if (newValue != null && newValue.getClass().equals(Double.class)) {
+        if (newValue != null && newValue.getClass().equals(Integer.class)) {
             Number number = (Number)newValue;
             if (number.intValue() == 0) {
                 return true;

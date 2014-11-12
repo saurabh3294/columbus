@@ -30,8 +30,15 @@ public class DefaultEventTypePayload extends EventTypePayload {
 
     @Override
     public void populatePayloadValues(RawDBEvent rawDBEvent, String attributeName) {
+        super.populatePayloadValues(rawDBEvent, attributeName);
         this.oldValue = rawDBEvent.getOldDBValueMap().get(attributeName);
         this.newValue = rawDBEvent.getNewDBValueMap().get(attributeName);
+    }
+
+    @Override
+    public Object getPayloadValues() {
+        Object[] data = {oldValue, newValue};
+        return data;
     }
 
 }
