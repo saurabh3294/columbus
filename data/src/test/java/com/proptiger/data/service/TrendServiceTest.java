@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.pojo.FIQLSelector;
-import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.service.trend.TrendService;
 
 public class TrendServiceTest extends AbstractTest {

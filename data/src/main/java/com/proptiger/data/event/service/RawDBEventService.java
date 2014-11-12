@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
-import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.repo.RawEventTableDetailsDao;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.repo.RawDBEventDao;
+import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.util.Serializer;
 
 @Service

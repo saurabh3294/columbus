@@ -5,7 +5,6 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,30 +58,15 @@ public class NotificationMessageServiceTest extends AbstractTest {
 
         final String MOCK_KEY = "mock-key";
         final String MOCK_VALUE = "mock-value";
-        final String FROM_EMAIL = "from-email";
-        final String CC_EMAIL = "cc-email";
-        final String BCC_EMAIL = "bcc-email";
 
         Map<String, Object> templateMap = new HashMap<String, Object>();
         templateMap.put(MOCK_KEY, MOCK_VALUE);
-
-        List<String> ccList = new ArrayList<String>();
-        ccList.add(CC_EMAIL);
-
-        List<String> bccList = new ArrayList<String>();
-        bccList.add(BCC_EMAIL);
 
         NotificationTypeService notificationTypeService = mock(NotificationTypeService.class);
         when(notificationTypeService.findByName(typeName.getName())).thenReturn(notificationType);
         nMessageService.setNotiTypeService(notificationTypeService);
 
-        NotificationMessage message = nMessageService.createNotificationMessage(
-                typeName,
-                userId,
-                templateMap,
-                FROM_EMAIL,
-                ccList,
-                bccList);
+        NotificationMessage message = nMessageService.createNotificationMessage(typeName, userId, templateMap);
 
         Assert.assertNotNull(message);
         Assert.assertEquals(message.getUserId(), userId);
@@ -96,15 +80,6 @@ public class NotificationMessageServiceTest extends AbstractTest {
         Map<String, Object> extraAttributes = payload.getExtraAttributes();
         Assert.assertNotNull(extraAttributes.get(MOCK_KEY));
         Assert.assertEquals(extraAttributes.get(MOCK_KEY), MOCK_VALUE);
-
-        Assert.assertEquals(payload.getFromEmail(), FROM_EMAIL);
-        Assert.assertNotNull(payload.getCcList());
-        Assert.assertEquals(payload.getCcList().size(), ccList.size());
-        Assert.assertEquals(payload.getCcList().get(0), CC_EMAIL);
-
-        Assert.assertNotNull(payload.getBccList());
-        Assert.assertEquals(payload.getBccList().size(), bccList.size());
-        Assert.assertEquals(payload.getBccList().get(0), BCC_EMAIL);
 
     }
 

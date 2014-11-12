@@ -135,10 +135,7 @@ public class NotificationMessageService {
     public NotificationMessage createNotificationMessage(
             NotificationTypeEnum notificationType,
             int userId,
-            Map<String, Object> payloadMap,
-            String fromEmail,
-            List<String> ccList,
-            List<String> bccList) {
+            Map<String, Object> payloadMap) {
 
         NotificationType notiType = null;
         if (notificationType == null) {
@@ -149,9 +146,6 @@ public class NotificationMessageService {
         }
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setExtraAttributes(payloadMap);
-        payload.setFromEmail(fromEmail);
-        payload.setCcList(ccList);
-        payload.setBccList(bccList);
         NotificationMessage notificationMessage = new NotificationMessage(userId, payload, notiType);
         return saveOrFlush(notificationMessage);
     }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.mvc.BaseController;
@@ -32,6 +33,7 @@ public class TrendReportController extends BaseController {
     @Autowired
     TrendReportAggregator trendReportDao;
 
+    @Intercepted.TrendReport
     @RequestMapping("app/v1/report/price-and-absorption")
     @ResponseBody
     public void getTrendReport(
@@ -42,6 +44,7 @@ public class TrendReportController extends BaseController {
         makeHTTPServletResponse(response, file);
     }
     
+    @Intercepted.TrendReport
     @RequestMapping("app/v1/report/price-and-absorption/catchment/{catchmentId}")
     @ResponseBody
     public void getTrendReportByCatchmentId(

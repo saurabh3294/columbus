@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +38,7 @@ import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.model.proptiger.Enquiry.LeadEnquiryResponse;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.service.security.SecurityUtilService;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
@@ -78,6 +78,9 @@ public class EnquiryService {
 
     @Autowired
     UserService                     userService;
+
+    @Autowired
+    SecurityUtilService             securityUtilService;
 
     @Autowired
     EnquiryDao                      enquiryDao;
@@ -466,11 +469,8 @@ public class EnquiryService {
         if (request.getHeader("IP") != null) {
             enquiry.setIp(request.getHeader("IP"));
         }
-        else if (cookieMap.containsKey("USER_IP")) {
-            enquiry.setIp(cookieMap.get("USER_IP"));
-        }
         else if (request.getRemoteAddr() != null) {
-            enquiry.setIp(request.getRemoteAddr());
+            enquiry.setIp(securityUtilService.getClientIP(request));
         }
         else {
             enquiry.setIp("");
