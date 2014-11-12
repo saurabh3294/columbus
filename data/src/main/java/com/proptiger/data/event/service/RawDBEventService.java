@@ -62,8 +62,8 @@ public class RawDBEventService {
             rawDBEvent.setRawEventTableDetails(tableLog);
             rawDBEvent.setRawDBEventOperationConfig(rawDBEventTableConfig.getDbRawEventOperationConfig(dbOperation));
             rawDBEvent.setNewDBValueMap(rawDBEventMap);
-            rawDBEvent.setPrimaryKeyValue(rawDBEventMap.get(tableLog.getPrimaryKeyName()));
-            rawDBEvent.setTransactionKeyValue(rawDBEventMap.get(tableLog.getTransactionKeyName()));
+            rawDBEvent.setPrimaryKeyValue(rawDBEventMap.get(tableLog.getPrimaryKeyName()).toString());
+            rawDBEvent.setTransactionKeyValue(rawDBEventMap.get(tableLog.getTransactionKeyName()).toString());
             rawDBEvent.setTransactionDate((Date) rawDBEventMap.get(tableLog.getDateAttributeName()));
             rawDBEvent.setUniqueKeyValuesMap(getUniqueKeyValuesMap(rawDBEventMap, tableLog));
             rawDBEventList.add(rawDBEvent);
