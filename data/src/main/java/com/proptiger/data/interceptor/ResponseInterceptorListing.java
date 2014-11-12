@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.service.user.UserSubscriptionService;
 
 /**
@@ -149,7 +150,12 @@ public class ResponseInterceptorListing {
     }
 
     private MultiKeyMap getUserSubscriptionMap() {
-        ActiveUser activeUser = (ActiveUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
+        ActiveUser activeUser = SecurityContextUtils.getActiveUser();
+        if(activeUser != null){
+            return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
+        }
+        else{
+            return null;
+        }
     }
 }
