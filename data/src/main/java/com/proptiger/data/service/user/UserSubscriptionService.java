@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.model.proptiger.Permission;
 import com.proptiger.core.model.proptiger.SubscriptionPermission;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;

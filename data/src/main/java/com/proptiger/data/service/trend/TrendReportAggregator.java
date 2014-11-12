@@ -3,6 +3,7 @@ package com.proptiger.data.service.trend;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,15 +15,17 @@ import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement.TypeOfData;
-import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.service.PropertyService;
 
 @Component
@@ -43,6 +46,10 @@ public class TrendReportAggregator {
 
         List<Trend> trendList = trendService.getTrend(selector);
 
+        if(trendList == null || trendList.isEmpty()){
+            throw new ProAPIException(ResponseCodes.EMPTY_REPORT_GENERATED, "No projects were found for the given search criteria.");
+        }
+        
         //DebugUtils.exportToNewDebugFile(DebugUtils.getAsListOfStrings(trendList));
 
         /** Get trend list as a grouped map **/
@@ -175,6 +182,12 @@ public class TrendReportAggregator {
 
         CatchmentTrendReportElement ctrElem = new CatchmentTrendReportElement();
 
+        Collections.sort(trendList, new Comparator<Trend>() {
+            @Override
+            public int compare(Trend o1, Trend o2) {
+                return o2.getMonth().compareTo(o1.getMonth());
+            }});
+        
         Trend trend = trendList.get(0);
         ctrElem.setProjectName(trend.getProjectName());
         ctrElem.setBuilderName(trend.getBuilderName());
