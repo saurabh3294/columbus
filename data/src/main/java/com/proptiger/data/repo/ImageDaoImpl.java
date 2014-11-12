@@ -84,7 +84,7 @@ public class ImageDaoImpl {
             em.getTransaction().commit();
             image.assignWatermarkName(format);
             image.assignSeoName(format);
-            image.assignPageUrl(format);
+            image.assignPageUrl();
             return image;
         }
         catch (Exception e) {
