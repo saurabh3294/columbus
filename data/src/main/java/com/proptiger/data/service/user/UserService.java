@@ -50,6 +50,7 @@ import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.model.user.UserPreference;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;

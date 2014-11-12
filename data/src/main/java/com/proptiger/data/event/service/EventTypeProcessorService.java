@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawEventTableDetails;
+import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawEventToEventTypeMapping;
 import com.proptiger.data.event.repo.EventTypeProcessorDao;
 
