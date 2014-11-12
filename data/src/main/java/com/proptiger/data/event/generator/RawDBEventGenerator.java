@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
-import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.RawDBEvent;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.service.RawDBEventService;
 import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
 

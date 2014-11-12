@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -118,7 +116,8 @@ public class LocalityDaoImpl {
         }
 
         Selector selector = new Selector();
-
+        selector.setPaging(new Paging(0, localityIds.size()));
+        
         Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
         List<Map<String, Map<String, Object>>> list = new ArrayList<>();
         Map<String, Map<String, Object>> searchType = new HashMap<>();
@@ -134,9 +133,6 @@ public class LocalityDaoImpl {
             selector.setFields(propertySelector.getFields());
             selector.setPaging(propertySelector.getPaging());
         }
-
-        if (selector.getPaging() == null)
-            selector.setPaging(new Paging(0, localityIds.size()));
 
         return getLocalities(selector);
     }

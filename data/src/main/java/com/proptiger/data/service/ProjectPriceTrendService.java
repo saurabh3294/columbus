@@ -14,6 +14,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.UtilityClass;
@@ -21,7 +22,6 @@ import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
-import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.service.trend.TrendService;
 
 /**
