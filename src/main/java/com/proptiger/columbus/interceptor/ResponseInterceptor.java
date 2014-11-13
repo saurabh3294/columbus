@@ -135,7 +135,7 @@ public class ResponseInterceptor {
                                     .getRequiredPropertyAsString(PropertyKeys.WHO_AM_I_URL)).build().encode()
                     .toString());
             HttpHeaders requestHeaders = new HttpHeaders();
-            String jsessionId = RequestHolderUtil.getJsessionIdFromRequest();
+            String jsessionId = RequestHolderUtil.getJsessionIdFromRequestCookie();
             logger.info("COOKIE FOUND: " + jsessionId);
             requestHeaders.add(
                     "Cookie",

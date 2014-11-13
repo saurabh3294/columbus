@@ -220,7 +220,7 @@
 		<dependency>
 			<groupId>com.proptiger</groupId>
 			<artifactId>midl-core</artifactId>
-			<version>1.0.19</version>
+			<version>1.0.21</version>
 		</dependency>
 	</dependencies>
 	<repositories>
