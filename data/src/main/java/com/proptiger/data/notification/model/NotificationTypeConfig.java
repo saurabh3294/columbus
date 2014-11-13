@@ -5,12 +5,15 @@ import java.util.Map;
 
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.DefaultNotificationTypeProcessor;
 import com.proptiger.data.notification.processor.GoalPriceNotificationMessageProcessor;
 import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.processor.NotificationNonPrimaryKeyProcessor;
 import com.proptiger.data.notification.processor.NotificationPrimaryKeyProcessor;
+import com.proptiger.data.notification.processor.NotificationTypeProcessor;
 import com.proptiger.data.notification.processor.PhotoAddNotificationMessageProcessor;
 import com.proptiger.data.notification.processor.PriceChangeNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.PriceChangeNotificationTypeProcessor;
 
 public class NotificationTypeConfig {
 
@@ -21,24 +24,28 @@ public class NotificationTypeConfig {
 
         notificationTypeConfigMap.put("portfolio_price_change", new NotificationTypeConfig(
                 NotificationTypePayload.class,
+                PriceChangeNotificationTypeProcessor.class,
                 NotificationPrimaryKeyProcessor.class,
                 NotificationNonPrimaryKeyProcessor.class,
                 PriceChangeNotificationMessageProcessor.class));
 
         notificationTypeConfigMap.put("portfolio_goal_price", new NotificationTypeConfig(
                 NotificationTypePayload.class,
+                PriceChangeNotificationTypeProcessor.class,
                 NotificationPrimaryKeyProcessor.class,
                 NotificationNonPrimaryKeyProcessor.class,
                 GoalPriceNotificationMessageProcessor.class));
-        
+
         notificationTypeConfigMap.put("portfolio_photo_add", new NotificationTypeConfig(
                 NotificationTypePayload.class,
+                DefaultNotificationTypeProcessor.class,
                 NotificationPrimaryKeyProcessor.class,
                 NotificationNonPrimaryKeyProcessor.class,
                 PhotoAddNotificationMessageProcessor.class));
     }
 
     private transient Class<? extends NotificationTypePayload>            dataClassName                         = NotificationTypePayload.class;
+    private transient Class<? extends NotificationTypeProcessor>          notificationTypeProcessorClassName    = DefaultNotificationTypeProcessor.class;
     private transient Class<? extends NotificationPrimaryKeyProcessor>    primaryKeyProcessorClassName          = NotificationPrimaryKeyProcessor.class;
     private transient Class<? extends NotificationNonPrimaryKeyProcessor> nonPrimaryKeyProcessorClassName       = NotificationNonPrimaryKeyProcessor.class;
     private transient Class<? extends NotificationMessageProcessor>       notificationMessageProcessorClassName = DefaultNotificationMessageProcessor.class;
@@ -46,16 +53,21 @@ public class NotificationTypeConfig {
     private transient NotificationPrimaryKeyProcessor                     primaryKeyProcessorObject;
     private transient NotificationNonPrimaryKeyProcessor                  nonPrimaryKeyProcessorObject;
     private transient NotificationTypePayload                             notificationTypePayloadObject;
+    private transient NotificationTypeProcessor                           notificationTypeProcessorObject;
     private transient NotificationMessageProcessor                        notificationMessageProcessorObject;
 
     public NotificationTypeConfig(
             Class<? extends NotificationTypePayload> dataClassName,
+            Class<? extends NotificationTypeProcessor> notificationTypeProcessorClassName,
             Class<? extends NotificationPrimaryKeyProcessor> primaryKeyProcessorClassName,
             Class<? extends NotificationNonPrimaryKeyProcessor> nonPrimaryKeyProcessorClassName,
             Class<? extends NotificationMessageProcessor> notificationMessageProcessorClassName) {
         super();
         if (dataClassName != null) {
             this.dataClassName = dataClassName;
+        }
+        if (notificationTypeProcessorClassName != null) {
+            this.notificationTypeProcessorClassName = notificationTypeProcessorClassName;
         }
         if (primaryKeyProcessorClassName != null) {
             this.primaryKeyProcessorClassName = primaryKeyProcessorClassName;
@@ -145,6 +157,23 @@ public class NotificationTypeConfig {
 
     public void setNotificationMessageProcessorObject(NotificationMessageProcessor notificationMessageProcessorObject) {
         this.notificationMessageProcessorObject = notificationMessageProcessorObject;
+    }
+
+    public Class<? extends NotificationTypeProcessor> getNotificationTypeProcessorClassName() {
+        return notificationTypeProcessorClassName;
+    }
+
+    public void setNotificationTypeProcessorClassName(
+            Class<? extends NotificationTypeProcessor> notificationTypeProcessorClassName) {
+        this.notificationTypeProcessorClassName = notificationTypeProcessorClassName;
+    }
+
+    public NotificationTypeProcessor getNotificationTypeProcessorObject() {
+        return notificationTypeProcessorObject;
+    }
+
+    public void setNotificationTypeProcessorObject(NotificationTypeProcessor notificationTypeProcessorObject) {
+        this.notificationTypeProcessorObject = notificationTypeProcessorObject;
     }
 
 }
