@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.data.event.model.EventGenerated;
@@ -13,6 +14,7 @@ import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.dto.EventTypePayloadDataDto;
 import com.proptiger.data.event.processor.DBEventProcessor;
 
+@Service
 public class SeoProjectContentChangeProcessor extends DBEventProcessor {
     private static Logger                     logger     = LoggerFactory.getLogger(SeoProjectContentChangeProcessor.class);
 

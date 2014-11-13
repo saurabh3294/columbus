@@ -14,6 +14,7 @@ import com.proptiger.data.event.processor.seo.SeoBuilderDeleteProcessor;
 import com.proptiger.data.event.processor.seo.SeoLocalityChangeProcessor;
 import com.proptiger.data.event.processor.seo.SeoLocalityDeleteProcessor;
 import com.proptiger.data.event.processor.seo.SeoProjectChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoProjectContentChangeProcessor;
 import com.proptiger.data.event.processor.seo.SeoProjectDeleteProcessor;
 import com.proptiger.data.event.processor.seo.SeoPropertyChangeProcessor;
 import com.proptiger.data.event.processor.seo.SeoPropertyDeleteProcessor;
@@ -70,7 +71,10 @@ public class EventTypeConfig extends BaseModel {
                 DefaultEventTypePayload.class,
                 SeoBuilderDeleteProcessor.class,
                 null));
-        
+        eventTypeConfigMap.put("project_url_content_change", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoProjectContentChangeProcessor.class,
+                null));
     }
 
     private Class<? extends EventTypePayload>    dataClassName         = DefaultEventTypePayload.class;
