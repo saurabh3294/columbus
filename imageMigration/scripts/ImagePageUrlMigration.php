@@ -48,23 +48,19 @@
 			$alt_text_with_hyphen = $alt_text_with_hyphen . $hyphen;
 		}
 		
-		$image_extension	= substr($watermark_name, strripos($watermark_name, $dot) + 1);
 		//page_url construction from input
 		$page_url	= $gallery . 
 				  $slash . 
 				  $alt_text_with_hyphen .
 				  $object_id . 
 				  $hyphen . 
-				  $image_id . 
-				  $dot .
-				  $image_extension;
-		echo "\n\nRAW INPUT => [". 
+				  $image_id; 
+		     /*echo "\n\nRAW INPUT => [". 
                      $alt_text		.	", "	.
-		     $object_id	. 	", "	.  
+		     $object_id		. 	", "	.  
                      $image_id		.	", "	.
-		     $image_extension	.	", "	. 
                      $watermark_name	.	"] "	.
-		     "\nPAGE URL =>"	. 	$page_url;
+		     "\nPAGE URL =>"	. 	$page_url;*/
 		
 		#Updating page_url column with gallery/alt_text-domain-id.extension
 		$update_query	= "UPDATE Image set page_url = '" . $page_url . "' WHERE id = ". $image_id;
