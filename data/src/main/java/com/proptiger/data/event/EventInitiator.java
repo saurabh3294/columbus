@@ -33,22 +33,19 @@ public class EventInitiator {
     private DBProcessedEventHandler dbProcessedEventHandler;
 
     /**
-     * Generates the DB events at regular intervals.
+     * Creates a list of EventGenerateds in Raw State from DB Events at regular intervals.
      */
     @Scheduled(
             fixedDelayString = "${scheduler.fixeddelay.event}",
             initialDelayString = "${scheduler.initialdelay.event.dbEventGenerator}")
     public void dbEventGenerator() {
-        Thread.currentThread().setName("Raw Event Generator");
-
+        logger.info("DBEventGenerator: Starting creation of EventGenerated");
         if (!dbEventGenerator.isEventGenerationRequired()) {
-            logger.info("DBEventGenerator: Skipping DB Event Generation.");
+            logger.error("DBEventGenerator: Skipping creation of EventGenerated");
             return;
         }
-
-        logger.info("DBEventGenerator: Generating DB Events.");
         Integer numberOfEvents = dbEventGenerator.generateEvents();
-        logger.info("DBEventGenerator: Generated " + numberOfEvents + " DB Events.");
+        logger.info("DBEventGenerator: Created " + numberOfEvents + " EventGenerateds in DB");
     }
 
     @Scheduled(

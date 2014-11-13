@@ -105,6 +105,9 @@ public class EventGeneratedService {
         return listEventGenerateds;
     }
 
+    /**
+     * Returns the count of EventGenerated in Raw state in DB
+     */
     public Long getRawEventCount() {
         return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw);
     }
