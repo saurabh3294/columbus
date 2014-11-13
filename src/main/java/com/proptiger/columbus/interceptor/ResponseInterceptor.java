@@ -135,16 +135,19 @@ public class ResponseInterceptor {
                                     .getRequiredPropertyAsString(PropertyKeys.WHO_AM_I_URL)).build().encode()
                     .toString());
             HttpHeaders requestHeaders = new HttpHeaders();
+            String jsessionId = RequestHolderUtil.getJsessionIdFromRequest();
+            logger.info("COOKIE FOUND: " + jsessionId);
             requestHeaders.add(
                     "Cookie",
-                    Constants.Security.COOKIE_NAME_JSESSIONID + "=" + RequestHolderUtil.getJsessionIdFromRequest());
+                    Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
             WhoAmIDetail whoAmI = httpRequestUtil.getInternalApiResultAsTypeFromCache(uri, requestHeaders, WhoAmIDetail.class);
             if(whoAmI != null){
                 userId = whoAmI.getUserId();
+                logger.info("USER ID IDENTIFIED: " + userId);
             }
         }
         catch (Exception e) {
-            logger.info("Error in extracting user id", e);
+            logger.error("Error in extracting user id", e);
         }
         return getUserSubscriptionMap(userId);
     }
