@@ -16,22 +16,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.columbus.thandlers.URLGenerationConstants;
+import com.proptiger.core.enums.Application;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.model.proptiger.Permission;
+import com.proptiger.core.model.user.User.WhoAmIDetail;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.APIResponse;
-import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
-import com.proptiger.core.util.SecurityContextUtils;
+import com.proptiger.core.util.RequestHolderUtil;
 
 @Aspect
 @Order(1)
@@ -62,7 +64,7 @@ public class ResponseInterceptor {
             pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.TypeaheadListing))",
             returning = "retVal")
     public void filterTypeAhead(Object retVal) throws Throwable {
-        if (!ApplicationNameService.isB2BApplicationRequest()) {
+        if (RequestHolderUtil.getApplicationTypeFromRequest() == null || !RequestHolderUtil.getApplicationTypeFromRequest().equals(Application.B2B)) {
             logger.info("Not a B2B request. Skipping authorized check");
             return;
         }
@@ -127,7 +129,19 @@ public class ResponseInterceptor {
     private MultiKeyMap getUserSubscriptionMap() {
         int userId = 0;
         try {
-            userId = SecurityContextUtils.getLoggedInUserId();
+            URI uri = URI.create(UriComponentsBuilder
+                    .fromUriString(
+                            PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
+                                    .getRequiredPropertyAsString(PropertyKeys.WHO_AM_I_URL)).build().encode()
+                    .toString());
+            HttpHeaders requestHeaders = new HttpHeaders();
+            requestHeaders.add(
+                    "Cookie",
+                    Constants.Security.COOKIE_NAME_JSESSIONID + "=" + RequestHolderUtil.getJsessionIdFromRequest());
+            WhoAmIDetail whoAmI = httpRequestUtil.getInternalApiResultAsTypeFromCache(uri, requestHeaders, WhoAmIDetail.class);
+            if(whoAmI != null){
+                userId = whoAmI.getUserId();
+            }
         }
         catch (Exception e) {
             logger.info("Error in extracting user id", e);

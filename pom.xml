@@ -16,6 +16,20 @@
 		<aspectj.version>1.6.11</aspectj.version>
 		<skipTests>true</skipTests>
 	</properties>
+	<profiles>
+		<profile>
+			<id>develop</id>
+			<properties>
+				<midl-core.version>develop-columbus-SNAPSHOT</midl-core.version>
+			</properties>
+		</profile>
+		<profile>
+			<id>release</id>
+			<properties>
+				<midl-core.version>1.0.19</midl-core.version>
+			</properties>
+		</profile>
+	</profiles>
 	<build>
 		<finalName>columbus</finalName>
 		<plugins>
@@ -69,11 +83,6 @@
 		</extensions>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
@@ -211,7 +220,7 @@
 		<dependency>
 			<groupId>com.proptiger</groupId>
 			<artifactId>midl-core</artifactId>
-			<version>1.0.18</version>
+			<version>1.0.19</version>
 		</dependency>
 	</dependencies>
 	<repositories>
@@ -232,6 +241,9 @@
 			<id>proptiger-maven-repo</id>
 			<name>S3 Release Repository</name>
 			<url>s3://proptiger-maven-repo/release</url>
+			<snapshots>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
 		</repository>
 	</repositories>
 </project>
