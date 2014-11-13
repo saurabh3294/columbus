@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
@@ -14,12 +15,12 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.model.proptiger.Permission;
 import com.proptiger.core.model.proptiger.SubscriptionPermission;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
@@ -40,32 +41,29 @@ public class UserSubscriptionService {
     @Autowired
     private TrendDao                   trendDao;
 
-    public FIQLSelector getUserAppSubscriptionFilters(int userId) {
-
-        FIQLSelector selector = new FIQLSelector();
+    public String getUserAppSubscriptionFilters(int userId) {
 
         List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
-
+        List<String> filterList = new ArrayList<String>();
+        
+        int objectTypeId = 0;
+        Permission permission;
         for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
 
-            Permission permission = subscriptionPermission.getPermission();
-            int objectTypeId = permission.getObjectTypeId();
-
+            permission = subscriptionPermission.getPermission();
+            objectTypeId = permission.getObjectTypeId();
             switch (DomainObject.getFromObjectTypeId(objectTypeId)) {
-
                 case city:
-                    selector.addOrConditionToFilter("cityId==" + permission.getObjectId());
+                    filterList.add("cityId==" + permission.getObjectId());
                     break;
-
                 case locality:
-                    selector.addOrConditionToFilter("localityId==" + permission.getObjectId());
+                    filterList.add("localityId==" + permission.getObjectId());
                     break;
-
                 default:
                     break;
             }
         }
-        return selector;
+        return StringUtils.join(filterList, ",");
     }
 
     /**
@@ -161,7 +159,7 @@ public class UserSubscriptionService {
 
     @Cacheable(value = Constants.CacheName.CACHE)
     private List<Integer> getSubscribedBuilderList(int userId) {
-        FIQLSelector selector = getUserAppSubscriptionFilters(userId);
+        FIQLSelector selector = new FIQLSelector().addAndConditionToFilter(getUserAppSubscriptionFilters(userId));
         List<Integer> builderList = new ArrayList<>();
         if (selector.getFilters() != null) {
             String builderId = "builderId";

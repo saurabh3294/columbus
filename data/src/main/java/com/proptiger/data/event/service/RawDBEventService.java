@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.enums.EventAllAttributeName;
 import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
-import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.repo.RawEventTableDetailsDao;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.repo.RawDBEventDao;
+import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.util.Serializer;
 
 @Service
@@ -63,8 +63,8 @@ public class RawDBEventService {
             rawDBEvent.setRawEventTableDetails(tableLog);
             rawDBEvent.setRawDBEventOperationConfig(rawDBEventTableConfig.getDbRawEventOperationConfig(dbOperation));
             rawDBEvent.setNewDBValueMap(rawDBEventMap);
-            rawDBEvent.setPrimaryKeyValue(rawDBEventMap.get(tableLog.getPrimaryKeyName()));
-            rawDBEvent.setTransactionKeyValue(rawDBEventMap.get(tableLog.getTransactionKeyName()));
+            rawDBEvent.setPrimaryKeyValue(rawDBEventMap.get(tableLog.getPrimaryKeyName()).toString());
+            rawDBEvent.setTransactionKeyValue(rawDBEventMap.get(tableLog.getTransactionKeyName()).toString());
             rawDBEvent.setTransactionDate((Date) rawDBEventMap.get(tableLog.getDateAttributeName()));
             rawDBEvent.setUniqueKeyValuesMap(getUniqueKeyValuesMap(rawDBEventMap, tableLog));
             rawDBEventList.add(rawDBEvent);

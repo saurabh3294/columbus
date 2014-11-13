@@ -6,24 +6,18 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
-import com.proptiger.data.service.marketplace.ListingService;
 
 @Service
 public class GoalPriceNotificationMessageProcessor extends NotificationMessageProcessor {
 
-    private static Logger  logger = LoggerFactory.getLogger(GoalPriceNotificationMessageProcessor.class);
-
-    @Autowired
-    private ListingService listingService;
+    private static Logger logger = LoggerFactory.getLogger(GoalPriceNotificationMessageProcessor.class);
 
     @Override
     public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
@@ -31,18 +25,7 @@ public class GoalPriceNotificationMessageProcessor extends NotificationMessagePr
             NotificationTypeGenerated ntGenerated) {
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
-        Integer listingId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
-
-        logger.debug("Getting listing for listing id: " + listingId);
-        Listing listing = listingService.getListingByListingId(listingId);
-
-        Integer propertyId = listing.getPropertyId();
-
-        NotificationTypePayload newNTPayload = NotificationTypePayload.newInstance(ntGenerated
-                .getNotificationTypePayload());
-        newNTPayload.setPrimaryKeyName("property_id");
-        newNTPayload.setPrimaryKeyValue(propertyId);
-
+        Integer propertyId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
         List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
         List<PortfolioListing> newPortfolioListings = new ArrayList<PortfolioListing>();
 
@@ -56,6 +39,6 @@ public class GoalPriceNotificationMessageProcessor extends NotificationMessagePr
             newPortfolioListings.add(portfolioListing);
         }
 
-        return createDefaultNMPayloadByPropertyListings(newPortfolioListings, newNTPayload);
+        return createDefaultNMPayloadByPropertyListings(newPortfolioListings, notificationTypePayload);
     }
 }
