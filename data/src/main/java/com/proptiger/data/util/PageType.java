@@ -13,6 +13,7 @@ public enum PageType {
      * correctly
      */
     HOME_PAGE("^$", new String[]{}),
+    IMAGE_PAGE_URL("^gallery/(?:[\\w]+(?:-[\\w]+)*)-(\\d+)-(\\d+)$", new String[] {"objectId", "imageId"}),
     CITY_URLS("^([\\w]+)(?:(((/(apartments-flats-sale|property-sale|house-sale|villas-sale|sites-plots-sale))|-real-estate|-real-estate/\\1-sitemap.php)(/[\\d]{1,2}bhk)?(/\\d+-\\d+-lacs)?)|(-real-estate-overview)|/(resale-property|ready-to-move-property|under-construction-property|upcoming-property|upcoming-projects|luxury-projects|low-budget-flats|affordable-flats|new-projects-for-sale|upcoming-flats-for-sale|ready-to-move-flats|resale-apartments|new-apartments-for-sale|all-builders))$", new String[] { "cityName" }),
     LOCALITY_SUBURB_LISTING_SEO("^(?:[\\w]+)/(society-flats-in|resale-property-in|ready-to-move-property-in|under-construction-property-in|upcoming-property-in|upcoming-Projects-in|luxury-projects-in|low-budget-flats-in|affordable-flats-in|new-projects-for-sale-in|residential-property-for-sale-in|upcoming-flats-for-sale-in|ready-to-move-flats-in|resale-apartments-in|new-apartments-for-sale-in)-(?:[\\-\\w]+)-(\\d{5,5})$", new String[] { "propertyType", "localityId"}),
     LOCALITY_SUBURB_LISTING("^(?:[\\w]+)/(apartments-flats-sale|property-sale|house-sale|villas-sale|sites-plots-sale)-(?:[\\-\\w]+)-(\\d{5,5})(/[\\d]{1,2}bhk)?(/\\d+-\\d+-lacs)?$", new String[] { "propertyType", "localityId", "bedroomString", "priceString" }),
@@ -29,7 +30,6 @@ public enum PageType {
     PORTFOLIO_URLS("^portfolio/(?:index|dashboard|enquiredproperty|savedsearches|recentlyviewed|myfavorites|property/([\\d]+))$", new String[]{"portfolioId"}),
     NEWS_URLS("^(?:news|blog)(?:/category/([\\w]+)|(?:/category/(?:real-estate|home-loan|real-estate-news|real-estate-tips|interior-decorating-design|home-loans))|/(?:[\\w]+(?:\\-[\\w]+)*)|/(?:\\?p=(\\d+)))?/?$",new String[] {"cityName"}),
     DIWALI_MELA_URL("^mega-property-sale(.*)", new String[]{}),
-    IMAGE_PAGE_URL("^gallery/(?:[\\w]+(?:-[\\w]+)*)-(\\d+)-(\\d+)$", new String[] {"objectId", "imageId"}),
     InvalidUrl("(.*)", new String[]{"URL"});
 
     private String   regex;
