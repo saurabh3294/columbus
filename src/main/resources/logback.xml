@@ -23,13 +23,13 @@
 	</appender>
 
 	<logger name="org.springframework">
-		<level value="DEBUG" />
+		<level value="INFO" />
 	</logger>
 	<logger name="org.hibernate">
-		<level value="DEBUG" />
+		<level value="ERROR" />
 	</logger>
 	<logger name="org.apache.http">
-		<level value="DEBUG" />
+		<level value="ERROR" />
 	</logger>
 	<logger name="org.apache.shiro">
 		<level value="DEBUG" />
@@ -42,7 +42,7 @@
 	</logger>
 	
 	<root level="INFO">
-		<appender-ref ref="dal" />
+		<appender-ref ref="columbus" />
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>

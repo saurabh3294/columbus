@@ -33,6 +33,7 @@ import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.SecurityContextUtils;
 
 @Aspect
 @Order(1)
@@ -63,12 +64,12 @@ public class ResponseInterceptor {
             pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.TypeaheadListing))",
             returning = "retVal")
     public void filterTypeAhead(Object retVal) throws Throwable {
-        if (!!ApplicationNameService.isB2BApplicationRequest()) {
+        if (!ApplicationNameService.isB2BApplicationRequest()) {
             return;
         }
         Object data = getApiResponseData(retVal);
         MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
-        if (data == null || userSubscriptionMap == null) {
+        if (data == null) {
             return;
         }
 
@@ -125,13 +126,13 @@ public class ResponseInterceptor {
     }
 
     private MultiKeyMap getUserSubscriptionMap() {
+        int userId = 0;
         try {
-            ActiveUser activeUser = (ActiveUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return (getUserSubscriptionMap(activeUser.getUserIdentifier()));
+            userId = SecurityContextUtils.getLoggedInUserId();
         }
         catch (Exception e) {
-            return null;
         }
+        return getUserSubscriptionMap(userId);
     }
 
     private int extractEntityIdFromTypeaheadResponseId(String typeaheadRespId) {
