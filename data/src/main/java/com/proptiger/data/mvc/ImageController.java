@@ -90,6 +90,7 @@ public class ImageController extends BaseController {
             if (image.getAltText() != null) {
                 String format = image.getWaterMarkName().substring(image.getWaterMarkName().indexOf(Image.DOT) + 1);
                 image.assignSeoName(format);
+                image.assignPageUrl();
             }
             imageService.update(image);
             obj = new APIResponse(super.filterFields(image, null));

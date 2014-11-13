@@ -224,8 +224,7 @@ public class NotificationService {
                     NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                             defaultNotificationType,
                             notification.getUserId(),
-                            new DefaultMediumDetails(gcmMessage),
-                            MediumType.MarketplaceApp);
+                            new DefaultMediumDetails(MediumType.MarketplaceApp, gcmMessage));
                     notificationCreatorService.createNotificationGenerated(request);
                 }
             }
@@ -664,8 +663,7 @@ public class NotificationService {
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 defaultNotificationType,
                 userId,
-                new DefaultMediumDetails(SerializationUtils.objectToJson(gcmMessage).toString()),
-                MediumType.MarketplaceApp);
+                new DefaultMediumDetails(MediumType.MarketplaceApp, SerializationUtils.objectToJson(gcmMessage).toString()));
         notificationCreatorService.createNotificationGenerated(request);
     }
 

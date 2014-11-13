@@ -53,6 +53,9 @@ public class AndroidSender implements MediumSender {
     @Value("${app.android.retryCount}")
     private Integer                      RETRY_COUNT;
 
+    @Value("${app.android.delayWhileIdle}")
+    private boolean                      DELAY_WHILE_IDLE;
+
     private Map<String, String>          androidKeyMap;
 
     @PostConstruct
@@ -130,11 +133,11 @@ public class AndroidSender implements MediumSender {
             defaultMediumDetails = (DefaultMediumDetails) mediumDetails;
             template = defaultMediumDetails.getMessage();
         }
-        
+
         if (template == null) {
             template = templateGenerator.generatePopulatedTemplate(nGenerated);
         }
-        
+
         if (template == null) {
             logger.error("Template not found in DB/Payload while sending push notification for notification generated id: " + nGenerated
                     .getId() + " and typeName: " + typeName);
@@ -163,8 +166,8 @@ public class AndroidSender implements MediumSender {
             String androidKey = androidKeyMap.get(app.toString());
             Map<String, String> dataMap = getDataMap(template, typeName);
             Sender sender = new Sender(androidKey);
-            Message message = new Message.Builder().timeToLive(TIME_TO_LIVE).delayWhileIdle(true).collapseKey(typeName)
-                    .setData(dataMap).build();
+            Message message = new Message.Builder().timeToLive(TIME_TO_LIVE).delayWhileIdle(DELAY_WHILE_IDLE)
+                    .collapseKey(typeName).setData(dataMap).build();
             try {
                 logger.debug("Sending Android notification with AppID: " + androidKey
                         + " and message: "

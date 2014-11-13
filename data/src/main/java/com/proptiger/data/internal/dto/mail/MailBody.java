@@ -6,6 +6,8 @@ package com.proptiger.data.internal.dto.mail;
  */
 public class MailBody extends MediumDetails {
 
+    private static final long serialVersionUID = 2215518147415411577L;
+    
     private String subject;
     private String body;
     

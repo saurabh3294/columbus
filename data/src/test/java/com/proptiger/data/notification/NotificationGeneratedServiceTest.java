@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.mocker.NotificationMockerService;
 import com.proptiger.data.notification.enums.MediumType;
@@ -43,9 +44,9 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
 
     @Test
     public void testCreateNotificationGenerated() {
-        Map<MediumType, MediumDetails> mediumTypes = new HashMap<MediumType, MediumDetails>();
-        mediumTypes.put(MediumType.Sms, null);
-        mediumTypes.put(MediumType.Email, null);
+        List<MediumDetails> mediumDetails = new ArrayList<MediumDetails>();
+        mediumDetails.add(new DefaultMediumDetails(MediumType.Sms));
+        mediumDetails.add(new MailDetails());
 
         NotificationMessage message = notificationMockerService.getMockNotificationMessage();
 
@@ -71,10 +72,10 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
 
         List<NotificationGenerated> notificationGenerateds = nGeneratedService.createNotificationGenerated(
                 nMessages,
-                mediumTypes);
+                mediumDetails);
 
         Assert.assertNotNull(notificationGenerateds);
-        Assert.assertEquals(notificationGenerateds.size(), mediumTypes.size() * nMessages.size());
+        Assert.assertEquals(notificationGenerateds.size(), mediumDetails.size() * nMessages.size());
 
         validateNotificationGenerated(notificationGenerateds, message);
     }
@@ -119,12 +120,8 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
             Assert.assertEquals(notificationGenerated.getNotificationMessage().getId(), message.getId());
             Assert.assertEquals(notificationGenerated.getNotificationType().getId(), message.getNotificationType()
                     .getId());
-            Assert.assertEquals(
-                    notificationGenerated.getNotificationMessagePayload().getExtraAttributes(),
-                    message.getNotificationMessagePayload().getExtraAttributes());
-            Assert.assertEquals(
-                    notificationGenerated.getNotificationMessagePayload().getMediumDetails(),
-                    message.getNotificationMessagePayload().getMediumDetails());
+            Assert.assertEquals(notificationGenerated.getNotificationMessagePayload().getExtraAttributes(), message
+                    .getNotificationMessagePayload().getExtraAttributes());
             Assert.assertEquals(notificationGenerated.getObjectId(), message.getNotificationMessagePayload()
                     .getNotificationTypePayload().getPrimaryKeyValue());
             Assert.assertEquals(
