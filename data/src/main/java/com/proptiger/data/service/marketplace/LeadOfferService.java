@@ -539,6 +539,7 @@ public class LeadOfferService {
                     }
                     else {
                         leadOfferInDB.setOtherReason(leadOffer.getOtherReason());
+                        leadOfferInDB.setDeclineReasonId(leadOffer.getDeclineReasonId());
                     }
                 }
                 else {
@@ -769,7 +770,7 @@ public class LeadOfferService {
 
             if (declinedLeadOfferCountInCycle + leadOfferCountInCycle == allCountInCycle) {
                 getLeadService();
-                leadService.manageLeadAuctionWithBeforeCycle(leadOfferInDB.getLeadId());
+                leadService.manageLeadAuctionWithBeforeCycleDeclined(leadOfferInDB.getLeadId());
             }
         }
     }

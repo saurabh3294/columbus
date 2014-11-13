@@ -21,6 +21,7 @@ import com.proptiger.core.model.user.User;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.UtilityClass;
+import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
@@ -79,24 +80,46 @@ public class LeadService {
         Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
 
         if (leadOfferDao.findByLeadIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers).equals(
-                PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE, Long.class))) {
+                PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE, Long.class))) {            
+          if(leadOfferDao.findByLeadIdWhereStatusOffered(leadId,LeadOfferStatus.Offered.getId()) == null)
+          {
             leadOfferDao.updateLeadOffers(Collections.singletonList(leadId));
             Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
             phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers + 1);
             manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers + 1, 1);
-
+          }
         }
     }
 
-    public void manageLeadAuctionWithBeforeCycle(int leadId) {
+    public void manageLeadAuctionWithBeforeCycle(int leadId) {        
+      List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(leadId);
+
+      if(leadOffers == null || leadOffers.isEmpty())
+      {
         Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
         Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
         phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers == null ? 0 : maxPhaseIdForRequestMoreBrokers);
         manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers == null
                 ? 0
                 : maxPhaseIdForRequestMoreBrokers, 0);
+      }
     }
 
+    
+    public void manageLeadAuctionWithBeforeCycleDeclined(int leadId) {        
+          Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
+          if (!leadOfferDao.findByLeadIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers).equals(
+                  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE, Long.class))) {
+          
+                  Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
+                  phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers == null ? 0 : maxPhaseIdForRequestMoreBrokers);
+                  manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers == null
+                          ? 0
+                          : maxPhaseIdForRequestMoreBrokers, 0);        
+          }
+      }
+    
+    
     public void manageLeadAuctionWithCycle(
             int leadId,
             Map<Integer, Integer> maxPhaseIdMapLeadId,
@@ -126,6 +149,8 @@ public class LeadService {
                 cycleIdInt = 0;
             }
 
+         if(cycleIdInt < PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_BIDDING_CYCLE_COUNT))
+         {
             Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(
                     lead.getId(),
                     maxPhaseIdMapLeadId.get(lead.getId()));
@@ -153,7 +178,9 @@ public class LeadService {
                     }
                 }
             }
+          }
         }
+        
         if (!isAssigned) {
             throw new ProAPIException("Error in Assigning lead id: " + leadId);
         }
