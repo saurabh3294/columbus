@@ -69,7 +69,7 @@ public class SeoProjectContentChangeProcessor extends DBEventProcessor {
             eventGenerated.setEventStatus(EventStatus.Merged);
         }
         // Removing the last payload from the payload as this is one being kept.
-        allPayloadDataDtos.remove(1);
+        allPayloadDataDtos.remove(size+1);
 
         // All old processed Events to be merged.
         processedEventsByEventStatus = allCurrentProcessedEvents.get(entry.getKey());

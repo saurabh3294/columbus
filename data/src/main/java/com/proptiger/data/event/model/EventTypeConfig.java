@@ -6,6 +6,7 @@ import java.util.Map;
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
+import com.proptiger.data.event.model.payload.MultiValueEventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.processor.DefaultDBEventProcessor;
 import com.proptiger.data.event.processor.PriceChangeProcessor;
@@ -72,7 +73,7 @@ public class EventTypeConfig extends BaseModel {
                 SeoBuilderDeleteProcessor.class,
                 null));
         eventTypeConfigMap.put("project_url_content_change", new EventTypeConfig(
-                DefaultEventTypePayload.class,
+                MultiValueEventTypePayload.class,
                 SeoProjectContentChangeProcessor.class,
                 null));
     }
