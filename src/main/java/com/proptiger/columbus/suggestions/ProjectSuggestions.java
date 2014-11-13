@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.core.enums.UnitType;
