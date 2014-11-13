@@ -309,8 +309,25 @@ public class NotificationService {
                     notification.setDetails(SerializationUtils.objectToJson(lead));
                     notificationDao.save(notification);
                 }
+                sendDuplicateLeadNotification(leadOffer.getId());
             }
         }
+    }
+
+    private void sendDuplicateLeadNotification(int leadOfferId) {
+        LeadOffer offer = leadOfferDao.findById(leadOfferId);
+        User user = userService.getUserById(offer.getLead().getClientId());
+        String message = user.getFullName() + ", "
+                + offer.getId()
+                + " has submitted another request. The new information is updated in current lead.";
+        String titleMessage = "New Enquiry from Client";
+
+        GcmMessage gcmMessage = new GcmMessage();
+        gcmMessage.setData(Arrays.asList(leadOfferId));
+        gcmMessage.setMessage(message);
+        gcmMessage.setTitleMessage(titleMessage);
+        gcmMessage.setNotificationTypeId(NotificationType.DuplicateLead.getId());
+        sendGcmMessageUsingService(gcmMessage, offer.getAgentId());
     }
 
     /**
@@ -448,7 +465,14 @@ public class NotificationService {
             GcmMessage gcmMessage = new GcmMessage();
             gcmMessage.setNotificationTypeId(notificationTypeId);
             gcmMessage.setMessage(message);
-            gcmMessage.setData(getObjectIdsFromNotifications(userNotifications));
+            gcmMessage.setData(getLeadOfferIdsFromTaskIds(getObjectIdsFromNotifications(userNotifications)));
+            int size = notifications.size();
+            if (size == 1) {
+                gcmMessage.setTitleMessage("Task Overdue");
+            }
+            else {
+                gcmMessage.setTitleMessage(size + " Tasks Overdue");
+            }
 
             sendGcmMessageUsingService(gcmMessage, userId);
         }
@@ -470,10 +494,25 @@ public class NotificationService {
             GcmMessage gcmMessage = new GcmMessage();
             gcmMessage.setNotificationTypeId(notificationTypeId);
             gcmMessage.setMessage(message);
-            gcmMessage.setData(getObjectIdsFromNotifications(userNotifications));
-
+            gcmMessage.setData(getLeadOfferIdsFromTaskIds(getObjectIdsFromNotifications(userNotifications)));
+            int size = notifications.size();
+            if (size == 1) {
+                gcmMessage.setTitleMessage("Task Due");
+            }
+            else {
+                gcmMessage.setTitleMessage(size + " Tasks Due");
+            }
             sendGcmMessageUsingService(gcmMessage, userId);
         }
+    }
+
+    private List<Integer> getLeadOfferIdsFromTaskIds(List<Integer> taskIds) {
+        List<LeadTask> tasks = taskDao.findById(taskIds);
+        List<Integer> leadOfferIds = new ArrayList<>();
+        for (LeadTask leadTask : tasks) {
+            leadOfferIds.add(leadTask.getId());
+        }
+        return leadOfferIds;
     }
 
     private String getTaskDueNotificationMessage(List<Notification> notifications) {
@@ -481,24 +520,23 @@ public class NotificationService {
         for (Notification notification : notifications) {
             taskIds.add(notification.getObjectId());
         }
-        List<LeadTask> tasks = taskDao.findById(taskIds);
-        Notification notification = notifications.get(0);
+        List<LeadTask> tasks = taskDao.findByIdUptoLead(taskIds);
 
         String message = "";
 
         if (tasks.size() == 1) {
-            User user = userService.getUserById(notification.getUserId());
             LeadTask task = tasks.get(0);
+            User user = userService.getUserById(task.getLeadOffer().getLead().getClientId());
             message = "Your " + task.getTaskStatus().getMasterLeadTask().getSingularDisplayName()
                     + " with "
                     + user.getFullName()
                     + ", "
                     + task.getLeadOfferId()
-                    + " is due at "
-                    + DateUtil.getReadableDateFromDate(task.getScheduledFor())
-                    + ", "
-                    + DateUtil.getHHMMTimeFromDate(task.getScheduledFor())
-                    + ". Please update.";
+                    + " is due at ";
+            if (DateUtil.getNextDayStartTime(new Date()).after(task.getScheduledFor())) {
+                message += DateUtil.getReadableDateFromDate(task.getScheduledFor()) + ", ";
+            }
+            message += DateUtil.getHHMMTimeFromDate(task.getScheduledFor()) + ". Please update.";
         }
         else {
             Map<Integer, List<LeadTask>> mappedTasks = mapTaskOnType(tasks);
@@ -526,14 +564,12 @@ public class NotificationService {
 
     private String getTaskOverDueNotificationMessage(List<Notification> notifications) {
         List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
-        List<LeadTask> tasks = taskDao.findById(taskIds);
-        Notification notification = notifications.get(0);
+        List<LeadTask> tasks = taskDao.findByIdUptoLead(taskIds);
 
         String message = "";
-
         if (tasks.size() == 1) {
-            User user = userService.getUserById(notification.getUserId());
             LeadTask task = tasks.get(0);
+            User user = userService.getUserById(task.getLeadOffer().getLead().getClientId());
             message = "Your " + task.getTaskStatus().getMasterLeadTask().getSingularDisplayName()
                     + " with "
                     + user.getFullName()
@@ -633,13 +669,16 @@ public class NotificationService {
         List<Integer> offerIds = getObjectIdsFromNotifications(notifications);
 
         String message;
+        String titleMessage;
         if (offerIds.size() == 0) {
             throw new ProAPIException();
         }
         if (offerIds.size() == 1) {
+            titleMessage = "Claim New Lead";
             message = "1 lead is waiting to be claimed.";
         }
         else {
+            titleMessage = "Claim New Leads";
             message = offerIds.size() + " leads are waiting to be claimed.";
         }
 
@@ -647,6 +686,7 @@ public class NotificationService {
         gcmMessage.setNotificationTypeId(NotificationType.LeadOffered.getId());
         gcmMessage.setData(offerIds);
         gcmMessage.setMessage(message);
+        gcmMessage.setTitleMessage(titleMessage);
 
         sendGcmMessageUsingService(gcmMessage, userId);
     }
@@ -663,7 +703,8 @@ public class NotificationService {
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 defaultNotificationType,
                 userId,
-                new DefaultMediumDetails(MediumType.MarketplaceApp, SerializationUtils.objectToJson(gcmMessage).toString()));
+                new DefaultMediumDetails(MediumType.MarketplaceApp, SerializationUtils.objectToJson(gcmMessage)
+                        .toString()));
         notificationCreatorService.createNotificationGenerated(request);
     }
 
