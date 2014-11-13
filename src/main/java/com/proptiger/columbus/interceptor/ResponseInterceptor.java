@@ -16,12 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.columbus.thandlers.URLGenerationConstants;
-import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Trend;
@@ -65,6 +63,7 @@ public class ResponseInterceptor {
             returning = "retVal")
     public void filterTypeAhead(Object retVal) throws Throwable {
         if (!ApplicationNameService.isB2BApplicationRequest()) {
+            logger.info("Not a B2B request. Skipping authorized check");
             return;
         }
         Object data = getApiResponseData(retVal);
@@ -131,6 +130,7 @@ public class ResponseInterceptor {
             userId = SecurityContextUtils.getLoggedInUserId();
         }
         catch (Exception e) {
+            logger.info(e.getStackTrace().toString());
         }
         return getUserSubscriptionMap(userId);
     }
