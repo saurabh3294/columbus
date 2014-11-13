@@ -53,6 +53,8 @@ public class ResponseInterceptor {
     private final int       maxLocalityIdCountForApiCall = 512;
     private final int       maxPermissionCountForApiCall = 256;
 
+    private final int       maxRowsForBuilderList        = 20000;
+
     @Autowired
     private HttpRequestUtil httpRequestUtil;
 
@@ -64,7 +66,8 @@ public class ResponseInterceptor {
             pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.TypeaheadListing))",
             returning = "retVal")
     public void filterTypeAhead(Object retVal) throws Throwable {
-        if (RequestHolderUtil.getApplicationTypeFromRequest() == null || !RequestHolderUtil.getApplicationTypeFromRequest().equals(Application.B2B)) {
+        if (RequestHolderUtil.getApplicationTypeFromRequest() == null || !RequestHolderUtil
+                .getApplicationTypeFromRequest().equals(Application.B2B)) {
             logger.info("Not a B2B request. Skipping authorized check");
             return;
         }
@@ -137,11 +140,12 @@ public class ResponseInterceptor {
             HttpHeaders requestHeaders = new HttpHeaders();
             String jsessionId = RequestHolderUtil.getJsessionIdFromRequestCookie();
             logger.info("COOKIE FOUND: " + jsessionId);
-            requestHeaders.add(
-                    "Cookie",
-                    Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
-            WhoAmIDetail whoAmI = httpRequestUtil.getInternalApiResultAsTypeFromCache(uri, requestHeaders, WhoAmIDetail.class);
-            if(whoAmI != null){
+            requestHeaders.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
+            WhoAmIDetail whoAmI = httpRequestUtil.getInternalApiResultAsTypeFromCache(
+                    uri,
+                    requestHeaders,
+                    WhoAmIDetail.class);
+            if (whoAmI != null) {
                 userId = whoAmI.getUserId();
                 logger.info("USER ID IDENTIFIED: " + userId);
             }
@@ -279,7 +283,7 @@ public class ResponseInterceptor {
                 String builderId = "builderId";
                 selector.setFields(builderId);
                 selector.setGroup(builderId);
-                selector.setRows(partialPermissions.size());
+                selector.setRows(maxRowsForBuilderList);
 
                 String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
                         .getRequiredPropertyAsString(PropertyKeys.TREND_API_URL) + "?" + selector.getStringFIQL();
