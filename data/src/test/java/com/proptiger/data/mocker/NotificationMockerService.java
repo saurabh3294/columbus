@@ -21,6 +21,7 @@ import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.DefaultNotificationTypeProcessor;
 
 /**
  * 
@@ -112,6 +113,7 @@ public class NotificationMockerService {
     private NotificationTypeConfig getMockNotificationTypeConfig() {
         NotificationTypeConfig config = new NotificationTypeConfig();
         config.setNotificationTypePayloadObject(new NotificationTypePayload());
+        config.setNotificationTypeProcessorObject(new DefaultNotificationTypeProcessor());
         config.setNotificationMessageProcessorObject(new DefaultNotificationMessageProcessor());
         return config;
     }
@@ -125,21 +127,9 @@ public class NotificationMockerService {
     private NotificationMessagePayload getMockNotificationMessagePayload() {
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
         extraAttributes.put(Tokens.PortfolioProjectUpdates.ProjectName.name(), "dummyProjectName");
-
-        List<String> ccList = new ArrayList<String>();
-        ccList.add("cc-email@proptiger.com");
-        
-        List<String> bccList = new ArrayList<String>();
-        bccList.add("bcc-email@proptiger.com");
-
-        String fromEmail = "from-email@proptiger.com";
-        
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setNotificationTypePayload(getMockNotificationTypePayload());
         payload.setExtraAttributes(extraAttributes);
-        payload.setCcList(ccList);
-        payload.setBccList(bccList);
-        payload.setFromEmail(fromEmail);
         return payload;
     }
 }

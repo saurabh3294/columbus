@@ -6,48 +6,30 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
-import com.proptiger.data.service.marketplace.ListingService;
 
 @Service
 public class PriceChangeNotificationMessageProcessor extends NotificationMessageProcessor {
 
-    private static Logger  logger = LoggerFactory.getLogger(PriceChangeNotificationMessageProcessor.class);
-
-    @Autowired
-    private ListingService listingService;
+    private static Logger logger = LoggerFactory.getLogger(PriceChangeNotificationMessageProcessor.class);
 
     @Override
     public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
             List<User> unsubscribedUserList,
             NotificationTypeGenerated ntGenerated) {
 
-        NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
-        Integer listingId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
-
-        logger.debug("Getting listing for listing id: " + listingId);
-        Listing listing = listingService.getListingByListingId(listingId);
-
-        Integer propertyId = listing.getPropertyId();
-
-        NotificationTypePayload newNTPayload = NotificationTypePayload.newInstance(ntGenerated
-                .getNotificationTypePayload());
-        newNTPayload.setPrimaryKeyName("property_id");
-        newNTPayload.setPrimaryKeyValue(propertyId);
-
         Map<Integer, NotificationMessagePayload> payloadMap = new HashMap<Integer, NotificationMessagePayload>();
 
+        NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
+        Integer propertyId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
         List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
-
         if (portfolioListings == null) {
             logger.debug("No portfolio listing found for property id : " + propertyId);
             return payloadMap;
@@ -71,7 +53,7 @@ public class PriceChangeNotificationMessageProcessor extends NotificationMessage
 
             NotificationMessagePayload nmPayload = new NotificationMessagePayload();
             nmPayload.setExtraAttributes(userDataMap);
-            nmPayload.setNotificationTypePayload(newNTPayload);
+            nmPayload.setNotificationTypePayload(notificationTypePayload);
 
             payloadMap.put(portfolioListing.getUserId(), nmPayload);
         }

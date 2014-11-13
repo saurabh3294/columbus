@@ -43,27 +43,7 @@ public class NotificationCreatorServiceTest extends AbstractTest {
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 NotificationTypeEnum.MarketplaceDefault,
                 1211883,
-                new DefaultMediumDetails(template),
-                MediumType.MarketplaceApp);
-
-        Assert.assertNotNull(request);
-        // notificationCreatorService.createNotificationGenerated(request);
-    }
-
-    @Test
-    public void testCreateNotificationGeneratedForSms() {
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Sms);
-
-        Map<String, Object> templateMap = new HashMap<String, Object>();
-        templateMap.put(Tokens.CouponIssued.CouponCode.name(), "12AB56ab90zB345");
-        templateMap.put(Tokens.CouponIssued.Date.name(), "24th September'2014");
-
-        NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
-                NotificationTypeEnum.CouponIssued,
-                1211883,
-                templateMap,
-                mediumTypes);
+                new DefaultMediumDetails(MediumType.MarketplaceApp, template));
 
         Assert.assertNotNull(request);
         // notificationCreatorService.createNotificationGenerated(request);
@@ -85,15 +65,15 @@ public class NotificationCreatorServiceTest extends AbstractTest {
         String ccList[] = { "garg.sahil25@gmail.com" };
         String fromEmail = "customer.service@proptiger.com";
 
-        Map<MediumType, MediumDetails> mediumTypes = new HashMap<MediumType, MediumDetails>();
-        mediumTypes.put(MediumType.Email, new MailDetails(ccList, null, fromEmail));
-        mediumTypes.put(MediumType.Sms, null);
+        List<MediumDetails> mediumDetails = new ArrayList<MediumDetails>();
+        mediumDetails.add(new MailDetails(ccList, null, fromEmail));
+        mediumDetails.add(new DefaultMediumDetails(MediumType.Sms));
 
         NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                 NotificationTypeEnum.CouponIssued,
                 1211883,
                 templateMap,
-                mediumTypes);
+                mediumDetails);
 
         Assert.assertNotNull(request);
         // notificationCreatorService.createNotificationGenerated(request);

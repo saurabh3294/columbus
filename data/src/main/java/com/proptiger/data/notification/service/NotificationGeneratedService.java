@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -252,23 +251,22 @@ public class NotificationGeneratedService {
      */
     public List<NotificationGenerated> createNotificationGenerated(
             List<NotificationMessage> nMessages,
-            Map<MediumType, ? extends MediumDetails> mediumTypes) {
-        if (mediumTypes == null) {
+            List<MediumDetails> mediumDetailList) {
+        if (mediumDetailList == null) {
             return generateNotficationGenerated(nMessages);
         }
         List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
         NotificationType defaultNotificationType = notificationTypeService.findDefaultNotificationType();
 
-        for (Entry<MediumType, ? extends MediumDetails> entry : mediumTypes.entrySet()) {
-            MediumType mediumType = entry.getKey();
-            MediumDetails mediumDetails = entry.getValue();
+        for (MediumDetails mediumDetail : mediumDetailList) {
+            MediumType mediumType = mediumDetail.getMediumType();
             NotificationMedium nMedium = notificationMediumService.findNotificationMediumByMediumType(mediumType);
             for (NotificationMessage nMessage : nMessages) {
                 if (nMessage.getNotificationType() == null) {
                     nMessage.setNotificationType(defaultNotificationType);
                 }
                 NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);
-                nGenerated.getNotificationMessagePayload().setMediumDetails(mediumDetails);
+                nGenerated.getNotificationMessagePayload().setMediumDetails(mediumDetail);
                 generatedList.add(nGenerated);
             }
         }
