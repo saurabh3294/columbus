@@ -18,6 +18,7 @@ public enum PageType {
     LOCALITY_SUBURB_LISTING("^(?:[\\w]+)/(apartments-flats-sale|property-sale|house-sale|villas-sale|sites-plots-sale)-(?:[\\-\\w]+)-(\\d{5,5})(/[\\d]{1,2}bhk)?(/\\d+-\\d+-lacs)?$", new String[] { "propertyType", "localityId", "bedroomString", "priceString" }), 
     LOCALITY_SUBURB_LANDMARK("(?:[\\w]+)/(?:[\\-\\w]+)-(\\d{5,5})(/schools|/restaurants|/banks|/atms|/hospitals|/petrol-pumps)", new String[] { "localityId", "appendingString"}), 
     LOCALITY_SUBURB_OVERVIEW("^(?:[\\-\\w]+)/(?:[\\-\\w]+)-(overview)-(\\d{5,5})$", new String[] { "overviewType", "localityId" }),
+    IMAGE_PAGE_URL("^gallery/(?:[\\w]+(?:-[\\w]+)*)-(\\d+)-(\\d+)$", new String[] {"objectId", "imageId"}),
     PROJECT_URLS("^(?:.*)([5-9]\\d{5})$", new String[] { "projectId" }),
     PROPERTY_URLS("^(?:.*)([5-9]\\d{6,6})/(?:[\\d]{0,2}bhk)$", new String[] {"propertyId"}),
     BUILDER_URLS_SEO("^([\\w]+/)?(under-construction-by-|apartments-by-|villas-by-|plots-by-|resale-property-by-|ready-to-move-property-by-|ready-to-move-apartments-by-|resale-Flats-by-|under-construction-property-by-|upcoming-property-by-|new-launch-project-by-|completed-property-by-|upcoming-project-by-|new-flats-by|new-project-by-|luxury-projects-by-|low-budget-flats-by-|affordable-flats-by-)(?:[\\-\\w]+)-(1\\d{5})$", new String[] {"cityName", "propertyType", "builderId"}),
@@ -26,7 +27,6 @@ public enum PageType {
     PORTFOLIO_URLS("^portfolio/(?:index|dashboard|enquiredproperty|savedsearches|recentlyviewed|myfavorites|property/([\\d]+))$", new String[]{"portfolioId"}),
     NEWS_URLS("^(?:news|blog)(?:/category/([\\w]+)|(?:/category/(?:real-estate|home-loan|real-estate-news|real-estate-tips|interior-decorating-design|home-loans))|/(?:[\\w]+(?:\\-[\\w]+)*)|/(?:\\?p=(\\d+)))?/?$",new String[] {"cityName"}),
     DIWALI_MELA_URL("^grand-diwali-mela(.*)", new String[]{}),
-    IMAGE_PAGE_URL("^gallery/(?:[\\w]+(?:-[\\w]+)*)-(\\d+)-(\\d+)$", new String[] {"objectId", "imageId"}),
     InvalidUrl("(.*)", new String[]{"URL"});
 
     private String   regex;
