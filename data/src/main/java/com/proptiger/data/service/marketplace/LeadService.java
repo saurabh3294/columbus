@@ -93,7 +93,7 @@ public class LeadService {
 
     public void manageLeadAuctionWithBeforeCycle(int leadId) {        
       List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(leadId);
-                 
+
       if(leadOffers == null || leadOffers.isEmpty())
       {
         Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
@@ -105,6 +105,21 @@ public class LeadService {
       }
     }
 
+    
+    public void manageLeadAuctionWithBeforeCycleDeclined(int leadId) {        
+          Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
+          if (!leadOfferDao.findByLeadIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers).equals(
+                  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE, Long.class))) {
+          
+                  Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
+                  phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers == null ? 0 : maxPhaseIdForRequestMoreBrokers);
+                  manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers == null
+                          ? 0
+                          : maxPhaseIdForRequestMoreBrokers, 0);        
+          }
+      }
+    
+    
     public void manageLeadAuctionWithCycle(
             int leadId,
             Map<Integer, Integer> maxPhaseIdMapLeadId,
