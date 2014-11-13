@@ -130,7 +130,7 @@ public class ResponseInterceptor {
             userId = SecurityContextUtils.getLoggedInUserId();
         }
         catch (Exception e) {
-            logger.info(e.getStackTrace().toString());
+            logger.info("Error in extracting user id", e);
         }
         return getUserSubscriptionMap(userId);
     }
