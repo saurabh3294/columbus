@@ -21,9 +21,6 @@ import com.proptiger.data.event.enums.DBOperation;
 @Table(name = "notification.raw_event_to_event_type_mapping")
 public class RawEventToEventTypeMapping extends BaseModel {
 
-    /**
-     * 
-     */
     private static final long    serialVersionUID = 8620987853665861856L;
 
     @Column(name = "id")

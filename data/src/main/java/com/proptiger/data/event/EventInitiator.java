@@ -33,7 +33,8 @@ public class EventInitiator {
     private DBProcessedEventHandler dbProcessedEventHandler;
 
     /**
-     * Creates a list of EventGenerateds in Raw State from DB Events at regular intervals.
+     * Creates a list of EventGenerateds in Raw State from DB Events at regular
+     * intervals.
      */
     @Scheduled(
             fixedDelayString = "${scheduler.fixeddelay.event}",
@@ -48,21 +49,31 @@ public class EventInitiator {
         logger.info("DBEventGenerator: Created " + numberOfEvents + " EventGenerateds in DB");
     }
 
+    /**
+     * Takes the list of Raw events and Processed events from DB which are still
+     * in holding state and marks the latest event of a particular primary key
+     * as PROCESSED and remaining events as DISCARDED
+     */
     @Scheduled(
             fixedDelayString = "${scheduler.fixeddelay.event}",
             initialDelayString = "${scheduler.initialdelay.event.dbRawEventProcessor}")
     public void dbRawEventProcessor() {
-        Thread.currentThread().setName("Raw Event Scheduler");
         logger.info("DBRawEventProcessor: Process Raw Events started");
         dbRawEventHandler.handleEvents();
         logger.info("DBRawEventProcessor: Process Raw Events ended.");
     }
 
+    /**
+     * Takes the list of all events that are in Processed state and whose
+     * holding period has expired and checks the latest event of a particular
+     * primary key for verification and marks the remaining events as DISCARDED.
+     * An event is marked as PENDING_VERIFICATION if verification is required
+     * else VERIFIED if no verification is required.
+     */
     @Scheduled(
             fixedDelayString = "${scheduler.fixeddelay.event}",
             initialDelayString = "${scheduler.initialdelay.event.dbProcessedEventProcessor}")
     public void dbProcessedEventProcessor() {
-        Thread.currentThread().setName("Processed Event Scheduler");
         logger.info("DBProcessedEventProcessor: Process Processed Events started");
         dbProcessedEventHandler.handleEvents();
         logger.info("DBProcessedEventProcessor: Process Processed Events ended.");

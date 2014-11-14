@@ -81,7 +81,8 @@ public class DBEventGenerator implements EventGeneratorInterface {
             while (it.hasNext()) {
                 EventGenerated event = it.next();
                 DBEventProcessor dbEventProcessor = event.getEventType().getEventTypeConfig().getProcessorObject();
-                if (!dbEventProcessor.populateEventSpecificData(event)) {
+                event = dbEventProcessor.populateEventSpecificData(event);
+                if (event == null) {
                     logger.error("Skipping EventGenerated with transactionId " + transactionId);
                     it.remove();
                 }

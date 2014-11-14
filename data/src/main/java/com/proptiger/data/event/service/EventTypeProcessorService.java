@@ -15,6 +15,7 @@ import com.proptiger.data.event.repo.EventTypeProcessorDao;
 
 @Service
 public class EventTypeProcessorService {
+
     private static Logger                     logger                      = LoggerFactory
                                                                                   .getLogger(EventTypeProcessorService.class);
 
@@ -29,9 +30,16 @@ public class EventTypeProcessorService {
     @Autowired
     private RawDBEventService                 rawDBEventService;
 
+    /**
+     * Returns the old price for a price change event
+     * 
+     * @param eventGenerated
+     * @param effeDate
+     * @return
+     */
     public Double getPriceChangeOldValue(EventGenerated eventGenerated, Date effeDate) {
-        logger.info(" Getting the Old Price Value for Price Change Event. " + eventGenerated.getEventTypePayload()
-                .getTransactionId());
+        logger.debug("Getting the Old Price Value for Price Change Event with transaction Id: " + eventGenerated
+                .getEventTypePayload().getTransactionId());
 
         RawEventToEventTypeMapping eventTypeMapping = eventTypeMappingService.getMappingByEventTypeId(eventGenerated
                 .getEventType().getId());
@@ -56,6 +64,13 @@ public class EventTypeProcessorService {
             return null;
     }
 
+    /**
+     * Return the transaction row for a given event belonging to a particular
+     * transaction
+     * 
+     * @param eventGenerated
+     * @return
+     */
     public Map<String, Object> getEventTransactionRow(EventGenerated eventGenerated) {
         RawEventToEventTypeMapping eventTypeMapping = eventTypeMappingService.getMappingByEventTypeId(eventGenerated
                 .getEventType().getId());
