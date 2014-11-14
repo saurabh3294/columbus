@@ -466,7 +466,7 @@ public class NotificationService {
             gcmMessage.setNotificationTypeId(notificationTypeId);
             gcmMessage.setMessage(message);
             gcmMessage.setData(getLeadOfferIdsFromTaskIds(getObjectIdsFromNotifications(userNotifications)));
-            int size = notifications.size();
+            int size = userNotifications.size();
             if (size == 1) {
                 gcmMessage.setTitleMessage("Task Overdue");
             }
@@ -495,7 +495,7 @@ public class NotificationService {
             gcmMessage.setNotificationTypeId(notificationTypeId);
             gcmMessage.setMessage(message);
             gcmMessage.setData(getLeadOfferIdsFromTaskIds(getObjectIdsFromNotifications(userNotifications)));
-            int size = notifications.size();
+            int size = userNotifications.size();
             if (size == 1) {
                 gcmMessage.setTitleMessage("Task Due");
             }
