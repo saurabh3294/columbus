@@ -20,13 +20,13 @@
 		<profile>
 			<id>develop</id>
 			<properties>
-				<midl-core.version>develop-columbus-SNAPSHOT</midl-core.version>
+				<midl-core.version>develop-SNAPSHOT</midl-core.version>
 			</properties>
 		</profile>
 		<profile>
 			<id>release</id>
 			<properties>
-				<midl-core.version>1.0.19</midl-core.version>
+				<midl-core.version>1.0.23</midl-core.version>
 			</properties>
 		</profile>
 	</profiles>
@@ -220,7 +220,7 @@
 		<dependency>
 			<groupId>com.proptiger</groupId>
 			<artifactId>midl-core</artifactId>
-			<version>develop-SNAPSHOT</version>
+			<version>${midl-core.version}</version>
 		</dependency>
 	</dependencies>
 	<repositories>
