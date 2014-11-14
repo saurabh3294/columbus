@@ -2,6 +2,7 @@ package com.proptiger.columbus.interceptor;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -71,12 +72,13 @@ public class ResponseInterceptor {
             logger.info("Not a B2B request. Skipping authorized check");
             return;
         }
+        logger.debug("TIME AT STEP 1: " + new Date().getTime());
         Object data = getApiResponseData(retVal);
         MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
         if (data == null) {
             return;
         }
-
+        logger.debug("TIME AT STEP 17: " + new Date().getTime());
         int cityId = 0, localityId = 0;
         List<Object> resultList = (List<Object>) data;
         for (Object element : resultList) {
@@ -116,6 +118,7 @@ public class ResponseInterceptor {
                 }
             }
         }
+        logger.debug("TIME AT STEP 18: " + new Date().getTime());
     }
 
     private Object getApiResponseData(Object retVal) {
@@ -131,6 +134,7 @@ public class ResponseInterceptor {
 
     private MultiKeyMap getUserSubscriptionMap() {
         int userId = 0;
+        logger.debug("TIME AT STEP 2: " + new Date().getTime());
         try {
             URI uri = URI.create(UriComponentsBuilder
                     .fromUriString(
@@ -149,6 +153,7 @@ public class ResponseInterceptor {
                 userId = whoAmI.getUserId();
                 logger.info("USER ID IDENTIFIED: " + userId);
             }
+            logger.debug("TIME AT STEP 3: " + new Date().getTime());
         }
         catch (Exception e) {
             logger.error("Error in extracting user id", e);
@@ -191,7 +196,7 @@ public class ResponseInterceptor {
         MultiKeyMap userSubscriptionMap = new MultiKeyMap();
         int objectTypeId, objectId;
         List<Integer> localityIDList = new ArrayList<Integer>();
-
+        logger.debug("TIME AT STEP 6: " + new Date().getTime());
         int objTypeIdLocality = DomainObject.locality.getObjectTypeId();
         int objTypeIdCity = DomainObject.city.getObjectTypeId();
         for (Permission permission : permissions) {
@@ -204,6 +209,7 @@ public class ResponseInterceptor {
                 }
             }
         }
+        logger.debug("TIME AT STEP 7: " + new Date().getTime());
 
         /*
          * populating psuedo permissions for city if any locality in that city
@@ -213,30 +219,36 @@ public class ResponseInterceptor {
         for (int cityId : cityIdList) {
             userSubscriptionMap.put(objTypeIdCity, cityId, cityId);
         }
+        logger.debug("TIME AT STEP 10: " + new Date().getTime());
 
         List<Integer> subscribedBuilders = getSubscribedBuilderList(userId);
         for (Integer builderId : subscribedBuilders) {
             userSubscriptionMap.put(DomainObject.builder.getObjectTypeId(), builderId, builderId);
         }
+        logger.debug("TIME AT STEP 16: " + new Date().getTime());
         return userSubscriptionMap;
     }
 
     private List<Permission> getUserPermissions(int userId) {
+        logger.debug("TIME AT STEP 4: " + new Date().getTime());
         URI uri = URI.create(UriComponentsBuilder
                 .fromUriString(
                         PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
                                 .getRequiredPropertyAsString(PropertyKeys.PERMISSION_API_URL) + "?userId=" + userId)
                 .build().encode().toString());
         List<Permission> permissions = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, Permission.class);
+        logger.debug("TIME AT STEP 5: " + new Date().getTime());
         return permissions;
     }
 
     private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList) {
+        logger.debug("TIME AT STEP 8: " + new Date().getTime());
         Set<Integer> cityIdList = new HashSet<Integer>();
         List<Locality> localiltyList = getLocalityListFromLocalityIds(localityIDList);
         for (Locality locality : localiltyList) {
             cityIdList.add(locality.getSuburb().getCityId());
         }
+        logger.debug("TIME AT STEP 9: " + new Date().getTime());
         return cityIdList;
     }
 
@@ -273,12 +285,13 @@ public class ResponseInterceptor {
         List<Integer> builderList = new ArrayList<>();
 
         int size = permissions.size();
+        logger.debug("TIME AT STEP 11: " + new Date().getTime());
         for (int i = 0; i < size; i = i + maxPermissionCountForApiCall) {
             List<Permission> partialPermissions = permissions.subList(
                     i,
                     Math.min(size, i + maxPermissionCountForApiCall));
             FIQLSelector selector = getUserAppSubscriptionFilters(partialPermissions);
-
+            logger.debug("TIME AT STEP 14: " + new Date().getTime());
             if (selector.getFilters() != null) {
                 String builderId = "builderId";
                 selector.setFields(builderId);
@@ -294,11 +307,13 @@ public class ResponseInterceptor {
                     builderList.add(inventoryPriceTrend.getBuilderId());
                 }
             }
+            logger.debug("TIME AT STEP 15: " + new Date().getTime());
         }
         return builderList;
     }
 
     public FIQLSelector getUserAppSubscriptionFilters(List<Permission> permissions) {
+        logger.debug("TIME AT STEP 12: " + new Date().getTime());
         FIQLSelector selector = new FIQLSelector();
         for (Permission permission : permissions) {
             int objectTypeId = permission.getObjectTypeId();
@@ -317,6 +332,7 @@ public class ResponseInterceptor {
                     break;
             }
         }
+        logger.debug("TIME AT STEP 13: " + new Date().getTime());
         return selector;
     }
 }
