@@ -2,6 +2,7 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -850,8 +851,15 @@ public class LeadOfferService {
         List<Listing> sortedList = new ArrayList<>();
         Map<Integer, List<Listing>> listingsByProjectId = new HashMap<>();
         Map<Integer, List<Listing>> listingsByLocalityId = new HashMap<>();
+        
+        Map<Integer, List<Listing>> listingsByProjectIdInRequirements = new HashMap<>();
+        Map<Integer, List<Listing>> listingsByLocalityIdInRequirements = new HashMap<>();
+                
         List<Listing> remainingAfterProjectSort = new ArrayList<>();
-
+        List<Listing> sortedListProject = new ArrayList<>();
+        List<Listing> sortedListLocality = new ArrayList<>();
+        List<Listing> sortedListRemaining = new ArrayList<>();
+        
         for (Listing listing : listings) {
             int projectId = listing.getProperty().getProjectId();
             if (!listingsByProjectId.containsKey(projectId)) {
@@ -860,10 +868,32 @@ public class LeadOfferService {
             listingsByProjectId.get(projectId).add(listing);
         }
 
+        for(List<Listing> listingsForProject : listingsByProjectId.values())
+        {
+                Collections.sort(listingsForProject, new Comparator<Listing>() {
+                    @Override
+                    public int compare(Listing  listing1, Listing  listing2)
+                    {                        
+                        Integer price1 = listing1.getCurrentListingPrice().getPrice();
+                        Integer pricePerUnitArea1 = listing1.getCurrentListingPrice().getPricePerUnitArea();
+                        int size1 = listing1.getProperty().getSize().intValue();
+                        
+                        Integer price2 = listing2.getCurrentListingPrice().getPrice();
+                        Integer pricePerUnitArea2 = listing2.getCurrentListingPrice().getPricePerUnitArea();
+                        int size2 = listing2.getProperty().getSize().intValue();
+                        
+                        return (price1 == null ? pricePerUnitArea1*size1 : price1) - (price2==null ? pricePerUnitArea2*size2 : price2);
+                    }
+                });
+        }
+        
+        
+        
         for (LeadRequirement leadRequirement : leadRequirements) {
             Integer projectId = leadRequirement.getProjectId();
             if (listingsByProjectId.containsKey(projectId)) {
-                sortedList.addAll(listingsByProjectId.get(projectId));
+                //sortedListProject.addAll(listingsByProjectId.get(projectId));                
+                listingsByProjectIdInRequirements.put(projectId,listingsByProjectId.get(projectId));
                 listingsByProjectId.remove(projectId);
             }
         }
@@ -879,6 +909,27 @@ public class LeadOfferService {
             }
             listingsByLocalityId.get(localityId).add(listing);
         }
+        
+        
+        for(List<Listing> listingsForLocality : listingsByLocalityId.values())
+        {
+                Collections.sort(listingsForLocality, new Comparator<Listing>() {
+                    @Override
+                    public int compare(Listing  listing1, Listing  listing2)
+                    {                        
+                        Integer price1 = listing1.getCurrentListingPrice().getPrice();
+                        Integer pricePerUnitArea1 = listing1.getCurrentListingPrice().getPricePerUnitArea();
+                        int size1 = listing1.getProperty().getSize().intValue();
+                        
+                        Integer price2 = listing2.getCurrentListingPrice().getPrice();
+                        Integer pricePerUnitArea2 = listing2.getCurrentListingPrice().getPricePerUnitArea();
+                        int size2 = listing2.getProperty().getSize().intValue();
+                        
+                        return (price1 == null ? pricePerUnitArea1*size1 : price1) - (price2==null ? pricePerUnitArea2*size2 : price2);
+                    }
+                });
+        }
+        
 
         for (LeadRequirement leadRequirement : leadRequirements) {
             Integer localityId = null;
@@ -891,17 +942,82 @@ public class LeadOfferService {
             }
 
             if (listingsByLocalityId.containsKey(localityId)) {
-                sortedList.addAll(listingsByLocalityId.get(localityId));
+                //sortedListLocality.addAll(listingsByLocalityId.get(localityId));
+                listingsByLocalityIdInRequirements.put(localityId, listingsByLocalityId.get(localityId));
                 listingsByLocalityId.remove(localityId);
             }
         }
-
-        for (List<Listing> remainingListings : listingsByLocalityId.values()) {
-            sortedList.addAll(remainingListings);
+        listingsByProjectIdInRequirements = sortAlphabatically(listingsByProjectIdInRequirements);
+        listingsByLocalityIdInRequirements = sortAlphabatically(listingsByLocalityIdInRequirements);
+        
+        for(List<Listing> listingForProject:listingsByProjectIdInRequirements.values())
+        {
+            sortedListProject.addAll(listingForProject);
         }
+        
+        for(List<Listing> listingForLocality : listingsByLocalityIdInRequirements.values())
+        {
+            sortedListLocality.addAll(listingForLocality);    
+        }
+                
+        sortedList.addAll(sortedListProject);
+        sortedList.addAll(sortedListLocality);
+        listingsByLocalityId = sortAlphabatically(listingsByLocalityId);
+        
+        for (List<Listing> remainingListings : listingsByLocalityId.values()) {
+            sortedListRemaining.addAll(remainingListings);
+        }        
+        sortedList.addAll(sortedListRemaining);
+        
         return sortedList;
     }
 
+    public Map<Integer , List<Listing>> sortAlphabatically(Map<Integer , List<Listing>> listingsMap)
+    {
+        Map<Integer , List<Listing>> sortedAlphabaticallyListing = new HashMap<>();
+        
+        int mapSize = listingsMap.size();
+        int[] keys = new int[mapSize];
+        String[] name = new String[mapSize];
+
+        int p=0;
+        for(Integer key:listingsMap.keySet())
+        {
+         keys[p] = key;
+         name[p] = listingsMap.get(key).get(0).getProperty().getProject().getName();
+         p++;
+        }
+       
+        for(int i=0;i<mapSize;i++)
+        {
+            for(int j=0;j<mapSize;j++)
+            {
+                int num = name[i].compareTo(name[j]);
+                if(num>0)
+                {
+                    String temp = name[i];
+                    name[i] = name[j];
+                    name[j] = temp;
+                    
+                    int tempInt = keys[i];
+                    keys[i] = keys[j];
+                    keys[j] = tempInt;
+                }
+            }
+        }
+                
+        for(Integer key : keys)
+        {
+          if(!sortedAlphabaticallyListing.containsKey(key))
+          {
+              sortedAlphabaticallyListing.put(key, new ArrayList<Listing>());
+          }
+          sortedAlphabaticallyListing.get(key).addAll(listingsMap.get(key));
+        }
+        return sortedAlphabaticallyListing;
+    }
+    
+    
     public LeadOffer get(int leadOfferId, Integer userId, FIQLSelector selector) {
         LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
         Set<String> fields = selector.getFieldSet();
