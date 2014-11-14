@@ -20,7 +20,7 @@
 		<profile>
 			<id>develop</id>
 			<properties>
-				<midl-core.version>develop-SNAPSHOT</midl-core.version>
+				<midl-core.version>1.0.23</midl-core.version>
 			</properties>
 		</profile>
 		<profile>
