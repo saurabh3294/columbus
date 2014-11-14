@@ -2,7 +2,6 @@ package com.proptiger.data.interceptor;
 
 import java.util.List;
 
-import org.apache.shiro.authz.UnauthorizedException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.SecurityContextUtils;
