@@ -510,7 +510,7 @@ public class NotificationService {
         List<LeadTask> tasks = taskDao.findById(taskIds);
         List<Integer> leadOfferIds = new ArrayList<>();
         for (LeadTask leadTask : tasks) {
-            leadOfferIds.add(leadTask.getId());
+            leadOfferIds.add(leadTask.getLeadOfferId());
         }
         return leadOfferIds;
     }
@@ -533,7 +533,7 @@ public class NotificationService {
                     + ", "
                     + task.getLeadOfferId()
                     + " is due at ";
-            if (DateUtil.getNextDayStartTime(new Date()).after(task.getScheduledFor())) {
+            if (!DateUtil.getNextDayStartTime(new Date()).after(task.getScheduledFor())) {
                 message += DateUtil.getReadableDateFromDate(task.getScheduledFor()) + ", ";
             }
             message += DateUtil.getHHMMTimeFromDate(task.getScheduledFor()) + ". Please update.";
