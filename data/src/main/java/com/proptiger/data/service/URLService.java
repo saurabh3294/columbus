@@ -442,6 +442,7 @@ public class URLService {
             	break;
             case STATIC_URLS:
             case DIWALI_MELA_URL:
+            case MOBILE_APP_URL:
                 responseStatus = HttpStatus.SC_OK;
                 break;
             case PORTFOLIO_URLS:
