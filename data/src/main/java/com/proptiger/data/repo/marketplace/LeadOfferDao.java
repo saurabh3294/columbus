@@ -101,4 +101,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select LO from LeadOffer LO where LO.statusId = ?2 and LO.leadId = ?1")
     List<LeadOffer> findByLeadIdWhereStatusOffered(int leadId, int statusId);
 
+    @Query("select count(LO.id) from LeadOffer LO where LO.agentId = ?1 and LO.statusId = ?2")
+    long getcountLeadOffersOnThisAgentInNewStatus(int userId, int id);
+
 }
