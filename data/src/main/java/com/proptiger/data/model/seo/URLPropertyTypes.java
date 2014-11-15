@@ -1,4 +1,4 @@
-package com.proptiger.data.event.model.seo;
+package com.proptiger.data.model.seo;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,7 +13,7 @@ import com.proptiger.core.model.BaseModel;
 
 @Entity
 @Table(name = "seodb.url_property_types")
-public class UrlPropertyTypes extends BaseModel {
+public class URLPropertyTypes extends BaseModel {
 
     /**
      * 
@@ -34,7 +34,7 @@ public class UrlPropertyTypes extends BaseModel {
     @OneToOne
     @JoinColumn(name = "url_property_type_category_id")
     @JsonIgnore
-    private UrlPropertyTypeCategory urlPropertyTypeCategory;
+    private URLPropertyTypeCategory urlPropertyTypeCategory;
 
     public int getId() {
         return id;
@@ -60,11 +60,11 @@ public class UrlPropertyTypes extends BaseModel {
         this.urlSubPart = urlSubPart;
     }
 
-    public UrlPropertyTypeCategory getUrlPropertyTypeCategory() {
+    public URLPropertyTypeCategory getUrlPropertyTypeCategory() {
         return urlPropertyTypeCategory;
     }
 
-    public void setUrlPropertyTypeCategory(UrlPropertyTypeCategory urlPropertyTypeCategory) {
+    public void setUrlPropertyTypeCategory(URLPropertyTypeCategory urlPropertyTypeCategory) {
         this.urlPropertyTypeCategory = urlPropertyTypeCategory;
     }
 

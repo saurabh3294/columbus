@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
+import com.proptiger.data.event.enums.EventTypeName;
 import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
 import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
 import com.proptiger.data.event.model.EventGenerated;
@@ -25,6 +26,7 @@ import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
+import com.proptiger.data.notification.model.Subscriber.SubscriberName;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.util.Serializer;
 
@@ -204,6 +206,26 @@ public class EventGeneratedService {
         logger.info(" Number of Events Generated are: " + eventGeneratedList.size());
 
         return eventGeneratedList;
+    }
+
+    public List<EventGenerated> getLatestGeneratedEventsBySubscriber(
+            SubscriberName subscriberName,
+            List<String> eventTypeNames,
+            int numberOfEvents) {
+        logger.debug("Finding latest event generated for the Subscriber " + subscriberName);
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, numberOfEvents);
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao.getLatestEventGeneratedBySubscriber(
+                EventStatus.Verified,
+                SubscriberName.Seo,
+                eventTypeNames,
+                pageable);
+        if (listEventGenerateds == null) {
+            listEventGenerateds = new ArrayList<EventGenerated>();
+        }
+        logger.debug("Number of Event Generated being picked up: " + listEventGenerateds.size());
+
+        populateEventsDataAfterLoad(listEventGenerateds);
+        return listEventGenerateds;
     }
 
     private List<EventGenerated> generateEvents(

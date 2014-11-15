@@ -6,8 +6,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -68,6 +71,10 @@ public class EventGenerated extends BaseModel {
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date             updatedAt;
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="event_type_id", referencedColumnName = "event_type_id")
+    private EventTypeToSubscriberMapping subscriberMapping;
 
     @PreUpdate
     public void autoUpdateFields() {
@@ -168,6 +175,14 @@ public class EventGenerated extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public EventTypeToSubscriberMapping getSubscriberMapping() {
+        return subscriberMapping;
+    }
+
+    public void setSubscriberMapping(EventTypeToSubscriberMapping subscriberMapping) {
+        this.subscriberMapping = subscriberMapping;
     }
 
 }

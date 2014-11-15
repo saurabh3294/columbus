@@ -1,4 +1,4 @@
-package com.proptiger.data.event.model.seo;
+package com.proptiger.data.model.seo;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,7 +13,7 @@ import com.proptiger.data.enums.seo.UrlTypeCategories;
 
 @Entity
 @Table(name = "seodb.url_property_type_category")
-public class UrlPropertyTypeCategory extends BaseModel {
+public class URLPropertyTypeCategory extends BaseModel {
 
     /**
      * 

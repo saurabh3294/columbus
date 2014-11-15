@@ -25,7 +25,6 @@ import com.proptiger.data.event.verification.PriceChangeVerification;
 
 // TODO remove the Types ENUM. make it dynamic.
 public class EventTypeConfig extends BaseModel {
-
     /**
      * 
      */

@@ -11,7 +11,7 @@ import java.util.Map;
 import com.proptiger.data.event.model.EventGenerated;
 
 /**
- * @author mandeep
+ * @author Mukand
  * 
  *         This handles merging/suppression of events
  */
