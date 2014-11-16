@@ -11,6 +11,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.proptiger.data.enums.seo.BuilderPropertyTypes;
 import com.proptiger.data.enums.seo.PropertyType;
 import com.proptiger.data.enums.seo.TaxonomyPropertyTypes;
+import com.proptiger.data.model.seo.URLCategories;
 import com.proptiger.data.util.PageType;
 
 /**
@@ -45,6 +46,7 @@ public class URLDetail {
     private Integer               imageId;
     private String                localityName;
     private String                suburbName;
+    private URLCategories         urlCategory;
 
     /**
      * Default Value of bedroomString is empty string. Do not change it.
@@ -293,5 +295,13 @@ public class URLDetail {
 
     public void setSuburbName(String suburbName) {
         this.suburbName = suburbName;
+    }
+
+    public URLCategories getUrlCategory() {
+        return urlCategory;
+    }
+
+    public void setUrlCategory(URLCategories urlCategory) {
+        this.urlCategory = urlCategory;
     }
 }

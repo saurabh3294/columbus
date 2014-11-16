@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.enums.seo.UrlTypeCategories;
+import com.proptiger.data.enums.seo.URLTypeCategories;
 
 @Entity
 @Table(name = "seodb.url_property_type_category")
@@ -27,7 +27,7 @@ public class URLPropertyTypeCategory extends BaseModel {
     
     @Column(name = "name")
     @Enumerated(EnumType.STRING)
-    private UrlTypeCategories urlTypeCategories;
+    private URLTypeCategories urlTypeCategories;
 
     public int getId() {
         return id;
@@ -37,11 +37,11 @@ public class URLPropertyTypeCategory extends BaseModel {
         this.id = id;
     }
 
-    public UrlTypeCategories getUrlTypeCategories() {
+    public URLTypeCategories getUrlTypeCategories() {
         return urlTypeCategories;
     }
 
-    public void setUrlTypeCategories(UrlTypeCategories urlTypeCategories) {
+    public void setUrlTypeCategories(URLTypeCategories urlTypeCategories) {
         this.urlTypeCategories = urlTypeCategories;
     }
 }

@@ -77,5 +77,13 @@ public class URLCategories extends BaseModel{
     public void setRedirectParentUrlCategoryId(int redirectParentUrlCategoryId) {
         this.redirectParentUrlCategoryId = redirectParentUrlCategoryId;
     }
+
+    public URLPropertyTypes getUrlPropertyTypes() {
+        return urlPropertyTypes;
+    }
+
+    public void setUrlPropertyTypes(URLPropertyTypes urlPropertyTypes) {
+        this.urlPropertyTypes = urlPropertyTypes;
+    }
    
 }

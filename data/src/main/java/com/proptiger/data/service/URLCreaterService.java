@@ -14,10 +14,13 @@ import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.model.URLDetail;
+import com.proptiger.data.model.seo.URLPropertyTypeCategory;
+import com.proptiger.data.model.seo.URLPropertyTypes;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Serializer;
 import com.proptiger.data.enums.seo.PropertyType;
 import com.proptiger.data.enums.seo.TaxonomyPropertyTypes;
+import com.proptiger.data.enums.seo.URLTypeCategories;
 
 @Service
 public class URLCreaterService {
@@ -69,6 +72,162 @@ public class URLCreaterService {
                 break;
         }
 
+    }
+
+    public String getCityUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+
+        if (urlDetail.getCityName() != null) {
+            String cityName = getCleanName(urlDetail.getCityName());
+            URLPropertyTypes urlPropertyTypes = urlDetail.getUrlCategory().getUrlPropertyTypes();
+
+            URLTypeCategories urlTypeCategories = urlPropertyTypes.getUrlPropertyTypeCategory().getUrlTypeCategories();
+
+            switch (urlTypeCategories) {
+                case Listing:
+                    url = cityName + "-real-estate";
+                    break;
+                case ListingPropertyType:
+                    url = cityName + this.SLASH + urlPropertyTypes.getUrlSubPart() + "-sale";
+                    addBhk(url, urlDetail.getBedrooms());
+                    addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
+                    break;
+                case ListingTaxonomy:
+                    url = cityName + this.SLASH + urlPropertyTypes.getUrlSubPart();
+                    addBhk(url, urlDetail.getBedrooms());
+                    break;
+                case Amenity:
+                    url = cityName + this.SLASH + urlPropertyTypes.getUrlSubPart();
+                    break;
+                case Overview:
+                    url = cityName + "-real-estate-overview";
+                    break;
+                case Sitemap:
+                    url = cityName + "-real-estate/" + cityName + "-sitemap.php";
+                    break;
+                case AllLocality:
+                    url = cityName + this.SLASH + "all-localities";
+                    break;
+                case AllBuilder:
+                    url = cityName + this.SLASH + "all-builders";
+                    break;
+                default:
+                    url = cityName + "-real-estate";
+
+            }
+
+        }
+
+        return url;
+    }
+
+    public String getLocalityUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        Integer localityId = urlDetail.getLocalityId();
+        String localityName = urlDetail.getLocalityName();
+
+        Locality locality = getCachedLocalityData(localityId, localityName);
+
+        if (locality == null) {
+            return url;
+        }
+        localityName = getCleanName(locality.getLabel());
+        String cityName = getCleanName(locality.getSuburb().getCity().getLabel());
+        URLPropertyTypes urlPropertyTypes = urlDetail.getUrlCategory().getUrlPropertyTypes();
+
+        URLTypeCategories urlTypeCategories = urlPropertyTypes.getUrlPropertyTypeCategory().getUrlTypeCategories();
+
+        switch (urlTypeCategories) {
+            case ListingPropertyType:
+                url = cityName + this.SLASH
+                        + urlPropertyTypes.getUrlSubPart()
+                        + this.HYPHEN
+                        + localityName
+                        + localityId;
+                addBhk(url, urlDetail.getBedrooms());
+                addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
+                break;
+            case ListingTaxonomy:
+                url = cityName + this.SLASH + urlPropertyTypes.getUrlSubPart() + "-in-" + localityName + localityId;
+                break;
+            case Overview:
+                url = cityName + this.SLASH + localityName + "-overview-" + localityId;
+                break;
+            case Amenity:
+                url = cityName + this.SLASH + localityName + localityId + this.SLASH + urlPropertyTypes.getUrlSubPart();
+                break;
+            default:
+                url = cityName + this.SLASH + localityName + "-overview-" + localityId;
+        }
+
+        return url;
+    }
+
+    public String getSuburbUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        Integer suburbId = urlDetail.getSuburbId();
+        String suburbName = urlDetail.getSuburbName();
+
+        Suburb suburb = getCachedSuburbData(suburbId, suburbName);
+
+        if (suburb == null) {
+            return url;
+        }
+        suburbName = getCleanName(suburb.getLabel());
+        String cityName = getCleanName(suburb.getCity().getLabel());
+        URLPropertyTypes urlPropertyTypes = urlDetail.getUrlCategory().getUrlPropertyTypes();
+
+        URLTypeCategories urlTypeCategories = urlPropertyTypes.getUrlPropertyTypeCategory().getUrlTypeCategories();
+
+        switch (urlTypeCategories) {
+            case ListingPropertyType:
+                url = cityName + this.SLASH + urlPropertyTypes.getUrlSubPart() + this.HYPHEN + suburbName + suburbId;
+                addBhk(url, urlDetail.getBedrooms());
+                addBudget(url, urlDetail.getMinBudget(), urlDetail.getMaxBudget());
+                break;
+            case ListingTaxonomy:
+                url = cityName + this.SLASH + urlPropertyTypes.getUrlSubPart() + "-in-" + suburbName + suburbId;
+                break;
+            case Overview:
+                url = cityName + this.SLASH + suburbName + "-overview-" + suburbId;
+                break;
+            case Amenity:
+                url = cityName + this.SLASH + suburbName + suburbId + this.SLASH + urlPropertyTypes.getUrlSubPart();
+                break;
+            default:
+                url = cityName + this.SLASH + suburbName + "-overview-" + suburbId;
+        }
+
+        return url;
+    }
+
+    public String getBuilderUrl(URLDetail urlDetail) {
+        String url = this.defaultUrl;
+        Builder builder = getCachedBuilderData(urlDetail.getBuilderId());
+
+        if (builder == null) {
+            return url;
+        }
+
+        String builderName = getCleanName(builder.getName());
+        String cityName = getCleanName(urlDetail.getCityName());
+        URLPropertyTypes urlPropertyTypes = urlDetail.getUrlCategory().getUrlPropertyTypes();
+        URLTypeCategories urlTypeCategories = urlPropertyTypes.getUrlPropertyTypeCategory().getUrlTypeCategories();
+
+        url = builderName + this.HYPHEN + builder.getId();
+        switch (urlTypeCategories) {
+            case Overview:
+                if (cityName != null) {
+                    url = cityName + this.SLASH + url;
+                }
+                break;
+            case BuilderTaxonomy:
+                url = urlPropertyTypes.getUrlSubPart() + "-by-" + url;
+                break;
+
+        }
+        
+        return url;
     }
 
     public String urlLibCityUrl(URLDetail urlDetail) {
