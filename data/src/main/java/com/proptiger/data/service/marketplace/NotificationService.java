@@ -197,8 +197,7 @@ public class NotificationService {
                     NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                             defaultNotificationType,
                             notification.getUserId(),
-                            new DefaultMediumDetails(gcmMessage),
-                            MediumType.MarketplaceApp);
+                            new DefaultMediumDetails(MediumType.MarketplaceApp, gcmMessage));
                     notificationCreatorService.createNotificationGenerated(request);
                 }
             }
@@ -440,8 +439,7 @@ public class NotificationService {
                 NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                         defaultNotificationType,
                         userId,
-                        new DefaultMediumDetails(message),
-                        MediumType.MarketplaceApp);
+                        new DefaultMediumDetails(MediumType.MarketplaceApp, message));
                 notificationCreatorService.createNotificationGenerated(request);
             }
         }
@@ -488,8 +486,7 @@ public class NotificationService {
             NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
                     defaultNotificationType,
                     notification.getUserId(),
-                    new DefaultMediumDetails(gcmMessage),
-                    MediumType.MarketplaceApp);
+                    new DefaultMediumDetails(MediumType.MarketplaceApp, gcmMessage));
             notificationCreatorService.createNotificationGenerated(request);
 
         }
@@ -505,12 +502,12 @@ public class NotificationService {
      */
     private String getGcmMessageContentForGroupableNotification(int userId, int notificationTypeId) {
         MarketplaceNotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
-        List<Notification> notifications = notificationDao
-                .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
-        for (Notification notification : notifications) {
-            notification.setNotificationType(null);
-        }
-        notificationType.setNotifications(notifications);
+//        List<Notification> notifications = notificationDao
+//                .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
+//        for (Notification notification : notifications) {
+//            notification.setNotificationType(null);
+//        }
+        notificationType.setNotifications(new ArrayList<Notification>());
 
         return SerializationUtils.objectToJson(notificationType).toString();
     }
