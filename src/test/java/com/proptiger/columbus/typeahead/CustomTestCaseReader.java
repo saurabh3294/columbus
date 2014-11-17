@@ -12,7 +12,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CustomTestCaseReader {
 
     private String        fileName   = "/tmp/typeahead-test";
@@ -27,9 +29,14 @@ public class CustomTestCaseReader {
     public Map<String, List<TaTestCase>> getCustomTestCases() {
         Map<String, List<TaTestCase>> mapTestCases = new HashMap<String, List<TaTestCase>>();
         File dir = new File(fileName);
+        if(!dir.exists()){
+            logger.error("Could not find test case directory : " + dir.getAbsolutePath());
+            return mapTestCases;
+        }
         Collection<File> fileList = FileUtils.listFiles(dir, extensions, true);
         if (fileList == null) {
-            logger.error("Could not find test case directory : " + dir.getAbsolutePath());
+            logger.error("No test files found in test case directory : " + dir.getAbsolutePath());
+            return mapTestCases;
         }
 
         for (File file : fileList) {

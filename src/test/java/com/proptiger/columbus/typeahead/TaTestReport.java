@@ -2,8 +2,11 @@ package com.proptiger.columbus.typeahead;
 
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import com.proptiger.columbus.model.Typeahead;
 
+@Component
 public class TaTestReport {
 
     class TestReport{
@@ -21,10 +24,10 @@ public class TaTestReport {
         boolean status = (pos >= ttc.getMinRank() && pos <= ttc.getMaxRank());
         String message;
         if(pos < 0){
-            message = "Test = " + ttc.getLogString() + "Result = INVALID TEST CASE";
+            message = "Test = " + ttc.getLogString() + " Result = INVALID TEST CASE";
         }
         else{
-            message = "Test = " + ttc.getLogString() + "Result = " + pos;
+            message = "Test = " + ttc.getLogString() + " Result = " + pos;
         }
         return new TestReport(status, message);
     }
@@ -40,7 +43,7 @@ public class TaTestReport {
         for(int i=0; i<resultList.size(); i++){
             if(tid.equals(resultList.get(i).getId())){
                 pos = i;
-                break;
+                return (pos+1);
             }
         }
         return pos;

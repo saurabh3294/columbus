@@ -11,43 +11,44 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.util.HttpRequestUtil;
-import com.proptiger.core.util.PropertyKeys;
-import com.proptiger.core.util.PropertyReader;
 
 @Component
 public class TaTestExecuter {
 
-    private String          BASE_URL          = "";
-    private String          TYPEAHEAD_API_URL = "";
-    private long            TestTimeout       = 1000;
+    @Value("${BASE_URL}")
+    private String          BASE_URL;
 
+    @Value("${TYPEAHEAD_API_URL}")
+    private String          TYPEAHEAD_API_URL;
+    
+    @Value("${testcase.timeout}")
+    private long            TestTimeout;
+    
     private static Logger   logger            = LoggerFactory.getLogger(TaTestExecuter.class);
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
 
-    @PostConstruct
-    public void initialize() {
-        BASE_URL = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL);
-        TYPEAHEAD_API_URL = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL);
-    }
-
-    public List<TaTestCase> executeTests(List<TaTestCase> testList) {
+    public List<TaTestCase> executeTests(List<TaTestCase> testList, int limit) {
         ExecutorService executerService = Executors.newCachedThreadPool();
         List<Future<TaTestCase>> futureList = new ArrayList<Future<TaTestCase>>();
+        int ctr=0;
         for (TaTestCase ttc : testList) {
-            ttc.setTestUrl(BASE_URL + TYPEAHEAD_API_URL + "?q=" + ttc.getQuery());
+            if(ctr >= limit){
+                break;
+            }
+            ttc.setTestUrl(BASE_URL + TYPEAHEAD_API_URL + "?query=" + ttc.getQuery());
             futureList.add(executerService.submit(new CustomCallable(ttc)));
+            ctr++;
         }
 
         for (Future<TaTestCase> future : futureList) {

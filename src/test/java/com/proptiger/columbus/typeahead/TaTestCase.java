@@ -80,7 +80,7 @@ public class TaTestCase {
     }
 
     public String getLogString() {
-        String logString = "[" + this.query + "," + "(" + this.minRank + this.maxRank + ")" + "]";
+        String logString = "[" + this.query + "," + "(" + this.minRank + "-" + this.maxRank + ")" + "," + this.expectedTypeaheadId + "]";
         return logString;
     }
 }
