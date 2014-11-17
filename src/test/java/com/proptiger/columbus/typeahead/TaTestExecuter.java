@@ -29,21 +29,22 @@ public class TaTestExecuter {
 
     @Value("${TYPEAHEAD_API_URL}")
     private String          TYPEAHEAD_API_URL;
-    
+
     @Value("${testcase.timeout}")
     private long            TestTimeout;
-    
-    private static Logger   logger            = LoggerFactory.getLogger(TaTestExecuter.class);
+
+    private static Logger   logger = LoggerFactory.getLogger(TaTestExecuter.class);
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
 
     public List<TaTestCase> executeTests(List<TaTestCase> testList, int limit) {
+        logger.debug(testList.size() + " tests recieved for execution with limit = " + limit);
         ExecutorService executerService = Executors.newCachedThreadPool();
         List<Future<TaTestCase>> futureList = new ArrayList<Future<TaTestCase>>();
-        int ctr=0;
+        int ctr = 0;
         for (TaTestCase ttc : testList) {
-            if(ctr >= limit){
+            if (ctr >= limit) {
                 break;
             }
             ttc.setTestUrl(BASE_URL + TYPEAHEAD_API_URL + "?query=" + ttc.getQuery());
@@ -79,7 +80,8 @@ public class TaTestExecuter {
 
         @Override
         public TaTestCase call() throws Exception {
-            URI uri = URI.create(UriComponentsBuilder.fromUriString(taTestCase.getTestUrl()).build().encode().toString());
+            URI uri = URI.create(UriComponentsBuilder.fromUriString(taTestCase.getTestUrl()).build().encode()
+                    .toString());
             List<Typeahead> resultList = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, Typeahead.class);
             taTestCase.setResults(resultList);
             return taTestCase;

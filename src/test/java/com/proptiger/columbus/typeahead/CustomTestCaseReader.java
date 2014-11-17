@@ -12,13 +12,16 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CustomTestCaseReader {
 
-    private String        fileName   = "/tmp/typeahead-test";
-    private String[]      extensions = new String[] { "csv" };
+    @Value("${testcase.custom.dir}")
+    private String        dirName;
+
+    private String[]      extensions = new String[] { "txt" };
 
     private static Logger logger     = LoggerFactory.getLogger(CustomTestCaseReader.class);
 
@@ -28,8 +31,8 @@ public class CustomTestCaseReader {
 
     public Map<String, List<TaTestCase>> getCustomTestCases() {
         Map<String, List<TaTestCase>> mapTestCases = new HashMap<String, List<TaTestCase>>();
-        File dir = new File(fileName);
-        if(!dir.exists()){
+        File dir = new File(dirName);
+        if (!dir.exists()) {
             logger.error("Could not find test case directory : " + dir.getAbsolutePath());
             return mapTestCases;
         }

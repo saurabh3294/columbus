@@ -23,7 +23,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="com.proptiger.columbus.typeahead.">
+	<logger name="com.proptiger.columbus.typeahead">
 		<level value="DEBUG" />
 	</logger>
 

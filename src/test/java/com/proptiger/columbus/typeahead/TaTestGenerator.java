@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -38,16 +40,18 @@ public class TaTestGenerator {
     private String          BUILDER_API_URL;
 
     @Value("${DefaultPageFetchSize}")
-    private int      DefaultPageFetchSize;
+    private int             DefaultPageFetchSize;
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
 
+    private static Logger   logger              = LoggerFactory.getLogger(TaTestGenerator.class);
+
     public static String    selectorAllCity     = "selector={\"fields\":[\"id\",\"label\"],\"paging\":{\"start\":%s,\"rows\":%s}}";
-    public static String    selectorAllLocality = "selector={\"fields\":[\"localityId\",\"label\"]},\"paging\":{\"start\":%s,\"rows\":%s}}";
+    public static String    selectorAllLocality = "selector={\"fields\":[\"localityId\",\"label\"],\"paging\":{\"start\":%s,\"rows\":%s}}";
     public static String    selectorAllProject  = "selector={\"fields\":[\"projectId\",\"name\",\"locality\",\"suburb\",\"city\",\"label\",\"builder\"],\"paging\":{\"start\":%s,\"rows\":%s}}";
     public static String    selectorAllSuburb   = "selector={\"fields\":[\"id\",\"label\"],\"paging\":{\"start\":%s,\"rows\":%s}}";
-    public static String    selectorAllBuilder  = "selector={\"fields\":[\"cityId\",\"label\"],\"paging\":{\"start\":%s,\"rows\":%s}}";
+    public static String    selectorAllBuilder  = "selector={\"fields\":[\"id\",\"name\"],\"paging\":{\"start\":%s,\"rows\":%s}}";
 
     public List<TaTestCase> getTestCasesByType(TaTestCaseType ttcType) {
         switch (ttcType) {
@@ -84,7 +88,7 @@ public class TaTestGenerator {
                 Locality.class,
                 DefaultPageFetchSize);
         for (Locality x : entitylist) {
-            testList.add(new TaTestCase(x.getLabel(), TaTestCaseType.Locality, 1, 1, "TYPEAHEAD-LOCALITY-" + x
+            testList.add(new TaTestCase(x.getLabel(), TaTestCaseType.Locality, 1, 3, "TYPEAHEAD-LOCALITY-" + x
                     .getLocalityId()));
         }
         return testList;
@@ -98,7 +102,7 @@ public class TaTestGenerator {
                 Project.class,
                 DefaultPageFetchSize);
         for (Project x : entitylist) {
-            testList.add(new TaTestCase(x.getName(), TaTestCaseType.Project, 1, 1, "TYPEAHEAD-PROJECT-" + x
+            testList.add(new TaTestCase(x.getName(), TaTestCaseType.Project, 1, 5, "TYPEAHEAD-PROJECT-" + x
                     .getProjectId()));
         }
         return testList;
@@ -127,6 +131,8 @@ public class TaTestGenerator {
     }
 
     private <T> List<T> getEntityList(String selector, String API_URL, Class<T> clazz, int pageSize) {
+        String entityName = clazz.getSimpleName();
+        logger.debug("Fetching entity list for : " + entityName);
         int start = 0, count = pageSize;
         String url = "";
         URI uri = null;
@@ -134,6 +140,7 @@ public class TaTestGenerator {
         List<T> templist = null;
         while (true) {
             url = BASE_URL + API_URL + "?" + String.format(selector, start, count);
+            logger.debug("Api Url for fetching entity " + entityName + " : [ " + url + "]");
             uri = URI.create(UriComponentsBuilder.fromUriString(url).build().encode().toString());
             templist = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, clazz);
             if (templist == null || templist.isEmpty()) {
@@ -142,6 +149,7 @@ public class TaTestGenerator {
             entitylist.addAll(templist);
             start += count;
         }
+        logger.debug(entitylist.size() + " Entities recieved for : " + entityName);
         return entitylist;
     }
 
