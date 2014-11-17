@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.ListingComparator;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.exception.BadRequestException;
@@ -517,14 +518,14 @@ public class LeadOfferService {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
 
                 if (leadOfferDao.getcountLeadOffersOnThisAgentInNewStatus(userId, LeadOfferStatus.New.getId()) < PropertyReader
-                        .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY,Long.class)) {
+                        .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,Long.class)) {
                     claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
                 }
                 else {
                     notificationService.createNotification(userId,8, 0, null);
                     throw new BadRequestException(
                             "you already have " + PropertyReader
-                                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY)
+                                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS)
                                     + " leads in new status. First work those then you can claim more");
                 }
 
@@ -866,9 +867,6 @@ public class LeadOfferService {
         Map<Integer, List<Listing>> listingsByProjectId = new HashMap<>();
         Map<Integer, List<Listing>> listingsByLocalityId = new HashMap<>();
 
-        Map<Integer, List<Listing>> listingsByProjectIdInRequirements = new HashMap<>();
-        Map<Integer, List<Listing>> listingsByLocalityIdInRequirements = new HashMap<>();
-
         List<Listing> remainingAfterProjectSort = new ArrayList<>();
         List<Listing> sortedListProject = new ArrayList<>();
         List<Listing> sortedListLocality = new ArrayList<>();
@@ -882,30 +880,10 @@ public class LeadOfferService {
             listingsByProjectId.get(projectId).add(listing);
         }
 
-        for (List<Listing> listingsForProject : listingsByProjectId.values()) {
-            Collections.sort(listingsForProject, new Comparator<Listing>() {
-                @Override
-                public int compare(Listing listing1, Listing listing2) {
-                    Integer price1 = listing1.getCurrentListingPrice().getPrice();
-                    Integer pricePerUnitArea1 = listing1.getCurrentListingPrice().getPricePerUnitArea();
-                    int size1 = listing1.getProperty().getSize().intValue();
-
-                    Integer price2 = listing2.getCurrentListingPrice().getPrice();
-                    Integer pricePerUnitArea2 = listing2.getCurrentListingPrice().getPricePerUnitArea();
-                    int size2 = listing2.getProperty().getSize().intValue();
-
-                    return (price1 == null ? pricePerUnitArea1 * size1 : price1) - (price2 == null
-                            ? pricePerUnitArea2 * size2
-                            : price2);
-                }
-            });
-        }
-
         for (LeadRequirement leadRequirement : leadRequirements) {
             Integer projectId = leadRequirement.getProjectId();
             if (listingsByProjectId.containsKey(projectId)) {
-                // sortedListProject.addAll(listingsByProjectId.get(projectId));
-                listingsByProjectIdInRequirements.put(projectId, listingsByProjectId.get(projectId));
+                 sortedListProject.addAll(listingsByProjectId.get(projectId));
                 listingsByProjectId.remove(projectId);
             }
         }
@@ -922,25 +900,6 @@ public class LeadOfferService {
             listingsByLocalityId.get(localityId).add(listing);
         }
 
-        for (List<Listing> listingsForLocality : listingsByLocalityId.values()) {
-            Collections.sort(listingsForLocality, new Comparator<Listing>() {
-                @Override
-                public int compare(Listing listing1, Listing listing2) {
-                    Integer price1 = listing1.getCurrentListingPrice().getPrice();
-                    Integer pricePerUnitArea1 = listing1.getCurrentListingPrice().getPricePerUnitArea();
-                    int size1 = listing1.getProperty().getSize().intValue();
-
-                    Integer price2 = listing2.getCurrentListingPrice().getPrice();
-                    Integer pricePerUnitArea2 = listing2.getCurrentListingPrice().getPricePerUnitArea();
-                    int size2 = listing2.getProperty().getSize().intValue();
-
-                    return (price1 == null ? pricePerUnitArea1 * size1 : price1) - (price2 == null
-                            ? pricePerUnitArea2 * size2
-                            : price2);
-                }
-            });
-        }
-
         for (LeadRequirement leadRequirement : leadRequirements) {
             Integer localityId = null;
 
@@ -952,70 +911,30 @@ public class LeadOfferService {
             }
 
             if (listingsByLocalityId.containsKey(localityId)) {
-                // sortedListLocality.addAll(listingsByLocalityId.get(localityId));
-                listingsByLocalityIdInRequirements.put(localityId, listingsByLocalityId.get(localityId));
+                sortedListLocality.addAll(listingsByLocalityId.get(localityId));
                 listingsByLocalityId.remove(localityId);
             }
         }
-        listingsByProjectIdInRequirements = sortAlphabatically(listingsByProjectIdInRequirements);
-        listingsByLocalityIdInRequirements = sortAlphabatically(listingsByLocalityIdInRequirements);
-
-        for (List<Listing> listingForProject : listingsByProjectIdInRequirements.values()) {
-            sortedListProject.addAll(listingForProject);
-        }
-
-        for (List<Listing> listingForLocality : listingsByLocalityIdInRequirements.values()) {
-            sortedListLocality.addAll(listingForLocality);
-        }
-
+        
+        
+        List<ListingComparator> compratorList = new ArrayList<ListingComparator>();
+        compratorList.add(ListingComparator.NAME_SORT);
+        compratorList.add(ListingComparator.ID_SORT);
+        compratorList.add(ListingComparator.PRICE_SORT);
+        
+        Collections.sort(sortedListProject, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+        Collections.sort(sortedListLocality, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+        
         sortedList.addAll(sortedListProject);
         sortedList.addAll(sortedListLocality);
-        listingsByLocalityId = sortAlphabatically(listingsByLocalityId);
 
         for (List<Listing> remainingListings : listingsByLocalityId.values()) {
             sortedListRemaining.addAll(remainingListings);
         }
+        Collections.sort(sortedListRemaining, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
         sortedList.addAll(sortedListRemaining);
 
         return sortedList;
-    }
-
-    public Map<Integer, List<Listing>> sortAlphabatically(Map<Integer, List<Listing>> listingsMap) {
-        Map<Integer, List<Listing>> sortedAlphabaticallyListing = new HashMap<>();
-
-        int mapSize = listingsMap.size();
-        int[] keys = new int[mapSize];
-        String[] name = new String[mapSize];
-
-        int p = 0;
-        for (Integer key : listingsMap.keySet()) {
-            keys[p] = key;
-            name[p] = listingsMap.get(key).get(0).getProperty().getProject().getName();
-            p++;
-        }
-
-        for (int i = 0; i < mapSize; i++) {
-            for (int j = 0; j < mapSize; j++) {
-                int num = name[i].compareTo(name[j]);
-                if (num > 0) {
-                    String temp = name[i];
-                    name[i] = name[j];
-                    name[j] = temp;
-
-                    int tempInt = keys[i];
-                    keys[i] = keys[j];
-                    keys[j] = tempInt;
-                }
-            }
-        }
-
-        for (Integer key : keys) {
-            if (!sortedAlphabaticallyListing.containsKey(key)) {
-                sortedAlphabaticallyListing.put(key, new ArrayList<Listing>());
-            }
-            sortedAlphabaticallyListing.get(key).addAll(listingsMap.get(key));
-        }
-        return sortedAlphabaticallyListing;
     }
 
     public LeadOffer get(int leadOfferId, Integer userId, FIQLSelector selector) {
