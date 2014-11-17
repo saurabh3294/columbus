@@ -5,5 +5,6 @@ public enum TaTestCaseType {
     Locality,
     Suburb,
     Builder,
-    Project
+    Project,
+    Custom
 }
