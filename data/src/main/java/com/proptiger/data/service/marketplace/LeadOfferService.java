@@ -2,14 +2,12 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.prefs.BackingStoreException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,11 +15,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.ListingComparator;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.APIServerException;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.Company;
@@ -523,7 +521,7 @@ public class LeadOfferService {
                 }
                 else {
                     notificationService.createNotification(userId,8, 0, null);
-                    throw new BadRequestException(
+                    throw new APIServerException(
                             "you already have " + PropertyReader
                                     .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS)
                                     + " leads in new status. First work those then you can claim more");
