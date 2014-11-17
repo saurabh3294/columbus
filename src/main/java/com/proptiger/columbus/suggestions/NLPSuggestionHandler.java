@@ -73,6 +73,7 @@ public class NLPSuggestionHandler {
             rootTaTemplate = templateMap.getTemplate(templateText);
 
             if (rootTaTemplate != null) {
+                rootTaTemplate.setHttpRequestUtil(httpRequestUtil);
                 topResult = rootTaTemplate.getTopResult(query, t, city);
                 topResult.setScore(t.getScore());
                 results.add(topResult);
