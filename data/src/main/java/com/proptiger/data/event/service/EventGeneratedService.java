@@ -13,7 +13,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
 import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
 import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
 import com.proptiger.data.event.model.EventGenerated;
@@ -300,7 +299,7 @@ public class EventGeneratedService {
     private void populateEventsDataAfterLoad(List<EventGenerated> listEventGenerated) {
         for (EventGenerated eventGenerated : listEventGenerated) {
             setEventTypeOnEventGenerated(eventGenerated);
-            eventGenerated.setEventTypePayload((EventTypePayload) new Gson().fromJson(
+            eventGenerated.setEventTypePayload((EventTypePayload) Serializer.fromJson(
                     eventGenerated.getData(),
                     eventGenerated.getEventType().getEventTypeConfig().getDataClassName()));
         }

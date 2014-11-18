@@ -1,18 +1,15 @@
 package com.proptiger.data.notification.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationTypeNotificationMediumMapping;
 import com.proptiger.data.notification.repo.NotificationTypeNotificationMediumMappingDao;
@@ -20,53 +17,46 @@ import com.proptiger.data.notification.repo.NotificationTypeNotificationMediumMa
 @Service
 public class NotificationTypeNotificationMediumMappingService {
 
-    private static Logger                                logger            = LoggerFactory
-                                                                                   .getLogger(NotificationTypeNotificationMediumMappingService.class);
-    private static final String                          DELIMITER         = ".";
+    private static Logger                                logger = LoggerFactory
+                                                                        .getLogger(NotificationTypeNotificationMediumMappingService.class);
 
     @Autowired
     private NotificationTypeNotificationMediumMappingDao nMappingDao;
 
-    private Map<Integer, List<NotificationMedium>>       typeMediumMapping = new HashMap<Integer, List<NotificationMedium>>();
-    private static Map<String, String>                   templatesMap      = new HashMap<String, String>();
-
-    @PostConstruct
-    public void buildTypeMediumMappingAndTemplateMap() {
-        Iterable<NotificationTypeNotificationMediumMapping> ib = findAll();
-        Iterator<NotificationTypeNotificationMediumMapping> it = ib.iterator();
-
-        NotificationTypeNotificationMediumMapping mapping = null;
-        List<NotificationMedium> notificationMediums = null;
-        while (it.hasNext()) {
-            mapping = it.next();
-            notificationMediums = typeMediumMapping.get(mapping.getNotificationType().getId());
-            if (notificationMediums == null) {
-                notificationMediums = new ArrayList<NotificationMedium>();
-            }
-            notificationMediums.add(mapping.getNotificationMedium());
-            typeMediumMapping.put(mapping.getNotificationType().getId(), notificationMediums);
-            templatesMap.put(mapping.getNotificationType().getId() + DELIMITER
-                    + mapping.getNotificationMedium().getId(), mapping.getSendTemplate());
+    @Cacheable(value = Constants.CacheName.NOTIFICATION_MEDIUMS, key = "#notificationTypeId")
+    public List<NotificationMedium> getMediumsByNotificationTypeId(Integer notificationTypeId) {
+        logger.debug("GETTING NOTIFICATION MEDIUMS FOR NOTIFICATION TYPE ID: " + notificationTypeId);
+        List<NotificationTypeNotificationMediumMapping> mappings = nMappingDao
+                .findMappingsByNotificationTypeId(notificationTypeId);
+        List<NotificationMedium> mediums = new ArrayList<NotificationMedium>();
+        if (mappings == null || mappings.isEmpty()) {
+            logger.error("No NotificationMediums found for NotificationTypeId: " + notificationTypeId);
+            return mediums;
         }
+
+        for (NotificationTypeNotificationMediumMapping mapping : mappings) {
+            mediums.add(mapping.getNotificationMedium());
+        }
+        return mediums;
     }
 
-    public Iterable<NotificationTypeNotificationMediumMapping> findAll() {
-        return nMappingDao.findAllMapping();
-    }
-
-    public Map<Integer, List<NotificationMedium>> getTypeMediumMapping() {
-        return typeMediumMapping;
-    }
-
-    public void setTypeMediumMapping(Map<Integer, List<NotificationMedium>> typeMediumMapping) {
-        this.typeMediumMapping = typeMediumMapping;
-    }
-
-    public String getTemplate(Integer ntType, Integer ntMediumType) {
-        if (ntType == null || ntMediumType == null) {
-            logger.error("Notification type or Notification Medium type is null");
+    @Cacheable(value = Constants.CacheName.NOTIFICATION_TEMPLATE, key = "#notificationTypeId+':'+#notificationMediumId")
+    public String getTemplateByNotificationTypeIdAndNotificationMediumId(
+            Integer notificationTypeId,
+            Integer notificationMediumId) {
+        logger.debug("GETTING NOTIFICATION TEMPLATE FOR NOTIFICATION TYPE ID: " + notificationTypeId
+                + " AND NOTIFICATION MEDIUM ID: "
+                + notificationMediumId);
+        List<NotificationTypeNotificationMediumMapping> mappings = nMappingDao
+                .findMappingsByNotificationTypeIdAndNotificationMediumId(notificationTypeId, notificationMediumId);
+        if (mappings == null || mappings.size() != 1) {
+            logger.error("Zero or multiple templates found for NotificationTypeId: " + notificationTypeId
+                    + " and NotificationMediumId: "
+                    + notificationMediumId);
             return null;
         }
-        return templatesMap.get(ntType + DELIMITER + ntMediumType);
+
+        NotificationTypeNotificationMediumMapping mapping = mappings.get(0);
+        return mapping.getSendTemplate();
     }
 }

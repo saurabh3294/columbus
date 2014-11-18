@@ -275,8 +275,6 @@ public class NotificationGeneratedService {
     }
 
     public List<NotificationGenerated> generateNotficationGenerated(List<NotificationMessage> nMessages) {
-        Map<Integer, List<NotificationMedium>> typeMediumMapping = nMappingService.getTypeMediumMapping();
-
         NotificationType nType = null;
         List<NotificationMedium> nMediums = null;
         List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
@@ -288,7 +286,7 @@ public class NotificationGeneratedService {
                 nMessage.setNotificationType(defaultNotificationType);
             }
             nType = nMessage.getNotificationType();
-            nMediums = typeMediumMapping.get(nType.getId());
+            nMediums = nMappingService.getMediumsByNotificationTypeId(nType.getId());
             // TODO handle the scenario when no mapping of notification medium
             // with type.
             if (nMediums == null || nMediums.size() < 1) {
