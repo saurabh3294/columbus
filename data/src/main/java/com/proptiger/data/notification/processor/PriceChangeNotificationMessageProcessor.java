@@ -28,7 +28,7 @@ public class PriceChangeNotificationMessageProcessor extends NotificationMessage
         Map<Integer, NotificationMessagePayload> payloadMap = new HashMap<Integer, NotificationMessagePayload>();
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
-        Integer propertyId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
+        Integer propertyId = Integer.parseInt((String) notificationTypePayload.getPrimaryKeyValue());
         List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
         if (portfolioListings == null) {
             logger.debug("No portfolio listing found for property id : " + propertyId);

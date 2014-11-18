@@ -97,7 +97,7 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
         nGeneratedService.setNotificationTypeService(notificationTypeService);
 
         NotificationTypeNotificationMediumMappingService nMappingService = mock(NotificationTypeNotificationMediumMappingService.class);
-        when(nMappingService.getTypeMediumMapping()).thenReturn(typeMediumMapping);
+        when(nMappingService.getMediumsByNotificationTypeId(notificationTypeId)).thenReturn(typeMediumMapping.get(notificationTypeId));
         nGeneratedService.setnMappingService(nMappingService);
 
         NotificationGeneratedDao notificationGeneratedDao = mock(NotificationGeneratedDao.class);
