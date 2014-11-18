@@ -312,8 +312,13 @@ public class TrendReportAggregator {
                 return ("-NA-");
             }
             else {
-                Collections.sort(bhkSizeList);
-                return (bhkSizeList.get(0).intValue() + "-" + bhkSizeList.get(bhkSizeList.size() - 1).intValue());
+                try{
+                    Collections.sort(bhkSizeList);
+                    return (bhkSizeList.get(0).intValue() + "-" + bhkSizeList.get(bhkSizeList.size() - 1).intValue());
+                }
+                catch(Exception ex){
+                    return ("-NA-");
+                }
             }
         }
     }
