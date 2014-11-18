@@ -332,8 +332,8 @@ public class NotificationService {
     }
 
    
-    @Scheduled(cron = "0 0 9 * * ?")
-    private void sendLimitReachedGCMNotifications()
+    
+    public void sendLimitReachedGCMNotifications()
     {
         List<Notification> notifications = notificationDao.getNotifications(NotificationType.MaxLeadCountForBrokerReached.getId());
         

@@ -187,4 +187,11 @@ public class CronService {
             }
         }
     }
+    
+    @Scheduled(cron = "0 0 9 * * ?")
+    public void sendLimitReachedGCMNotifications()
+    {
+        notificationService.sendLimitReachedGCMNotifications();
+    }
+        
 }
