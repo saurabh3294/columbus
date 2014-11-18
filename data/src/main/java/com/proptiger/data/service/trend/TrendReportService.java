@@ -21,12 +21,21 @@ import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.model.Catchment;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
+import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.user.CatchmentService;
 import com.proptiger.data.util.FIQLUtils;
 import com.proptiger.data.util.MSExcelUtils;
 
 @Service
 public class TrendReportService {
+
+    @Autowired
+    private B2BAttributeService b2bAttributeService;
+
+    @Value("${b2b.price-inventory.max.month.dblabel}")
+    private String              currentMonthDbLabel;
+
+    private Date                b2bCurrentMonth;
 
     @Autowired
     TrendReportAggregator        trendReportDao;
@@ -52,6 +61,7 @@ public class TrendReportService {
         if (!trendReportDir.exists()) {
             trendReportDir.mkdir();
         }
+        b2bCurrentMonth = DateUtil.parseYYYYmmddStringToDate(b2bAttributeService.getAttributeByName(currentMonthDbLabel));
     }
 
     public File getTrendReportByCatchmentId(Integer catchmentId, FIQLSelector selector, ActiveUser userInfo) {
@@ -98,7 +108,7 @@ public class TrendReportService {
         return reportFile;
         
     }
-
+    
     private void updateFIQLSelectorBasedOnCatchmentId(Integer catchmentId, FIQLSelector selector, ActiveUser userInfo) {
         List<Catchment> catchmentList = catchmentService.getCatchment(new FIQLSelector()
                 .addAndConditionToFilter("id==" + catchmentId));
@@ -142,6 +152,10 @@ public class TrendReportService {
 
         if (startMonth == null || endMonth == null) {
             throw new ProAPIException(TrendReportService.ERR_MSG_InvalidTimePeriod);
+        }
+        
+        if(endMonth.after(b2bCurrentMonth)){
+            endMonth = b2bCurrentMonth;
         }
 
         List<Date> monthList = new ArrayList<Date>();
