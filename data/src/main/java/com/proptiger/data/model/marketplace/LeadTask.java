@@ -324,4 +324,22 @@ public class LeadTask extends BaseModel {
 
         return this;
     }
+
+    public static class AgentOverDueTaskCount extends BaseModel {
+        private int agentId;
+        private int overDueTaskCount;
+
+        public AgentOverDueTaskCount(int agentId, int overDueTaskCount) {
+            this.agentId = agentId;
+            this.overDueTaskCount = overDueTaskCount;
+        }
+
+        public int getAgentId() {
+            return agentId;
+        }
+
+        public int getOverDueTaskCount() {
+            return overDueTaskCount;
+        }
+    }
 }

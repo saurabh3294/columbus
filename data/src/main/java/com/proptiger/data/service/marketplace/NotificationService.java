@@ -36,10 +36,12 @@ import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
+import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.LeadTask.AgentOverDueTaskCount;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.notification.enums.MediumType;
@@ -47,6 +49,7 @@ import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
 import com.proptiger.data.repo.LeadTaskDao;
+import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
@@ -87,6 +90,9 @@ public class NotificationService {
 
     @Autowired
     UserService                               userService;
+
+    @Autowired
+    LeadTaskStatusDao                         leadTaskStatusDao;
 
     @Autowired
     MailSender                                mailSender;
@@ -517,13 +523,14 @@ public class NotificationService {
             taskIds.add(notification.getObjectId());
         }
         List<LeadTask> tasks = taskDao.findByIdUptoLead(taskIds);
-
         String message = "";
 
         if (tasks.size() == 1) {
             LeadTask task = tasks.get(0);
-            User user = userService.getUserById(task.getLeadOffer().getLead().getClientId());
-            message = "Your " + task.getTaskStatus().getMasterLeadTask().getSingularDisplayName()
+            int userId = leadOfferDao.findById(task.getLeadOfferId()).getLead().getClientId();
+            User user = userService.getUserById(userId);
+            LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusDetail(task.getTaskStatusId());
+            message = "Your " + leadTaskStatus.getMasterLeadTask().getSingularDisplayName()
                     + " with "
                     + user.getFullName()
                     + ", "
@@ -871,5 +878,28 @@ public class NotificationService {
                     notificationTypeId,
                     LeadOfferStatus.Offered.getId());
         }
+    }
+
+    public void manageHighTaskOverdueNotificationForRM() {
+        Date scheduledForBefore = DateUtil.addDays(new Date(), PropertyReader
+                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_DURATION_DAY_FOR_RM_NOTIFICATION));
+        // List<AgentOverDueTaskCount> overDueTaskCountForUsers =
+        // taskDao.findOverDueTasksForAgents(
+        // scheduledForBefore,
+        // PropertyReader
+        // .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_COUNT_FOR_RM_NOTIFICATION));
+        List<AgentOverDueTaskCount> overDueTaskCountForUsers = new ArrayList<>();
+        for (AgentOverDueTaskCount overDueTaskCountForUser : overDueTaskCountForUsers) {
+            int notificationTypeId = NotificationType.TooManyTasksOverDue.getId();
+            int userId = overDueTaskCountForUser.getAgentId();
+            if (notificationDao.findByObjectIdAndNotificationTypeId(userId, notificationTypeId) == null) {
+                createNotification(
+                        PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
+                        notificationTypeId,
+                        userId,
+                        null);
+            }
+        }
+
     }
 }
