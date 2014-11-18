@@ -208,28 +208,18 @@ public class NotificationService {
      * @param sendNotification
      * @return
      */
-    public Notification createNotificationForTask(int notificationTypeId, LeadTask nextTask, boolean sendNotification) {
+    public Notification createNotificationForTask(int notificationTypeId, LeadTask nextTask) {
         Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
                 nextTask.getId(),
                 notificationTypeId);
         if (notification == null) {
             notification = createTaskNotification(nextTask, notificationTypeId);
-            if (sendNotification) {
-                if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_ALL)) {
-                    String gcmMessage = getGcmMessageContentForGroupableNotification(
-                            notification.getUserId(),
-                            notificationTypeId);
-                    logger.debug("SENDING TASK NOTIFICATION  = " + gcmMessage);
-
-                    NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
-                            defaultNotificationType,
-                            notification.getUserId(),
-                            new DefaultMediumDetails(MediumType.MarketplaceApp, gcmMessage));
-                    notificationCreatorService.createNotificationGenerated(request);
-                }
-            }
         }
         return notification;
+    }
+
+    public void sendCallDueNotification(Notification notification) {
+        sendTaskDueNotificationToUser(Arrays.asList(notification));
     }
 
     /**
@@ -488,21 +478,27 @@ public class NotificationService {
                 allMasterTaskIdsButCall);
         Map<Integer, List<Notification>> map = groupNotificationsByUser(notifications);
         for (Integer userId : map.keySet()) {
-            List<Notification> userNotifications = map.get(userId);
+            sendTaskDueNotificationToUser(map.get(userId));
+            ;
+        }
+    }
+
+    private void sendTaskDueNotificationToUser(List<Notification> userNotifications) {
+        int size = userNotifications.size();
+        if (size > 0) {
             String message = getTaskDueNotificationMessage(userNotifications);
 
             GcmMessage gcmMessage = new GcmMessage();
-            gcmMessage.setNotificationTypeId(notificationTypeId);
+            gcmMessage.setNotificationTypeId(com.proptiger.data.enums.NotificationType.TaskDue.getId());
             gcmMessage.setMessage(message);
             gcmMessage.setData(getLeadOfferIdsFromTaskIds(getObjectIdsFromNotifications(userNotifications)));
-            int size = userNotifications.size();
             if (size == 1) {
                 gcmMessage.setTitleMessage("Task Due");
             }
             else {
                 gcmMessage.setTitleMessage(size + " Tasks Due");
             }
-            sendGcmMessageUsingService(gcmMessage, userId);
+            sendGcmMessageUsingService(gcmMessage, userNotifications.get(0).getUserId());
         }
     }
 
