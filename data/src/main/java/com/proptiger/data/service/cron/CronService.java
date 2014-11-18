@@ -105,7 +105,8 @@ public class CronService {
             leadIdList.add(leadId);
         }
 
-        if (!leadIds.isEmpty()) {
+        manageNoBrokerClaimedNotification();
+        if (!leadIds.isEmpty()) {                                    
             notificationService
                     .deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
             leadOfferDao.updateLeadOffers(leadIdList);
