@@ -129,14 +129,16 @@ public class TrendReportAggregator {
         for (Date month : sortedMonthList) {
             for (CatchmentTrendReportElement ctre : ctrElemList) {
                 price = (Integer) (ctre.getBhkGroupedMap().get(TypeOfData.Price).get(month));
-                ltdSupply = (Integer) (ctre.getBhkGroupedMap().get(TypeOfData.Price).get(month));
-                if (price != null && ltdSupply != null) {
+                ltdSupply = (Integer) (ctre.getBhkGroupedMap().get(TypeOfData.LtdSupply).get(month));
+                if (price != null && ltdSupply != null && price > 0 && ltdSupply > 0) {
                     wavgPriceOnLtdSupply += price * ltdSupply;
                     sumLtdSupply += ltdSupply;
                 }
             }
             wavgPriceOnLtdSupply = ((sumLtdSupply == 0) ? 0 : (wavgPriceOnLtdSupply / sumLtdSupply));
             bhkGroupedMap.get(TypeOfData.Price).put(month, wavgPriceOnLtdSupply);
+            wavgPriceOnLtdSupply = 0;
+            sumLtdSupply = 0;
         }
 
         /* Combining BHK-Range */

@@ -19,13 +19,18 @@ public class GoalPriceNotificationMessageProcessor extends NotificationMessagePr
 
     private static Logger logger = LoggerFactory.getLogger(GoalPriceNotificationMessageProcessor.class);
 
+    /**
+     * Gets the NotificationMessagePayload for all users except those who have
+     * unsubscribed from such notification whose portfolio contains the given
+     * property
+     */
     @Override
     public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
             List<User> unsubscribedUserList,
             NotificationTypeGenerated ntGenerated) {
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
-        Integer propertyId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
+        Integer propertyId = Integer.parseInt((String) notificationTypePayload.getPrimaryKeyValue());
         List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
         List<PortfolioListing> newPortfolioListings = new ArrayList<PortfolioListing>();
 

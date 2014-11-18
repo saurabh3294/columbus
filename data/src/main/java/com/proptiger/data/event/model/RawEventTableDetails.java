@@ -17,9 +17,7 @@ import com.proptiger.core.model.BaseModel;
 @Entity
 @Table(name = "notification.raw_event_table_details")
 public class RawEventTableDetails extends BaseModel {
-    /**
-     * 
-     */
+
     private static final long         serialVersionUID = -4192519971268898777L;
 
     @Id
@@ -103,7 +101,7 @@ public class RawEventTableDetails extends BaseModel {
     public void setDbName(String dbName) {
         this.dbName = dbName;
     }
-    
+
     public String getTableName() {
         return tableName;
     }
@@ -175,14 +173,14 @@ public class RawEventTableDetails extends BaseModel {
     public void setUniqueKeys(String uniqueKeys) {
         this.uniqueKeys = uniqueKeys;
     }
-    
+
     public String toString() {
         String str = "";
         str += "id : " + this.id + ", ";
         str += "hostName : " + this.hostName + ", ";
         str += "dbName : " + this.dbName + ", ";
         str += "tableName : " + this.tableName + ", ";
-        str += "primaryKeyName" + this.primaryKeyName + ", ";
+        str += "primaryKeyName : " + this.primaryKeyName + ", ";
         str += "transactionKeyName : " + this.transactionKeyName + ", ";
         str += "dateAttributeName : " + this.dateAttributeName + ", ";
         str += "lastTransactionKeyValue : " + this.lastTransactionKeyValue + ", ";

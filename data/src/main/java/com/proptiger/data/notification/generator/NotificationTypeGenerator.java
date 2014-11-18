@@ -31,6 +31,11 @@ public class NotificationTypeGenerator {
     @Autowired
     private EventGeneratedService            eventGeneratedService;
 
+    /**
+     * Returns if the generation of notification is required or not
+     * 
+     * @return
+     */
     public boolean isNotificationGenerationRequired() {
         Long activeNTCount = ntGeneratedService.getActiveNotificationTypeCount();
         Integer maxActiveNTCount = subscriberConfigService.getMaxActiveNotificationTypeCount();
@@ -39,20 +44,29 @@ public class NotificationTypeGenerator {
             logger.debug("NotificationType Generation required as activeNTCount is " + activeNTCount);
             return true;
         }
-        logger.debug("NotificationType Generation not required as activeNTCount " + activeNTCount
+        logger.error("NotificationType Generation not required as activeNTCount " + activeNTCount
                 + " is greater then or equal to maxActiveNTCount "
                 + maxActiveNTCount);
         return false;
     }
 
+    /**
+     * Generates notification types from event types
+     * 
+     * @return
+     */
     @Transactional
     public Integer generateNotificationTypes() {
         Integer ntCount = 0;
+        
+        // Get the date of event last accessed by Notification subscriber
         Date fromDate = subscriberConfigService.getLastEventDateReadByNotification();
 
+        // Get all the new verified events 
         List<EventGenerated> eventGeneratedList = eventGeneratedService.getVerifiedEventsFromDate(fromDate);
         logger.debug("Found " + eventGeneratedList.size() + " EventGenerateds from Date " + fromDate);
 
+        // Sort them in ascending order by last accessed date
         Collections.sort(eventGeneratedList, new Comparator<EventGenerated>() {
             public int compare(EventGenerated event1, EventGenerated event2) {
                 if (event1.getUpdatedAt().after(event2.getUpdatedAt()))
@@ -64,6 +78,7 @@ public class NotificationTypeGenerator {
             }
         });
 
+        // For each event, generate the notification types
         for (EventGenerated eventGenerated : eventGeneratedList) {
             List<NotificationTypeGenerated> ntGeneratedList = ntGeneratedService
                     .getNotificationTypesForEventGenerated(eventGenerated);

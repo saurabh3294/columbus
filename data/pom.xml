@@ -483,6 +483,9 @@
 			<id>proptiger-maven-repo</id>
 			<name>S3 Release Repository</name>
 			<url>s3://proptiger-maven-repo/release</url>
+      <snapshots>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
 		</repository>
 		<repository>
 		    <id>spring-milestones</id>

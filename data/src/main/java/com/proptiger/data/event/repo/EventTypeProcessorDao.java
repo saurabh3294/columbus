@@ -10,6 +10,9 @@ import org.springframework.stereotype.Repository;
 public class EventTypeProcessorDao extends DynamicTableDao {
 
     // TODO Using FIQL selector
+    /**
+     * Returns the old price for a price change event
+     */
     public Object getOldValueOfEventTypeOnLastMonth(
             String hostName,
             String dbName,
@@ -25,9 +28,9 @@ public class EventTypeProcessorDao extends DynamicTableDao {
 
         String queryString = "";
         try {
-            
+
             String conditionStr = convertMapOfListToSql(filterMap);
-            
+
             /**
              * The query which will get the last value based on the latest value
              * before first day of the month.
@@ -48,17 +51,18 @@ public class EventTypeProcessorDao extends DynamicTableDao {
                     conditionStr,
                     effectiveDateName,
                     transactionKeyName);
-            
+
             List<Map<String, Object>> results = runDynamicTableQuery(queryString);
             if (!results.isEmpty()) {
                 return results.get(0).get(attributeName);
             }
             else {
+                logger.error("Old price not found. Query: " + queryString);
                 return null;
             }
         }
         catch (Exception e) {
-            logger.error(" ERROR IN QUERY " + queryString + " \n ERROR QUERY FORMATION : " + e.getMessage() + "\n ");
+            logger.error("ERROR IN QUERY " + queryString + " \n ERROR QUERY FORMATION : " + e.getMessage() + "\n ");
             e.printStackTrace();
             return null;
         }

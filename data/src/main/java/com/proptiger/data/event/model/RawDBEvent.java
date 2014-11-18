@@ -17,10 +17,8 @@ import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
  */
 public class RawDBEvent extends BaseModel {
 
-    /**
-     * 
-     */
     private static final long         serialVersionUID = -2282380803429297198L;
+
     private RawEventTableDetails      rawEventTableDetails;
     private RawDBEventOperationConfig rawDBEventOperationConfig;
     private Map<String, Object>       oldDBValueMap    = new HashMap<>();

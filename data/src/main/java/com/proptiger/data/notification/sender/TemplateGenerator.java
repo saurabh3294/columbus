@@ -45,8 +45,8 @@ public class TemplateGenerator {
 
     public String generatePopulatedTemplate(NotificationGenerated nGenerated) {
         NotificationMessagePayload payload = nGenerated.getNotificationMessagePayload();
-        String template = ntNmMappingService.getTemplate(nGenerated.getNotificationType().getId(), nGenerated
-                .getNotificationMedium().getId());
+        String template = ntNmMappingService.getTemplateByNotificationTypeIdAndNotificationMediumId(nGenerated
+                .getNotificationType().getId(), nGenerated.getNotificationMedium().getId());
         logger.debug("Template: " + template);
         Map<String, Object> payloadDataMap = payload.getExtraAttributes();
         logger.debug("PayloadDataMap: " + payloadDataMap.toString());
