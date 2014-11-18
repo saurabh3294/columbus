@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.prefs.BackingStoreException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.ListingComparator;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.APIServerException;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.Company;
@@ -513,7 +514,19 @@ public class LeadOfferService {
         // Claim a lead
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
-                claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
+
+                if (leadOfferDao.getcountLeadOffersOnThisAgentInNewStatus(userId, LeadOfferStatus.New.getId()) < PropertyReader
+                        .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,Long.class)) {
+                    claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
+                }
+                else {
+                    notificationService.createNotification(userId,8, 0, null);
+                    throw new APIServerException(
+                            "you already have " + PropertyReader
+                                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS)
+                                    + " leads in new status. First work those then you can claim more");
+                }
+
                 return leadOfferInDB;
             }
         }
@@ -762,8 +775,9 @@ public class LeadOfferService {
             }
         }
 
-        if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class)
-                .equals(leadOfferCount)) {
+        if (PropertyReader
+                .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Integer.class).equals(
+                        leadOfferCount)) {
             leadOfferDao.expireRestOfTheLeadOffers(leadOfferInDB.getLeadId());
         }
         else {
@@ -850,7 +864,11 @@ public class LeadOfferService {
         List<Listing> sortedList = new ArrayList<>();
         Map<Integer, List<Listing>> listingsByProjectId = new HashMap<>();
         Map<Integer, List<Listing>> listingsByLocalityId = new HashMap<>();
+
         List<Listing> remainingAfterProjectSort = new ArrayList<>();
+        List<Listing> sortedListProject = new ArrayList<>();
+        List<Listing> sortedListLocality = new ArrayList<>();
+        List<Listing> sortedListRemaining = new ArrayList<>();
 
         for (Listing listing : listings) {
             int projectId = listing.getProperty().getProjectId();
@@ -863,7 +881,7 @@ public class LeadOfferService {
         for (LeadRequirement leadRequirement : leadRequirements) {
             Integer projectId = leadRequirement.getProjectId();
             if (listingsByProjectId.containsKey(projectId)) {
-                sortedList.addAll(listingsByProjectId.get(projectId));
+                 sortedListProject.addAll(listingsByProjectId.get(projectId));
                 listingsByProjectId.remove(projectId);
             }
         }
@@ -891,14 +909,29 @@ public class LeadOfferService {
             }
 
             if (listingsByLocalityId.containsKey(localityId)) {
-                sortedList.addAll(listingsByLocalityId.get(localityId));
+                sortedListLocality.addAll(listingsByLocalityId.get(localityId));
                 listingsByLocalityId.remove(localityId);
             }
         }
+        
+        
+        List<ListingComparator> compratorList = new ArrayList<ListingComparator>();
+        compratorList.add(ListingComparator.NAME_SORT);
+        compratorList.add(ListingComparator.ID_SORT);
+        compratorList.add(ListingComparator.PRICE_SORT);
+        
+        Collections.sort(sortedListProject, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+        Collections.sort(sortedListLocality, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+        
+        sortedList.addAll(sortedListProject);
+        sortedList.addAll(sortedListLocality);
 
         for (List<Listing> remainingListings : listingsByLocalityId.values()) {
-            sortedList.addAll(remainingListings);
+            sortedListRemaining.addAll(remainingListings);
         }
+        Collections.sort(sortedListRemaining, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+        sortedList.addAll(sortedListRemaining);
+
         return sortedList;
     }
 
