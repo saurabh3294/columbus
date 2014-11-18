@@ -19,6 +19,7 @@ import com.proptiger.data.notification.repo.NotificationTypeDao;
 
 @Service
 public class NotificationTypeService {
+
     private static Logger       logger                    = LoggerFactory.getLogger(NotificationTypeService.class);
 
     private static final String DEFAULT_NOTIFICATION_TYPE = "default";
@@ -29,6 +30,13 @@ public class NotificationTypeService {
     @Autowired
     private NotificationTypeDao notificationTypeDao;
 
+    /**
+     * Populate NotificationTypeConfig in NotificationType using the static map
+     * defined in the code.
+     * 
+     * @param notificationType
+     * @return
+     */
     public NotificationType populateNotificationTypeConfig(NotificationType notificationType) {
 
         // Get the notificationTypeName whose config needs to be used
@@ -229,13 +237,6 @@ public class NotificationTypeService {
     }
 
     public NotificationType findDefaultNotificationType() {
-        List<NotificationType> nTypes = notificationTypeDao.findByName(DEFAULT_NOTIFICATION_TYPE);
-        if (nTypes == null || nTypes.size() != 1) {
-            throw new NotificationTypeNotFoundException(
-                    "Zero or more than one Notification Type : " + DEFAULT_NOTIFICATION_TYPE + " found in DB");
-        }
-        NotificationType nType = nTypes.get(0);
-        populateNotificationTypeConfig(nType);
-        return nType;
+        return findByName(DEFAULT_NOTIFICATION_TYPE);
     }
 }

@@ -27,9 +27,6 @@ import com.proptiger.data.event.model.payload.EventTypePayload;
 @Table(name = "notification.event_generated")
 public class EventGenerated extends BaseModel {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 778194433417706629L;
 
     public enum EventStatus {

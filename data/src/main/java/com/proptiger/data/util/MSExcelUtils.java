@@ -3,10 +3,13 @@ package com.proptiger.data.util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -71,8 +74,7 @@ public class MSExcelUtils {
             colIndex = 0;
             for (Object obj : rowData) {
                 cell = row.createCell(colIndex);
-                cell.setCellType(getCellStyleFromClass((Class<?>) columnHeadings.get(colIndex)[1]));
-                cell.setCellValue(String.valueOf(obj));
+                updateCellPropertiesByClass(workbook, cell, obj, (Class<?>) columnHeadings.get(colIndex)[1]);
                 colIndex++;
             }
             rowIndex++;
@@ -81,15 +83,28 @@ public class MSExcelUtils {
         return workbook;
     }
 
-    private int getCellStyleFromClass(Class<?> clazz) {
+    private void updateCellPropertiesByClass(Workbook workbook, Cell cell, Object obj, Class<?> clazz) {
         if (clazz.equals(Integer.class) || clazz.equals(Float.class) || clazz.equals(Double.class)) {
-            return Cell.CELL_TYPE_NUMERIC;
+            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellValue(String.valueOf(obj));
+            return;
         }
         else if (clazz.equals(String.class)) {
-            return Cell.CELL_TYPE_STRING;
+            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellValue(String.valueOf(obj));
+            return;
+        }
+        else if(clazz.equals(Date.class)){
+            CellStyle cellStyle = workbook.createCellStyle();
+            CreationHelper createHelper = workbook.getCreationHelper();
+            cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("m/d/yy h:mm"));
+            cell.setCellStyle(cellStyle);
+            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellValue((Date)(obj));
         }
         else {
-            return Cell.CELL_TYPE_BLANK;
+            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setCellValue(String.valueOf(obj));
         }
     }
 

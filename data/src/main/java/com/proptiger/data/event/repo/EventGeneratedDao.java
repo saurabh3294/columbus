@@ -27,8 +27,9 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
             EventStatus status,
             Date expiryDate);
 
-    public List<EventGenerated> findByEventStatusAndExpiryDateGreaterThanOrderByCreatedAtAsc(
+    public List<EventGenerated> findByEventStatusAndEventTypeIdAndExpiryDateGreaterThanOrderByCreatedAtAsc(
             EventStatus status,
+            Integer eventTypeId,
             Date expiryDate);
 
     public List<EventGenerated> findByEventStatusAndUpdatedAtGreaterThanOrderByUpdatedAtAsc(

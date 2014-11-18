@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationMessage;
@@ -21,12 +20,13 @@ import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypeUpdateHistory;
 import com.proptiger.data.notification.processor.NotificationTypeProcessor;
 import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
+import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationTypeGeneratedService {
 
-    private static Logger                             logger     = LoggerFactory
-                                                                         .getLogger(NotificationTypeGeneratedService.class);
+    private static Logger                             logger = LoggerFactory
+                                                                     .getLogger(NotificationTypeGeneratedService.class);
 
     @Autowired
     private NotificationTypeGeneratedDao              notificationTypeGeneratedDao;
@@ -40,13 +40,22 @@ public class NotificationTypeGeneratedService {
     @Autowired
     private NotificationTypeService                   notificationTypeService;
 
-    private Gson                                      serializer = new Gson();
-
+    /**
+     * Returns the number of currently active notification types present in DB
+     * 
+     * @return
+     */
     public Long getActiveNotificationTypeCount() {
         return notificationTypeGeneratedDao
                 .getNotificationTypeCountByNotificationStatus(NotificationStatus.TypeGenerated);
     }
 
+    /**
+     * Returns the list of NotificationTypeGenerateds that are currently active
+     * in DB
+     * 
+     * @return
+     */
     public List<NotificationTypeGenerated> getActiveNotificationTypeGenerated() {
         List<NotificationTypeGenerated> ntGeneratedList = notificationTypeGeneratedDao
                 .findByNotificationStatusOrderByCreatedAtAsc(NotificationStatus.TypeGenerated);
@@ -60,7 +69,7 @@ public class NotificationTypeGeneratedService {
             NotificationType notificationType = ntGenerated.getNotificationType();
             notificationType = notificationTypeService.populateNotificationTypeConfig(notificationType);
             ntGenerated.setNotificationType(notificationType);
-            ntGenerated.setNotificationTypePayload((NotificationTypePayload) new Gson().fromJson(
+            ntGenerated.setNotificationTypePayload((NotificationTypePayload) Serializer.fromJson(
                     ntGenerated.getData(),
                     ntGenerated.getNotificationType().getNotificationTypeConfig().getDataClassName()));
             logger.debug("Created payload object " + ntGenerated.getNotificationTypePayload()
@@ -70,6 +79,13 @@ public class NotificationTypeGeneratedService {
         return ntGeneratedList;
     }
 
+    /**
+     * Generate NotificationTypeGenerated from the EventGenerated using the
+     * mapping present in DB
+     * 
+     * @param eventGenerated
+     * @return
+     */
     public List<NotificationTypeGenerated> getNotificationTypesForEventGenerated(EventGenerated eventGenerated) {
         logger.debug("Generating NotificationTypes for eventGeneratedId " + eventGenerated.getId());
         List<NotificationTypeGenerated> notificationTypeGeneratedList = new ArrayList<NotificationTypeGenerated>();
@@ -92,6 +108,13 @@ public class NotificationTypeGeneratedService {
         return notificationTypeGeneratedList;
     }
 
+    /**
+     * Create NotificationTypeGenerated from the dynamically created
+     * NotificationMessage
+     * 
+     * @param nMessage
+     * @return
+     */
     public NotificationTypeGenerated createNotificationTypeGenerated(NotificationMessage nMessage) {
         NotificationTypeGenerated ntGenerated = new NotificationTypeGenerated();
         ntGenerated.setNotificationType(nMessage.getNotificationType());
@@ -102,13 +125,21 @@ public class NotificationTypeGeneratedService {
         return saveOrFlushType(ntGenerated);
     }
 
+    /**
+     * Persists the NotificationTypeGenerateds in DB after populating data from
+     * payload. Also it will set the date of last recently accessed
+     * EventGenerated in Subscriber
+     * 
+     * @param eventGenerated
+     * @param ntGeneratedList
+     */
     @Transactional
     public void persistNotificationTypes(EventGenerated eventGenerated, List<NotificationTypeGenerated> ntGeneratedList) {
         saveOrUpdateTypes(ntGeneratedList);
         subscriberConfigService.setLastEventDateReadByNotification(eventGenerated.getUpdatedAt());
     }
 
-    public Iterable<NotificationTypeGenerated> saveOrUpdateTypes(Iterable<NotificationTypeGenerated> notificationTypes) {
+    private Iterable<NotificationTypeGenerated> saveOrUpdateTypes(Iterable<NotificationTypeGenerated> notificationTypes) {
         Iterator<NotificationTypeGenerated> iterator = notificationTypes.iterator();
         while (iterator.hasNext()) {
             populateNotificationTypeDataBeforeSave(iterator.next());
@@ -121,7 +152,7 @@ public class NotificationTypeGeneratedService {
         return notificationTypes;
     }
 
-    public NotificationTypeGenerated saveOrUpdateType(NotificationTypeGenerated notificationType) {
+    private NotificationTypeGenerated saveOrUpdateType(NotificationTypeGenerated notificationType) {
         populateNotificationTypeDataBeforeSave(notificationType);
         /*
          * Not returning the save object received from JPA as it will empty the
@@ -131,7 +162,7 @@ public class NotificationTypeGeneratedService {
         return notificationType;
     }
 
-    public NotificationTypeGenerated saveOrFlushType(NotificationTypeGenerated notificationType) {
+    private NotificationTypeGenerated saveOrFlushType(NotificationTypeGenerated notificationType) {
         populateNotificationTypeDataBeforeSave(notificationType);
         /*
          * Not returning the save object received from JPA as it will empty the
@@ -142,9 +173,15 @@ public class NotificationTypeGeneratedService {
 
     private void populateNotificationTypeDataBeforeSave(NotificationTypeGenerated ntGenerated) {
         NotificationTypePayload payload = ntGenerated.getNotificationTypePayload();
-        ntGenerated.setData(serializer.toJson(payload));
+        ntGenerated.setData(Serializer.toJson(payload));
     }
 
+    /**
+     * Sets the status of NotificationTypeGenerated as MessageGenerated. This
+     * function is called after generating messages from notification types.
+     * 
+     * @param ntGenerated
+     */
     public void setMessageGeneratedStatusInTypeGenerated(NotificationTypeGenerated ntGenerated) {
         NotificationTypePayload payload = ntGenerated.getNotificationTypePayload();
         NotificationTypeUpdateHistory updateHistory = new NotificationTypeUpdateHistory(

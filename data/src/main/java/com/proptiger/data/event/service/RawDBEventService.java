@@ -23,42 +23,58 @@ import com.proptiger.data.util.Serializer;
 
 @Service
 public class RawDBEventService {
-    private static Logger logger = LoggerFactory.getLogger(RawDBEventService.class);
+
+    private static Logger           logger = LoggerFactory.getLogger(RawDBEventService.class);
 
     @Autowired
-    private RawDBEventDao rawDBEventDao;
-    
+    private RawDBEventDao           rawDBEventDao;
+
     @Autowired
     private RawEventTableDetailsDao rawEventTableDetailsDao;
-    
+
+    /**
+     * Generates list of RawDBEvents corresponding to a particular
+     * RawDBEventTableConfig. RawDBEventTableConfig represents a particular
+     * table of a particular DB. RawDBEvent is generated corresponding to an
+     * event i.e. Insert/Update/Delete from the trigger tables.
+     * 
+     * @param rawDBEventTableConfig
+     * @return list of RawDBEvents
+     */
     public List<RawDBEvent> getRawDBEvents(RawDBEventTableConfig rawDBEventTableConfig) {
 
         List<RawDBEvent> rawDBEventList = new ArrayList<RawDBEvent>();
         RawEventTableDetails tableLog = rawDBEventTableConfig.getRawEventTableDetails();
 
-        if(tableLog.getLastTransactionKeyValue() == null) {
+        if (tableLog.getLastTransactionKeyValue() == null) {
             Map<String, Object> latestTransaction = rawDBEventDao.getLatestTransaction(tableLog);
             Long transactionId = Long.parseLong(latestTransaction.get(tableLog.getTransactionKeyName()).toString());
             rawEventTableDetailsDao.updateLastTransactionKeyValueById(tableLog.getId(), transactionId);
+            logger.info("Retrieving transactions for RawEventTableDetailsID: " + tableLog.getId()
+                    + " Table: "
+                    + tableLog.getTableName()
+                    + " for the first time. Hence, setting last accessed transaction id to latest transaction id i.e. "
+                    + transactionId);
             return rawDBEventList;
         }
-        
+
         List<Map<String, Object>> rawDBEventDataList = rawDBEventDao.getRawDBEventByTableNameAndId(tableLog);
-        
-        logger.info(" Retrieved "+rawDBEventDataList.size() + " raw events from the table config ID: "+ tableLog.getId());
-        
+        logger.debug("Retrieved data: " + rawDBEventDataList
+                + " for the RawEventTableDetailsID: "
+                + tableLog.getId()
+                + " Table: "
+                + tableLog.getTableName());
+
         for (Map<String, Object> rawDBEventMap : rawDBEventDataList) {
-            //logger.debug(rawDBEventMap.toString());
-            // TODO to handle the null value of the dbOperation if it is not
-            // found.
             DBOperation dbOperation = DBOperation.getDBOperationEnum((Character) rawDBEventMap
                     .get(RawDBEventTableConfig.getDbOperationAttributeName()));
-            
+
             if (rawDBEventTableConfig.getDbRawEventOperationConfig(dbOperation) == null) {
-                logger.debug("Skipping raw event creation as DbRawEventOperationConfig not found for " + rawDBEventMap.toString());
+                logger.debug("Skipping raw event creation as DbRawEventOperationConfig not found for " + rawDBEventMap
+                        .toString());
                 continue;
             }
-            
+
             RawDBEvent rawDBEvent = new RawDBEvent();
             rawDBEvent.setRawEventTableDetails(tableLog);
             rawDBEvent.setRawDBEventOperationConfig(rawDBEventTableConfig.getDbRawEventOperationConfig(dbOperation));
@@ -68,16 +84,21 @@ public class RawDBEventService {
             rawDBEvent.setTransactionDate((Date) rawDBEventMap.get(tableLog.getDateAttributeName()));
             rawDBEvent.setUniqueKeyValuesMap(getUniqueKeyValuesMap(rawDBEventMap, tableLog));
             rawDBEventList.add(rawDBEvent);
-            
-            //logger.debug(" RAW DB EVENT Generated "+Serializer.toJson(rawDBEvent));
         }
 
         return rawDBEventList;
     }
 
+    /**
+     * Populate remaining data in RawDBEvent such as Old Value for an Update
+     * event.
+     * 
+     * @param rawDBEvent
+     * @return
+     */
     public RawDBEvent populateRawDBEventData(RawDBEvent rawDBEvent) {
-        logger.debug(" POPULATE OLD VALUE FOR Raw DB Event with Transaction Id : "+rawDBEvent.getTransactionKeyValue());
-        
+        logger.debug("Populating RawDBEvent data with TransactionId : " + rawDBEvent.getTransactionKeyValue());
+
         if (DBOperation.INSERT.equals(rawDBEvent.getRawDBEventOperationConfig().getDbOperation())) {
             rawDBEvent = populateInsertRawDBEventData(rawDBEvent);
         }
@@ -90,7 +111,7 @@ public class RawDBEventService {
         return rawDBEvent;
     }
 
-    public RawDBEvent populateInsertRawDBEventData(RawDBEvent rawDBEvent) {
+    private RawDBEvent populateInsertRawDBEventData(RawDBEvent rawDBEvent) {
         logger.debug(" INSERT RAW DB EVENT ");
         Map<String, Object> allattributes = new HashMap<String, Object>();
         allattributes.put(EventAllAttributeName.All.name(), rawDBEvent.getNewDBValueMap());
@@ -99,48 +120,66 @@ public class RawDBEventService {
         return rawDBEvent;
     }
 
-    public RawDBEvent populateDeleteRawDBEventData(RawDBEvent rawDBEvent) {
-        logger.debug(" DELETE RAW DB EVENT ");
+    private RawDBEvent populateDeleteRawDBEventData(RawDBEvent rawDBEvent) {
+        logger.debug("Populating RawDBEvent data for DELETE event with TransactionId : " + rawDBEvent
+                .getTransactionKeyValue());
         return rawDBEvent;
     }
 
-    public RawDBEvent populateUpdateRawDBEventData(RawDBEvent rawDBEvent) {
-        logger.info(" UPDATE RAW DB EVENT ");
-        
+    private RawDBEvent populateUpdateRawDBEventData(RawDBEvent rawDBEvent) {
+        logger.debug("Populating RawDBEvent data for UPDATE event with TransactionId : " + rawDBEvent
+                .getTransactionKeyValue());
+
         RawEventTableDetails tableLog = rawDBEvent.getRawEventTableDetails();
+
+        // Getting old values for an Update RawDBEvent
         Map<String, Object> oldRawEventDataMap = rawDBEventDao.getOldRawDBEvent(
                 tableLog,
                 rawDBEvent.getTransactionKeyValue(),
                 rawDBEvent.getPrimaryKeyValue(),
                 rawDBEvent.getUniqueKeyValuesMap());
-        
-        if(oldRawEventDataMap == null){
+
+        logger.debug("Retrieved OldData: " + oldRawEventDataMap
+                + " for the RawEventTableDetailsID: "
+                + tableLog.getId()
+                + " Table: "
+                + tableLog.getTableName()
+                + " TransactionID: "
+                + rawDBEvent.getTransactionKeyValue());
+
+        if (oldRawEventDataMap == null) {
+            logger.error("No OldData found for the RawEventTableDetailsID: " + tableLog.getId()
+                    + " Table: "
+                    + tableLog.getTableName()
+                    + " TransactionID: "
+                    + rawDBEvent.getTransactionKeyValue());
             return null;
         }
-        
+
         Map<String, Object> newRawEventDataMap = rawDBEvent.getNewDBValueMap();
         Map<String, Object> oldRawEventDataMapToSet = rawDBEvent.getOldDBValueMap();
-        
+
+        // Removing attributes from NewDBValueMap and OldDBValueMap that are
+        // unchanged
         Iterator<Map.Entry<String, Object>> it = newRawEventDataMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> entry = it.next();
             String key = entry.getKey();
-            
+
             Object obj = oldRawEventDataMap.get(key);
             Object newObj = entry.getValue();
-            
+
             /**
-             *  Making new Object and old objects as null.
-             *  Making the comparison easier as "" and null
-             *  should be matched as same.
+             * Making new Object and old objects as null. Making the comparison
+             * easier as "" and null should be matched as same.
              */
-            if(newObj == null){
+            if (newObj == null) {
                 newObj = "";
             }
-            if(obj == null){
+            if (obj == null) {
                 obj = "";
             }
-            
+
             if (newObj.equals(obj)) {
                 it.remove();
             }
@@ -148,16 +187,26 @@ public class RawDBEventService {
                 oldRawEventDataMapToSet.put(key, obj);
             }
         }
-        
-        logger.debug(" FIELDS FOUND UPDATED "+ Serializer.toJson(oldRawEventDataMapToSet));
-        
+
+        logger.debug("Updated fields: " + Serializer.toJson(oldRawEventDataMapToSet)
+                + " TransactionID: "
+                + rawDBEvent.getTransactionKeyValue());
+
         return rawDBEvent;
     }
 
+    /**
+     * Return a TransactionRow for a given transaction id corresponding to the
+     * transaction table details given in RawEventTableDetails
+     * 
+     * @param rawEventTableDetails
+     * @param transactionKeyValue
+     * @return
+     */
     public Map<String, Object> getRawEventTransactionRow(
-            RawEventTableDetails dbRawEventTableLog,
+            RawEventTableDetails rawEventTableDetails,
             Object transactionKeyValue) {
-        return rawDBEventDao.getRawEventDataOnTransactionId(dbRawEventTableLog, transactionKeyValue);
+        return rawDBEventDao.getRawEventDataOnTransactionId(rawEventTableDetails, transactionKeyValue);
     }
 
     private Map<String, Object> getUniqueKeyValuesMap(
@@ -171,12 +220,9 @@ public class RawDBEventService {
                 value = rawDbEventDataMap.get(uniqueKeyStrings[i]);
                 if (value != null) {
                     postFiltersMap.put(uniqueKeyStrings[i], value);
-                    logger.info(" SQL UNIQUE KEY VALUE "+uniqueKeyStrings[i]+ " VALUE : "+value.toString());
                 }
             }
         }
-
         return postFiltersMap;
-
     }
 }

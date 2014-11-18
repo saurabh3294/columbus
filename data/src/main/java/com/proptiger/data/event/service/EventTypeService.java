@@ -20,6 +20,12 @@ public class EventTypeService {
     @Autowired
     private ApplicationContext applicationContext;
 
+    /**
+     * Return the EventType for a given event id after populating config
+     * 
+     * @param eventTypeId
+     * @return
+     */
     public EventType getEventTypeByEventTypeId(int eventTypeId) {
         EventType eventType = eventTypeDao.findOne(eventTypeId);
         populateConfig(eventType);
@@ -27,6 +33,12 @@ public class EventTypeService {
         return eventType;
     }
 
+    /**
+     * Populates the config for a given event type
+     * 
+     * @param eventType
+     * @return
+     */
     public EventType populateConfig(EventType eventType) {
         String configName = eventType.getName();
         if (eventType.getOverwriteConfigName() != null) {
