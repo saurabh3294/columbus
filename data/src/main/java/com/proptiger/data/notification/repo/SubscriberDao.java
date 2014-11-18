@@ -15,6 +15,10 @@ public interface SubscriberDao extends PagingAndSortingRepository<Subscriber, In
     @Query("Update Subscriber S set S.lastEventDate=?2 where S.id=?1 ")
     public Integer updateLastEventDateById(int id, Date lastEventDate);
     
+    @Modifying
+    @Query("Update Subscriber S set S.lastEventGeneratedId=?2 where S.id=?1 ")
+    public Integer updateLastEventGeneratedId(int id, Integer lastEventGeneratedId);
+    
     public List<Subscriber> findAll(); 
     
 }

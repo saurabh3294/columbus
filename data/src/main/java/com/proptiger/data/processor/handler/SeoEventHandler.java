@@ -35,22 +35,23 @@ public class SeoEventHandler {
     public int generateUrls(int numberOfEvents) {
         List<EventGenerated> events = eventGeneratedService.getLatestGeneratedEventsBySubscriber(
                 SubscriberName.Seo,
-                getUrlGeneratorEventTypeList(),
-                numberOfEvents);
+                getUrlGeneratorEventTypeList());
         logger.info("Fetched " + events.size() + " events for url generation.");
-        Map<DomainObject, List<EventGenerated>> groupEventsMap = groupEventsByEventType(events);
         Map<DomainObject, List<URLCategories>> groupCategoryMap = urlCategoriesService
                 .getAllUrlCategoryByDomainObject();
         
         int totalUrls = 0;
-        for (Map.Entry<DomainObject, List<EventGenerated>> entry : groupEventsMap.entrySet()) {
-            totalUrls += seoEventUrlCreator.generateUrls(entry.getKey(), entry.getValue(), groupCategoryMap.get(entry.getKey()));
+        DomainObject domainObject = null;
+        for(EventGenerated eventGenerated:events){
+            domainObject = DomainObject.getDomainInstance(Long.parseLong(eventGenerated.getEventTypeUniqueKey()));
+            seoEventUrlCreator.generateUrls(domainObject, eventGenerated, groupCategoryMap.get(domainObject));
+            totalUrls++;
         }
 
-        return 1;
+        return totalUrls;
     }
 
-    protected Map<DomainObject, List<EventGenerated>> groupEventsByEventType(List<EventGenerated> eventsGenerated) {
+    /*protected Map<DomainObject, List<EventGenerated>> groupEventsByEventType(List<EventGenerated> eventsGenerated) {
         Map<DomainObject, List<EventGenerated>> mapEvents = new HashMap<DomainObject, List<EventGenerated>>();
         List<EventGenerated> groupEvents;// = new ArrayList<EventGenerated>();
 
@@ -66,7 +67,7 @@ public class SeoEventHandler {
         }
 
         return mapEvents;
-    }
+    }*/
 
     private List<String> getUrlGeneratorEventTypeList() {
         List<String> eventTypeNames = new ArrayList<String>();

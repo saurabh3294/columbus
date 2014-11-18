@@ -38,7 +38,7 @@ public class Subscriber extends BaseModel {
     private Date           lastEventDate;
     
     @Column(name = "last_event_generated_id")
-    private int lastEventGeneratedId;
+    private Integer lastEventGeneratedId;
 
     public int getId() {
         return id;
@@ -64,11 +64,11 @@ public class Subscriber extends BaseModel {
         this.lastEventDate = lastEventDate;
     }
 
-    public int getLastEventGeneratedId() {
+    public Integer getLastEventGeneratedId() {
         return lastEventGeneratedId;
     }
 
-    public void setLastEventGeneratedId(int lastEventGeneratedId) {
+    public void setLastEventGeneratedId(Integer lastEventGeneratedId) {
         this.lastEventGeneratedId = lastEventGeneratedId;
     }
 

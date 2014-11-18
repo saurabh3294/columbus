@@ -224,7 +224,6 @@ public class URLCreaterService {
             case BuilderTaxonomy:
                 url = urlPropertyTypes.getUrlSubPart() + "-by-" + url;
                 break;
-
         }
         
         return url;
@@ -542,8 +541,11 @@ public class URLCreaterService {
         if (currentProperty != null) {
             return currentProperty;
         }
-
-        int start = 0, rows = 5000, size;
+        
+        currentProperty = propertyService.getPropertyFromSolr(id);
+        caching.saveResponse(cacheKey, currentProperty);
+        
+        /*int start = 0, rows = 5000, size;
         List<Property> properties = null;
         do {
             properties = getAllProperties(start, rows);
@@ -563,7 +565,7 @@ public class URLCreaterService {
             properties.clear();
             System.gc();
         }
-        while (size > 0);
+        while (size > 0);*/
 
         return currentProperty;
     }
@@ -582,8 +584,10 @@ public class URLCreaterService {
         if (currentProject != null) {
             return currentProject;
         }
-
-        int start = 0, rows = 5000, size = 0;
+        
+        currentProject = projectService.getProjectDataFromSolr(id);
+        caching.saveResponse(cacheKey, currentProject);
+        /*int start = 0, rows = 5000, size = 0;
         List<Project> projects = null;
         do {
             projects = getAllProjects(start, rows);
@@ -593,7 +597,6 @@ public class URLCreaterService {
             }
             size = projects.size();
             start = start + size;
-            System.out.println(" PROJECTS " + size);
             for (Project project : projects) {
                 cacheKey = projectKeyIdPrefix + project.getProjectId();
                 caching.saveResponse(cacheKey, project);
@@ -603,12 +606,12 @@ public class URLCreaterService {
             }
             projects.clear();
         }
-        while (size > 0);
+        while (size > 0);*/
 
         return currentProject;
     }
 
-    private Builder getCachedBuilderData(Integer id) {
+    public Builder getCachedBuilderData(Integer id) {
         if (id == null) {
             return null;
         }
@@ -763,19 +766,18 @@ public class URLCreaterService {
     }
 
     private List<Builder> getAllBuilders() {
-        String selectorString = "{\"fields\":[\"id\", \"label\"], \"paging\":{\"start\":0, \"rows\":100000}}";
+        String selectorString = "{\"fields\":[\"id\", \"label\", \"builderCities\"], \"paging\":{\"start\":0, \"rows\":100000}}";
         List<Builder> builders = builderService.getBuilders(Serializer.fromJson(selectorString, Selector.class));
 
         return builders;
     }
-
+    
     private List<Project> getAllProjects(int start, int rows) {
 
         String selectorString = "{\"fields\":[\"projectId\", \"name\", \"locality\", \"city\", \"builderLabel\"], \"paging\":{\"start\":" + start
                 + ", \"rows\":"
                 + rows
                 + "}}";
-        System.out.println(selectorString);
         PaginatedResponse<List<Project>> projects = projectService.getProjectsFromSolr(Serializer.fromJson(
                 selectorString,
                 Selector.class));

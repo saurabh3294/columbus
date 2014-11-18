@@ -23,7 +23,8 @@ public class SubscriberConfig extends BaseModel {
 
     public enum ConfigName {
         MaxActiveNotificationTypeCount,
-        MaxActiveNotificationMessageCount;
+        MaxActiveNotificationMessageCount,
+        MaxVerifedEventCount;
     }
 
     @Column(name = "id")

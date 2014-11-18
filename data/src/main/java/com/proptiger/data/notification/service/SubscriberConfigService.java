@@ -68,7 +68,7 @@ public class SubscriberConfigService {
     public Iterable<Subscriber> findAllSubscriber() {
         return subscriberDao.findAll();
     }
-
+    
     public Integer getMaxActiveNotificationTypeCount() {
         SubscriberName subscriberName = Subscriber.SubscriberName.Notification;
         ConfigName configName = SubscriberConfig.ConfigName.MaxActiveNotificationTypeCount;
@@ -88,7 +88,16 @@ public class SubscriberConfigService {
         }
         return Integer.valueOf(configValue);
     }
-
+    
+    public Integer getMaxSubscriberEventTypeCount(SubscriberName subscriberName){
+        ConfigName configName = SubscriberConfig.ConfigName.MaxVerifedEventCount;
+        String configValue = subscriberConfigMap.get(generateKey(subscriberName, configName));
+        if (configValue == null) {
+            return Integer.MAX_VALUE;
+        }
+        return Integer.valueOf(configValue);
+    }
+    
     public Date getLastEventDateReadByNotification() {
         Subscriber subscriber = subscriberMap.get(Subscriber.SubscriberName.Notification);
         if (subscriber == null) {
@@ -119,6 +128,11 @@ public class SubscriberConfigService {
         subscriber.setLastEventDate(lastEventDate);
         subscriberDao.updateLastEventDateById(subscriber.getId(), lastEventDate);
     }
+    
+    public void setLastEventGeneratedIdBySubscriber(Integer lastEventGeneratedId, Subscriber subscriber) {
+        subscriber.setLastEventGeneratedId(lastEventGeneratedId);
+        subscriberDao.updateLastEventGeneratedId(subscriber.getId(), lastEventGeneratedId);
+    }
 
     public Map<String, String> getSubscriberConfigMap() {
         return subscriberConfigMap;
@@ -126,6 +140,10 @@ public class SubscriberConfigService {
 
     private String generateKey(SubscriberName subscriberName, ConfigName configName) {
         return subscriberName + "." + configName;
+    }
+
+    public static Map<SubscriberName, Subscriber> getSubscriberMap() {
+        return subscriberMap;
     }
 
 }

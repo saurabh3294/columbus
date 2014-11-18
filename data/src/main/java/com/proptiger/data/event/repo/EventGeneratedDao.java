@@ -34,6 +34,8 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
     public List<EventGenerated> findByEventStatusAndUpdatedAtGreaterThanOrderByUpdatedAtAsc(
             EventStatus status,
             Date updatedDate);
+    
+    public EventGenerated findByEventStatusOrderByUpdatedAtDesc(EventStatus eventStatus);
 
     @Query("Select E from EventGenerated E ORDER BY E.createdAt Desc")
     public List<EventGenerated> getLatestEventGenerated(Pageable pageable);
@@ -45,8 +47,8 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
     @Query("Select count(id) from EventGenerated E where E.eventStatus = ?1 ")
     public Long getEventCountByEventStatus(EventStatus eventStatus);
 
-    @Query("Select e from EventGenerated e JOIN e.subscriberMapping s JOIN EventType et "
-            + "where e.eventStatus = ?1 and s.subscriberName = ?2 and et.name = ?3 order by e.id asc")
+    @Query("Select e from EventGenerated e JOIN Fetch e.subscriberMapping sm JOIN Fetch EventType et JOIN Fetch sm.subscriber s"
+            + "where e.eventStatus = ?1 and s.subscriberName = ?2 and et.name IN ?3 and e.id > s.lastEventGeneratedId order by e.id asc")
     public List<EventGenerated> getLatestEventGeneratedBySubscriber(
             EventStatus EventStatus,
             SubscriberName subscriberName,

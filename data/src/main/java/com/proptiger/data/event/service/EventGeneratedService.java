@@ -26,7 +26,9 @@ import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
+import com.proptiger.data.notification.model.Subscriber;
 import com.proptiger.data.notification.model.Subscriber.SubscriberName;
+import com.proptiger.data.notification.service.SubscriberConfigService;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.util.Serializer;
 
@@ -53,6 +55,8 @@ public class EventGeneratedService {
     private ApplicationContext                applicationContext;
 
     private Gson                              serializer = new Gson();
+
+    private SubscriberConfigService           subscriberConfigService;
 
     @Transactional
     public void persistEvents(List<EventGenerated> eventGenerateds, RawEventTableDetails rawEventTableDetails) {
@@ -210,6 +214,22 @@ public class EventGeneratedService {
 
     public List<EventGenerated> getLatestGeneratedEventsBySubscriber(
             SubscriberName subscriberName,
+            List<String> eventTypeNames) {
+        Integer maxEventCount = getSubscriberConfigService().getMaxSubscriberEventTypeCount(subscriberName);
+        List<EventGenerated> listEventGenerateds = fetchNLatestGeneratedEventsBySubscriber(
+                subscriberName,
+                eventTypeNames,
+                maxEventCount);
+        if (checkAndSetSubscriberLastEventId(listEventGenerateds.get(0))) {
+            listEventGenerateds = fetchNLatestGeneratedEventsBySubscriber(subscriberName, eventTypeNames, maxEventCount);
+        }
+
+        return listEventGenerateds;
+
+    }
+
+    private List<EventGenerated> fetchNLatestGeneratedEventsBySubscriber(
+            SubscriberName subscriberName,
             List<String> eventTypeNames,
             int numberOfEvents) {
         logger.debug("Finding latest event generated for the Subscriber " + subscriberName);
@@ -222,10 +242,24 @@ public class EventGeneratedService {
         if (listEventGenerateds == null) {
             listEventGenerateds = new ArrayList<EventGenerated>();
         }
+
         logger.debug("Number of Event Generated being picked up: " + listEventGenerateds.size());
 
         populateEventsDataAfterLoad(listEventGenerateds);
         return listEventGenerateds;
+    }
+
+    private boolean checkAndSetSubscriberLastEventId(EventGenerated eventGenerated) {
+        if (eventGenerated == null) {
+            Subscriber subscriber = getSubscriberConfigService().getSubscriberMap().get(SubscriberName.Seo);
+            if (subscriber.getLastEventGeneratedId() == null) {
+                EventGenerated lastEventGenerated = getLastEventGenerated();
+                getSubscriberConfigService()
+                        .setLastEventGeneratedIdBySubscriber(lastEventGenerated.getId(), subscriber);
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<EventGenerated> generateEvents(
@@ -283,4 +317,16 @@ public class EventGeneratedService {
         eventGenerated.setData(serializer.toJson(eventGenerated.getEventTypePayload()));
     }
 
+    private EventGenerated getLastEventGenerated() {
+        EventGenerated eventGenerated = eventGeneratedDao.findByEventStatusOrderByUpdatedAtDesc(EventStatus.Verified);
+
+        return eventGenerated;
+    }
+
+    public SubscriberConfigService getSubscriberConfigService() {
+        if (subscriberConfigService == null) {
+            subscriberConfigService = applicationContext.getBean(SubscriberConfigService.class);
+        }
+        return subscriberConfigService;
+    }
 }

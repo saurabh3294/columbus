@@ -1,14 +1,19 @@
 package com.proptiger.data.seo.processor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.cms.Builder;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.model.URLDetail;
+import com.proptiger.data.model.seo.SeoURLs;
 import com.proptiger.data.model.seo.URLCategories;
+import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.URLCreaterService;
 import com.proptiger.data.service.seo.SeoURLService;
 
@@ -16,152 +21,151 @@ import com.proptiger.data.service.seo.SeoURLService;
 public class SeoEventUrlCreator {
     @Autowired
     private URLCreaterService urlCreaterService;
-    
+
     @Autowired
-    private SeoURLService seoURLService;
+    private SeoURLService     seoURLService;
     
-    public int generateUrls(DomainObject domainObject, List<EventGenerated> events, List<URLCategories> urlCategories){
-        
-        switch(domainObject){
+    public void generateUrls(DomainObject domainObject, EventGenerated eventGenerated, List<URLCategories> urlCategories) {
+
+        switch (domainObject) {
             case property:
-                generatePropertyURLS(events, urlCategories);
+                generatePropertyURLS(eventGenerated, urlCategories);
                 break;
             case project:
-                generateProjectUrls(events, urlCategories);
+                generateProjectUrls(eventGenerated, urlCategories);
                 break;
             case builder:
-                generateBuilderUrls(events, urlCategories);
+                generateBuilderUrls(eventGenerated, urlCategories);
                 break;
             case locality:
-                generateLocalityUrls(events, urlCategories);
+                generateLocalityUrls(eventGenerated, urlCategories);
                 break;
             case suburb:
-                generateSuburbUrls(events, urlCategories);
+                generateSuburbUrls(eventGenerated, urlCategories);
                 break;
             case city:
-                generateCityUrls(events, urlCategories);
+                generateCityUrls(eventGenerated, urlCategories);
                 break;
-            
+
         }
-        
-        return 0;
+
     }
-    
-    public int generatePropertyURLS(List<EventGenerated> events, List<URLCategories> urlCategories){
+
+    public int generatePropertyURLS(EventGenerated eventGenerated, List<URLCategories> urlCategories) {
         URLDetail urlDetail = new URLDetail();
         String url = null;
         int totalUrls = 0;
         int objectId;
-        for(EventGenerated eventGenerated:events){
-            for(URLCategories urlCategory:urlCategories){
-                objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
-                urlDetail.setUrlCategory(urlCategory);
-                urlDetail.setPropertyId(objectId);
-                url = urlCreaterService.urlLibPropertyUrl(urlDetail);
-                seoURLService.saveUrls(url, objectId, urlCategory);
-            }
+
+        List<SeoURLs> seoURLs = new ArrayList<SeoURLs>();
+        for (URLCategories urlCategory : urlCategories) {
+            objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
+            urlDetail.setUrlCategory(urlCategory);
+            urlDetail.setPropertyId(objectId);
+            url = urlCreaterService.urlLibPropertyUrl(urlDetail);
+            seoURLs.add(seoURLService.createSeoURLObject(url, objectId, urlCategory));
         }
-        
+        seoURLService.saveDomainUrls(seoURLs, eventGenerated);
+
+        return totalUrls;
+    }
+
+    public int generateProjectUrls(EventGenerated eventGenerated, List<URLCategories> urlCategories) {
+        URLDetail urlDetail = new URLDetail();
+        String url = null;
+        int totalUrls = 0;
+        int objectId;
+
+        List<SeoURLs> seoURLs = new ArrayList<SeoURLs>();
+        for (URLCategories urlCategory : urlCategories) {
+            objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
+            urlDetail.setUrlCategory(urlCategory);
+            urlDetail.setProjectId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
+            url = urlCreaterService.urlLibProjectUrl(urlDetail);
+            seoURLs.add(seoURLService.createSeoURLObject(url, objectId, urlCategory));
+        }
+        seoURLService.saveDomainUrls(seoURLs, eventGenerated);
+
+        return totalUrls;
+    }
+
+    public int generateLocalityUrls(EventGenerated eventGenerated, List<URLCategories> urlCategories) {
+        URLDetail urlDetail = new URLDetail();
+        String url = null;
+        int totalUrls = 0;
+        int objectId;
+
+        List<SeoURLs> seoURLs = new ArrayList<SeoURLs>();
+        for (URLCategories urlCategory : urlCategories) {
+            objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
+            urlDetail.setUrlCategory(urlCategory);
+            urlDetail.setLocalityId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
+            url = urlCreaterService.getLocalityUrl(urlDetail);
+            seoURLs.add(seoURLService.createSeoURLObject(url, objectId, urlCategory));
+        }
+        seoURLService.saveDomainUrls(seoURLs, eventGenerated);
+
+        return totalUrls;
+    }
+
+    public int generateSuburbUrls(EventGenerated eventGenerated, List<URLCategories> urlCategories) {
+        URLDetail urlDetail = new URLDetail();
+        String url = null;
+        int totalUrls = 0;
+        int objectId;
+
+        List<SeoURLs> seoURLs = new ArrayList<SeoURLs>();
+        for (URLCategories urlCategory : urlCategories) {
+            objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
+            urlDetail.setUrlCategory(urlCategory);
+            urlDetail.setSuburbId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
+            url = urlCreaterService.getSuburbUrl(urlDetail);
+            seoURLs.add(seoURLService.createSeoURLObject(url, objectId, urlCategory));
+        }
+        seoURLService.saveDomainUrls(seoURLs, eventGenerated);
+
+        return totalUrls;
+    }
+
+    public int generateCityUrls(EventGenerated eventGenerated, List<URLCategories> urlCategories) {
+        URLDetail urlDetail = new URLDetail();
+        String url = null;
+        int totalUrls = 0;
+        int objectId;
+
+        List<SeoURLs> seoURLs = new ArrayList<SeoURLs>();
+        for (URLCategories urlCategory : urlCategories) {
+            objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
+            urlDetail.setUrlCategory(urlCategory);
+            urlDetail.setCityId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
+            url = urlCreaterService.getCityUrl(urlDetail);
+            seoURLs.add(seoURLService.createSeoURLObject(url, objectId, urlCategory));
+        }
+        seoURLService.saveDomainUrls(seoURLs, eventGenerated);
+
         return totalUrls;
     }
     
-    public int generateProjectUrls(List<EventGenerated> events, List<URLCategories> urlCategories){
+    /**
+     * Adding the city builder urls.
+     * @param eventGenerated
+     * @param urlCategories
+     * @return
+     */
+    public int generateBuilderUrls(EventGenerated eventGenerated, List<URLCategories> urlCategories) {
         URLDetail urlDetail = new URLDetail();
         String url = null;
         int totalUrls = 0;
-        int objectId;
-
-        for(EventGenerated eventGenerated:events){
-            for(URLCategories urlCategory:urlCategories){
-                objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
-                urlDetail.setUrlCategory(urlCategory);
-                urlDetail.setProjectId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
-                url = urlCreaterService.urlLibProjectUrl(urlDetail);
-                seoURLService.saveUrls(url, objectId, urlCategory);
-
-            }
-        }
+        int objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
+        List<SeoURLs> seoURLs = new ArrayList<SeoURLs>();
         
-        return totalUrls;
-    }
-    
-    public int generateLocalityUrls(List<EventGenerated> events, List<URLCategories> urlCategories){
-        URLDetail urlDetail = new URLDetail();
-        String url = null;
-        int totalUrls = 0;
-        int objectId;
-
-        for(EventGenerated eventGenerated:events){
-            for(URLCategories urlCategory:urlCategories){
-                objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
-                urlDetail.setUrlCategory(urlCategory);
-                urlDetail.setLocalityId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
-                url = urlCreaterService.getLocalityUrl(urlDetail);
-                seoURLService.saveUrls(url, objectId, urlCategory);
-
-            }
+        for (URLCategories urlCategory : urlCategories) {
+            urlDetail.setUrlCategory(urlCategory);
+            urlDetail.setBuilderId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
+            url = urlCreaterService.getBuilderUrl(urlDetail);
+            seoURLs.add(seoURLService.createSeoURLObject(url, objectId, urlCategory));
         }
-        
-        return totalUrls;
-    }
-    
-    public int generateSuburbUrls(List<EventGenerated> events, List<URLCategories> urlCategories){
-        URLDetail urlDetail = new URLDetail();
-        String url = null;
-        int totalUrls = 0;
-        int objectId;
-
-        for(EventGenerated eventGenerated:events){
-            for(URLCategories urlCategory:urlCategories){
-                objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
-                urlDetail.setUrlCategory(urlCategory);
-                urlDetail.setSuburbId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
-                url = urlCreaterService.getSuburbUrl(urlDetail);
-                seoURLService.saveUrls(url, objectId, urlCategory);
-
-            }
-        }
-        
-        return totalUrls;
-    }
-    
-    public int generateCityUrls(List<EventGenerated> events, List<URLCategories> urlCategories){
-        URLDetail urlDetail = new URLDetail();
-        String url = null;
-        int totalUrls = 0;
-        int objectId;
-
-        for(EventGenerated eventGenerated:events){
-            for(URLCategories urlCategory:urlCategories){
-                objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
-                urlDetail.setUrlCategory(urlCategory);
-                urlDetail.setCityId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
-                url = urlCreaterService.getCityUrl(urlDetail);
-                seoURLService.saveUrls(url, objectId, urlCategory);
-
-            }
-        }
-        
-        return totalUrls;
-    }
-    
-    public int generateBuilderUrls(List<EventGenerated> events, List<URLCategories> urlCategories){
-        URLDetail urlDetail = new URLDetail();
-        String url = null;
-        int totalUrls = 0;
-        int objectId;
-
-        for(EventGenerated eventGenerated:events){
-            for(URLCategories urlCategory:urlCategories){
-                objectId = Integer.parseInt(eventGenerated.getEventTypeUniqueKey());
-                urlDetail.setUrlCategory(urlCategory);
-                urlDetail.setBuilderId(Integer.parseInt(eventGenerated.getEventTypeUniqueKey()));
-                url = urlCreaterService.getBuilderUrl(urlDetail);
-                seoURLService.saveUrls(url, objectId, urlCategory);
-
-            }
-        }
-        
+        seoURLService.saveDomainUrls(seoURLs, eventGenerated);
         return totalUrls;
     }
 }
