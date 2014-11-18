@@ -902,16 +902,15 @@ public class NotificationService {
     }
 
     public void manageHighTaskOverdueNotificationForRM() {
-        Date scheduledForBefore = DateUtil.addDays(new Date(), PropertyReader
+        int notificationTypeId = NotificationType.TooManyTasksOverDue.getId();
+        int minOverDueTaskForNotification = PropertyReader
+                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_COUNT_FOR_RM_NOTIFICATION);
+        Date scheduledForBefore = DateUtil.addDays(new Date(), -1 * PropertyReader
                 .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_DURATION_DAY_FOR_RM_NOTIFICATION));
-        // List<AgentOverDueTaskCount> overDueTaskCountForUsers =
-        // taskDao.findOverDueTasksForAgents(
-        // scheduledForBefore,
-        // PropertyReader
-        // .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_COUNT_FOR_RM_NOTIFICATION));
-        List<AgentOverDueTaskCount> overDueTaskCountForUsers = new ArrayList<>();
+        List<AgentOverDueTaskCount> overDueTaskCountForUsers = taskDao.findOverDueTasksForAgents(
+                scheduledForBefore,
+                minOverDueTaskForNotification);
         for (AgentOverDueTaskCount overDueTaskCountForUser : overDueTaskCountForUsers) {
-            int notificationTypeId = NotificationType.TooManyTasksOverDue.getId();
             int userId = overDueTaskCountForUser.getAgentId();
             if (notificationDao.findByObjectIdAndNotificationTypeId(userId, notificationTypeId) == null) {
                 createNotification(
@@ -921,6 +920,10 @@ public class NotificationService {
                         null);
             }
         }
+        notificationDao.deleteTooManyTaskNotification(
+                scheduledForBefore,
+                minOverDueTaskForNotification,
+                notificationTypeId);
     }
 
     public Notification findByUserIdAndNotificationId(int userId, int notificationTypeId, int objectId) {

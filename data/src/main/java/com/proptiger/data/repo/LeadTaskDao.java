@@ -1,5 +1,6 @@
 package com.proptiger.data.repo;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -7,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.LeadTask.AgentOverDueTaskCount;
 import com.proptiger.data.model.marketplace.TaskOfferedListingMapping;
 
 /**
@@ -52,4 +54,8 @@ public interface LeadTaskDao extends JpaRepository<LeadTask, Integer> {
     @Query(
             value = "SELECT LT FROM LeadTask LT INNER JOIN LT.statusReason TSR WHERE LT.leadOfferId = ?1 AND TSR.reason = ?2")
     public List<LeadTask> findByofferIdAndStatusReason(int offerId, String statusReason);
+
+    @Query(
+            value = "SELECT NEW com.proptiger.data.model.marketplace.LeadTask$AgentOverDueTaskCount(LO.agentId, COUNT(*)) from LeadOffer LO JOIN LO.nextTask NT WHERE NT.scheduledFor < ?1 GROUP by LO.agentId HAVING COUNT(*) >= ?2")
+    public List<AgentOverDueTaskCount> findOverDueTasksForAgents(Date scheduledForBefore, long overDueTaskCount);
 }

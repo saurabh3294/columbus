@@ -62,7 +62,8 @@ public class CronService {
                 new Date().getTime() - PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_CRON_BUFFER)
                         * 1000);
         List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
-        int interval = PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION) + PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION);
+        int interval = PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION) + PropertyReader
+                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION);
         Date expireTime = new Date(new Date().getTime() - interval * 1000);
         List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired(expireTime);
         Set<Integer> leadIds = new HashSet<Integer>();
@@ -106,7 +107,7 @@ public class CronService {
         }
 
         manageNoBrokerClaimedNotification();
-        if (!leadIds.isEmpty()) {                                    
+        if (!leadIds.isEmpty()) {
             notificationService
                     .deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
             leadOfferDao.updateLeadOffers(leadIdList);
@@ -149,7 +150,7 @@ public class CronService {
         notificationService.sendTaskDueNotification();
     }
 
-    //@Scheduled(initialDelay = 4000, fixedDelay = 60000)
+    // @Scheduled(initialDelay = 4000, fixedDelay = 60000)
     public void manageNoBrokerClaimedNotification() {
         Date endDate = notificationService.getNoBrokerClaimedCutoffTime();
         Date startDate = new Date(
@@ -187,11 +188,16 @@ public class CronService {
             }
         }
     }
-    
+
     @Scheduled(cron = "0 0 9 * * ?")
-    public void sendLimitReachedGCMNotifications()
-    {
+    public void sendLimitReachedGCMNotifications() {
         notificationService.sendLimitReachedGCMNotifications();
     }
-        
+
+    @Scheduled(
+            initialDelayString = "${marketplace.notification.initial.delay}",
+            fixedDelayString = "${marketplace.notification.fixed.delay}")
+    public void manageHighTaskOverdueNotificationForRM() {
+        notificationService.manageHighTaskOverdueNotificationForRM();
+    }
 }

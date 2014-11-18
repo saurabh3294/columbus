@@ -75,7 +75,7 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     public void deleteUsingNotificationTypeAndObjectId(String leadIdString, int notificationTypeId, int status_id);
 
     @Query("select N from Notification N where N.userId = ?1 and N.notificationTypeId = ?2 and N.objectId = ?3")
-    public Notification findByUserIdAndNotificationId(int userId, int notificationTypeId,int objectId);
+    public Notification findByUserIdAndNotificationId(int userId, int notificationTypeId, int objectId);
 
     @Transactional
     @Modifying
@@ -87,7 +87,18 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     @Query("delete from Notification N where N.userId = ?1 and N.notificationTypeId = ?2 and N.objectId = ?3")
     public void deleteRMNotification(int userId, int notificationTypeId, int objectId);
 
-    
     @Query("select N from Notification N where N.notificationTypeId = ?1 and N.objectId = 0")
     public List<Notification> getNotifications(int userId);
+
+    @Transactional
+    @Modifying
+    @Query(
+            nativeQuery = true,
+            value = "delete marketplace.notifications from marketplace.notifications left join " + "(select agent_id as agent_id from marketplace.lead_offers inner join marketplace.lead_tasks on lead_offers.next_task_id = lead_tasks.id "
+                    + " where lead_tasks.scheduled_for < ?1 group by lead_offers.agent_id having count(*) >= ?2) sub "
+                    + "on notifications.object_id = sub.agent_id where notifications.notification_type_id = ?3 and sub.agent_id is null")
+    public void deleteTooManyTaskNotification(
+            Date scheduledForBefore,
+            long overDueTaskCount,
+            int tooManyNotificationTypeId);
 }

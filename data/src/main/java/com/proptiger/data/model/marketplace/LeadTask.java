@@ -329,9 +329,9 @@ public class LeadTask extends BaseModel {
         private int agentId;
         private int overDueTaskCount;
 
-        public AgentOverDueTaskCount(int agentId, int overDueTaskCount) {
+        public AgentOverDueTaskCount(int agentId, long overDueTaskCount) {
             this.agentId = agentId;
-            this.overDueTaskCount = overDueTaskCount;
+            this.overDueTaskCount = (int) overDueTaskCount;
         }
 
         public int getAgentId() {
