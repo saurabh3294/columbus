@@ -1,6 +1,5 @@
 package com.proptiger.columbus.typeahead;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -11,32 +10,44 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
-import com.proptiger.core.util.HttpRequestUtil;
+import com.proptiger.columbus.mvc.TypeaheadController;
+import com.proptiger.core.pojo.response.APIResponse;
 
 @Component
 public class TaTestExecuter {
 
-    @Value("${BASE_URL}")
-    private String          BASE_URL;
-
     @Value("${TYPEAHEAD_API_URL}")
-    private String          TYPEAHEAD_API_URL;
+    private String              TYPEAHEAD_API_URL;
 
     @Value("${testcase.timeout}")
-    private long            TestTimeout;
-
-    private static Logger   logger = LoggerFactory.getLogger(TaTestExecuter.class);
+    private long                TestTimeout;
 
     @Autowired
-    private HttpRequestUtil httpRequestUtil;
+    private TypeaheadController typeaheadController;
+
+    private MockMvc             mockMvc;
+
+    private static Logger       logger = LoggerFactory.getLogger(TaTestExecuter.class);
+
+    @PostConstruct
+    public void initialize() {
+        this.mockMvc = MockMvcBuilders.standaloneSetup(typeaheadController).build();
+    }
 
     public List<TaTestCase> executeTests(List<TaTestCase> testList, int limit) {
         logger.debug(testList.size() + " tests recieved for execution with limit = " + limit);
@@ -47,7 +58,7 @@ public class TaTestExecuter {
             if (ctr >= limit) {
                 break;
             }
-            ttc.setTestUrl(BASE_URL + TYPEAHEAD_API_URL + "?query=" + ttc.getQuery());
+            ttc.setTestUrl(TYPEAHEAD_API_URL + "?query=" + ttc.getQuery());
             futureList.add(executerService.submit(new CustomCallable(ttc)));
             ctr++;
         }
@@ -79,10 +90,26 @@ public class TaTestExecuter {
         }
 
         @Override
-        public TaTestCase call() throws Exception {
-            URI uri = URI.create(UriComponentsBuilder.fromUriString(taTestCase.getTestUrl()).build().encode()
-                    .toString());
-            List<Typeahead> resultList = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, Typeahead.class);
+        public TaTestCase call() {
+            List<Typeahead> resultList = null;
+            MockHttpServletResponse mhsr;
+            String response = null;
+            String url = taTestCase.getTestUrl();
+            try {
+                mhsr = mockMvc.perform(MockMvcRequestBuilders.get(url)).andReturn().getResponse();
+                response = mhsr.getContentAsString();
+            }
+            catch (Exception ex) {
+                logger.error("Problem executing testcase : " + taTestCase.getLogString(), ex);
+            }
+            if (response == null) {
+                return taTestCase;
+            }
+            /* Parsing Json Response */
+            Gson gson = new Gson();
+            APIResponse apiResponse = gson.fromJson(response, APIResponse.class);
+            Object data = apiResponse.getData();
+            resultList = gson.fromJson(gson.toJson(data), new TypeToken<List<Typeahead>>() {}.getType());
             taTestCase.setResults(resultList);
             return taTestCase;
         }
