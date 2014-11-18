@@ -86,4 +86,8 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     @Transactional
     @Query("delete from Notification N where N.userId = ?1 and N.notificationTypeId = ?2 and N.objectId = ?3")
     public void deleteRMNotification(int userId, int notificationTypeId, int objectId);
+
+    
+    @Query("select N from Notification N where N.notificationTypeId = ?1 and N.objectId = 0")
+    public List<Notification> getNotifications(int userId);
 }

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -330,6 +331,31 @@ public class NotificationService {
         sendGcmMessageUsingService(gcmMessage, offer.getAgentId());
     }
 
+   
+    @Scheduled(cron = "0 0 9 * * ?")
+    private void sendLimitReachedGCMNotifications()
+    {
+        List<Notification> notifications = notificationDao.getNotifications(NotificationType.MaxLeadCountForBrokerReached.getId());
+        
+        for(Notification notification : notifications)
+        {
+            sendLimitReachedGCMNotification(notification.getUserId());
+        }
+    }
+        
+    private void sendLimitReachedGCMNotification(int userId) {
+        String message = "Claim Lead suspended. Please update your existing New leads to claim new leads";
+        String titleMessage = "Claim Lead suspended";
+
+        GcmMessage gcmMessage = new GcmMessage();
+        gcmMessage.setData(null);
+        gcmMessage.setMessage(message);
+        gcmMessage.setTitleMessage(titleMessage);
+        gcmMessage.setNotificationTypeId(NotificationType.MaxLeadCountForBrokerReached.getId());
+        sendGcmMessageUsingService(gcmMessage, userId);
+    }
+    
+    
     /**
      * gets the time upto which task must be scheduled in order for the client
      * to get notified

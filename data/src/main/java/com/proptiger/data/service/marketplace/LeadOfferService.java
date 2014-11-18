@@ -516,27 +516,45 @@ public class LeadOfferService {
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
 
-                if (leadOfferDao.getcountLeadOffersOnThisAgentInNewStatus(userId, LeadOfferStatus.New.getId()) < PropertyReader
-                        .getRequiredPropertyAsType(
-                                PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
-                                Long.class)) {
-                    claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);                    
-                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, 8,0);
+                long countLeadOffersOnThisAgentInNewStatus = leadOfferDao.getcountLeadOffersOnThisAgentInNewStatus(
+                        userId,
+                        LeadOfferStatus.New.getId());
+
+                if (countLeadOffersOnThisAgentInNewStatus <= PropertyReader.getRequiredPropertyAsType(
+                        PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
+                        Long.class)) {
+                    claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
+                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, 8, 0);
                     if (notification != null) {
-                        notificationService.deleteNotification(userId,8,0);
-                        notificationService.deleteNotification(PropertyReader
-                                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),8,userId);
+                        notificationService.deleteNotification(userId, 8, 0);
+                        notificationService
+                                .deleteNotification(
+                                        PropertyReader
+                                                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
+                                        8,
+                                        userId);
+                    }
+
+                    if (countLeadOffersOnThisAgentInNewStatus + 1 == PropertyReader.getRequiredPropertyAsType(
+                            PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
+                            Long.class)) {
+                        Notification notificationLeadLimit = notificationService.findByUserIdAndNotificationId(
+                                userId,
+                                8,
+                                0);
+                        if (notificationLeadLimit == null) {
+                            notificationService.createNotification(userId, 8, 0, null);
+                            notificationService
+                                    .createNotification(
+                                            PropertyReader
+                                                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
+                                            8,
+                                            userId,
+                                            null);
+                        }
                     }
                 }
                 else {
-
-                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, 8,0);
-                    if (notification == null) {
-                        notificationService.createNotification(userId, 8, 0, null);                        
-                        notificationService.createNotification(PropertyReader
-                                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID), 8, userId, null);
-                    }
-
                     throw new APIServerException(
                             "you already have " + PropertyReader
                                     .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS)
