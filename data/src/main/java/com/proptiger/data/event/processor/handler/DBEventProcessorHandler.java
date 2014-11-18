@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.proptiger.data.event.processor.handler;
 
 import java.util.ArrayList;
@@ -16,10 +13,10 @@ import com.proptiger.data.event.model.EventGenerated;
  *         This handles merging/suppression of events
  */
 public abstract class DBEventProcessorHandler implements EventProcessorHandler {
-        
+
     protected Map<String, List<EventGenerated>> groupEventsByEventType(List<EventGenerated> eventsGenerated) {
         Map<String, List<EventGenerated>> mapEvents = new HashMap<String, List<EventGenerated>>();
-        List<EventGenerated> groupEvents;// = new ArrayList<EventGenerated>();
+        List<EventGenerated> groupEvents;
 
         for (EventGenerated eventGenerated : eventsGenerated) {
             groupEvents = mapEvents.get(eventGenerated.getEventType().getName());
