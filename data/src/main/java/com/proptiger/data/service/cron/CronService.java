@@ -105,7 +105,8 @@ public class CronService {
             leadIdList.add(leadId);
         }
 
-        if (!leadIds.isEmpty()) {
+        manageNoBrokerClaimedNotification();
+        if (!leadIds.isEmpty()) {                                    
             notificationService
                     .deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
             leadOfferDao.updateLeadOffers(leadIdList);
@@ -186,4 +187,11 @@ public class CronService {
             }
         }
     }
+    
+    @Scheduled(cron = "0 0 9 * * ?")
+    public void sendLimitReachedGCMNotifications()
+    {
+        notificationService.sendLimitReachedGCMNotifications();
+    }
+        
 }

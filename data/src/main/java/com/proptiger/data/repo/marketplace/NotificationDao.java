@@ -73,4 +73,21 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
             nativeQuery = true,
             value = "delete marketplace.notifications from marketplace.notifications join marketplace.lead_offers on (marketplace.notifications.object_id = marketplace.lead_offers.id) and marketplace.notifications.notification_type_id = ?2 and marketplace.lead_offers.lead_id in (?1) and marketplace.lead_offers.status_id = ?3")
     public void deleteUsingNotificationTypeAndObjectId(String leadIdString, int notificationTypeId, int status_id);
+
+    @Query("select N from Notification N where N.userId = ?1 and N.notificationTypeId = ?2 and N.objectId = ?3")
+    public Notification findByUserIdAndNotificationId(int userId, int notificationTypeId,int objectId);
+
+    @Transactional
+    @Modifying
+    @Query("delete from Notification N where N.userId = ?1 and N.notificationTypeId = ?2")
+    public void deleteNotification(int userId, int notificationTypeId);
+
+    @Modifying
+    @Transactional
+    @Query("delete from Notification N where N.userId = ?1 and N.notificationTypeId = ?2 and N.objectId = ?3")
+    public void deleteRMNotification(int userId, int notificationTypeId, int objectId);
+
+    
+    @Query("select N from Notification N where N.notificationTypeId = ?1 and N.objectId = 0")
+    public List<Notification> getNotifications(int userId);
 }

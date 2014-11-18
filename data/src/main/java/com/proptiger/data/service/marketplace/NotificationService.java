@@ -326,6 +326,27 @@ public class NotificationService {
         sendGcmMessageUsingService(gcmMessage, offer.getAgentId());
     }
 
+    public void sendLimitReachedGCMNotifications() {
+        List<Notification> notifications = notificationDao
+                .getNotifications(NotificationType.MaxLeadCountForBrokerReached.getId());
+
+        for (Notification notification : notifications) {
+            sendLimitReachedGCMNotification(notification.getUserId());
+        }
+    }
+
+    private void sendLimitReachedGCMNotification(int userId) {
+        String message = "Claim Lead suspended. Please update your existing New leads to claim new leads";
+        String titleMessage = "Claim Lead suspended";
+
+        GcmMessage gcmMessage = new GcmMessage();
+        gcmMessage.setData(null);
+        gcmMessage.setMessage(message);
+        gcmMessage.setTitleMessage(titleMessage);
+        gcmMessage.setNotificationTypeId(NotificationType.MaxLeadCountForBrokerReached.getId());
+        sendGcmMessageUsingService(gcmMessage, userId);
+    }
+
     /**
      * gets the time upto which task must be scheduled in order for the client
      * to get notified
@@ -900,6 +921,17 @@ public class NotificationService {
                         null);
             }
         }
+    }
 
+    public Notification findByUserIdAndNotificationId(int userId, int notificationTypeId, int objectId) {
+        return notificationDao.findByUserIdAndNotificationId(userId, notificationTypeId, objectId);
+    }
+
+    public void deleteNotification(int userId, int notificationTypeId) {
+        notificationDao.deleteNotification(userId, notificationTypeId);
+    }
+
+    public void deleteNotification(int userId, int notificationTypeId, int objectId) {
+        notificationDao.deleteRMNotification(userId, notificationTypeId, objectId);
     }
 }
