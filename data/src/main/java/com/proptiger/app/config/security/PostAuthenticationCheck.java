@@ -12,7 +12,7 @@ import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.Application;
-import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.enums.Status;
 import com.proptiger.data.enums.ActivationStatus;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.service.companyuser.CompanyUserService;
@@ -51,7 +51,8 @@ public class PostAuthenticationCheck implements UserDetailsChecker {
     private void validateSubscription(ActiveUser activeUser) {
         if (activeUser.getApplicationType().equals(Application.B2B)) {
             /*
-             * If a b2b-user's permissions have expired then login request is denied
+             * If a b2b-user's permissions have expired then login request is
+             * denied
              */
             int userId = activeUser.getUserIdentifier();
             /*
@@ -65,7 +66,9 @@ public class PostAuthenticationCheck implements UserDetailsChecker {
             /* Throw error if user has no *active* subscriptions. */
             List<?> permissionList = userSubscriptionService.getUserAppSubscriptionDetails(userId);
             if (permissionList == null || permissionList.isEmpty()) {
-                throw new AuthenticationExceptionImpl(ResponseCodes.ACCESS_EXPIRED, ResponseErrorMessages.EXPIRED_PERMISSION_B2B_USER);
+                throw new AuthenticationExceptionImpl(
+                        ResponseCodes.ACCESS_EXPIRED,
+                        ResponseErrorMessages.EXPIRED_PERMISSION_B2B_USER);
             }
         }
         else if (activeUser.getApplicationType().equals(Application.RMP)) {
@@ -74,21 +77,31 @@ public class PostAuthenticationCheck implements UserDetailsChecker {
              * company user or not. In case if user not a company user then
              * respond with error message.
              */
-            try {
-                CompanyUser companyUser = companyUserService.getAgent(
-                        activeUser.getUserIdentifier(),
-                        new FIQLSelector().addAndConditionToFilter("status==" + ActivationStatus.Active));
-                if(companyUser == null){
-                    //not a company user
-                    throw new AuthenticationExceptionImpl(ResponseCodes.ACCESS_DENIED, ResponseErrorMessages.NON_RMP_USER);
-                }
-            }
-            catch (Exception e) {
-                logger.error("Not a RMP user id {}",activeUser.getUserIdentifier(), e);
+            List<CompanyUser> companyUsers = companyUserService.getCompanyUsers(activeUser.getUserIdentifier());
+            if (companyUsers == null || companyUsers.isEmpty()) {
+                // not a company user
                 throw new AuthenticationExceptionImpl(ResponseCodes.ACCESS_DENIED, ResponseErrorMessages.NON_RMP_USER);
             }
+            else {
+                boolean isActiveUser = false;
+                boolean isActiveCompany = false;
+                for (CompanyUser companyUser : companyUsers) {
+                    if (companyUser.getStatus().equals(ActivationStatus.Active)) {
+                        isActiveUser = true;
+                    }
+                    if (companyUser.getCompany() != null && (companyUser.getCompany().getStatus().equals(Status.Active))) {
+                        isActiveCompany = true;
+                    }
+                    if (isActiveCompany && isActiveUser) {
+                        break;
+                    }
+                }
+                if (!(isActiveCompany && isActiveUser)) {
+                    throw new AuthenticationExceptionImpl(
+                            ResponseCodes.ACCESS_DENIED,
+                            ResponseErrorMessages.INACTIVE_RMP_USER_COMPANY);
+                }
+            }
         }
-
     }
-
 }

@@ -51,4 +51,9 @@ public class CompanyUserService {
         }
         return companyUser;
     }
+    
+    public List<CompanyUser> getCompanyUsers(Integer userId) {
+        List<CompanyUser> companyUser = companyUserDao.findCompanyUsersByUserId(userId);
+        return companyUser;
+    }
 }
