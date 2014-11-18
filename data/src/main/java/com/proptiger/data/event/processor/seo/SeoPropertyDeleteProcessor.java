@@ -21,7 +21,7 @@ public class SeoPropertyDeleteProcessor extends DBEventProcessor {
     private PropertyService propertyService;
 
     @Override
-    public boolean populateEventSpecificData(EventGenerated event) {
+    public EventGenerated populateEventSpecificData(EventGenerated event) {
         logger.info(" Populating the Property Delete Event Type Old data.");
         DefaultEventTypePayload payload = (DefaultEventTypePayload) event.getEventTypePayload();
         Object newValue = payload.getNewValue();
@@ -29,7 +29,7 @@ public class SeoPropertyDeleteProcessor extends DBEventProcessor {
             if (newValue.equals(EntityType.Actual.name()) || newValue.equals(UnitType.Apartment.name())
                     || newValue.equals(UnitType.Villa.name())
                     || newValue.equals(UnitType.Plot.name())) {
-                return false;
+                return null;
             }
         }
 
@@ -37,9 +37,9 @@ public class SeoPropertyDeleteProcessor extends DBEventProcessor {
                 .getActivePropertyByIdFromDB(Integer.parseInt(event.getEventTypeUniqueKey()));
         // The property is not active.
         if (property == null) {
-            return true;
+            return event;
         }
 
-        return false;
+        return null;
     }
 }

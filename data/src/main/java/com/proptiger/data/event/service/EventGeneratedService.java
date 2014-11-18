@@ -373,5 +373,18 @@ public class EventGeneratedService {
     private void populateEventsDataBeforeSave(EventGenerated eventGenerated) {
         eventGenerated.setData(Serializer.toJson(eventGenerated.getEventTypePayload()));
     }
+    
+    private EventGenerated getLastEventGenerated() {
+        EventGenerated eventGenerated = eventGeneratedDao.findByEventStatusOrderByUpdatedAtDesc(EventStatus.Verified);
+
+        return eventGenerated;
+    }
+
+    public SubscriberConfigService getSubscriberConfigService() {
+        if(subscriberConfigService == null){
+            subscriberConfigService = applicationContext.getBean(SubscriberConfigService.class);
+        }
+        return subscriberConfigService;
+    }
 
 }

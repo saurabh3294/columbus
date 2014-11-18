@@ -22,24 +22,24 @@ public class SeoProjectChangeProcessor extends DBEventProcessor{
     private ProjectService projectService;
 
     @Override
-    public boolean populateEventSpecificData(EventGenerated event) {
+    public EventGenerated populateEventSpecificData(EventGenerated event) {
         logger.info(" Populating the Project Change Event Type Old data.");
         
         DefaultEventTypePayload payload = (DefaultEventTypePayload)event.getEventTypePayload();
         Object newValue = payload.getNewValue();
         if( newValue.getClass().equals(String.class) ){
             if( !newValue.equals(DataVersion.Website.name()) && !newValue.equals(ResidentialFlag.Residential.name()) && !newValue.equals(Status.Active.name()) ){
-                return false;
+                return null;
             }
         }
         
         Project project = projectService.getActiveProjectByIdFromDB(Integer.parseInt(event.getEventTypeUniqueKey()));
         // The project is not active.
         if(project == null){
-            return false;
+            return null;
         }
         
-        return true;
+        return event;
     }
 
 }

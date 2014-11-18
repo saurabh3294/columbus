@@ -104,8 +104,8 @@ public abstract class DBEventProcessor implements EventProcessor {
      * @param event
      * @return
      */
-    public boolean populateEventSpecificData(EventGenerated event) {
-        return true;
+    public EventGenerated populateEventSpecificData(EventGenerated event) {
+        return event;
     }
     
     protected void handleProcessedEventsStrategy(Map.Entry<String, List<EventGenerated>> entry, EventStatus verificationStatus){
@@ -238,7 +238,6 @@ public abstract class DBEventProcessor implements EventProcessor {
         size = entry.getValue().size() - 1;
         EventGenerated lastEvent = entry.getValue().get(size);
         updateEventStatus(lastEvent, EventStatus.Processed);
-        logger.info(new Gson().toJson(lastEvent.getEventTypePayload()));
     }
 
     protected void mergeRawEvents(Map.Entry<String, List<EventGenerated>> entry,
@@ -273,7 +272,6 @@ public abstract class DBEventProcessor implements EventProcessor {
         EventGenerated lastEvent = entry.getValue().get(size);
         lastEvent.getEventTypePayload().setChildEventTypePayloads(childEventTypePayloads);
         updateEventStatus(lastEvent, EventStatus.Processed);
-        logger.info(new Gson().toJson(lastEvent.getEventTypePayload()));
     }
     
     
@@ -317,13 +315,10 @@ public abstract class DBEventProcessor implements EventProcessor {
             eventTypeUpdateHistories = new ArrayList<EventTypeUpdateHistory>();
         }
         EventTypeUpdateHistory newHistory = new EventTypeUpdateHistory(eventStatus, new Date());
-        logger.info(" EVENT ID NEW LOG " + eventGenerated.getId() + new Gson().toJson(newHistory));
         eventTypeUpdateHistories.add(newHistory);
-        logger.info(" EVENT ID ALL LOG " + eventGenerated.getId() + new Gson().toJson(eventTypeUpdateHistories));
 
         eventGenerated.getEventTypePayload().setEventTypeUpdateHistories(eventTypeUpdateHistories);
-        eventGenerated.setData(new Gson().toJson(eventGenerated.getEventTypePayload()));
-        logger.info(" EVENT ID PAYLOAD : " + new Gson().toJson(eventGenerated));
+        eventGenerated.setData(Serializer.toJson(eventGenerated.getEventTypePayload()));
 
     }
 
@@ -341,6 +336,12 @@ public abstract class DBEventProcessor implements EventProcessor {
                 + "SETTING EXPIRY DATE "
                 + expiredDate);
         eventGenerated.setExpiryDate(expiredDate);
+    }
+    
+    protected void updateEventStatus(EventGenerated eventGenerated, EventStatus eventStatus){
+        eventGenerated.setEventStatus(eventStatus);
+        updateEventHistories(eventGenerated, eventStatus);
+        updateEventExpiryTime(eventGenerated);
     }
 
 }

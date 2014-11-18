@@ -17,7 +17,7 @@ public class SeoBuilderChangeProcessor extends DBEventProcessor {
     private static Logger   logger = LoggerFactory.getLogger(SeoBuilderChangeProcessor.class);
 
     @Override
-    public boolean populateEventSpecificData(EventGenerated event) {
+    public EventGenerated populateEventSpecificData(EventGenerated event) {
         logger.info(" Populating the Locality Change Event Type Old data.");
         DefaultEventTypePayload payload = (DefaultEventTypePayload) event.getEventTypePayload();
         Object newValue = payload.getNewValue();
@@ -27,19 +27,19 @@ public class SeoBuilderChangeProcessor extends DBEventProcessor {
         if (newValue != null && newValue.getClass().equals(Integer.class)) {
             Number number = (Number)newValue;
             if (number.intValue() == 0) {
-                return true;
+                return event;
             }
-            return false;
+            return null;
         }
         else if(newValue.getClass().equals(Map.class)){
             Map<String, Map<String, Object>> valuesMap = (Map<String, Map<String, Object>>)newValue;
             Map<String, Object> values = valuesMap.get(EventAllAttributeName.All);
             Number number = (Number)values.get("builder_status");
             if(number.intValue() == 0){
-                return true;
+                return event;
             }
         }
                 
-        return false;
+        return null;
     }
 }
