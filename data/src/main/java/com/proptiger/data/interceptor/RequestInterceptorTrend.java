@@ -42,7 +42,7 @@ public class RequestInterceptorTrend {
     @Before("@annotation(com.proptiger.core.annotations.Intercepted.TrendReport)")
     public void addSubscriptionPermissionsToSelectorTrendreport(JoinPoint joinPoint) {
         ActiveUser user = SecurityContextUtils.getActiveUser();
-        if (user == null || !ApplicationNameService.isB2BApplicationRequest()) {
+        if (user == null) {
             throw new UnauthorizedException(ResponseCodes.ACCESS_DENIED, ResponseErrorMessages.ACCESS_DENIED);
         }
         addSubscriptionBasedFiltersToFIQLSelector(joinPoint, user);
