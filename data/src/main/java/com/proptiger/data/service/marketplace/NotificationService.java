@@ -876,4 +876,17 @@ public class NotificationService {
                     LeadOfferStatus.Offered.getId());
         }
     }
+
+    public Notification findByUserIdAndNotificationId(int userId, int notificationTypeId, int objectId) {        
+        return notificationDao.findByUserIdAndNotificationId(userId,notificationTypeId,objectId);        
+    }
+
+    public void deleteNotification(int userId, int notificationTypeId) {
+        notificationDao.deleteNotification(userId, notificationTypeId);   
+    }
+
+    
+    public void deleteNotification(int userId, int notificationTypeId, int objectId) {
+        notificationDao.deleteRMNotification(userId, notificationTypeId, objectId);
+    }
 }

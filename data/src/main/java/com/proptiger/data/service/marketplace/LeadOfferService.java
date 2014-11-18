@@ -47,6 +47,7 @@ import com.proptiger.data.model.marketplace.LeadOffer.CountListingObject;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
@@ -516,11 +517,26 @@ public class LeadOfferService {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
 
                 if (leadOfferDao.getcountLeadOffersOnThisAgentInNewStatus(userId, LeadOfferStatus.New.getId()) < PropertyReader
-                        .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,Long.class)) {
-                    claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
+                        .getRequiredPropertyAsType(
+                                PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
+                                Long.class)) {
+                    claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);                    
+                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, 8,0);
+                    if (notification != null) {
+                        notificationService.deleteNotification(userId,8,0);
+                        notificationService.deleteNotification(PropertyReader
+                                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),8,userId);
+                    }
                 }
                 else {
-                    notificationService.createNotification(userId,8, 0, null);
+
+                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, 8,0);
+                    if (notification == null) {
+                        notificationService.createNotification(userId, 8, 0, null);                        
+                        notificationService.createNotification(PropertyReader
+                                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID), 8, userId, null);
+                    }
+
                     throw new APIServerException(
                             "you already have " + PropertyReader
                                     .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS)
@@ -881,7 +897,7 @@ public class LeadOfferService {
         for (LeadRequirement leadRequirement : leadRequirements) {
             Integer projectId = leadRequirement.getProjectId();
             if (listingsByProjectId.containsKey(projectId)) {
-                 sortedListProject.addAll(listingsByProjectId.get(projectId));
+                sortedListProject.addAll(listingsByProjectId.get(projectId));
                 listingsByProjectId.remove(projectId);
             }
         }
@@ -913,23 +929,27 @@ public class LeadOfferService {
                 listingsByLocalityId.remove(localityId);
             }
         }
-        
-        
+
         List<ListingComparator> compratorList = new ArrayList<ListingComparator>();
         compratorList.add(ListingComparator.NAME_SORT);
         compratorList.add(ListingComparator.ID_SORT);
         compratorList.add(ListingComparator.PRICE_SORT);
-        
-        Collections.sort(sortedListProject, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
-        Collections.sort(sortedListLocality, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
-        
+
+        Collections
+                .sort(sortedListProject, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+        Collections.sort(
+                sortedListLocality,
+                ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+
         sortedList.addAll(sortedListProject);
         sortedList.addAll(sortedListLocality);
 
         for (List<Listing> remainingListings : listingsByLocalityId.values()) {
             sortedListRemaining.addAll(remainingListings);
         }
-        Collections.sort(sortedListRemaining, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+        Collections.sort(
+                sortedListRemaining,
+                ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
         sortedList.addAll(sortedListRemaining);
 
         return sortedList;

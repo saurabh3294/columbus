@@ -111,11 +111,15 @@ public class LeadService {
           if (!leadOfferDao.findByLeadIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers).equals(
                   PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE, Long.class))) {
           
+              if(leadOfferDao.getMaxCycleIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers) < PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_BIDDING_CYCLE_COUNT))
+              {              
                   Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
                   phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers == null ? 0 : maxPhaseIdForRequestMoreBrokers);
                   manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers == null
                           ? 0
-                          : maxPhaseIdForRequestMoreBrokers, 0);        
+                          : maxPhaseIdForRequestMoreBrokers, 0);                  
+              }
+          
           }
       }
     
