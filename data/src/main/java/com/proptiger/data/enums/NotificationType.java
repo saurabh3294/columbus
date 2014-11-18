@@ -8,7 +8,7 @@ package com.proptiger.data.enums;
 public enum NotificationType {
     TaskDue(1), TaskOverDue(2), DuplicateLead(3), LeadOffered(4), NoBrokerFound("No Broker Found In Resale Marketplace"), SaleSuccessful(
             5, "Resale Lead Marked Sold In Marketplace"), NoBrokerClaimed(6,
-            "No Broker Claimed Lead In Resale Marketplace"), AuctionOverWithoutClaim(7, "No Claim Intimation");
+            "No Broker Claimed Lead In Resale Marketplace"), AuctionOverWithoutClaim(7, "No Claim Intimation"),MaxLeadCountForBrokerReached(8, "Max lead count reached");
 
     private int    id;
     private String emailSubject;
