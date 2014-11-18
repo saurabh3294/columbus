@@ -13,12 +13,8 @@ import com.proptiger.data.event.verification.DBEventVerification;
 import com.proptiger.data.event.verification.DefaultDBEventVerification;
 import com.proptiger.data.event.verification.PriceChangeVerification;
 
-// TODO remove the Types ENUM. make it dynamic.
 public class EventTypeConfig extends BaseModel {
 
-    /**
-     * 
-     */
     private static final long                    serialVersionUID      = 5353549466505297871L;
 
     public static Map<String, EventTypeConfig>   eventTypeConfigMap;

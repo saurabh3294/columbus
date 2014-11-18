@@ -22,6 +22,20 @@
 		<spring.social.google.version>1.0.0.M3</spring.social.google.version>
 		<skipTests>true</skipTests>
 	</properties>
+	<profiles>
+		<profile>
+			<id>develop</id>
+			<properties>
+				<midl-core.version>develop-SNAPSHOT</midl-core.version>
+			</properties>
+		</profile>
+		<profile>
+			<id>release</id>
+			<properties>
+				<midl-core.version>1.0.24</midl-core.version>
+			</properties>
+		</profile>
+	</profiles>
 	<build>
 		<finalName>dal</finalName>
 		<plugins>
@@ -297,14 +311,9 @@
 			<version>${aspectj.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-redis</artifactId>
-			<version>1.0.2.RELEASE</version>
-		</dependency>
-		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>2.1.0</version>
+			<version>2.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.simple-spring-memcached</groupId>
@@ -435,8 +444,26 @@
 		<dependency>
 			<groupId>com.proptiger</groupId>
 			<artifactId>midl-core</artifactId>
-			<version>1.0.24</version>
+			<version>${midl-core.version}</version>
 		</dependency>
+		
+		<dependency>
+		  <groupId>org.springframework.session</groupId>
+		  <artifactId>spring-session-data-redis</artifactId>
+		  <version>1.0.0.BUILD-SNAPSHOT</version>
+		  <exclusions>
+                <exclusion>
+                	<groupId>org.apache.commons</groupId>
+                	<artifactId>commons-pool2</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+		<dependency>
+		  <groupId>org.springframework</groupId>
+		  <artifactId>spring-web</artifactId>
+		  <version>${spring.version}</version>
+		</dependency>
+
 	</dependencies>
 	<repositories>
 		<repository>
@@ -456,6 +483,13 @@
 			<id>proptiger-maven-repo</id>
 			<name>S3 Release Repository</name>
 			<url>s3://proptiger-maven-repo/release</url>
+      <snapshots>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
 		</repository>
+		<repository>
+		    <id>spring-milestones</id>
+		    <url>http://repo.springsource.org/libs-milestone/</url>
+		  </repository>
 	</repositories>
 </project>

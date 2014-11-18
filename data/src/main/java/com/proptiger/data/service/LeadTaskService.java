@@ -245,7 +245,9 @@ public class LeadTaskService {
             if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
                     && !(leadOffer.getLastTask() == null && nextTask.getTaskStatusId() == LeadTaskService
                             .getOfferdefaultleadtaskstatusmappingid())) {
-                notificationService.createNotificationForTask(notificationTypeId, nextTask, true);
+                notificationService.sendCallDueNotification(notificationService.createNotificationForTask(
+                        notificationTypeId,
+                        nextTask));
                 validTaskIdForNotification = nextTask.getId();
             }
         }
@@ -300,7 +302,7 @@ public class LeadTaskService {
             LeadTask nextTask = getLeadTask(nextTaskId);
             Date scheduledTime = nextTask.getScheduledFor();
             if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)) {
-                notificationService.createNotificationForTask(notificationTypeId, nextTask, false);
+                notificationService.createNotificationForTask(notificationTypeId, nextTask);
                 validTaskIdForNotification = nextTask.getId();
             }
         }
@@ -333,7 +335,7 @@ public class LeadTaskService {
             Date scheduledTime = nextTask.getScheduledFor();
             if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
                     && leadTaskStatus.getMasterTaskId() != LeadTaskName.Call.getId()) {
-                notificationService.createNotificationForTask(notificationTypeId, nextTask, false);
+                notificationService.createNotificationForTask(notificationTypeId, nextTask);
                 validTaskIdForNotification = nextTask.getId();
             }
         }

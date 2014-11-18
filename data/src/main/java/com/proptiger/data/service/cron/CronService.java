@@ -149,7 +149,7 @@ public class CronService {
         notificationService.sendTaskDueNotification();
     }
 
-    @Scheduled(initialDelay = 4000, fixedDelay = 60000)
+    //@Scheduled(initialDelay = 4000, fixedDelay = 60000)
     public void manageNoBrokerClaimedNotification() {
         Date endDate = notificationService.getNoBrokerClaimedCutoffTime();
         Date startDate = new Date(

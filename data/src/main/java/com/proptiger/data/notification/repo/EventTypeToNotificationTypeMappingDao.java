@@ -13,4 +13,7 @@ public interface EventTypeToNotificationTypeMappingDao extends
     @Query("SELECT M FROM EventTypeToNotificationTypeMapping M LEFT JOIN FETCH M.eventType LEFT JOIN FETCH M.notificationType")
     public List<EventTypeToNotificationTypeMapping> findAllMapping();
 
+    @Query("SELECT M FROM EventTypeToNotificationTypeMapping M LEFT JOIN FETCH M.eventType E LEFT JOIN FETCH M.notificationType WHERE E.id = ?1 ")
+    public List<EventTypeToNotificationTypeMapping> findAllMappingsByEventTypeId(Integer eventTypeId);
+
 }

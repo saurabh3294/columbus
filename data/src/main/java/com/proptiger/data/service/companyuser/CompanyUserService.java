@@ -51,7 +51,7 @@ public class CompanyUserService {
         }
         return companyUser;
     }
-    
+
     public CompanyUser getAgentDetails(Integer userId, FIQLSelector selector) {
         CompanyUser companyUser = companyUserDao.findFullByUserId(userId);
 
@@ -68,10 +68,12 @@ public class CompanyUserService {
             }
             companyUser.setLocalities(localities);
         }
-        
+
         return companyUser;
     }
-    
-    
-    
+
+    public List<CompanyUser> getCompanyUsers(Integer userId) {
+        List<CompanyUser> companyUser = companyUserDao.findCompanyUsersByUserId(userId);
+        return companyUser;
+    }
 }
