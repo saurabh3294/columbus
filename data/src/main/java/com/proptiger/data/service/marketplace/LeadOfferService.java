@@ -526,12 +526,12 @@ public class LeadOfferService {
                     claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
                     Notification notification = notificationService.findByUserIdAndNotificationId(userId, 8, 0);
                     if (notification != null) {
-                        notificationService.deleteNotification(userId, 8, 0);
+                        notificationService.deleteNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
                         notificationService
                                 .deleteNotification(
                                         PropertyReader
                                                 .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
-                                        8,
+                                        NotificationType.MaxLeadCountForBrokerReached.getId(),
                                         userId);
                     }
 
@@ -540,10 +540,10 @@ public class LeadOfferService {
                             Long.class)) {
                         Notification notificationLeadLimit = notificationService.findByUserIdAndNotificationId(
                                 userId,
-                                8,
+                                NotificationType.MaxLeadCountForBrokerReached.getId(),
                                 0);
                         if (notificationLeadLimit == null) {
-                            notificationService.createNotification(userId, 8, 0, null);
+                            notificationService.createNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0, null);
                             notificationService
                                     .createNotification(
                                             PropertyReader
