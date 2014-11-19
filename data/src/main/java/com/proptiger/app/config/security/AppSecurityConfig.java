@@ -29,15 +29,14 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
@@ -89,7 +88,7 @@ public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityCon
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(createSessionRepositoryFilter(), ChannelProcessingFilter.class);
+        //http.addFilterBefore(createSessionRepositoryFilter(), ChannelProcessingFilter.class);
 
         http.rememberMe().rememberMeServices(createPersistentTokenBasedRememberMeService())
                 .key(Constants.Security.REMEMBER_ME_COOKIE);
@@ -120,7 +119,7 @@ public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityCon
      * 
      * @return
      */
-    @Bean(name = "springSessionRepositoryFilter")
+    //@Bean(name = "springSessionRepositoryFilter")
     public SessionRepositoryFilter<? extends ExpiringSession> createSessionRepositoryFilter() {
         final SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
         CookieHttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
@@ -270,7 +269,7 @@ public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityCon
 
     @Bean
     public PersistentTokenBasedRememberMeServices createPersistentTokenBasedRememberMeService() {
-        PersistentTokenBasedRememberMeServices tokenBasedRememberMeService = new PersistentTokenBasedRememberMeServices(
+        PersistentTokenBasedRememberMeServices tokenBasedRememberMeService = new CustomPersistentTokenBasedRememberMeServices(
                 Constants.Security.API_SECRET_KEY,
                 userService,
                 createPersistentLoginRepository());
@@ -281,9 +280,8 @@ public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityCon
     }
 
     @Bean
-    public JdbcTokenRepositoryImpl createPersistentLoginRepository() {
-        JdbcTokenRepositoryImpl repo = new JdbcTokenRepositoryImpl();
-        repo.setDataSource(dataSource);
+    public PersistentTokenRepository createPersistentLoginRepository() {
+        CustomJdbcPersistentTokenRepository repo = new CustomJdbcPersistentTokenRepository();
         return repo;
     }
 
