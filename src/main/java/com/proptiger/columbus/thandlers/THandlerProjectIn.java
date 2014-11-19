@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.util.PropertyKeys;

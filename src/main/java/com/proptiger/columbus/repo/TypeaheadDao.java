@@ -11,8 +11,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.google.common.base.Joiner;
-import com.proptiger.core.model.cms.City;
+//import com.google.common.base.Joiner;
+//import com.proptiger.core.model.cms.City;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.UtilityClass;
@@ -260,15 +260,15 @@ public class TypeaheadDao {
     // return solrQuery;
     // }
 
-    private String getCityQuery(List<String> cityList) {
-        List<String> newCityList = new ArrayList<String>();
-
-        for (String city : cityList) {
-            newCityList.add("TYPEAHEAD_CITY:" + city.trim());
-        }
-        String ctq = Joiner.on(" OR ").skipNulls().join(newCityList);
-        return ctq;
-    }
+//    private String getCityQuery(List<String> cityList) {
+//        List<String> newCityList = new ArrayList<String>();
+//
+//        for (String city : cityList) {
+//            newCityList.add("TYPEAHEAD_CITY:" + city.trim());
+//        }
+//        String ctq = Joiner.on(" OR ").skipNulls().join(newCityList);
+//        return ctq;
+//    }
 
     public List<List<String>> powerset(List<String> list) {
         List<List<String>> ps = new ArrayList<List<String>>();
@@ -289,17 +289,17 @@ public class TypeaheadDao {
         return ps;
     }
 
-    private List<String> tokenizeQuery(String query) {
-        List<String> qList = new ArrayList<String>();
-        List<List<String>> powerset = this.powerset(qList);
-        for (List<String> list : powerset) {
-            String st = Joiner.on(" ").skipNulls().join(list);
-            if (st.trim() != "" && st != null) {
-                qList.add(st);
-            }
-        }
-        return qList;
-    }
+//    private List<String> tokenizeQuery(String query) {
+//        List<String> qList = new ArrayList<String>();
+//        List<List<String>> powerset = this.powerset(qList);
+//        for (List<String> list : powerset) {
+//            String st = Joiner.on(" ").skipNulls().join(list);
+//            if (st.trim() != "" && st != null) {
+//                qList.add(st);
+//            }
+//        }
+//        return qList;
+//    }
 
     // public List<Typeahead> getTypeaheads(String query, int rows, List<String>
     // filterQueries) {
@@ -308,16 +308,16 @@ public class TypeaheadDao {
     // return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
     // }
 
-    private String parseCities(String query, List<String> queryCities) {
-        String query_new = this.substituteQuery(query, queryCities);
-
-        if (query_new.trim().isEmpty()) {
-            return query;
-        }
-        else {
-            return query_new;
-        }
-    }
+//    private String parseCities(String query, List<String> queryCities) {
+//        String query_new = this.substituteQuery(query, queryCities);
+//
+//        if (query_new.trim().isEmpty()) {
+//            return query;
+//        }
+//        else {
+//            return query_new;
+//        }
+//    }
 
     // private List<String> findCities(String query) {
     // // TODO Auto-generated method stub
@@ -342,13 +342,13 @@ public class TypeaheadDao {
     // return matchedCities;
     // }
 
-    private String substituteQuery(String query, List<String> terms) {
-        // replaces terms in query with terms
-        for (String term : terms) {
-            query = query.replace(term.toLowerCase(), "");
-        }
-        return query.trim();
-    }
+//    private String substituteQuery(String query, List<String> terms) {
+//        // replaces terms in query with terms
+//        for (String term : terms) {
+//            query = query.replace(term.toLowerCase(), "");
+//        }
+//        return query.trim();
+//    }
 
     public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
         String[] multiWords = query.split("\\s+");
