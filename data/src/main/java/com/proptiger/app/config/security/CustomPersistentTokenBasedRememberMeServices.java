@@ -41,6 +41,7 @@ public class CustomPersistentTokenBasedRememberMeServices extends PersistentToke
         if (rememberMeCookie == null || rememberMeCookie.length() == 0) {
             logger.debug("rememberme Cookie was empty");
             cancelCookie(request, response);
+            return;
         }
         String[] cookieTokens = decodeCookie(rememberMeCookie);
 
