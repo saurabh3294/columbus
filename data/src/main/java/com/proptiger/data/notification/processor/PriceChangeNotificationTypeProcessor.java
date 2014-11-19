@@ -29,7 +29,7 @@ public class PriceChangeNotificationTypeProcessor extends NotificationTypeProces
                 .getNotificationTypePayloadObject();
 
         EventTypePayload eventTypePayload = eventGenerated.getEventTypePayload();
-        Integer listingId = ((Number) eventTypePayload.getPrimaryKeyValue()).intValue();
+        Integer listingId = Integer.parseInt((String) eventTypePayload.getPrimaryKeyValue());
 
         logger.debug("Getting listing for listing id: " + listingId);
         Listing listing = listingService.getListingByListingId(listingId);

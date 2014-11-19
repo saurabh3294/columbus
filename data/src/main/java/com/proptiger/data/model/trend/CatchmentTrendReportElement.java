@@ -187,6 +187,15 @@ public class CatchmentTrendReportElement implements Serializable {
         return ((bhk == -1) ? "ALL" : String.valueOf(bhk));
     }
 
+    private String getProjectAreaDisplay(){
+        if(this.projectArea == null || this.projectArea == 0){
+            return "NA";
+        }
+        else{
+            return String.valueOf(this.projectArea);
+        }
+    }
+    
     public List<List<Object>> getReportRows(List<Date> monthlist) {
         List<List<Object>> reportRows = new ArrayList<List<Object>>();
         List<Object> commonData = Arrays.asList(new Object[] {
@@ -199,8 +208,8 @@ public class CatchmentTrendReportElement implements Serializable {
                 latitude,
                 longitude,
                 projectStatus,
-                projectArea,
-                launchPrice,
+                getProjectAreaDisplay(),
+//              launchPrice,
                 getBhkDisplay(bhk),
                 bhkSizeRange,
                 totalUnits,
@@ -230,14 +239,14 @@ public class CatchmentTrendReportElement implements Serializable {
                 { "Project Name", String.class },
                 { "Builder Name", String.class },
                 { "Phase Name", String.class },
-                { "Launch Date", String.class },
-                { "Completion Date", String.class },
+                { "Launch Date", Date.class },
+                { "Completion Date", Date.class },
                 { "Locality", String.class },
                 { "Latitude", Double.class },
                 { "Longitude", Double.class },
                 { "Project Status", String.class },
-                { "Project Area", Integer.class },
-                { "Launch Price", Double.class },
+                { "Project Area", String.class },
+//              { "Launch Price", Double.class },
                 { "BHK", String.class },
                 { "BHK Size Range", String.class },
                 { "Total Units", Integer.class },

@@ -23,37 +23,52 @@ import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
 
 @Service
 public class RawDBEventGenerator {
+
     private static Logger                     logger = LoggerFactory.getLogger(RawDBEventGenerator.class);
+
     @Autowired
     private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Autowired
     private RawDBEventService                 rawDBEventService;
 
+    /**
+     * Generates RawDBEvents using RawDBEventTableConfigs present in DB. Updates
+     * the transaction date of last accessed transaction in the corresponding
+     * RawDBEventTableConfig
+     * 
+     * @return list of RawDBEvents
+     */
     public List<RawDBEvent> getRawDBEvents() {
-
         List<RawDBEvent> finalRawDBEventList = new ArrayList<RawDBEvent>();
         List<RawDBEventTableConfig> rawDBEventTableConfigs = eventTypeMappingService.getRawDBEventTableConfigs();
-        logger.info("Iterating " + rawDBEventTableConfigs.size() + " table configurations.");
 
+        logger.debug("Iterating over " + rawDBEventTableConfigs.size() + " RawDBEventTableConfigs found in DB");
         for (RawDBEventTableConfig rawDBEventTableConfig : rawDBEventTableConfigs) {
+            RawEventTableDetails rawEventTableDetails = rawDBEventTableConfig.getRawEventTableDetails();
 
             List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(rawDBEventTableConfig);
+            logger.debug("Generated " + rawDBEvents.size()
+                    + " RawDBEvents using RawDBEventTableConfig with id: "
+                    + rawEventTableDetails.getId()
+                    + " and table: "
+                    + rawEventTableDetails.getTableName());
             finalRawDBEventList.addAll(rawDBEvents);
 
             // Updating the last accessed Transaction Key after generating the
-            // rawDBEvents
-            // TODO to move the setting of last transaction Id at the end when
-            // rows have been inserted.
-            // as we are taking the configuration on static not every db call.
+            // RawDBEvents
+            // TODO: Move this to the end where EventGenerated is being
+            // persisted to DB because we are storing this updated value in a
+            // static map. Therefore, if the code fails in between then the
+            // static map will still have the updated value.
             if (!rawDBEvents.isEmpty()) {
-                RawEventTableDetails rawEventTableDetails = rawDBEventTableConfig.getRawEventTableDetails();
                 rawEventTableDetails.setLastTransactionKeyValue(getLastAccessedTransactionId(
                         rawDBEvents,
                         rawDBEventTableConfig.getRawEventTableDetails().getTransactionKeyName()));
             }
         }
 
+        logger.debug("Generated total " + finalRawDBEventList.size() + " RawDBEvents");
         return finalRawDBEventList;
     }
 
@@ -66,7 +81,7 @@ public class RawDBEventGenerator {
                 lastAccessedId = transactionKey;
             }
         }
-        logger.info(" Getting the Last Transaction id " + lastAccessedId);
+        logger.debug("Setting the LastAccessedTransactionID: " + lastAccessedId);
         return lastAccessedId;
     }
 

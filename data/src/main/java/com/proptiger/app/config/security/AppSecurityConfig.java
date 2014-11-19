@@ -10,6 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.cache.CustomRedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -23,26 +29,35 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.session.ExpiringSession;
+import org.springframework.session.SessionRepository;
+import org.springframework.session.data.redis.DatabaseSessionOperations;
+import org.springframework.session.data.redis.RedisAndDBOperationsSessionRepository;
+import org.springframework.session.web.http.CookieHttpSessionStrategy;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.web.filter.GenericFilterBean;
 
 import com.proptiger.api.filter.IPBasedAPIAccessFilter;
 import com.proptiger.app.config.security.social.CustomSpringSocialConfigurer;
 import com.proptiger.core.enums.security.UserRole;
 import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.service.security.OTPService;
 
 /**
@@ -50,12 +65,13 @@ import com.proptiger.data.service.security.OTPService;
  * success and failure scenarios. Define filters to process the requests.
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackages = { "com.proptiger" })
-public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
+@Order
+public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserDetailManagerService userService;
@@ -63,23 +79,18 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private DataSource               dataSource;
 
+    @Autowired
+    private SessionRepository<S>     sessionRepository;
+
+    @Autowired
+    private RedisSerializer<?>       jdkSerializer;
+
+    private final int                REDIS_DB_INDEX_SESSION = 1;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        /*
-         * to enable form login for testing purpose uncomment these start
-         */
-        // http.csrf().disable();
-        // http.authorizeRequests().antMatchers("/data/v1/entity/user/**").authenticated().and().formLogin().successHandler(createAuthSuccessHandler());
-        // //http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
-        // http.addFilter(createUserNamePasswordLoginFilter());
-        // http.logout().logoutSuccessHandler(createLogoutHanlder()).logoutUrl(LOGOUT_URL);
-        /*
-         * to enable form login for testing purpose uncomment these end and
-         * comment below code
-         */
+        http.addFilterBefore(createSessionRepositoryFilter(), ChannelProcessingFilter.class);
 
-        // http.requiresChannel().antMatchers(Constants.Security.USER_API_REGEX,
-        // Constants.Security.AUTH_API_REGEX).requiresSecure();
         http.rememberMe().rememberMeServices(createPersistentTokenBasedRememberMeService())
                 .key(Constants.Security.REMEMBER_ME_COOKIE);
         http.csrf().disable();
@@ -101,6 +112,21 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilter(createConcurrentSessionFilter());
         http.exceptionHandling().accessDeniedHandler(createAccessDeniedHandler());
         http.addFilterBefore(createIPBasedAPIAccessFilter(), CustomUsernamePasswordAuthenticationFilter.class);
+    }
+
+    /**
+     * Create session repository filter, that will create session object instead
+     * of container
+     * 
+     * @return
+     */
+    @Bean(name = "springSessionRepositoryFilter")
+    public SessionRepositoryFilter<? extends ExpiringSession> createSessionRepositoryFilter() {
+        final SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
+        CookieHttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
+        httpSessionStrategy.setCookieName(Constants.JSESSIONID);
+        sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
+        return sessionRepositoryFilter;
     }
 
     @Bean
@@ -244,7 +270,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PersistentTokenBasedRememberMeServices createPersistentTokenBasedRememberMeService() {
-        PersistentTokenBasedRememberMeServices tokenBasedRememberMeService = new PersistentTokenBasedRememberMeServices(
+        PersistentTokenBasedRememberMeServices tokenBasedRememberMeService = new CustomPersistentTokenBasedRememberMeServices(
                 Constants.Security.API_SECRET_KEY,
                 userService,
                 createPersistentLoginRepository());
@@ -255,9 +281,8 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public JdbcTokenRepositoryImpl createPersistentLoginRepository() {
-        JdbcTokenRepositoryImpl repo = new JdbcTokenRepositoryImpl();
-        repo.setDataSource(dataSource);
+    public PersistentTokenRepository createPersistentLoginRepository() {
+        CustomJdbcPersistentTokenRepository repo = new CustomJdbcPersistentTokenRepository();
         return repo;
     }
 
@@ -265,5 +290,65 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationFailureHandler createAuthFailureHandler() {
         AuthFailureHandler authFailureHandler = new AuthFailureHandler();
         return authFailureHandler;
+    }
+
+    /**
+     * Create an instance of the {@link RedisAndDBOperationsSessionRepository}.
+     * Set
+     * {@link RedisAndDBOperationsSessionRepository#setDefaultMaxInactiveInterval(int)}
+     * to {@link 7 days}.
+     * 
+     * @param redisTemplate
+     * @return A RedisAndDBOperationsSessionRepository instance
+     */
+    @Bean
+    public RedisAndDBOperationsSessionRepository createSessionRepository() {
+
+        RedisAndDBOperationsSessionRepository redisAndDBOperationsSessionRepository = new RedisAndDBOperationsSessionRepository(
+                createSessionRedisTemplate(),
+                createExpirationSessionRedisTemplate(),
+                createDatabaseSessionOperations());
+
+        redisAndDBOperationsSessionRepository.setDefaultMaxInactiveInterval(PropertyReader.getRequiredPropertyAsType(
+                PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL,
+                Integer.class));
+
+        return redisAndDBOperationsSessionRepository;
+    }
+
+    @Bean
+    public DatabaseSessionOperations createDatabaseSessionOperations() {
+        CustomRedisCacheManager cacheManager = new CustomRedisCacheManager(createSessionRedisTemplate());
+        cacheManager.setUsePrefix(true);
+        DatabaseSessionOperations sessionOperations = new DatabaseSessionOperations(cacheManager);
+        return sessionOperations;
+    }
+
+    @Bean(name = "sessionRedisTemplate")
+    public RedisTemplate<String, ExpiringSession> createSessionRedisTemplate() {
+        RedisTemplate<String, ExpiringSession> redisTemplate = new RedisTemplate<String, ExpiringSession>();
+        redisTemplate.setConnectionFactory(createSessionJedisConnectionFactory());
+        redisTemplate.setValueSerializer(jdkSerializer);
+        return redisTemplate;
+    }
+
+    @Bean(name = "expirationSessionRedisTemplate")
+    public RedisTemplate<String, String> createExpirationSessionRedisTemplate() {
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<String, String>();
+        redisTemplate.setConnectionFactory(createSessionJedisConnectionFactory());
+       // redisTemplate.setValueSerializer(jdkSerializer);
+        return redisTemplate;
+    }
+
+    @Bean(name = "sessionJedisConnectionFactory")
+    public RedisConnectionFactory createSessionJedisConnectionFactory() {
+        JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
+        connectionFactory.setHostName(PropertyReader.getRequiredPropertyAsType(PropertyKeys.REDIS_HOST, String.class));
+        connectionFactory.setPort(PropertyReader.getRequiredPropertyAsType(PropertyKeys.REDIS_PORT, Integer.class));
+        connectionFactory.setUsePool(PropertyReader.getRequiredPropertyAsType(
+                PropertyKeys.REDIS_USE_POOL,
+                Boolean.class));
+        connectionFactory.setDatabase(REDIS_DB_INDEX_SESSION);
+        return connectionFactory;
     }
 }

@@ -12,11 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.Gson;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypeUpdateHistory;
 import com.proptiger.data.event.service.EventGeneratedService;
+import com.proptiger.data.util.Serializer;
 
 @Component
 public abstract class DBEventProcessor implements EventProcessor {
@@ -26,11 +26,23 @@ public abstract class DBEventProcessor implements EventProcessor {
     @Autowired
     private EventGeneratedService eventGeneratedService;
 
-    public List<EventGenerated> processRawEvents(List<EventGenerated> events) {
-        List<EventGenerated> processedEvents = eventGeneratedService.getProcessedEventsToBeMerged();
+    /**
+     * Takes the list of Raw events of a particular eventType and Processed
+     * events from DB which are still in holding state and marks the latest
+     * event of a particular primary key as PROCESSED and remaining events as
+     * DISCARDED
+     * 
+     * @param events
+     * @return
+     */
+    public List<EventGenerated> processRawEvents(Integer eventTypeId, List<EventGenerated> events) {
 
+        // Gets the Processed events of a particular type from DB which are
+        // still in holding state
+        List<EventGenerated> processedEvents = eventGeneratedService.getProcessedEventsToBeMerged(eventTypeId);
+
+        // Groups the events by their primary key
         Map<String, List<EventGenerated>> groupEventMap = groupEventsByKey(events);
-        logger.info(" MAPPING " + new Gson().toJson(groupEventMap));
         Map<String, List<EventGenerated>> allCurrentProcessedEvents = groupEventsByKey(processedEvents);
 
         // Map for Updating the Events by their old status.
@@ -63,8 +75,6 @@ public abstract class DBEventProcessor implements EventProcessor {
             lastEvent.setEventStatus(EventStatus.Processed);
             updateEventHistories(lastEvent, EventStatus.Processed);
             updateEventExpiryTime(lastEvent);
-            logger.info(new Gson().toJson(lastEvent.getEventTypePayload()));
-
         }
 
         // Updating processed Raw Events.
@@ -74,7 +84,17 @@ public abstract class DBEventProcessor implements EventProcessor {
         return events;
     }
 
-    public List<EventGenerated> processProcessedEvents(List<EventGenerated> events) {
+    /**
+     * Takes the list of all events of a particular eventType that are in
+     * Processed state and whose holding period has expired and checks the
+     * latest event of a particular primary key for verification and marks the
+     * remaining events as DISCARDED. An event is marked as PENDING_VERIFICATION
+     * if verification is required else VERIFIED if no verification is required.
+     * 
+     * @param events
+     * @return
+     */
+    public List<EventGenerated> processProcessedEvents(Integer eventTypeId, List<EventGenerated> events) {
         Map<String, List<EventGenerated>> groupEventMap = groupEventsByKey(events);
         List<EventGenerated> discardedEvents = new ArrayList<EventGenerated>();
 
@@ -112,14 +132,26 @@ public abstract class DBEventProcessor implements EventProcessor {
         return events;
     }
 
-    public List<EventGenerated> processVerifiedEvents(List<EventGenerated> events) {
-        return events;
+    /**
+     * This can be used to populate the event specific data for an event. In
+     * most of the cases this function will overridden by the child classes for
+     * defining what all and how the data needs to be populated for a specific
+     * event type.
+     * 
+     * @param event
+     * @return
+     */
+    public EventGenerated populateEventSpecificData(EventGenerated event) {
+        return event;
     }
 
-    public boolean populateEventSpecificData(EventGenerated event) {
-        return true;
-    }
-
+    /**
+     * This function can be used to group the events by their corresponding
+     * primaryKeys
+     * 
+     * @param events
+     * @return
+     */
     protected Map<String, List<EventGenerated>> groupEventsByKey(List<EventGenerated> events) {
         Map<String, List<EventGenerated>> groupEventsByUniqueKey = new HashMap<String, List<EventGenerated>>();
 
@@ -133,12 +165,17 @@ public abstract class DBEventProcessor implements EventProcessor {
 
             eventsGeneratedByKeyGroup.add(eventGenerated);
             groupEventsByUniqueKey.put(eventGenerated.getEventTypeUniqueKey(), eventsGeneratedByKeyGroup);
-
         }
-
         return groupEventsByUniqueKey;
     }
 
+    /**
+     * Updates the event histories in an event if the status of an event
+     * changes. This is to track the state changes of an event
+     * 
+     * @param eventGenerated
+     * @param eventStatus
+     */
     protected void updateEventHistories(EventGenerated eventGenerated, EventStatus eventStatus) {
         List<EventTypeUpdateHistory> eventTypeUpdateHistories = eventGenerated.getEventTypePayload()
                 .getEventTypeUpdateHistories();
@@ -146,23 +183,20 @@ public abstract class DBEventProcessor implements EventProcessor {
             eventTypeUpdateHistories = new ArrayList<EventTypeUpdateHistory>();
         }
         EventTypeUpdateHistory newHistory = new EventTypeUpdateHistory(eventStatus, new Date());
-        logger.info(" EVENT ID NEW LOG " + eventGenerated.getId() + new Gson().toJson(newHistory));
         eventTypeUpdateHistories.add(newHistory);
-        logger.info(" EVENT ID ALL LOG " + eventGenerated.getId() + new Gson().toJson(eventTypeUpdateHistories));
-
         eventGenerated.getEventTypePayload().setEventTypeUpdateHistories(eventTypeUpdateHistories);
-        eventGenerated.setData(new Gson().toJson(eventGenerated.getEventTypePayload()));
-        logger.info(" EVENT ID PAYLOAD : " + new Gson().toJson(eventGenerated));
-
+        eventGenerated.setData(Serializer.toJson(eventGenerated.getEventTypePayload()));
     }
 
+    /**
+     * Updates the expiry time for a particular event based on the validation
+     * cycle config present in DB for a particular event type
+     * 
+     * @param eventGenerated
+     */
     protected void updateEventExpiryTime(EventGenerated eventGenerated) {
         Date expiredDate = DateUtils.addHours(new Date(), eventGenerated.getEventType().getValidationCycleHours());
-        logger.info("EVENT TYPE ID " + eventGenerated.getId()
-                + " Number of Hours"
-                + eventGenerated.getEventType().getValidationCycleHours()
-                + "SETTING EXPIRY DATE "
-                + expiredDate);
+        logger.debug("Updating expiry time for EventGeneratedID: " + eventGenerated.getId() + " to " + expiredDate);
         eventGenerated.setExpiryDate(expiredDate);
     }
 
