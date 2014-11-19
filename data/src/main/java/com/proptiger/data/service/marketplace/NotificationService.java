@@ -54,6 +54,7 @@ import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
+import com.proptiger.data.service.companyuser.CompanyUserService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.SerializationUtils;
@@ -99,6 +100,8 @@ public class NotificationService {
 
     private static Logger                     logger                  = LoggerFactory
                                                                               .getLogger(NotificationService.class);
+    @Autowired
+    CompanyUserService                        companyUserService;
 
     static {
         for (LeadTaskName leadTask : LeadTaskName.values()) {
@@ -905,19 +908,30 @@ public class NotificationService {
         int notificationTypeId = NotificationType.TooManyTasksOverDue.getId();
         int minOverDueTaskForNotification = PropertyReader
                 .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_COUNT_FOR_RM_NOTIFICATION);
-        Date scheduledForBefore = DateUtil.addDays(new Date(), -1 * PropertyReader
-                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_DURATION_DAY_FOR_RM_NOTIFICATION));
+        Date scheduledForBefore = DateUtil
+                .addDays(
+                        new Date(),
+                        -1 * PropertyReader
+                                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_DURATION_DAY_FOR_RM_NOTIFICATION));
         List<AgentOverDueTaskCount> overDueTaskCountForUsers = taskDao.findOverDueTasksForAgents(
                 scheduledForBefore,
                 minOverDueTaskForNotification);
         for (AgentOverDueTaskCount overDueTaskCountForUser : overDueTaskCountForUsers) {
             int userId = overDueTaskCountForUser.getAgentId();
             if (notificationDao.findByObjectIdAndNotificationTypeId(userId, notificationTypeId) == null) {
-                createNotification(
-                        PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
-                        notificationTypeId,
-                        userId,
-                        null);
+                int rmUserId = PropertyReader
+                        .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID);
+                createNotification(rmUserId, notificationTypeId, userId, null);
+
+                String companyname = companyUserService.getCompanyUsers(userId).get(0).getCompany().getName();
+                String emailSubject = "Too May Overdue Tasks for " + companyname;
+                String emailContent = companyname + " has not updated "
+                        + overDueTaskCountForUser.getOverDueTaskCount()
+                        + " overdue tasks in last "
+                        + PropertyReader
+                                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_DURATION_DAY_FOR_RM_NOTIFICATION)
+                        + " days.";
+                sendEmail(rmUserId, emailSubject, emailContent);
             }
         }
         notificationDao.deleteTooManyTaskNotification(
