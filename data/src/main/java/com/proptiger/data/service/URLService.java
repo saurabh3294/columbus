@@ -70,7 +70,7 @@ public class URLService {
     @Autowired
     private ImageService	  imageService;
     
-    private static Pattern PATTERN = Pattern.compile("^*(\\d+)(?:/.*)*$");
+    private static Pattern PATTERN = Pattern.compile("^(?:.*)-(\\d+)(?:/[\\d+]{0,2}bhk(?:\\?\\d+-\\d+-lacs)?)?$");
 
     public ValidURLResponse getURLStatus(String url) {
         URLDetail urlDetail = null;
@@ -122,7 +122,7 @@ public class URLService {
 			return PageType.PROJECT_URLS;
 		}
 		
-		if (domainObject.equals(DomainObject.locality) || domainObject.getText().equals(DomainObject.suburb)) {
+		if (domainObject.equals(DomainObject.locality) || domainObject.equals(DomainObject.suburb)) {
 			newUrlDetail.setLocalityId(objectId);
 			newUrlDetail.setOverviewType("overview");
 			return PageType.LOCALITY_SUBURB_OVERVIEW;
@@ -402,7 +402,7 @@ public class URLService {
     			//url be empty and nothing can be extracted from this, but in case of HttpStatus
     			//200 city is active and hence directly assigning cityId to objectIdFromRedirectUrl as
     			//redirection url will be null.
-    			if (pageType.equals(PageType.CITY_URLS) && urlResponse.getHttpStatus() == HttpStatus.SC_OK) {
+    			if (objectIdToPageType.equals(PageType.CITY_URLS) && urlResponse.getHttpStatus() == HttpStatus.SC_OK) {
     				objectIdFromRedirectUrl = urlDetail.getObjectId();
     				urlResponse = new ValidURLResponse(HttpStatus.SC_MOVED_PERMANENTLY, "");
     			}
