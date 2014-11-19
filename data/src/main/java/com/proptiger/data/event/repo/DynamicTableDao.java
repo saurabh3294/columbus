@@ -23,22 +23,29 @@ import com.proptiger.core.util.DateUtil;
 @Transactional(value = "hibernateTransactionManager")
 public class DynamicTableDao {
 
+    protected Logger            logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     protected SessionFactory    sessionFactory;
 
     @Autowired
     protected ConversionService conversionService;
 
-    protected Logger            logger = LoggerFactory.getLogger(this.getClass());
-
+    /**
+     * Runs a query and return the rows as List of Key, Value map
+     * 
+     * @param queryString
+     * @return
+     */
+    @SuppressWarnings("unchecked")
     protected List<Map<String, Object>> runDynamicTableQuery(String queryString) {
+
         if (queryString == null || queryString.isEmpty()) {
+            logger.error("Cannot run query for an empty query string");
             return new ArrayList<Map<String, Object>>();
         }
-        logger.info(queryString);
-        Session session = sessionFactory.openSession();// getCurrentSession();
-        // Transaction tx = session.beginTransaction();
 
+        Session session = sessionFactory.openSession();
         Query query = session.createSQLQuery(queryString);
         query.setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
 
@@ -47,28 +54,27 @@ public class DynamicTableDao {
             // TODO to make null values as empty. Find a way where Hibernate
             // makes it.
             results = query.list();
-            //logger.debug(" QUERY OUTPUT " + Serializer.toJson(results));
         }
         catch (Exception e) {
             session.close();
-            logger.error("Query " + queryString + " : Error Message : " + e.getMessage());
+            logger.error("Got error: " + e.getMessage() + " while running Query: " + queryString);
             e.printStackTrace();
         }
 
         if (results == null) {
             new ArrayList<Map<String, Object>>();
         }
-
         session.close();
         return results;
     }
 
+    @SuppressWarnings("deprecation")
     protected String convertMapToSql(Map<String, Object> map) {
+
         if (map == null) {
             return "";
         }
 
-        //logger.debug(" Start Convert MAP TO QUERY STRING : " + Serializer.toJson(map));
         String condition = "";
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             condition += " AND " + entry.getKey() + "= ";
@@ -88,16 +94,15 @@ public class DynamicTableDao {
             }
         }
 
-        //logger.debug(" CONDITION FORMED IS " + condition);
         return condition;
     }
 
+    @SuppressWarnings("deprecation")
     protected String convertMapOfListToSql(Map<String, List<Object>> map) {
         if (map == null) {
             return "";
         }
 
-        //logger.debug(" Start Convert MAP TO QUERY STRING : " + Serializer.toJson(map));
         String condition = "";
         for (Entry<String, List<Object>> entry : map.entrySet()) {
             List<Object> list = entry.getValue();
@@ -106,7 +111,7 @@ public class DynamicTableDao {
             }
             condition += " AND " + entry.getKey() + " in (";
             for (int i = 0; i < list.size(); i++) {
-                Object obj = list.get(i);               
+                Object obj = list.get(i);
                 if (obj instanceof Number) {
                     condition += obj;
                 }
@@ -128,7 +133,6 @@ public class DynamicTableDao {
             condition += ") ";
         }
 
-        //logger.debug(" CONDITION FORMED IS " + condition);
         return condition;
     }
 }

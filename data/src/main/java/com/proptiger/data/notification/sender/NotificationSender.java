@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.enums.MediumType;
@@ -21,6 +22,12 @@ public class NotificationSender {
     @Autowired
     private NotificationGeneratedService nGeneratedService;
 
+    @Value("#{'${env.error.emails}'.split(',')}")
+    private List<String>                 enabledEnv;
+
+    @Value("${env.name}")
+    private String                       env;
+
     public Integer sendNotification(MediumType medium) {
         Integer numberOfSendNtGen = 0;
         List<NotificationGenerated> nGeneratedList = nGeneratedService.getScheduledAndReadyNotifications(medium);
@@ -35,28 +42,45 @@ public class NotificationSender {
                 }
             }
             catch (Exception e) {
-                logger.error("Send Notification failed for NotificationGeneratedID: " + nGenerated.getId()
-                        + " UserID: "
+                String errorString = "Send Notification failed on Evnironment: " + env
+                        + " having NotificationGeneratedID: "
+                        + nGenerated.getId()
+                        + ", UserID: "
                         + nGenerated.getUserId()
-                        + " Medium: "
+                        + ", Medium: "
                         + nGenerated.getNotificationMedium().getName()
-                        + " NotificationType: "
+                        + ", NotificationType: "
                         + nGenerated.getNotificationType().getName()
                         + " with Exception: "
                         + e
-                        + " StackTrace: "
-                        + e.getStackTrace());
+                        + ", StackTrace: "
+                        + e.getStackTrace();
+
+                if (enabledEnv.contains(env)) {
+                    // This is also send an email to the developer. Please refer
+                    // logback.xml for configurations regarding the email
+                    logger.error(errorString);
+                }
+
             }
 
             if (NotificationStatus.Failed.equals(notificationStatus)) {
-                logger.error("Not able to send Notification for nGenerated id: " + nGenerated.getId()
-                        + " UserID: "
+                String errorString = "Send Notification failed on Evnironment: " + env
+                        + " having NotificationGeneratedID: "
+                        + nGenerated.getId()
+                        + ", UserID: "
                         + nGenerated.getUserId()
-                        + " Medium: "
+                        + ", Medium: "
                         + nGenerated.getNotificationMedium().getName()
-                        + " NotificationType: "
+                        + ", NotificationType: "
                         + nGenerated.getNotificationType().getName()
-                        + " Marking its status as Failed.");
+                        + ". Marking its status as Failed.";
+
+                if (enabledEnv.contains(env)) {
+                    // This is also send an email to the developer. Please refer
+                    // logback.xml for configurations regarding the email
+                    logger.error(errorString);
+                }
             }
 
             nGeneratedService.updateNotificationGeneratedStatusOnOldStatus(

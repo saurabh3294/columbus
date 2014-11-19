@@ -6,11 +6,11 @@ import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.model.RawEventTableDetails;
 
 public class RawDBEventTableConfig {
-    
-    private static final String DB_OPERATION_ATTRIBUTE_NAME = "_t_operation";
-    
-    private RawEventTableDetails rawEventTableDetails;
-    
+
+    private static final String             DB_OPERATION_ATTRIBUTE_NAME = "_t_operation";
+
+    private RawEventTableDetails            rawEventTableDetails;
+
     // TODO: Use Map instead of List
     private List<RawDBEventOperationConfig> rawDBEventOperationConfigs;
 
@@ -45,7 +45,7 @@ public class RawDBEventTableConfig {
     public static String getDbOperationAttributeName() {
         return DB_OPERATION_ATTRIBUTE_NAME;
     }
-    
+
     public RawDBEventOperationConfig getDbRawEventOperationConfig(DBOperation dbOperation) {
         for (RawDBEventOperationConfig dbRawEventOperationConfig : rawDBEventOperationConfigs) {
             if (dbRawEventOperationConfig.getDbOperation().equals(dbOperation)) {
@@ -54,5 +54,5 @@ public class RawDBEventTableConfig {
         }
         return null;
     }
-    
+
 }
