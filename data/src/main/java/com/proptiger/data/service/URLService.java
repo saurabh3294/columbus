@@ -70,7 +70,7 @@ public class URLService {
     @Autowired
     private ImageService	  imageService;
     
-    private static Pattern PATTERN = Pattern.compile("^(?:.*)-(\\d+)(?:/[\\d+]{0,2}bhk(?:\\?\\d+-\\d+-lacs)*)*$");
+    private static Pattern PATTERN = Pattern.compile("^(?:.*)-(\\d+)(?:/[\\d+]{0,2}bhk(?:\\?\\d+-\\d+-lacs)?)?$");
 
     public ValidURLResponse getURLStatus(String url) {
         URLDetail urlDetail = null;
