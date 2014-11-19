@@ -38,6 +38,9 @@ public class TypeaheadTest extends AbstractTest {
     @Value("${default.entity.fetch.limit}")
     private int                  defaultEntityFetchLimit;
 
+    @Value("${default.entity.fetch.pagesize}")
+    private int                  defaultEntityFetchPageSize;
+
     private static Logger        logger = LoggerFactory.getLogger(TypeaheadTest.class);
 
     @PostConstruct
@@ -45,31 +48,45 @@ public class TypeaheadTest extends AbstractTest {
         org.springframework.util.Assert.isTrue(
                 (defaultEntityFetchLimit >= defaultTestExecutionLimit),
                 "DefaultEntityFetchLimit should be greater that DefaultTestLimit");
+
+        org.springframework.util.Assert.isTrue(
+                (defaultEntityFetchPageSize > 0),
+                "defaultEntityFetchPageSize should be greater that 0.");
     }
 
     @Test
     public void testCity() {
-        runTests(taTestGenerator.getTestCasesByType(TaTestCaseType.City, defaultEntityFetchLimit), defaultTestExecutionLimit);
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.City, defaultEntityFetchLimit),
+                defaultTestExecutionLimit);
     }
 
     @Test
     public void testLocality() {
-        runTests(taTestGenerator.getTestCasesByType(TaTestCaseType.Locality, defaultEntityFetchLimit), defaultTestExecutionLimit);
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.Locality, defaultEntityFetchLimit),
+                defaultTestExecutionLimit);
     }
 
     @Test
     public void testProject() {
-        runTests(taTestGenerator.getTestCasesByType(TaTestCaseType.Project, defaultEntityFetchLimit), defaultTestExecutionLimit);
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.Project, defaultEntityFetchLimit),
+                defaultTestExecutionLimit);
     }
 
     @Test
     public void testSuburb() {
-        runTests(taTestGenerator.getTestCasesByType(TaTestCaseType.Suburb, defaultEntityFetchLimit), defaultTestExecutionLimit);
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.Suburb, defaultEntityFetchLimit),
+                defaultTestExecutionLimit);
     }
 
     @Test
     public void testBuilder() {
-        runTests(taTestGenerator.getTestCasesByType(TaTestCaseType.Builder, defaultEntityFetchLimit), defaultTestExecutionLimit);
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.Builder, defaultEntityFetchLimit),
+                defaultTestExecutionLimit);
     }
 
     @Test

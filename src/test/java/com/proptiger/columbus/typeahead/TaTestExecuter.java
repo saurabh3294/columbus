@@ -94,7 +94,7 @@ public class TaTestExecuter {
             catch (Exception ex) {
                 logger.error("Exception while executing testcase callable : " + taTestCase.getLogString(), ex);
             }
-            if(mhsr.getStatus() == 404){
+            if (mhsr.getStatus() == 404) {
                 logger.error("Problem executing testcase : " + taTestCase.getLogString(), "Invalid Url : Status = 404");
             }
             if (response == null || response.isEmpty()) {

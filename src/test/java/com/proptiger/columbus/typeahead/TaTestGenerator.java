@@ -73,7 +73,12 @@ public class TaTestGenerator {
 
     private List<TaTestCase> getCityTestCases(int limit) {
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
-        List<City> entitylist = getEntityList(selectorAllCity, CITY_API_URL, City.class, DefaultEntityFetchPageSize, limit);
+        List<City> entitylist = getEntityList(
+                selectorAllCity,
+                CITY_API_URL,
+                City.class,
+                DefaultEntityFetchPageSize,
+                limit);
         for (City x : entitylist) {
             testList.add(new TaTestCase(x.getLabel(), TaTestCaseType.City, 1, 1, "TYPEAHEAD-CITY-" + x.getId()));
         }
