@@ -388,8 +388,7 @@ public class UserService {
         Enquiry enquiry = null;
         AlreadyEnquiredDetails alreadyEnquiredDetails = new AlreadyEnquiredDetails(null, false, enquiredWithinDays);
         if (projectId != null) {
-            List<Enquiry> enquiries = enquiryDao.findEnquiryByEmailAndProjectIdOrderByCreatedDateDesc(email, new Long(
-                    projectId));
+            List<Enquiry> enquiries = enquiryDao.findEnquiryByEmailAndProjectIdOrderByCreatedDateDesc(email, projectId);
             if (enquiries != null && !enquiries.isEmpty()) {
                 enquiry = enquiries.get(0);
             }
