@@ -34,6 +34,7 @@ import com.proptiger.core.enums.Application;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.proptiger.CompanySubscription;
 import com.proptiger.core.model.proptiger.Dashboard;
@@ -71,6 +72,7 @@ import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.ProjectDiscussionSubscription;
 import com.proptiger.data.model.user.UserDetails;
+import com.proptiger.data.repo.CompanyDao;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
@@ -178,6 +180,9 @@ public class UserService {
     @Autowired
     private UserAttributeDao                 userAttributeDao;
 
+    @Autowired
+    private CompanyDao companyDao;
+    
     @PostConstruct
     private void initialize() {
         currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
@@ -264,8 +269,8 @@ public class UserService {
             }
             appSubscription.setExpiryDate(subscription.getExpiryTime());
 
-            Hibernate.initialize(subscription.getCompany());
-            appSubscription.setCompany(subscription.getCompany());
+            Company c = companyDao.findOne(subscription.getCompanyId());
+            appSubscription.setCompany(c);
 
             setUserAppSubscriptionDetails(subscription.getPermissions(), appSubscription);
             appSubscription.setDataUpdationDate(DateUtil.parseYYYYmmddStringToDate(currentMonth));
