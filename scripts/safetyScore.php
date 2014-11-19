@@ -43,14 +43,14 @@ function updateScores($objectType) {
 		$sql = "SELECT distinct(p.PROJECT_ID), p.LATITUDE, p.LONGITUDE, p.SAFETY_SCORE
 				FROM cms.resi_project p INNER JOIN cms.locality l on p.locality_id = l.locality_id
  				inner join cms.suburb s on s.suburb_id=l.suburb_id
-				WHERE p.LATITUDE NOT IN (0,1) AND p.LONGITUDE NOT IN (0,1) AND s.CITY_ID IN (6,8,11,20,88)
+				WHERE p.LATITUDE NOT IN (0,1) AND p.LONGITUDE NOT IN (0,1) AND s.CITY_ID IN (6,8,11,20,88,2,5,16,21)
 				AND p.STATUS IN ('Active','ActiveInCms')";
 
 	}
 	else if ($objectType == 'LOCALITY') {
 		$sql = 'SELECT l.LOCALITY_ID, l.LATITUDE, l.LONGITUDE, l.SAFETY_SCORE
  				FROM cms.locality l INNER JOIN cms.suburb s on l.suburb_id = s.suburb_id
-	    	    WHERE l.LATITUDE NOT IN (0,1) AND l.LONGITUDE NOT IN (0,1) AND s.CITY_ID IN (6,8,11,20,88)';
+	    	    WHERE l.LATITUDE NOT IN (0,1) AND l.LONGITUDE NOT IN (0,1) AND s.CITY_ID IN (6,8,11,20,88,2,5,16,21)';
 	}
 
 	$logger->info ( "Fetching and Updating Safety Scores" );

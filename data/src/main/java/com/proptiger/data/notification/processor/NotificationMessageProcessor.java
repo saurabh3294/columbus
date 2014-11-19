@@ -70,7 +70,7 @@ public abstract class NotificationMessageProcessor {
         Map<Integer, NotificationMessagePayload> payloadMap = new HashMap<Integer, NotificationMessagePayload>();
 
         if (portfolioListings == null) {
-            logger.debug("No portfolio listing found.");
+            logger.error("No portfolio listing found.");
             return payloadMap;
         }
 

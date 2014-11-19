@@ -8,19 +8,21 @@ import javax.persistence.TemporalType;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 
 public class EventTypeUpdateHistory {
+
     private EventStatus eventStatus;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date        updatedDate;
-    
-    public EventTypeUpdateHistory(){
-        
+
+    public EventTypeUpdateHistory() {
+
     }
-    
-    public EventTypeUpdateHistory(EventStatus eventStatus, Date updateDate){
+
+    public EventTypeUpdateHistory(EventStatus eventStatus, Date updateDate) {
         this.eventStatus = eventStatus;
         this.updatedDate = updateDate;
     }
-    
+
     public EventStatus getEventStatus() {
         return eventStatus;
     }

@@ -32,7 +32,7 @@ public class PhotoAddNotificationMessageProcessor extends NotificationMessagePro
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
 
-        Integer projectId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
+        Integer projectId = Integer.parseInt((String) notificationTypePayload.getPrimaryKeyValue());
 
         logger.debug("Getting properties for project id: " + projectId);
         List<Property> propertyList = propertyService.getPropertiesForProject(projectId);
