@@ -10,8 +10,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +38,7 @@ public class TaTestExecuter {
     @Autowired
     private TypeaheadController typeaheadController;
 
-    private MockMvc             mockMvc;
-
     private static Logger       logger = LoggerFactory.getLogger(TaTestExecuter.class);
-
-    @PostConstruct
-    public void initialize() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(typeaheadController).build();
-    }
 
     public List<TaTestCase> executeTests(List<TaTestCase> testList, int limit) {
         logger.debug(testList.size() + " tests recieved for execution with limit = " + limit);
@@ -92,17 +83,21 @@ public class TaTestExecuter {
         @Override
         public TaTestCase call() {
             List<Typeahead> resultList = null;
-            MockHttpServletResponse mhsr;
+            MockHttpServletResponse mhsr = null;
             String response = null;
             String url = taTestCase.getTestUrl();
             try {
+                MockMvc mockMvc = MockMvcBuilders.standaloneSetup(typeaheadController).build();
                 mhsr = mockMvc.perform(MockMvcRequestBuilders.get(url)).andReturn().getResponse();
                 response = mhsr.getContentAsString();
             }
             catch (Exception ex) {
-                logger.error("Problem executing testcase : " + taTestCase.getLogString(), ex);
+                logger.error("Exception while executing testcase callable : " + taTestCase.getLogString(), ex);
             }
-            if (response == null) {
+            if(mhsr.getStatus() == 404){
+                logger.error("Problem executing testcase : " + taTestCase.getLogString(), "Invalid Url : Status = 404");
+            }
+            if (response == null || response.isEmpty()) {
                 return taTestCase;
             }
             /* Parsing Json Response */

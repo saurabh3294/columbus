@@ -91,6 +91,7 @@ public class TypeaheadController extends BaseController {
         return new APIResponse(super.filterFields(list, null), list.size());
     }
 
+    @Intercepted.TypeaheadListing
     @RequestMapping(value = "app/v4/typeahead")
     @ResponseBody
     public APIResponse getTypeaheadsV4(HttpServletRequest request, @RequestParam String query, @RequestParam(

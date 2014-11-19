@@ -39,8 +39,8 @@ public class TaTestGenerator {
     @Value("${BUILDER_API_URL}")
     private String          BUILDER_API_URL;
 
-    @Value("${DefaultPageFetchSize}")
-    private int             DefaultPageFetchSize;
+    @Value("${default.entity.fetch.pagesize}")
+    private int             DefaultEntityFetchPageSize;
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
@@ -53,40 +53,41 @@ public class TaTestGenerator {
     public static String    selectorAllSuburb   = "selector={\"fields\":[\"id\",\"label\"],\"paging\":{\"start\":%s,\"rows\":%s}}";
     public static String    selectorAllBuilder  = "selector={\"fields\":[\"id\",\"name\"],\"paging\":{\"start\":%s,\"rows\":%s}}";
 
-    public List<TaTestCase> getTestCasesByType(TaTestCaseType ttcType) {
+    public List<TaTestCase> getTestCasesByType(TaTestCaseType ttcType, int limit) {
         switch (ttcType) {
             case City:
-                return getCityTestCases();
+                return getCityTestCases(limit);
             case Locality:
-                return getLocalityTestCases();
+                return getLocalityTestCases(limit);
             case Project:
-                return getProjectTestCases();
+                return getProjectTestCases(limit);
             case Suburb:
-                return getSuburbTestCases();
+                return getSuburbTestCases(limit);
             case Builder:
-                return getBuilderTestCases();
+                return getBuilderTestCases(limit);
             default:
                 break;
         }
         return new ArrayList<TaTestCase>();
     }
 
-    private List<TaTestCase> getCityTestCases() {
+    private List<TaTestCase> getCityTestCases(int limit) {
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
-        List<City> entitylist = getEntityList(selectorAllCity, CITY_API_URL, City.class, DefaultPageFetchSize);
+        List<City> entitylist = getEntityList(selectorAllCity, CITY_API_URL, City.class, DefaultEntityFetchPageSize, limit);
         for (City x : entitylist) {
             testList.add(new TaTestCase(x.getLabel(), TaTestCaseType.City, 1, 1, "TYPEAHEAD-CITY-" + x.getId()));
         }
         return testList;
     }
 
-    private List<TaTestCase> getLocalityTestCases() {
+    private List<TaTestCase> getLocalityTestCases(int limit) {
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
         List<Locality> entitylist = getEntityList(
                 selectorAllLocality,
                 LOCALITY_API_URL,
                 Locality.class,
-                DefaultPageFetchSize);
+                DefaultEntityFetchPageSize,
+                limit);
         for (Locality x : entitylist) {
             testList.add(new TaTestCase(x.getLabel(), TaTestCaseType.Locality, 1, 3, "TYPEAHEAD-LOCALITY-" + x
                     .getLocalityId()));
@@ -94,51 +95,62 @@ public class TaTestGenerator {
         return testList;
     }
 
-    private List<TaTestCase> getProjectTestCases() {
+    private List<TaTestCase> getProjectTestCases(int limit) {
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
         List<Project> entitylist = getEntityList(
                 selectorAllProject,
                 PROJECT_API_URL,
                 Project.class,
-                DefaultPageFetchSize);
+                DefaultEntityFetchPageSize,
+                limit);
         for (Project x : entitylist) {
-            testList.add(new TaTestCase(x.getName(), TaTestCaseType.Project, 1, 5, "TYPEAHEAD-PROJECT-" + x
+            testList.add(new TaTestCase(x.getName(), TaTestCaseType.Project, 1, 3, "TYPEAHEAD-PROJECT-" + x
                     .getProjectId()));
         }
         return testList;
     }
 
-    private List<TaTestCase> getSuburbTestCases() {
+    private List<TaTestCase> getSuburbTestCases(int limit) {
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
-        List<Suburb> entitylist = getEntityList(selectorAllSuburb, SUBURB_API_URL, Suburb.class, DefaultPageFetchSize);
+        List<Suburb> entitylist = getEntityList(
+                selectorAllSuburb,
+                SUBURB_API_URL,
+                Suburb.class,
+                DefaultEntityFetchPageSize,
+                limit);
         for (Suburb x : entitylist) {
-            testList.add(new TaTestCase(x.getLabel(), TaTestCaseType.Suburb, 1, 1, "TYPEAHEAD-SUBURB-" + x.getId()));
+            testList.add(new TaTestCase(x.getLabel(), TaTestCaseType.Suburb, 1, 3, "TYPEAHEAD-SUBURB-" + x.getId()));
         }
         return testList;
     }
 
-    private List<TaTestCase> getBuilderTestCases() {
+    private List<TaTestCase> getBuilderTestCases(int limit) {
         List<Builder> entityList = getEntityList(
                 selectorAllBuilder,
                 BUILDER_API_URL,
                 Builder.class,
-                DefaultPageFetchSize);
+                DefaultEntityFetchPageSize,
+                limit);
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
         for (Builder x : entityList) {
-            testList.add(new TaTestCase(x.getName(), TaTestCaseType.Builder, 1, 1, "TYPEAHEAD-BUILDER-" + x.getId()));
+            testList.add(new TaTestCase(x.getName(), TaTestCaseType.Builder, 1, 3, "TYPEAHEAD-BUILDER-" + x.getId()));
         }
         return testList;
     }
 
-    private <T> List<T> getEntityList(String selector, String API_URL, Class<T> clazz, int pageSize) {
+    private <T> List<T> getEntityList(String selector, String API_URL, Class<T> clazz, int pageSize, int limit) {
         String entityName = clazz.getSimpleName();
         logger.debug("Fetching entity list for : " + entityName);
-        int start = 0, count = pageSize;
+        int start = 0, count = pageSize, templimit = limit;
         String url = "";
         URI uri = null;
         List<T> entitylist = new ArrayList<T>();
         List<T> templist = null;
         while (true) {
+            count = Math.min(pageSize, templimit);
+            if (count == 0) {
+                break;
+            }
             url = BASE_URL + API_URL + "?" + String.format(selector, start, count);
             logger.debug("Api Url for fetching entity " + entityName + " : [ " + url + "]");
             uri = URI.create(UriComponentsBuilder.fromUriString(url).build().encode().toString());
@@ -147,6 +159,7 @@ public class TaTestGenerator {
                 break;
             }
             entitylist.addAll(templist);
+            templimit -= count;
             start += count;
         }
         logger.debug(entitylist.size() + " Entities recieved for : " + entityName);
