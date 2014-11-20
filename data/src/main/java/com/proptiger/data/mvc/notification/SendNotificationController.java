@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc;
+package com.proptiger.data.mvc.notification;
 
 import java.util.ArrayList;
 import java.util.List;
