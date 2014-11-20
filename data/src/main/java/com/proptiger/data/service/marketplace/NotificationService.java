@@ -924,7 +924,7 @@ public class NotificationService {
                 createNotification(rmUserId, notificationTypeId, userId, null);
 
                 String companyname = companyUserService.getCompanyUsers(userId).get(0).getCompany().getName();
-                String emailSubject = "Too May Overdue Tasks for " + companyname;
+                String emailSubject = "Too Many Overdue Tasks for " + companyname;
                 String emailContent = companyname + " has not updated "
                         + overDueTaskCountForUser.getOverDueTaskCount()
                         + " overdue tasks in last "
