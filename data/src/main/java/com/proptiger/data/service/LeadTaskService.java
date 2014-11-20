@@ -29,6 +29,7 @@ import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
+import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -40,6 +41,7 @@ import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.LeadTaskStatusReason;
+import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.model.marketplace.TaskOfferedListingMapping;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.LeadTaskDao;
@@ -168,6 +170,28 @@ public class LeadTaskService {
             finalTask.setNextTask(nextTask);
         }
         finalTask.unlinkCircularLoop();
+        
+        Integer userId = savedTask.getLeadOffer().getAgentId();
+        
+        long countLeadOffersOnThisAgentInNewStatus = leadOfferDao.getcountLeadOffersOnThisAgentInNewStatus(
+                userId,
+                LeadOfferStatus.New.getId());
+
+        if (countLeadOffersOnThisAgentInNewStatus < PropertyReader.getRequiredPropertyAsType(
+                PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
+                Long.class)) {
+            Notification notification = notificationService.findByUserIdAndNotificationId(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+            if (notification != null) {
+                notificationService.deleteNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+                notificationService
+                        .deleteNotification(
+                                PropertyReader
+                                        .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
+                                NotificationType.MaxLeadCountForBrokerReached.getId(),
+                                userId);
+            }
+        }
+        
         return finalTask.populateTransientAttributes();
     }
 

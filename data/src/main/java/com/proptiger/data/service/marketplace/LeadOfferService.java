@@ -520,11 +520,11 @@ public class LeadOfferService {
                         userId,
                         LeadOfferStatus.New.getId());
 
-                if (countLeadOffersOnThisAgentInNewStatus <= PropertyReader.getRequiredPropertyAsType(
+                if (countLeadOffersOnThisAgentInNewStatus < PropertyReader.getRequiredPropertyAsType(
                         PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
                         Long.class)) {
                     claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
-                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, 8, 0);
+                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
                     if (notification != null) {
                         notificationService.deleteNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
                         notificationService
@@ -959,6 +959,7 @@ public class LeadOfferService {
                 sortedListLocality,
                 ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
 
+        
         sortedList.addAll(sortedListProject);
         sortedList.addAll(sortedListLocality);
 
