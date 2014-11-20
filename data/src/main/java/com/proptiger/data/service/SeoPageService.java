@@ -265,6 +265,7 @@ public class SeoPageService {
         String url = null;
         String imageURL = null;
         Gson gson = new Gson();
+        Integer page = null;
 
         if (urlDetail.getPropertyId() != null) {
             property = propertyService.getPropertyFromSolr(urlDetail.getPropertyId());
@@ -354,6 +355,10 @@ public class SeoPageService {
             url = urlDetail.getUrl();
         }
         
+        if (urlDetail.getPage() != null) {
+        	page = urlDetail.getPage();
+        }
+        
         return new CompositeSeoTokenData(
                 property,
                 project,
@@ -371,7 +376,8 @@ public class SeoPageService {
                 longitude,
                 serverName,
                 url,
-                imageURL);
+                imageURL,
+                page);
     }
 
     /*
@@ -417,6 +423,7 @@ public class SeoPageService {
         private String   serverName;
         private String   url;
         private String   imageURL;
+        private Integer  page;
 
         public CompositeSeoTokenData(
                 Property property,
@@ -435,7 +442,8 @@ public class SeoPageService {
                 Double longitude,
                 String serverName,
                 String url,
-                String imageURL) {
+                String imageURL,
+                Integer page) {
             this.property = property;
             this.project = project;
             this.locality = locality;
@@ -453,6 +461,7 @@ public class SeoPageService {
             this.serverName = serverName;
             this.url = url;
             this.imageURL = imageURL;
+            this.page = page;
         }
 
         public Property getProperty() {
@@ -590,5 +599,13 @@ public class SeoPageService {
         public void setImageURL(String imageURL) {
             this.imageURL = imageURL;
         }
+
+		public Integer getPage() {
+			return page;
+		}
+
+		public void setPage(Integer page) {
+			this.page = page;
+		}
     }
 }
