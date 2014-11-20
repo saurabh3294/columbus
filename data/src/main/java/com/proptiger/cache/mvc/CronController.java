@@ -60,4 +60,18 @@ public class CronController {
         cronService.sendTaskOverDueNotification();
         return new APIResponse();
     }
+
+    @RequestMapping("/v1/too-many-tasks-overdue")
+    public @ResponseBody
+    APIResponse sendTooManyTasksOverdueNotifications() throws Exception {
+        cronService.manageHighTaskOverdueNotificationForRM();
+        return new APIResponse();
+    }
+
+    @RequestMapping("/v1/lead-stopped")
+    public @ResponseBody
+    APIResponse sendLeadStoppedNotifications() throws Exception {
+        cronService.sendLimitReachedGCMNotifications();
+        return new APIResponse();
+    }
 }
