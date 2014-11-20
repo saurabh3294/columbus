@@ -159,6 +159,10 @@ public class LocalityRatingService {
                     catch (IllegalAccessException | InvocationTargetException e) {
                         throw new ProAPIException("locality review update failed", e);
                     }
+                    /*
+                     * manually saving rating as this should have been working with Transaction annotation
+                     */
+                    localityRatingDao.save(ratingPresent);
                     created = ratingPresent;
                 }
                 else {

@@ -29,6 +29,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -88,7 +89,7 @@ public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityCon
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //http.addFilterBefore(createSessionRepositoryFilter(), ChannelProcessingFilter.class);
+        http.addFilterBefore(createSessionRepositoryFilter(), ChannelProcessingFilter.class);
 
         http.rememberMe().rememberMeServices(createPersistentTokenBasedRememberMeService())
                 .key(Constants.Security.REMEMBER_ME_COOKIE);
@@ -119,7 +120,7 @@ public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityCon
      * 
      * @return
      */
-    //@Bean(name = "springSessionRepositoryFilter")
+    @Bean(name = "springSessionRepositoryFilter")
     public SessionRepositoryFilter<? extends ExpiringSession> createSessionRepositoryFilter() {
         final SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
         CookieHttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
