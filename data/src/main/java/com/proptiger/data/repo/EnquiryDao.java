@@ -27,5 +27,5 @@ public interface EnquiryDao extends JpaRepository<Enquiry, Serializable> {
     public List<EnquiryCustomDetails> findEnquiriesByEmail(String email);
 
     @Query("SELECT E FROM Enquiry E JOIN FETCH E.project as P WHERE P.version = 'Website' AND E.email = ?1 AND E.projectId = ?2 ORDER BY E.createdDate DESC")
-    public List<Enquiry> findEnquiryByEmailAndProjectIdOrderByCreatedDateDesc(String email, Long projectId);
+    public List<Enquiry> findEnquiryByEmailAndProjectIdOrderByCreatedDateDesc(String email, Integer projectId);
 }
