@@ -960,10 +960,6 @@ public class LeadOfferService {
                 ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
 
         
-        for(Listing localityListing: sortedListLocality)
-        {
-            System.out.println(localityListing.getProperty().getProject().getBuilder().getName() + localityListing.getProperty().getProject().getName());
-        }
         sortedList.addAll(sortedListProject);
         sortedList.addAll(sortedListLocality);
 
