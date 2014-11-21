@@ -556,9 +556,7 @@ public class LeadOfferService {
                 }
                 else {
                     throw new APIServerException(
-                            "you already have " + PropertyReader
-                                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS)
-                                    + " leads in new status. First work those then you can claim more");
+                            "Claim Lead suspended ,Please update your existing New leads to claim new leads ");
                 }
 
                 return leadOfferInDB;
