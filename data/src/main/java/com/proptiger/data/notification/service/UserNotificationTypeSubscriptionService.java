@@ -2,96 +2,135 @@ package com.proptiger.data.notification.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.notification.enums.SubscriptionType;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.UserNotificationTypeSubscription;
+import com.proptiger.data.notification.model.external.NotificationSubscriptionRequest;
 import com.proptiger.data.notification.repo.UserNotificationTypeSubscriptionDao;
+import com.proptiger.data.util.Caching;
 
 @Service
 public class UserNotificationTypeSubscriptionService {
 
-    private static Logger                       logger              = LoggerFactory
-                                                                            .getLogger(UserNotificationTypeSubscriptionService.class);
+    private static Logger                       logger = LoggerFactory
+                                                               .getLogger(UserNotificationTypeSubscriptionService.class);
 
     @Autowired
     private UserNotificationTypeSubscriptionDao userNTSubscriptionDao;
 
-    // Map of NotificationTypeId to subscribed users
-    private static Map<Integer, List<User>>     subscribedUserMap   = new HashMap<Integer, List<User>>();
+    @Autowired
+    private NotificationTypeService             notificationTypeService;
 
-    // Map of NotificationTypeId to unsubscribed users
-    private static Map<Integer, List<User>>     unsubscribedUserMap = new HashMap<Integer, List<User>>();
+    @Autowired
+    private Caching                             caching;
 
-    @PostConstruct
-    private void constuctMappingFromDB() {
-        Iterable<UserNotificationTypeSubscription> userNTSubscriptionList = findAll();
-        Iterator<UserNotificationTypeSubscription> iterator = userNTSubscriptionList.iterator();
+    @Cacheable(
+            value = Constants.CacheName.NOTIFICATION_SUBSCRIBED_USERS,
+            key = "'notificationTypeId:'+#notificationTypeId+':'")
+    public List<User> getSubscribedUsersByNotificationType(Integer notificationTypeId) {
+        List<UserNotificationTypeSubscription> subscriptions = userNTSubscriptionDao
+                .findByNotificationTypeIdAndSubscriptionType(notificationTypeId, SubscriptionType.Subscribed);
+        return getUsersFromSubscriptions(subscriptions);
+    }
 
-        while (iterator.hasNext()) {
-            UserNotificationTypeSubscription userNTSubscription = iterator.next();
+    @Cacheable(
+            value = Constants.CacheName.NOTIFICATION_UNSUBSCRIBED_USERS,
+            key = "'notificationTypeId:'+#notificationTypeId+':'")
+    public List<User> getUnsubscribedUsersByNotificationType(Integer notificationTypeId) {
+        List<UserNotificationTypeSubscription> subscriptions = userNTSubscriptionDao
+                .findByNotificationTypeIdAndSubscriptionType(notificationTypeId, SubscriptionType.Unsubscribed);
+        return getUsersFromSubscriptions(subscriptions);
+    }
 
-            SubscriptionType subscriptionType = userNTSubscription.getSubscriptionType();
+    /**
+     * It will update the NotificationSubscriptions for given notificationTypes
+     * and users in the request.
+     * 
+     * @param request
+     * @return
+     */
+    @SuppressWarnings("deprecation")
+    public List<UserNotificationTypeSubscription> updateNotificationSubscription(NotificationSubscriptionRequest request) {
+        List<Integer> notificationTypeIds = new ArrayList<Integer>();
+        List<Integer> userIds = new ArrayList<Integer>();
 
-            if (SubscriptionType.Subscribed.equals(subscriptionType)) {
-                subscribedUserMap = addToNotificationTypeUserMap(userNTSubscription, subscribedUserMap);
+        List<NotificationType> notificationTypes = notificationTypeService.findByNotificationTypeEnums(request
+                .getNotificationTypes());
+        for (NotificationType notificationType : notificationTypes) {
+            notificationTypeIds.add(notificationType.getId());
+        }
+
+        for (User user : request.getUsers()) {
+            userIds.add(user.getId());
+        }
+
+        List<UserNotificationTypeSubscription> subscriptions = userNTSubscriptionDao
+                .findByNotificationTypeIdsAndUserIds(notificationTypeIds, userIds);
+
+        Map<String, UserNotificationTypeSubscription> subscriptionMap = getSubscriptionMap(subscriptions);
+
+        for (User user : request.getUsers()) {
+            for (Integer notificationTypeId : notificationTypeIds) {
+                String subscriptionKey = getSubscriptionMapKey(user.getId(), notificationTypeId);
+                UserNotificationTypeSubscription subscription = subscriptionMap.get(subscriptionKey);
+                if (subscription == null) {
+                    subscription = new UserNotificationTypeSubscription();
+                    subscription.setNotificationTypeId(notificationTypeId);
+                    subscription.setUser(user);
+                    subscriptions.add(subscription);
+                }
+                subscription.setSubscriptionType(request.getSubscriptionType());
             }
-            else if (SubscriptionType.Unsubscribed.equals(subscriptionType)) {
-                unsubscribedUserMap = addToNotificationTypeUserMap(userNTSubscription, unsubscribedUserMap);
-            }
         }
+
+        // Deleting entries from cache
+        for (Integer notificationTypeId : notificationTypeIds) {
+            caching.deleteMultipleResponseFromCacheOnRegex(
+                    "notificationTypeId:" + notificationTypeId + ":",
+                    Constants.CacheName.NOTIFICATION_SUBSCRIBED_USERS);
+            caching.deleteMultipleResponseFromCacheOnRegex(
+                    "notificationTypeId:" + notificationTypeId + ":",
+                    Constants.CacheName.NOTIFICATION_UNSUBSCRIBED_USERS);
+        }
+
+        return (List<UserNotificationTypeSubscription>) userNTSubscriptionDao.save(subscriptions);
     }
 
-    public Iterable<UserNotificationTypeSubscription> findAll() {
-        return userNTSubscriptionDao.findAll();
+    private List<User> getUsersFromSubscriptions(List<UserNotificationTypeSubscription> subscriptions) {
+        List<User> users = new ArrayList<User>();
+        if (subscriptions == null) {
+            logger.debug("No subscriptions found in DB");
+            return users;
+        }
+        for (UserNotificationTypeSubscription subscription : subscriptions) {
+            users.add(subscription.getUser());
+        }
+        return users;
     }
 
-    private Map<Integer, List<User>> addToNotificationTypeUserMap(
-            UserNotificationTypeSubscription userNTSubscription,
-            Map<Integer, List<User>> ntUserMap) {
-
-        Integer notificationTypeId = userNTSubscription.getNotificationTypeId();
-        User forumUser = userNTSubscription.getUser();
-
-        List<User> userList = ntUserMap.get(notificationTypeId);
-
-        if (userList == null) {
-            userList = new ArrayList<User>();
-            userList.add(forumUser);
-            ntUserMap.put(notificationTypeId, userList);
+    private Map<String, UserNotificationTypeSubscription> getSubscriptionMap(
+            List<UserNotificationTypeSubscription> subscriptions) {
+        Map<String, UserNotificationTypeSubscription> subscriptionMap = new HashMap<String, UserNotificationTypeSubscription>();
+        for (UserNotificationTypeSubscription subscription : subscriptions) {
+            subscriptionMap.put(
+                    getSubscriptionMapKey(subscription.getUser().getId(), subscription.getNotificationTypeId()),
+                    subscription);
         }
-        else {
-            userList.add(forumUser);
-        }
-        return ntUserMap;
+        return subscriptionMap;
     }
 
-    public List<User> getSubscribedUsersByNotificationType(NotificationType notificationType) {
-        logger.debug(subscribedUserMap.toString());
-        List<User> userList = subscribedUserMap.get(notificationType.getId());
-        if (userList == null) {
-            return new ArrayList<User>();
-        }
-        return userList;
+    private String getSubscriptionMapKey(Integer userId, Integer notificationTypeId) {
+        return String.valueOf(userId) + "." + String.valueOf(notificationTypeId);
     }
-
-    public List<User> getUnsubscribedUsersByNotificationType(NotificationType notificationType) {
-        List<User> userList = unsubscribedUserMap.get(notificationType.getId());
-        if (userList == null) {
-            return new ArrayList<User>();
-        }
-        return userList;
-    }
-
 }

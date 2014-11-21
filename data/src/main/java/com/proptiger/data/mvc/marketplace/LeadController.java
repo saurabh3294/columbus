@@ -5,6 +5,7 @@ package com.proptiger.data.mvc.marketplace;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,11 +33,22 @@ public class LeadController extends BaseController {
     public APIResponse create(@RequestBody Lead lead) {
         Lead createdLead = leadService.createLead(lead);
         try {
-            leadService.manageLeadAuction(createdLead.getId());
+            leadService.manageLeadAuctionWithBeforeCycle(createdLead.getId());
         }
         catch (Exception e) {
         }
         return new APIResponse(createdLead);
+    }
+
+    @RequestMapping(value = "data/v1/entity/lead/{leadId}/request-more-brokers", method = RequestMethod.PUT)
+    @ResponseBody
+    public APIResponse requestMoreBrokers(@PathVariable int leadId) {
+        try {
+            leadService.manageLeadAuctionWithBeforeCycleForRequestBrokers(leadId);
+        }
+        catch (Exception e) {
+        }
+        return new APIResponse();
     }
 
     @RequestMapping(value = "data/v1/entity/lead/exists")

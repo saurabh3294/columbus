@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.mvc.BaseController;
@@ -23,25 +24,25 @@ import com.proptiger.data.service.marketplace.NotificationService;
  */
 @DisableCaching
 @Controller
-@RequestMapping("/data/v1/entity/user/notification")
 public class NotificationController extends BaseController {
     @Autowired
     private NotificationService notificationService;
 
-    @RequestMapping
     @ResponseBody
-    public APIResponse getNotificationForUser() {
-        return new APIResponse(notificationService.getNotificationsForUser(SecurityContextUtils.getLoggedInUserId()));
+    @RequestMapping({ "/data/v1/entity/user/notification", "/app/v1/entity/user/notification" })
+    public APIResponse getNotificationForUser(@RequestParam(required = false) Integer notificationTypeId) {
+        return new APIResponse(
+                notificationService.getNotificationsForUser(SecurityContextUtils.getLoggedInUserId(),notificationTypeId));
     }
 
-    @RequestMapping("count")
+    @RequestMapping("/data/v1/entity/user/notification/count")
     @ResponseBody
     public APIResponse getNotificationCountForUser() {
         return new APIResponse(null, notificationService.getNotificationsCountForUser(SecurityContextUtils
                 .getLoggedInUserId()));
     }
 
-    @RequestMapping(method = RequestMethod.PUT)
+    @RequestMapping(value = "/data/v1/entity/user/notification", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateNotificationForUser(@RequestBody List<Notification> notifications) {
         return new APIResponse(notificationService.updateNotificationsForUser(

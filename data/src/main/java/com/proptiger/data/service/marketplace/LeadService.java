@@ -1,7 +1,10 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.slf4j.Logger;
@@ -15,8 +18,10 @@ import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.UtilityClass;
+import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
@@ -71,54 +76,168 @@ public class LeadService {
     @Autowired
     private CityService             cityService;
 
-    @Transactional
-    public void manageLeadAuction(int leadId) {
-        Lead lead = leadDao.getLock(leadId);
+    public void manageLeadAuctionWithBeforeCycleForRequestBrokers(int leadId) {
+        Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
 
-        if (lead.getLeadOffers() != null && lead.getLeadOffers().isEmpty()) {
-            List<Company> brokerCompanies = getBrokersForLead(lead.getId());
-
-            boolean isAssigned = false;
-            if (brokerCompanies.isEmpty()) {
-                // XXX No broker found alert in future
-            }
-            else {
-                for (Company company : brokerCompanies) {
-                    LeadOffer offer = leadOfferService.offerLeadToBroker(lead, company, 1);
-                    if (offer != null) {
-                        isAssigned = true;
-                        notificationService.sendLeadOfferNotification(offer.getId());
-                    }
-                }
-            }
-            if (!isAssigned) {
-                throw new ProAPIException("Error in Assigning lead id: " + leadId);
-            }
+        if (leadOfferDao.findByLeadIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers).equals(
+                PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE, Long.class))) {            
+          if(leadOfferDao.findByLeadIdWhereStatusOffered(leadId,LeadOfferStatus.Offered.getId()) == null)
+          {
+            leadOfferDao.updateLeadOffers(Collections.singletonList(leadId));
+            Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
+            phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers + 1);
+            manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers + 1, 1);
+          }
         }
     }
 
-    @Async
-    public void manageLeadAuctionAsync(int leadId) {
-        manageLeadAuction(leadId);
+    public void manageLeadAuctionWithBeforeCycle(int leadId) {        
+      List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(leadId);
+
+      if(leadOffers == null || leadOffers.isEmpty())
+      {
+        Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
+        Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
+        phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers == null ? 0 : maxPhaseIdForRequestMoreBrokers);
+        manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers == null
+                ? 0
+                : maxPhaseIdForRequestMoreBrokers, 0);
+      }
     }
 
-    /**
-     * gets all broker companies eligible to fulfil a lead
-     * 
-     * @param lead
-     * @return {@link Company} {@link List}
-     */
-    private List<Company> getBrokersForLead(int leadId) {
-        List<Company> brokers = new ArrayList<>();
-        Lead lead = leadDao.findOne(leadId);
+    
+    public void manageLeadAuctionWithBeforeCycleDeclined(int leadId) {        
+          Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseId(leadId);
+          if (!leadOfferDao.findByLeadIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers).equals(
+                  PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE, Long.class))) {
+          
+              if(leadOfferDao.getMaxCycleIdAndPhaseId(leadId, maxPhaseIdForRequestMoreBrokers) < PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_BIDDING_CYCLE_COUNT))
+              {              
+                  Map<Integer, Integer> phaseIdMapLeadId = new HashMap<Integer, Integer>();
+                  phaseIdMapLeadId.put(leadId, maxPhaseIdForRequestMoreBrokers == null ? 0 : maxPhaseIdForRequestMoreBrokers);
+                  manageLeadAuctionWithCycle(leadId, phaseIdMapLeadId, maxPhaseIdForRequestMoreBrokers == null
+                          ? 0
+                          : maxPhaseIdForRequestMoreBrokers, 0);                  
+              }
+          
+          }
+      }
+    
+    
+    public void manageLeadAuctionWithCycle(
+            int leadId,
+            Map<Integer, Integer> maxPhaseIdMapLeadId,
+            Integer maxPhaseIdForRequestMoreBrokers,
+            int flagRequest) {
+
+        Lead lead = leadDao.getLock(leadId);
+        List<Company> brokerCompanies = getBrokersForLeadWithCycleExcludingAlreadyOffered(lead);
+
+        boolean isAssigned = false;
+        if (brokerCompanies.isEmpty()) {
+            // XXX No broker found alert in future
+        }
+        else {
+            int countBrokers = 0;
+            Integer cycleId = leadOfferService.getMaxCycleIdAndPhaseId(lead.getId(), maxPhaseIdForRequestMoreBrokers);
+            int cycleIdInt;
+
+            if (cycleId == null) {
+                cycleId = 0;
+            }
+
+            if (cycleId > 0) {
+                cycleIdInt = cycleId;
+            }
+            else {
+                cycleIdInt = 0;
+            }
+
+         if(cycleIdInt < PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_BIDDING_CYCLE_COUNT))
+         {
+            Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(
+                    lead.getId(),
+                    maxPhaseIdMapLeadId.get(lead.getId()));
+
+            if ((countLeadOfferInDB < PropertyReader
+                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE) || flagRequest == 1)) {
+                for (Company company : brokerCompanies) {
+                    LeadOffer offer = leadOfferService.offerLeadToBroker(
+                            lead,
+                            company,
+                            cycleIdInt + 1,
+                            maxPhaseIdMapLeadId.get(lead.getId()));
+
+                    if (offer != null) {
+                        isAssigned = true;
+                        notificationService.createAndSendLeadOfferNotification(offer.getId());
+                        countBrokers++;
+                    }
+
+                    if (countBrokers >= PropertyReader.getRequiredPropertyAsType(
+                            PropertyKeys.MARKETPLACE_BROKERS_PER_CYCLE,
+                            Integer.class) || (countLeadOfferInDB + countBrokers >= PropertyReader
+                            .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE))) {
+                        break;
+                    }
+                }
+            }
+          }
+        }
+        
+        if (!isAssigned) {
+            throw new ProAPIException("Error in Assigning lead id: " + leadId);
+        }
+    }
+
+    private List<Company> getBrokersForLeadWithCycleExcludingAlreadyOffered(Lead lead) {
+        List<Company> brokers;
         List<Integer> localityIds = getLocalitiesForLead(lead.getId());
+
         if (localityIds.size() == 0) {
             throw new ProAPIException("No locality found in lead");
         }
         else {
             brokers = companyService.getBrokersForLocalities(localityIds);
         }
-        return brokers;
+
+        List<Integer> agentIds = new ArrayList<Integer>();
+
+        List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
+        if (!leadOffers.isEmpty()) {
+            lead.setLeadOffers(leadOffers);
+            for (LeadOffer leadOffer : lead.getLeadOffers()) {
+                if (!agentIds.contains(leadOffer.getAgentId())) {
+                    agentIds.add(leadOffer.getAgentId());
+                }
+            }
+        }
+
+        List<Company> brokerToConsider = new ArrayList<Company>();
+
+        if (!agentIds.isEmpty()) {
+            List<Company> brokersToExclude = companyService.getCompanyFromUserId(agentIds);
+            List<Integer> brokerIds = new ArrayList<Integer>();
+
+            for (Company broker : brokersToExclude) {
+                brokerIds.add(broker.getId());
+            }
+
+            for (Company broker : brokers) {
+                if (!brokerIds.contains(broker.getId())) {
+                    brokerToConsider.add(broker);
+                }
+            }
+        }
+        else {
+            brokerToConsider = brokers;
+        }
+        return brokerToConsider;
+    }
+
+    @Async
+    public void manageLeadAuctionAsync(int leadId) {
+        manageLeadAuctionWithBeforeCycle(leadId);
     }
 
     /**
@@ -130,8 +249,10 @@ public class LeadService {
     @Transactional
     private List<Integer> getLocalitiesForLead(int leadId) {
         List<Integer> localityIds = new ArrayList<>();
-        Lead lead = leadDao.findOne(leadId);
+        Lead lead = leadDao.findRequirementsByLeadId(leadId);
+
         for (LeadRequirement requirement : lead.getRequirements()) {
+            requirement.setLead(null);
             if (requirement.getLocalityId() != null) {
                 localityIds.add(requirement.getLocalityId());
             }
@@ -170,7 +291,6 @@ public class LeadService {
         }
     }
 
-    @Transactional
     public Lead createLead(Lead lead) {
         if (lead.getCityId() == 0) {
             throw new BadRequestException("CityId is mandatory");
@@ -367,4 +487,5 @@ public class LeadService {
     public List<Lead> getLeads(List<Integer> leadIds) {
         return leadDao.getLeads(leadIds);
     }
+
 }
