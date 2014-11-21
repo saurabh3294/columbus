@@ -46,8 +46,8 @@ public class ProjectAmenityService {
     }
 
     @Cacheable(value = Constants.CacheName.PROJECT_CMS_AMENITY, key = "#projectId")
-    public List<ProjectCMSAmenity> getCMSAmenitiesByProjectId(int projectId) {
-        return projectCMSAmenityDao.findByProjectId(IdConverterForDatabase.getCMSDomainIdForDomainTypes(
+    public List<ProjectCMSAmenity> getCMSAmenitiesByProjectIdVerifiedOnly(int projectId) {
+        return projectCMSAmenityDao.findByProjectIdVerifiedOnly(IdConverterForDatabase.getCMSDomainIdForDomainTypes(
                 DomainObject.project,
                 projectId));
     }

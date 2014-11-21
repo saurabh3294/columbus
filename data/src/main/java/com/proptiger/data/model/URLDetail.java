@@ -36,6 +36,7 @@ public class URLDetail {
 	private String fallBackUrl;
 	private Integer objectId;
 	private Integer imageId;
+	private Integer page;
     /**
      * Default Value of bedroomString is empty string. Do not change it.
      */
@@ -227,5 +228,13 @@ public class URLDetail {
 
 	public void setImageId(Integer imageId) {
 		this.imageId = imageId;
+	}
+
+	public Integer getPage() {
+		return page;
+	}
+
+	public void setPage(Integer page) {
+		this.page = page;
 	}
 }

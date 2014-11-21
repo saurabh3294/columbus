@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.exception.NotificationTypeNotFoundException;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeConfig;
@@ -238,5 +239,13 @@ public class NotificationTypeService {
 
     public NotificationType findDefaultNotificationType() {
         return findByName(DEFAULT_NOTIFICATION_TYPE);
+    }
+
+    public List<NotificationType> findByNotificationTypeEnums(List<NotificationTypeEnum> notificationTypeEnums) {
+        List<String> names = new ArrayList<String>();
+        for (NotificationTypeEnum notificationType : notificationTypeEnums) {
+            names.add(notificationType.getName());
+        }
+        return notificationTypeDao.findByNames(names);
     }
 }
