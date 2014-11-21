@@ -19,6 +19,23 @@ import com.proptiger.core.exception.ProAPIException;
 
 @Component
 public class MSExcelUtils {
+    
+   public File exportWorkBookToFile(Workbook workbook, String wbFileName) {
+        
+        FileOutputStream fileOutputStream = null;
+        File wbFile = new File(wbFileName);
+        try {
+            wbFile.createNewFile();
+            fileOutputStream = new FileOutputStream(wbFile);
+            workbook.write(fileOutputStream);
+            fileOutputStream.close();
+        }
+        catch (IOException ex) {
+            throw new ProAPIException("Unable to save workbook to file.", ex);
+        }
+        
+        return wbFile;
+    }
 
     /**
      * 
@@ -53,21 +70,48 @@ public class MSExcelUtils {
             throw new ProAPIException("Null data given while creating sheet");
         }
 
-        Row row = null;
-        Cell cell = null;
-
         /* Fill first row : Heading */
-
-        row = sheet.createRow(0);
+        addColHeadingsToSheet(workbook, sheet, columnHeadings);
+        
+        /* Fill Data */
+        fillWorkBookSheetWithData(workbook, sheet, columnHeadings, data);
+        
+        return workbook;
+    }
+    
+    public void appendToMsExcelSheet(
+            Workbook workbook,
+            Sheet sheet,
+            List<Object[]> columnHeadings,
+            List<List<Object>> data) throws ProAPIException {
+        
+        if (workbook == null || sheet ==null || data == null) {
+            throw new ProAPIException("Null workbook, sheet or data given while creating sheet");
+        }
+        
+        if(sheet.getLastRowNum() == 0){
+            addColHeadingsToSheet(workbook, sheet, columnHeadings);
+        }
+        fillWorkBookSheetWithData(workbook, sheet, columnHeadings, data);
+    }
+    
+    
+    private void addColHeadingsToSheet(Workbook workbook, Sheet sheet, List<Object[]> columnHeadings){
+        Cell cell = null;
+        Row row = sheet.createRow(0);
         int colCount = columnHeadings.size();
         for (int i = 0; i < colCount; i++) {
             cell = row.createCell(i);
             cell.setCellType(Cell.CELL_TYPE_STRING);
             cell.setCellValue((String) columnHeadings.get(i)[0]);
         }
+    }
+    
+    private void fillWorkBookSheetWithData(Workbook workbook, Sheet sheet, List<Object[]> columnHeadings, List<List<Object>> data){
+        Row row = null;
+        Cell cell = null;
 
-        /* Fill rest of the data */
-        int rowIndex = 1;
+        int rowIndex = sheet.getLastRowNum() + 1;
         int colIndex = 0;
         for (List<Object> rowData : data) {
             row = sheet.createRow(rowIndex);
@@ -79,10 +123,8 @@ public class MSExcelUtils {
             }
             rowIndex++;
         }
-        
-        return workbook;
     }
-
+    
     private void updateCellPropertiesByClass(Workbook workbook, Cell cell, Object obj, Class<?> clazz) {
         if (clazz.equals(Integer.class) || clazz.equals(Float.class) || clazz.equals(Double.class)) {
             cell.setCellType(Cell.CELL_TYPE_NUMERIC);
@@ -107,22 +149,4 @@ public class MSExcelUtils {
             cell.setCellValue(String.valueOf(obj));
         }
     }
-
-    public File exportWorkBookToFile(Workbook workbook, String wbFileName) {
-        
-        FileOutputStream fileOutputStream = null;
-        File wbFile = new File(wbFileName);
-        try {
-            wbFile.createNewFile();
-            fileOutputStream = new FileOutputStream(wbFile);
-            workbook.write(fileOutputStream);
-            fileOutputStream.close();
-        }
-        catch (IOException ex) {
-            throw new ProAPIException("Unable to save workbook to file.", ex);
-        }
-        
-        return wbFile;
-    }
-
 }

@@ -1,7 +1,6 @@
 package com.proptiger.data.service.trend;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -15,14 +14,12 @@ import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.core.constants.ResponseCodes;
-import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Trend;
-import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
-import com.proptiger.core.util.UtilityClass;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement.TypeOfData;
@@ -32,45 +29,30 @@ import com.proptiger.data.service.PropertyService;
 public class TrendReportAggregator {
 
     @Autowired
-    private TrendService     trendService;
+    private PropertyService propertyService;
 
-    @Autowired
-    private PropertyService  propertyService;
+    private int             maxFetchLimitAdditionalInfo = 100;
 
     @SuppressWarnings("unchecked")
     public List<CatchmentTrendReportElement> getCatchmentTrendReport(
-            FIQLSelector selector,
+            Map<Integer, Object> groupedTrendList,
             List<Date> sortedMonthList) {
-
-        /** Fetch Information from TREND APIs **/
-
-        List<Trend> trendList = trendService.getTrend(selector);
-
-        if(trendList == null || trendList.isEmpty()){
-            throw new ProAPIException(ResponseCodes.EMPTY_REPORT_GENERATED, "No projects were found for the given search criteria.");
-        }
-        
-        //DebugUtils.exportToNewDebugFile(DebugUtils.getAsListOfStrings(trendList));
-
-        /** Get trend list as a grouped map **/
-
-        String[] groupFields = { "projectId", "phaseId", "bedrooms" };
-        Map<Integer, Object> projectGroupedTrend = null;
-        Map<Integer, Object> phaseGroupedTrend = null;
-        Map<Integer, Object> groupedTrendList = (Map<Integer, Object>) UtilityClass.groupFieldsAsPerKeys(
-                trendList,
-                Arrays.asList(groupFields));
 
         /** Fetch Information from Other APIs **/
 
         List<Integer> projectIdList = new ArrayList<Integer>(groupedTrendList.keySet());
         Map<Integer, AdditionalInfo> mapPidToAdditionInfo = getAdditionalInfo(projectIdList);
-        
-        /** Generate a list of CatchmentReportElement objects from the above grouped map **/
+
+        /**
+         * Generate a list of CatchmentReportElement objects from the above
+         * grouped map
+         **/
 
         List<CatchmentTrendReportElement> ctrElemList = new ArrayList<CatchmentTrendReportElement>();
         List<CatchmentTrendReportElement> ctrElemListTemp = new ArrayList<CatchmentTrendReportElement>();
 
+        Map<Integer, Object> projectGroupedTrend = null;
+        Map<Integer, Object> phaseGroupedTrend = null;
         CatchmentTrendReportElement ctrElem;
         for (int projectId : groupedTrendList.keySet()) {
             projectGroupedTrend = (Map<Integer, Object>) groupedTrendList.get(projectId);
@@ -142,7 +124,7 @@ public class TrendReportAggregator {
         }
 
         /* Combining BHK-Range */
-        
+
         ctrElem.setBhkSizeRange(ctrElem.getProjectBhkSizeRange());
 
         /* Summing other common data */
@@ -188,8 +170,9 @@ public class TrendReportAggregator {
             @Override
             public int compare(Trend o1, Trend o2) {
                 return o2.getMonth().compareTo(o1.getMonth());
-            }});
-        
+            }
+        });
+
         Trend trend = trendList.get(0);
         ctrElem.setProjectName(trend.getProjectName());
         ctrElem.setBuilderName(trend.getBuilderName());
@@ -266,7 +249,30 @@ public class TrendReportAggregator {
         fields.add("size");
         selector.setFields(fields);
 
-        List<Project> projectList = propertyService.getPropertiesGroupedToProjects(selector).getResults();
+        List<Project> projectList = new ArrayList<Project>();
+
+        /** Fetch Project details page-wise **/
+
+        PaginatedResponse<List<Project>> paginatedResponse = null;
+        List<Project> projectListTemp = null;
+        int fetched = 0;
+        while (true) {
+            selector.setPaging(new Paging(fetched, maxFetchLimitAdditionalInfo));
+            paginatedResponse = propertyService.getPropertiesGroupedToProjects(selector);
+            if (paginatedResponse == null || paginatedResponse.getResults() == null) {
+                break;
+            }
+
+            projectListTemp = paginatedResponse.getResults();
+            projectList.addAll(projectListTemp);
+            fetched += projectListTemp.size();
+
+            if (fetched >= paginatedResponse.getTotalCount() || projectListTemp.isEmpty()) {
+                break;
+            }
+        }
+
+        /** make additional info map from project-details **/
 
         Map<Integer, AdditionalInfo> mapPidToAdditionInfo = new HashMap<Integer, AdditionalInfo>();
         AdditionalInfo additionalInfo;
@@ -276,7 +282,7 @@ public class TrendReportAggregator {
             additionalInfo.laitude = project.getLatitude();
             additionalInfo.longitude = project.getLongitude();
             projectSize = project.getSizeInAcres();
-            if(projectSize != null){
+            if (projectSize != null) {
                 additionalInfo.projectArea = project.getSizeInAcres();
             }
             additionalInfo.mapPidToBhkRange = getProjectBhkSizeRangeMap(project);
@@ -312,11 +318,11 @@ public class TrendReportAggregator {
                 return ("-NA-");
             }
             else {
-                try{
+                try {
                     Collections.sort(bhkSizeList);
                     return (bhkSizeList.get(0).intValue() + "-" + bhkSizeList.get(bhkSizeList.size() - 1).intValue());
                 }
-                catch(Exception ex){
+                catch (Exception ex) {
                     return ("-NA-");
                 }
             }
