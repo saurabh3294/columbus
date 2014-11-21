@@ -202,7 +202,7 @@ public class NotificationMessageService {
                 .getNotificationMessageProcessorObject();
 
         if (NotificationTypeUserStrategy.OnlySubscribed.equals(notificationType.getUserStrategy())) {
-            List<User> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType);
+            List<User> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType.getId());
             logger.debug("Found " + userList.size()
                     + " Subscribed users for NotificationType "
                     + notificationType.getName());
@@ -210,7 +210,7 @@ public class NotificationMessageService {
         }
         else if (NotificationTypeUserStrategy.MinusUnsubscribed.equals(notificationType.getUserStrategy())) {
             List<User> unsubscribedUserList = userNTSubscriptionService
-                    .getUnsubscribedUsersByNotificationType(notificationType);
+                    .getUnsubscribedUsersByNotificationType(notificationType.getId());
             logger.debug("Found " + unsubscribedUserList.size()
                     + " unsubscribed users for NotificationType "
                     + notificationType.getName());
