@@ -3,6 +3,7 @@ package com.proptiger.data.model.seo;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -11,9 +12,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import javax.persistence.Table;
 
 import com.proptiger.core.model.BaseModel;
 
+@Entity
+@Table(name = "seodb.seo_urls")
 public class SeoURLs extends BaseModel {
     public SeoURLs() {
         super();

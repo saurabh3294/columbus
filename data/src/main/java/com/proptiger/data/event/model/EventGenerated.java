@@ -41,7 +41,8 @@ public class EventGenerated extends BaseModel {
     @Column(name = "data")
     private String           data;
 
-    @Transient
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
     private EventType        eventType;
 
     @Column(name = "event_type_id")

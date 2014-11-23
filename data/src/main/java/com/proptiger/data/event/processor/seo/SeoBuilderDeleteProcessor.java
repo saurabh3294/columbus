@@ -30,10 +30,9 @@ public class SeoBuilderDeleteProcessor extends DBEventProcessor {
             }
             return null;
         }
-        else if(newValue.getClass().equals(Map.class)){
-            Map<String, Map<String, Object>> valuesMap = (Map<String, Map<String, Object>>)newValue;
-            Map<String, Object> values = valuesMap.get(EventAllAttributeName.All);
-            Number number = (Number)values.get("builder_status");
+        else if(newValue instanceof Map<?,?>){
+            Map<String, Object> valuesMap = (Map<String, Object>)newValue;
+            Number number = (Number)valuesMap.get("builder_status");
             if(number.intValue() == 1){
                 return event;
             }

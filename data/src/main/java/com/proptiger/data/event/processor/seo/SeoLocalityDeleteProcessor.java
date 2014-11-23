@@ -30,10 +30,9 @@ public class SeoLocalityDeleteProcessor extends DBEventProcessor {
             }
             return null;
         }
-        else if(newValue.getClass().equals(Map.class)){
-            Map<String, Map<String, Object>> valuesMap = (Map<String, Map<String, Object>>)newValue;
-            Map<String, Object> values = valuesMap.get(EventAllAttributeName.All);
-            if(values.get("status").equals(Status.Inactive)){
+        else if(newValue instanceof Map<?,?>){
+            Map<String, Object> valuesMap = (Map<String, Object>)newValue;
+            if(valuesMap.get("STATUS").equals(Status.Inactive)){
                 return event;
             }
         }
