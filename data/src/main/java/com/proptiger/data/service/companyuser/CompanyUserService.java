@@ -51,7 +51,27 @@ public class CompanyUserService {
         }
         return companyUser;
     }
-    
+
+    public CompanyUser getAgentDetails(Integer userId, FIQLSelector selector) {
+        CompanyUser companyUser = companyUserDao.findFullByUserId(userId);
+
+        if (companyUser == null) {
+            throw new ResourceNotAvailableException(ResourceType.COMPANY_USER, ResourceTypeAction.GET);
+        }
+
+        Set<String> fields = selector.getFieldSet();
+        if (fields.contains("localities")) {
+            CompanyUser companyUserFull = companyUserDao.findLocalitiesByUserId(userId);
+            List<Locality> localities = new ArrayList<Locality>();
+            for (CompanyCoverage companyCoverage : companyUserFull.getCompanyCoverages()) {
+                localities.add(companyCoverage.getLocality());
+            }
+            companyUser.setLocalities(localities);
+        }
+
+        return companyUser;
+    }
+
     public List<CompanyUser> getCompanyUsers(Integer userId) {
         List<CompanyUser> companyUser = companyUserDao.findCompanyUsersByUserId(userId);
         return companyUser;

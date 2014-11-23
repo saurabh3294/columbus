@@ -20,10 +20,10 @@ import com.proptiger.data.util.PageType;
  */
 public class URLDetail {
     @NotNull(message = "The url field should not be empty.")
-    private String                url;
+    private String   url;
 
     @NotNull(message = "The template Id field should not be empty.")
-    private String                templateId;
+	private String templateId;
 
     private PageType              pageType;
     private String                cityName;
@@ -47,18 +47,19 @@ public class URLDetail {
     private String                localityName;
     private String                suburbName;
     private URLCategories         urlCategory;
+	private Integer page;
 
     /**
      * Default Value of bedroomString is empty string. Do not change it.
      */
-    private String                bedroomString = "";
+    private String   bedroomString = "";
     /**
      * Default Value of priceString is empty string. Do not change it.
      */
-    private String                priceString   = "";
-    private String                propertyType;
-    private String                appendingString;
-    private String                overviewType;
+    private String   priceString   = "";
+    private String   propertyType;
+    private String   appendingString;
+    private String   overviewType;
 
     public Integer getBuilderId() {
         return builderId;
@@ -304,4 +305,12 @@ public class URLDetail {
     public void setUrlCategory(URLCategories urlCategory) {
         this.urlCategory = urlCategory;
     }
+    
+    public Integer getPage() {
+		return page;
+	}
+
+	public void setPage(Integer page) {
+		this.page = page;
+	}
 }

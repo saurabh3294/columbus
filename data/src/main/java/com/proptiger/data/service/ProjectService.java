@@ -302,7 +302,7 @@ public class ProjectService {
          * setting project amenities if needed.
          */
         if (fields == null || fields.contains("projectAmenities")) {
-            project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectId(projectId));
+            project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectIdVerifiedOnly(projectId));
         }
 
         /*

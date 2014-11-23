@@ -33,8 +33,8 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     public LeadOffer findByIdAndAgentIdAndFetchLead(int leadOfferId, Integer userIdentifier);
 
     // XXX Hard coding for Banglore for faster retrieval
-    @Query("select LI from LeadOffer LO join LO.matchingListings LI left join fetch LI.projectSupply left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LO.id = ?1 and LI.property.project.locality.suburb.cityId = 2 and LI.status = 'Active' and LIPP.version='Website' group by LI")
-    public List<Listing> getMatchingListings(int leadOfferId);
+    @Query("select LI from LeadOffer LO join LO.matchingListings LI left join fetch LI.projectSupply left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LO.id = ?1 and LI.property.project.locality.suburb.cityId = 2 and LI.status = 'Active' and LIPP.version='Website' and LI.sellerId = ?2 group by LI")
+    public List<Listing> getMatchingListings(int leadOfferId, int userId);
 
     @Query("select LO from LeadOffer LO join fetch LO.lead L where LO.id = ?1")
     public LeadOffer findById(int leadOfferId);
@@ -42,6 +42,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select distinct(LO) from LeadOffer LO join LO.masterLeadOfferStatus LOM where LO.leadId = ?1 and LOM.claimedFlag = true and LOM.openFlag = true")
     public List<LeadOffer> getLegitimateLeadOffersForDuplicateLeadNotifications(int leadId);
 
+    @Query("select LO from LeadOffer LO join LO.masterLeadOfferStatus MLOS where LO.leadId = ?1")
     public List<LeadOffer> findByLeadId(int leadId);
 
     @Modifying
@@ -79,4 +80,28 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query(
             value = "SELECT DISTINCT LO FROM LeadOffer LO JOIN FETCH LO.lead L JOIN FETCH L.requirements LR WHERE LO.id = ?1")
     LeadOffer getLeadOfferWithRequirements(int leadOfferId);
+
+    @Modifying
+    @Transactional
+    @Query("update LeadOffer LO set LO.statusId = 2 where LO.leadId in (?1) and LO.statusId = 1")
+    void updateLeadOffers(List<Integer> leadIdList);
+
+    @Query("select max(LO.cycleId) from LeadOffer LO where LO.leadId = ?1 and LO.phaseId = ?2")
+    Integer getMaxCycleIdAndPhaseId(int id, int phaseId);
+
+    @Query("select count(LO) from LeadOffer LO where LO.leadId = ?1 and LO.phaseId = ?2")
+    Long findByLeadIdAndPhaseId(int id, Integer phaseId);
+
+    @Query("select MAX(LO.phaseId) from LeadOffer LO where LO.leadId = ?1")
+    Integer getMaxPhaseId(int leadId);
+
+    @Query("select LO from LeadOffer LO where LO.leadId = ?1 and LO.agentId = ?2")
+    LeadOffer findByLeadIdAndAgentId(int id, int agentId);
+
+    @Query("select LO from LeadOffer LO where LO.statusId = ?2 and LO.leadId = ?1")
+    List<LeadOffer> findByLeadIdWhereStatusOffered(int leadId, int statusId);
+
+    @Query("select count(LO.id) from LeadOffer LO where LO.agentId = ?1 and LO.statusId = ?2")
+    long getcountLeadOffersOnThisAgentInNewStatus(int userId, int id);
+
 }

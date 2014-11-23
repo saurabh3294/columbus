@@ -1,7 +1,12 @@
 package com.proptiger.data.service.cron;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +18,9 @@ import com.proptiger.core.exception.ConstraintViolationException;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.LeadOfferStatus;
+import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.marketplace.Lead;
+import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.LeadTaskService;
@@ -50,18 +57,75 @@ public class CronService {
     private static Logger       logger = LoggerFactory.getLogger(CronService.class);
 
     @Scheduled(initialDelay = 10000, fixedDelay = 1800000)
-    public void manageLeadAssignment() {
+    public void manageLeadAssignmentWithCycle() {
         Date createdSince = new Date(
                 new Date().getTime() - PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_CRON_BUFFER)
                         * 1000);
         List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
+        int interval = PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION) + PropertyReader
+                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION);
+        Date expireTime = new Date(new Date().getTime() - interval * 1000);
+        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired(expireTime);
+        Set<Integer> leadIds = new HashSet<Integer>();
+
         for (Lead lead : leads) {
-            try {
-                leadService.manageLeadAuction(lead.getId());
+            leadIds.add(lead.getId());
+        }
+
+        Map<Integer, Integer> maxPhaseIdMapLeadId = new HashMap<Integer, Integer>();
+        for (Lead lead : leadsWithLeadOfferExpired) {
+            List<LeadOffer> offers = lead.getLeadOffers();
+            int maxPhaseId = 0;
+            for (LeadOffer offer : offers) {
+                if (maxPhaseId < offer.getPhaseId()) {
+                    maxPhaseId = offer.getPhaseId();
+                }
             }
+            maxPhaseIdMapLeadId.put(lead.getId(), maxPhaseId);
+        }
+
+        for (Lead lead : leadsWithLeadOfferExpired) {
+            List<LeadOffer> offers = lead.getLeadOffers();
+            int claimedCount = 0;
+            for (LeadOffer offer : offers) {
+                if (offer.getMasterLeadOfferStatus().isClaimed() && maxPhaseIdMapLeadId.get(offer.getLeadId()) == offer
+                        .getPhaseId()) {
+                    claimedCount++;
+                }
+            }
+
+            if (!PropertyReader.getRequiredPropertyAsType(
+                    PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM,
+                    Integer.class).equals(claimedCount)) {
+                leadIds.add(lead.getId());
+            }
+        }
+
+        List<Integer> leadIdList = new ArrayList<Integer>();
+        for (Integer leadId : leadIds) {
+            leadIdList.add(leadId);
+        }
+
+        manageNoBrokerClaimedNotification();
+        if (!leadIds.isEmpty()) {
+            notificationService
+                    .deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
+            leadOfferDao.updateLeadOffers(leadIdList);
+        }
+
+        for (Integer leadId : leadIdList) {
+            try {
+                leadService.manageLeadAuctionWithCycle(
+                        leadId,
+                        maxPhaseIdMapLeadId,
+                        maxPhaseIdMapLeadId.get(leadId) == null ? 0 : maxPhaseIdMapLeadId.get(leadId),
+                        0);
+            }
+
             catch (Exception e) {
                 logger.error("Error in lead assignment: " + e);
             }
+
         }
     }
 
@@ -86,7 +150,7 @@ public class CronService {
         notificationService.sendTaskDueNotification();
     }
 
-    @Scheduled(initialDelay = 4000, fixedDelay = 60000)
+    // @Scheduled(initialDelay = 4000, fixedDelay = 60000)
     public void manageNoBrokerClaimedNotification() {
         Date endDate = notificationService.getNoBrokerClaimedCutoffTime();
         Date startDate = new Date(
@@ -106,7 +170,6 @@ public class CronService {
         }
     }
 
-    @Scheduled(initialDelay = 50000, fixedDelay = 1800000)
     public void manageLeadOfferedReminder() {
         Date endDate = notificationService.getAuctionOverCutoffTime();
         Date startDate = new Date(
@@ -124,5 +187,17 @@ public class CronService {
                 logger.error("Error while sending lead offer reminder to rm for lead id: " + lead.getId() + e);
             }
         }
+    }
+
+    @Scheduled(cron = "0 0 9 * * ?")
+    public void sendLimitReachedGCMNotifications() {
+        notificationService.sendLimitReachedGCMNotifications();
+    }
+
+    @Scheduled(
+            initialDelayString = "${marketplace.notification.initial.delay}",
+            fixedDelayString = "${marketplace.notification.fixed.delay}")
+    public void manageHighTaskOverdueNotificationForRM() {
+        notificationService.manageHighTaskOverdueNotificationForRM();
     }
 }

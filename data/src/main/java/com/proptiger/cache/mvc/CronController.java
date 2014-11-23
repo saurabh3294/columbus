@@ -27,7 +27,7 @@ public class CronController {
     @RequestMapping("/v1/lead-assign")
     public @ResponseBody
     APIResponse leadAssignCron() throws Exception {
-        cronService.manageLeadAssignment();
+        cronService.manageLeadAssignmentWithCycle();
         return new APIResponse();
     }
 
@@ -58,6 +58,20 @@ public class CronController {
         cronService.populateNotification();
         cronService.sendTaskDueNotification();
         cronService.sendTaskOverDueNotification();
+        return new APIResponse();
+    }
+
+    @RequestMapping("/v1/too-many-tasks-overdue")
+    public @ResponseBody
+    APIResponse sendTooManyTasksOverdueNotifications() throws Exception {
+        cronService.manageHighTaskOverdueNotificationForRM();
+        return new APIResponse();
+    }
+
+    @RequestMapping("/v1/lead-stopped")
+    public @ResponseBody
+    APIResponse sendLeadStoppedNotifications() throws Exception {
+        cronService.sendLimitReachedGCMNotifications();
         return new APIResponse();
     }
 }
