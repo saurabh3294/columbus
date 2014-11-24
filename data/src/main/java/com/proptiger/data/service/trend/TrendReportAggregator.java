@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +33,9 @@ public class TrendReportAggregator {
     @Autowired
     private PropertyService propertyService;
 
-    private int             maxFetchLimitAdditionalInfo = 100;
+    private int             maxFetchLimitAdditionalInfo = 300;
+
+    private static Logger   logger                      = LoggerFactory.getLogger(TrendReportAggregator.class);
 
     @SuppressWarnings("unchecked")
     public List<CatchmentTrendReportElement> getCatchmentTrendReport(
@@ -223,7 +227,70 @@ public class TrendReportAggregator {
     }
 
     private Map<Integer, AdditionalInfo> getAdditionalInfo(List<Integer> projectIdList) {
+        maxFetchLimitAdditionalInfo = 150;
+        logger.debug("PnA_Report: Fetching additional info from Solr for " + projectIdList.size()
+                + " (total) projects pagewise.");
 
+        List<Project> projectList = new ArrayList<Project>();
+
+        /** Fetch Project details page-wise **/
+        Selector selector;
+        List<Integer> partialProjectIdList;
+        PaginatedResponse<List<Project>> paginatedResponse = null;
+        List<Project> projectListTemp = null;
+        int fetched = 0;
+        int fetch_end;
+        while (true) {
+            fetch_end = Math.min(fetched + maxFetchLimitAdditionalInfo, projectIdList.size());
+            partialProjectIdList = projectIdList.subList(fetched, fetch_end);
+            selector = getSelectorProjectIds(partialProjectIdList);
+            selector.setPaging(new Paging(0, maxFetchLimitAdditionalInfo));
+            fetched += maxFetchLimitAdditionalInfo;
+            logger.debug("PnA_Report: Fetching additional info from Solr for " + partialProjectIdList.size()
+                    + " projects. Paging = "
+                    + selector.getPaging().toString());
+
+            paginatedResponse = propertyService.getPropertiesGroupedToProjects(selector);
+            if (paginatedResponse == null || paginatedResponse.getResults() == null) {
+                break;
+            }
+
+            logger.debug("PnA_Report: Fetching additional info from Solr. Total projects fetched = " + fetched);
+
+            projectListTemp = paginatedResponse.getResults();
+            projectList.addAll(projectListTemp);
+
+            // if (fetched >= paginatedResponse.getTotalCount() ||
+            // projectListTemp.isEmpty()) {
+
+            if (fetched >= projectIdList.size() || projectListTemp.isEmpty()) {
+                logger.debug("PnA_Report: Solr data fetch conplete.");
+                break;
+            }
+
+        }
+
+        /** make additional info map from project-details **/
+
+        Map<Integer, AdditionalInfo> mapPidToAdditionInfo = new HashMap<Integer, AdditionalInfo>();
+        AdditionalInfo additionalInfo;
+        Double projectSize = null;
+        for (Project project : projectList) {
+            additionalInfo = new AdditionalInfo();
+            additionalInfo.laitude = project.getLatitude();
+            additionalInfo.longitude = project.getLongitude();
+            projectSize = project.getSizeInAcres();
+            if (projectSize != null) {
+                additionalInfo.projectArea = project.getSizeInAcres();
+            }
+            additionalInfo.mapPidToBhkRange = getProjectBhkSizeRangeMap(project);
+            mapPidToAdditionInfo.put(project.getProjectId(), additionalInfo);
+        }
+
+        return mapPidToAdditionInfo;
+    }
+
+    private Selector getSelectorProjectIds(List<Integer> projectIdList) {
         Selector selector = new Selector();
 
         /* Adding filter for project IDs */
@@ -249,47 +316,7 @@ public class TrendReportAggregator {
         fields.add("size");
         selector.setFields(fields);
 
-        List<Project> projectList = new ArrayList<Project>();
-
-        /** Fetch Project details page-wise **/
-
-        PaginatedResponse<List<Project>> paginatedResponse = null;
-        List<Project> projectListTemp = null;
-        int fetched = 0;
-        while (true) {
-            selector.setPaging(new Paging(fetched, maxFetchLimitAdditionalInfo));
-            paginatedResponse = propertyService.getPropertiesGroupedToProjects(selector);
-            if (paginatedResponse == null || paginatedResponse.getResults() == null) {
-                break;
-            }
-
-            projectListTemp = paginatedResponse.getResults();
-            projectList.addAll(projectListTemp);
-            fetched += projectListTemp.size();
-
-            if (fetched >= paginatedResponse.getTotalCount() || projectListTemp.isEmpty()) {
-                break;
-            }
-        }
-
-        /** make additional info map from project-details **/
-
-        Map<Integer, AdditionalInfo> mapPidToAdditionInfo = new HashMap<Integer, AdditionalInfo>();
-        AdditionalInfo additionalInfo;
-        Double projectSize = null;
-        for (Project project : projectList) {
-            additionalInfo = new AdditionalInfo();
-            additionalInfo.laitude = project.getLatitude();
-            additionalInfo.longitude = project.getLongitude();
-            projectSize = project.getSizeInAcres();
-            if (projectSize != null) {
-                additionalInfo.projectArea = project.getSizeInAcres();
-            }
-            additionalInfo.mapPidToBhkRange = getProjectBhkSizeRangeMap(project);
-            mapPidToAdditionInfo.put(project.getProjectId(), additionalInfo);
-        }
-
-        return mapPidToAdditionInfo;
+        return selector;
     }
 
     @SuppressWarnings("unused")

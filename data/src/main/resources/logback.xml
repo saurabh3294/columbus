@@ -55,7 +55,13 @@
 		<appender-ref ref="email-appender" />
 		<appender-ref ref="dal" />
 	</logger>
-	
+	<logger name="com.proptiger.data.service.trend">
+		<level value="DEBUG" />
+	</logger>
+		<logger name="com.proptiger.data.notification">
+		<level value="ERROR" />
+	</logger>
+
 	<root level="INFO">
 		<appender-ref ref="dal" />
 		<appender-ref ref="STDOUT" />

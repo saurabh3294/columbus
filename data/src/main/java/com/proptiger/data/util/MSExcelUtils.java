@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.exception.ProAPIException;
@@ -59,7 +59,7 @@ public class MSExcelUtils {
             List<Object[]> columnHeadings,
             List<List<Object>> data) throws ProAPIException {
         
-        Workbook workbook = new HSSFWorkbook();
+        Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet(sheetName);
         
         if (columnHeadings == null || columnHeadings.isEmpty()) {

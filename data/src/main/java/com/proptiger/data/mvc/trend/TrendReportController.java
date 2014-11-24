@@ -33,18 +33,16 @@ public class TrendReportController extends BaseController {
     @Autowired
     TrendReportAggregator trendReportDao;
 
-//    @Intercepted.TrendReport
+    // @Intercepted.TrendReport
     @RequestMapping("app/v1/report/price-and-absorption")
     @ResponseBody
-    public void getTrendReport(
-            HttpServletResponse response,
-            FIQLSelector selector) throws Exception {
+    public void getTrendReport(HttpServletResponse response, FIQLSelector selector) throws Exception {
 
         File file = trendReportService.getTrendReport(selector);
         makeHTTPServletResponse(response, file);
     }
-    
-//    @Intercepted.TrendReport
+
+    // @Intercepted.TrendReport
     @RequestMapping("app/v1/report/price-and-absorption/catchment/{catchmentId}")
     @ResponseBody
     public void getTrendReportByCatchmentId(

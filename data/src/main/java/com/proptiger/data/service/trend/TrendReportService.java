@@ -1,5 +1,6 @@
 package com.proptiger.data.service.trend;
 
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,10 +18,10 @@ import javax.annotation.PostConstruct;
 
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.PrimitiveStatement;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,11 +46,13 @@ import com.proptiger.data.util.MSExcelUtils;
 @Service
 public class TrendReportService {
 
+    /** How many trend rows to fetch from DB in one iteration **/
     /** Discuss before changing this limit **/
     public static final int     MaxTrendFetchLimit        = 10000;
 
+    /** How many objects to fetch from temp-object-storage-file in one iteration **/
     /** Discuss before changing this limit **/
-    public static final int     MaxObjectFetchLimit       = 10000;
+    public static final int     MaxObjectFetchLimit       = 1000;
 
     private static Logger       logger                    = LoggerFactory.getLogger(TrendReportService.class);
 
@@ -94,54 +97,40 @@ public class TrendReportService {
 
     public File getTrendReportByCatchmentId(Integer catchmentId, FIQLSelector selector, ActiveUser userInfo) {
         updateFIQLSelectorBasedOnCatchmentId(catchmentId, selector, userInfo);
-        return (getTrendReportByFIQLSelector(selector));
+        return (getTrendReportAsMsExcelFile(selector));
     }
 
     public File getTrendReport(FIQLSelector selector) {
-        return (getTrendReportByFIQLSelector(selector));
+        return (getTrendReportAsMsExcelFile(selector));
     }
 
-    private File getTrendReportByFIQLSelector(FIQLSelector selector) {
+    private File getTrendReportAsMsExcelFile(FIQLSelector selector) {
+
+        logger.debug("PnA_Report: Download request recieved : FIQLSelector = " + selector);
 
         /** Generate a sorted list of months given in FIQL Selector **/
         List<Date> sortedMonthList = getMonthList(selector);
-        if (sortedMonthList == null || sortedMonthList.isEmpty()) {
-            throw new ProAPIException(TrendReportService.ERR_MSG_InvalidTimePeriod);
-        }
+        throwExceptionIfListNullOrEmpty(sortedMonthList, new ProAPIException(
+                TrendReportService.ERR_MSG_InvalidTimePeriod));
 
-        String tempObjStorageFileName = trendReportDir + "/par_temp_"
-                + System.currentTimeMillis()
-                + "_"
-                + (Math.random() * 100000)
-                + ".tmp";
+        String tempObjStorageFileName = getTemporaryFileName();
         File tempObjStoragefile = new File(tempObjStorageFileName);
-
-        /** Fetch Information from TREND APIs **/
-        PaginatedResponse<List<Trend>> paginatedResponse = null;
-        List<Trend> trendList = null;
-        List<CatchmentTrendReportElement> ctreList = null;
-
-        int fetched = 0;
-        while (true) {
-            selector.setStart(fetched).setRows(MaxTrendFetchLimit);
-            paginatedResponse = trendService.getPaginatedTrend(selector, null, null);
-            if (paginatedResponse == null || paginatedResponse.getResults() == null) {
-                break;
-            }
-
-            trendList = paginatedResponse.getResults();
-            fetched += trendList.size();
-
-            if (fetched >= paginatedResponse.getTotalCount() || trendList.isEmpty()) {
-                break;
-            }
-            else {
-                removeLastProjectFromTrendList(trendList);
-            }
-
-            ctreList = getPaginatedTrendReportByFIQLSelector(trendList, sortedMonthList);
-            writeObjectListToFile(ctreList, tempObjStoragefile);
+        FileOutputStream fos = null;
+        ObjectOutputStream oos = null;
+        try {
+            fos = new FileOutputStream(tempObjStoragefile);
+            oos = new ObjectOutputStream(fos);
+            generateTrendReportByFIQLSelector(selector, sortedMonthList, oos);
+            oos.close();
+            fos.close();
         }
+        catch (IOException ioEx) {
+            closeIOStreams(oos, fos);
+            tempObjStoragefile.delete();
+            throw new ProAPIException(ioEx);
+        }
+
+        logger.debug("PnA_Report: temp file for object storage created : " + tempObjStoragefile.getAbsolutePath());
 
         /** Export WorkBook to report data to File */
         File excelFile;
@@ -152,6 +141,71 @@ public class TrendReportService {
         catch (IOException ioEx) {
             throw new ProAPIException(ioEx);
         }
+
+    }
+
+    private void generateTrendReportByFIQLSelector(
+            FIQLSelector selector,
+            List<Date> sortedMonthList,
+            ObjectOutputStream oos) throws IOException {
+
+        /** Fetch Information from TREND APIs **/
+        PaginatedResponse<List<Trend>> paginatedResponse = null;
+        List<Trend> trendList = null;
+        List<CatchmentTrendReportElement> ctreList = null;
+
+        selector.setSort("projectId");
+        int fetched = 0;
+        int ctreObjectCountTotal = 0;
+        while (true) {
+            selector.setStart(fetched).setRows(MaxTrendFetchLimit);
+            paginatedResponse = trendService.getPaginatedTrend(selector, null, null);
+            if (paginatedResponse == null || paginatedResponse.getResults() == null) {
+                break;
+            }
+
+            trendList = paginatedResponse.getResults();
+            logger.debug("PnA_Report: Trend objects fetched now   = " + trendList.size());
+
+            if (trendList.isEmpty()) {
+                logger.debug("PnA_Report: Data fetch complete.(indicator=empty result set)");
+                break;
+            }
+
+            fetched += trendList.size();
+            if (fetched < paginatedResponse.getTotalCount()) {
+                removeLastProjectFromTrendList(trendList);
+            }
+
+            logger.debug("PnA_Report: Trend objects fetched now   = " + trendList.size()
+                    + " (after removing last incomplete project)");
+            logger.debug("PnA_Report: Total Trend objects fetched = " + fetched);
+
+            ctreList = getPaginatedTrendReportByFIQLSelector(trendList, sortedMonthList);
+            for (CatchmentTrendReportElement ctreTemp : ctreList) {
+                oos.writeObject(ctreTemp);
+            }
+
+            ctreObjectCountTotal += ctreList.size();
+
+            logger.debug("PnA_Report: " + ctreList.size() + " ctre objects written to file.");
+
+            if (fetched >= paginatedResponse.getTotalCount()) {
+                logger.debug("PnA_Report: Data fetch complete.(indicator = normal) " + "["
+                        + fetched
+                        + ","
+                        + paginatedResponse.getTotalCount());
+                break;
+            }
+        }
+
+        if (ctreObjectCountTotal == 0) {
+            throw new ProAPIException(
+                    ResponseCodes.EMPTY_REPORT_GENERATED,
+                    "No projects were found for the given search criteria.");
+        }
+
+        logger.debug("PnA_Report: Total " + ctreObjectCountTotal + " ctre objects written to file.");
     }
 
     @SuppressWarnings("unchecked")
@@ -159,11 +213,9 @@ public class TrendReportService {
             List<Trend> trendList,
             List<Date> sortedMonthList) {
 
-        if (trendList == null || trendList.isEmpty()) {
-            throw new ProAPIException(
-                    ResponseCodes.EMPTY_REPORT_GENERATED,
-                    "No projects were found for the given search criteria.");
-        }
+        throwExceptionIfListNullOrEmpty(trendList, new ProAPIException(
+                ResponseCodes.EMPTY_REPORT_GENERATED,
+                "No projects were found for the given search criteria."));
 
         // DebugUtils.exportToNewDebugFile(DebugUtils.getAsListOfStrings(trendList));
 
@@ -183,14 +235,16 @@ public class TrendReportService {
         return ctreList;
     }
 
-    private File convertFileToExcelFile(File file, List<Date> sortedMonthList) throws IOException{
+    private File convertFileToExcelFile(File file, List<Date> sortedMonthList) throws IOException {
+
+        logger.debug("PnA_Report: Starting export to MsExcel File");
 
         /** Get Report-Header column names **/
         List<Object[]> reportColumns = CatchmentTrendReportElement.getReportColumns(sortedMonthList);
 
         String excelFileName = trendReportDir + "/price-and-absorption-report_" + System.currentTimeMillis() + ".xls";
         String excelSheetName = WorkbookUtil.createSafeSheetName(workSheetName);
-        Workbook excelWorkbook = new HSSFWorkbook();
+        Workbook excelWorkbook = new XSSFWorkbook();
         Sheet excelSheet = excelWorkbook.createSheet(excelSheetName);
 
         FileInputStream fis = new FileInputStream(file);
@@ -201,6 +255,7 @@ public class TrendReportService {
         CatchmentTrendReportElement ctrelem;
         boolean flag = false;
         while (true) {
+            ctreList.clear();
             reportData.clear();
             try {
                 for (int i = 0; i < MaxObjectFetchLimit; i++) {
@@ -209,13 +264,13 @@ public class TrendReportService {
                 }
             }
             catch (EOFException eofEx) {
-                flag = true;        // All objects have been read
+                flag = true; // All objects have been read
             }
-            catch (ClassNotFoundException clEx){
+            catch (ClassNotFoundException clEx) {
                 ois.close();
                 throw new ProAPIException(clEx);
             }
- 
+
             for (CatchmentTrendReportElement ctre : ctreList) {
                 reportData.addAll(ctre.getReportRows(sortedMonthList));
             }
@@ -236,9 +291,7 @@ public class TrendReportService {
     private void updateFIQLSelectorBasedOnCatchmentId(Integer catchmentId, FIQLSelector selector, ActiveUser userInfo) {
         List<Catchment> catchmentList = catchmentService.getCatchment(new FIQLSelector()
                 .addAndConditionToFilter("id==" + catchmentId));
-        if (catchmentList.isEmpty()) {
-            throw new ProAPIException("Invalid Catchment ID");
-        }
+        throwExceptionIfListNullOrEmpty(catchmentList, new ProAPIException("Invalid Catchment ID"));
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
     }
 
@@ -321,24 +374,29 @@ public class TrendReportService {
         }
     }
 
-    private <T> void writeObjectListToFile(List<T> objList, File file) {
-        try {
-            FileOutputStream fos = new FileOutputStream(file, true);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-            for (T t : objList) {
-                try {
-                    oos.writeObject(t);
-                }
-                catch (IOException ioex) {
-                    logger.error("Exception while serializing object.", ioex);
-                }
+    private void closeIOStreams(Closeable... closeables) {
+        for (Closeable c : closeables) {
+            try {
+                c.close();
             }
-            oos.close();
-            fos.close();
-        }
-        catch (IOException ex) {
-            logger.error("Exception while opening or closing temprary file to serialize CTRE objects.", ex);
+            catch (IOException e) {
+            }
         }
     }
+
+    private String getTemporaryFileName() {
+        String tempFileName = trendReportDir + "/par_temp_"
+                + System.currentTimeMillis()
+                + "_"
+                + (int) (Math.random() * 100000)
+                + ".tmp";
+        return tempFileName;
+    }
+
+    private <T> void throwExceptionIfListNullOrEmpty(List<T> l, ProAPIException papiEx) {
+        if (l == null || l.isEmpty()) {
+            throw papiEx;
+        }
+    }
+
 }
