@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.mocker.NotificationMockerService;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.model.NotificationMessage;
@@ -27,7 +28,6 @@ import com.proptiger.data.notification.repo.NotificationMessageDao;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.NotificationTypeService;
 import com.proptiger.data.notification.service.UserNotificationTypeSubscriptionService;
-import com.proptiger.data.service.AbstractTest;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
 
 /**
