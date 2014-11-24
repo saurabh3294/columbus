@@ -93,8 +93,9 @@ public class NotificationMessageServiceTest extends AbstractTest {
                 .getNotificationType().getNotificationTypeConfig().getNotificationMessageProcessorObject();
 
         UserNotificationTypeSubscriptionService userNTSubscriptionService = mock(UserNotificationTypeSubscriptionService.class);
-        when(userNTSubscriptionService.getUnsubscribedUsersByNotificationType(ntGenerated.getNotificationType()))
-                .thenReturn(userList);
+        when(
+                userNTSubscriptionService.getUnsubscribedUsersByNotificationType(ntGenerated.getNotificationType()
+                        .getId())).thenReturn(userList);
         nMessageService.setUserNTSubscriptionService(userNTSubscriptionService);
 
         PortfolioService portfolioService = mock(PortfolioService.class);

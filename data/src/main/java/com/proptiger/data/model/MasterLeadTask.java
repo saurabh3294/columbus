@@ -25,6 +25,12 @@ public class MasterLeadTask extends BaseModel {
 
     private String               name;
 
+    @Column(name="singular_display_name")
+    private String               singularDisplayName;
+
+    @Column(name="plural_display_name")
+    private String               pluralDisplayName;
+
     @Column(name = "is_optional")
     private boolean              optional;
 
@@ -94,5 +100,21 @@ public class MasterLeadTask extends BaseModel {
 
     public void setLeadTaskStatuses(List<LeadTaskStatus> leadTaskStatuses) {
         this.leadTaskStatuses = leadTaskStatuses;
+    }
+
+    public String getSingularDisplayName() {
+        return singularDisplayName;
+    }
+
+    public void setSingularDisplayName(String singularDisplayName) {
+        this.singularDisplayName = singularDisplayName;
+    }
+
+    public String getPluralDisplayName() {
+        return pluralDisplayName;
+    }
+
+    public void setPluralDisplayName(String pluralDisplayName) {
+        this.pluralDisplayName = pluralDisplayName;
     }
 }

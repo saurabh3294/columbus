@@ -105,6 +105,7 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
                 profileImageUrl);
         if (user != null) {
             Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
+
             SocialUser socialUser = new ActiveUser(
                     user.getFullName(),
                     user.getId(),

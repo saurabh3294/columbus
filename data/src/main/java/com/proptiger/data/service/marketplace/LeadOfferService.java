@@ -11,12 +11,15 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.ListingComparator;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.APIServerException;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.Company;
@@ -28,6 +31,7 @@ import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
+import com.proptiger.data.enums.DeclineReason;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
@@ -43,6 +47,7 @@ import com.proptiger.data.model.marketplace.LeadOffer.CountListingObject;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
@@ -116,6 +121,21 @@ public class LeadOfferService {
 
     @Autowired
     private PropertyReader               propertyReader;
+
+    private LeadService                  leadService;
+
+    @Autowired
+    private ApplicationContext           applicationContext;
+
+    @Autowired
+    private DeclineReasonService         declineReasonService;
+
+    private LeadService getLeadService() {
+        if (leadService == null) {
+            leadService = applicationContext.getBean(LeadService.class);
+        }
+        return leadService;
+    }
 
     /**
      * 
@@ -421,21 +441,36 @@ public class LeadOfferService {
         return leadOfferIds;
     }
 
-    public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId) {
+    public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId, Integer phaseId) {
         List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
+        Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(lead.getId(), phaseId);
         LeadOffer leadOffer = null;
+        LeadOffer leadOfferInDB = null;
         if (!agents.isEmpty()) {
-            leadOffer = createLeadOffer(lead, agents.get(0));
+            leadOfferInDB = leadOfferDao.findByLeadIdAndAgentId(lead.getId(), agents.get(0).getUserId());
+        }
+        if (!agents.isEmpty() && leadOfferInDB == null) {
+            leadOffer = createLeadOffer(lead, agents.get(0), cycleId, countLeadOfferInDB, phaseId);
         }
         return leadOffer;
     }
 
-    public LeadOffer createLeadOffer(Lead lead, CompanyUser agent) {
+    public LeadOffer createLeadOffer(Lead lead, CompanyUser agent, int cycleId, int countLeadOfferInDB, Integer phaseId) {
         LeadOffer offer = new LeadOffer();
         offer.setLeadId(lead.getId());
         offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getId());
-        offer.setCycleId(1);
+
+        if (phaseId == null || phaseId == 0) {
+            phaseId = 1;
+        }
+
+        if (countLeadOfferInDB >= PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_MAX_OFFERS_IN_PHASE)) {
+            phaseId = phaseId + 1;
+        }
+
+        offer.setPhaseId(phaseId);
+        offer.setCycleId(cycleId);
         offer = leadOfferDao.save(offer);
         return offer;
     }
@@ -480,7 +515,50 @@ public class LeadOfferService {
         // Claim a lead
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
-                claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
+
+                long countLeadOffersOnThisAgentInNewStatus = leadOfferDao.getcountLeadOffersOnThisAgentInNewStatus(
+                        userId,
+                        LeadOfferStatus.New.getId());
+
+                if (countLeadOffersOnThisAgentInNewStatus < PropertyReader.getRequiredPropertyAsType(
+                        PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
+                        Long.class)) {
+                    claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
+                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+                    if (notification != null) {
+                        notificationService.deleteNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+                        notificationService
+                                .deleteNotification(
+                                        PropertyReader
+                                                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
+                                        NotificationType.MaxLeadCountForBrokerReached.getId(),
+                                        userId);
+                    }
+
+                    if (countLeadOffersOnThisAgentInNewStatus + 1 == PropertyReader.getRequiredPropertyAsType(
+                            PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
+                            Long.class)) {
+                        Notification notificationLeadLimit = notificationService.findByUserIdAndNotificationId(
+                                userId,
+                                NotificationType.MaxLeadCountForBrokerReached.getId(),
+                                0);
+                        if (notificationLeadLimit == null) {
+                            notificationService.createNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0, null);
+                            notificationService
+                                    .createNotification(
+                                            PropertyReader
+                                                    .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
+                                            8,
+                                            userId,
+                                            null);
+                        }
+                    }
+                }
+                else {
+                    throw new APIServerException(
+                            "Claim Lead suspended ,Please update your existing New leads to claim new leads ");
+                }
+
                 return leadOfferInDB;
             }
         }
@@ -495,8 +573,29 @@ public class LeadOfferService {
         if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId()) {
             if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() || leadOfferInDB.getStatusId() == LeadOfferStatus.Expired
                     .getId()) {
+
+                if (leadOffer.getDeclineReasonId() == null || declineReasonService.getReasonById(leadOffer
+                        .getDeclineReasonId()) == null) {
+                    throw new BadRequestException("please provide valid reason for declining");
+                }
+                else if (leadOffer.getDeclineReasonId() == DeclineReason.Other.getDeclineReasonId()) {
+                    if (leadOffer.getOtherReason() == null || leadOffer.getOtherReason() == "") {
+                        throw new BadRequestException("please provide valid reason for declining");
+                    }
+                    else {
+                        leadOfferInDB.setOtherReason(leadOffer.getOtherReason());
+                        leadOfferInDB.setDeclineReasonId(leadOffer.getDeclineReasonId());
+                    }
+                }
+                else {
+                    leadOfferInDB.setDeclineReasonId(leadOffer.getDeclineReasonId());
+                }
+
                 notificationService.removeNotification(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
+                leadOfferDao.save(leadOfferInDB);
+                restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
+                return leadOfferInDB;
             }
         }
 
@@ -669,20 +768,56 @@ public class LeadOfferService {
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
                     .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
-                    .setMailCC(leadOfferInDB.getAgent().getEmail())
-                    .setReplyTo(leadOfferInDB.getAgent().getEmail())
+                    .setMailCC(leadOfferInDB.getAgent().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail())
                     .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
             mailSender.sendMailUsingAws(mailDetails);
         }
     }
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
-        LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
-        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId());
+        LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
+        Integer maxPhaseId = leadOfferDao.getMaxPhaseId(leadOfferInDB.getLeadId());
+        List<LeadOffer> allLeadOffers = leadOfferDao.findByLeadId(leadOfferInDB.getLeadId());
 
-        if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class)
-                .equals(leadOfferCount)) {
-            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId());
+        Integer leadOfferCount = 0;
+        Integer declinedLeadOfferCountInCycle = 0;
+        Integer maxCycleId = 0;
+        Integer leadOfferCountInCycle = 0;
+        Integer allCountInCycle = 0;
+        for (LeadOffer leadOffer : allLeadOffers) {
+            if (leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId) {
+                leadOfferCount++;
+            }
+            if (leadOffer.getCycleId() > maxCycleId && leadOffer.getPhaseId() == maxPhaseId) {
+                maxCycleId = leadOffer.getCycleId();
+            }
+        }
+
+        for (LeadOffer leadOffer : allLeadOffers) {
+            if (leadOffer.getMasterLeadOfferStatus().isClaimed() == true && leadOffer.getPhaseId() == maxPhaseId
+                    && leadOffer.getCycleId() == maxCycleId) {
+                leadOfferCountInCycle++;
+            }
+            if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId() && leadOffer.getPhaseId() == maxPhaseId
+                    && leadOffer.getCycleId() == maxCycleId) {
+                declinedLeadOfferCountInCycle++;
+            }
+            if (leadOffer.getCycleId() == maxCycleId) {
+                allCountInCycle++;
+            }
+        }
+
+        if (PropertyReader
+                .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Integer.class).equals(
+                        leadOfferCount)) {
+            leadOfferDao.expireRestOfTheLeadOffers(leadOfferInDB.getLeadId());
+        }
+        else {
+
+            if (declinedLeadOfferCountInCycle + leadOfferCountInCycle == allCountInCycle) {
+                getLeadService();
+                leadService.manageLeadAuctionWithBeforeCycleDeclined(leadOfferInDB.getLeadId());
+            }
         }
     }
 
@@ -718,7 +853,12 @@ public class LeadOfferService {
     }
 
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
-        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId);
+
+        LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
+        if (leadOfferInDB.getAgentId() != userId) {
+            throw new BadRequestException("you can only view listings offered by you for lead offers assigned to you");
+        }
+        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId, userId);
         populateOfferedFlag(leadOfferId, matchingListings, userId);
         return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
     }
@@ -756,7 +896,11 @@ public class LeadOfferService {
         List<Listing> sortedList = new ArrayList<>();
         Map<Integer, List<Listing>> listingsByProjectId = new HashMap<>();
         Map<Integer, List<Listing>> listingsByLocalityId = new HashMap<>();
+
         List<Listing> remainingAfterProjectSort = new ArrayList<>();
+        List<Listing> sortedListProject = new ArrayList<>();
+        List<Listing> sortedListLocality = new ArrayList<>();
+        List<Listing> sortedListRemaining = new ArrayList<>();
 
         for (Listing listing : listings) {
             int projectId = listing.getProperty().getProjectId();
@@ -769,7 +913,7 @@ public class LeadOfferService {
         for (LeadRequirement leadRequirement : leadRequirements) {
             Integer projectId = leadRequirement.getProjectId();
             if (listingsByProjectId.containsKey(projectId)) {
-                sortedList.addAll(listingsByProjectId.get(projectId));
+                sortedListProject.addAll(listingsByProjectId.get(projectId));
                 listingsByProjectId.remove(projectId);
             }
         }
@@ -797,14 +941,34 @@ public class LeadOfferService {
             }
 
             if (listingsByLocalityId.containsKey(localityId)) {
-                sortedList.addAll(listingsByLocalityId.get(localityId));
+                sortedListLocality.addAll(listingsByLocalityId.get(localityId));
                 listingsByLocalityId.remove(localityId);
             }
         }
 
+        List<ListingComparator> compratorList = new ArrayList<ListingComparator>();
+        compratorList.add(ListingComparator.NAME_SORT);
+        compratorList.add(ListingComparator.ID_SORT);
+        compratorList.add(ListingComparator.PRICE_SORT);
+
+        Collections
+                .sort(sortedListProject, ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+        Collections.sort(
+                sortedListLocality,
+                ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+
+        
+        sortedList.addAll(sortedListProject);
+        sortedList.addAll(sortedListLocality);
+
         for (List<Listing> remainingListings : listingsByLocalityId.values()) {
-            sortedList.addAll(remainingListings);
+            sortedListRemaining.addAll(remainingListings);
         }
+        Collections.sort(
+                sortedListRemaining,
+                ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
+        sortedList.addAll(sortedListRemaining);
+
         return sortedList;
     }
 
@@ -874,7 +1038,8 @@ public class LeadOfferService {
         String username = userService.getUserById(activeUser.getUserIdentifier()).getFullName();
 
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
-                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername())
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername())
+                .setReplyTo(activeUser.getUsername())
                 .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
@@ -888,5 +1053,9 @@ public class LeadOfferService {
             }
         }
         return leadOffers;
+    }
+
+    public Integer getMaxCycleIdAndPhaseId(int id, int phaseId) {
+        return leadOfferDao.getMaxCycleIdAndPhaseId(id, phaseId);
     }
 }
