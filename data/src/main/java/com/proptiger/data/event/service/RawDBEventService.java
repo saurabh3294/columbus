@@ -10,6 +10,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.enums.DBOperation;
@@ -30,6 +31,9 @@ public class RawDBEventService {
 
     @Autowired
     private RawEventTableDetailsDao rawEventTableDetailsDao;
+
+    @Value("${transaction.maxCount}")
+    private Integer                 MAX_TRANSACTION_COUNT;
 
     /**
      * Generates list of RawDBEvents corresponding to a particular
@@ -57,7 +61,7 @@ public class RawDBEventService {
             return rawDBEventList;
         }
 
-        List<Map<String, Object>> rawDBEventDataList = rawDBEventDao.getRawDBEventByTableNameAndId(tableLog);
+        List<Map<String, Object>> rawDBEventDataList = rawDBEventDao.getRawDBEventByTableNameAndId(tableLog, MAX_TRANSACTION_COUNT);
         logger.debug("Retrieved data: " + rawDBEventDataList
                 + " for the RawEventTableDetailsID: "
                 + tableLog.getId()

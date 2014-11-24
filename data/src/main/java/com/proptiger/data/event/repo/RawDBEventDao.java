@@ -22,7 +22,7 @@ public class RawDBEventDao extends DynamicTableDao {
      * @param tableLog
      * @return
      */
-    public List<Map<String, Object>> getRawDBEventByTableNameAndId(RawEventTableDetails tableLog) {
+    public List<Map<String, Object>> getRawDBEventByTableNameAndId(RawEventTableDetails tableLog, Integer maxCount) {
 
         /**
          * The rows will sorted in ascending order by their current time. As
@@ -42,7 +42,7 @@ public class RawDBEventDao extends DynamicTableDao {
                     + convertMapOfListToSql(tableLog.getFilterMap())
                     + " ORDER BY "
                     + tableLog.getTransactionKeyName()
-                    + " ASC ";
+                    + " ASC LIMIT " + maxCount;
         }
         catch (Exception e) {
             logger.error("QUERY " + queryString + " FORMATION FAILED " + e.getMessage());
