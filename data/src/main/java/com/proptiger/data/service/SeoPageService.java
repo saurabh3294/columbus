@@ -121,7 +121,7 @@ public class SeoPageService {
     private SeoPage getSeoPage(URLDetail urlDetail) {
     	String url = urlDetail.getUrl();
     	if (url !=null && url.startsWith("gallery/")) {
-    		applicationContext.getBean(SeoPageService.class).updateUrlDetailWithImageType(urlDetail, url);
+    		updateUrlDetailWithImageType(urlDetail, url);
     	}
         SeoPage seoPage = applicationContext.getBean(SeoPageService.class).getSeoPageByTemplateId(
                 urlDetail.getTemplateId(),
@@ -133,20 +133,33 @@ public class SeoPageService {
         return getSeoMetaContentForPage(urlDetail, seoPage);
     }
 
-    @Cacheable(value = Constants.CacheName.SEO_TEMPLATE)
-    public void updateUrlDetailWithImageType(URLDetail urlDetail, String url) {
+    private void updateUrlDetailWithImageType(URLDetail urlDetail, String url) {
     	Long imageId = Long.parseLong(url.substring(url.lastIndexOf("-") + 1));
     	Image image = imageService.getImage(imageId);
     	if (image != null) {
-    		String imageType = image.getImageTypeObj().getType().toLowerCase(); 
+    		String imageType = image.getImageTypeObj().getType(); 
     		// Constructing template Id dynamically by appending "_ImageType" (in upper case)
     		urlDetail.setTemplateId(urlDetail.getTemplateId() + "_" + imageType.toUpperCase()); 
+    		
+    		//Introducing space before Uppercase character of ImageType 
+    		imageType = addSpaceBeforeUpperCaseCharacter(imageType, 0, imageType.length());
+    				
     		// First character from ImageType to convert in upper case
-    		String startChar = imageType.substring(0, 1);		
-    		//Introducing space before Plan and First character of ImageType in upper case
-    		imageType = imageType.replaceAll("plan", " Plan").replaceFirst(startChar, startChar.toUpperCase());
+    	    String startChar = imageType.substring(0, 1);
+    	    imageType = imageType.replaceFirst(startChar, startChar.toUpperCase());
     		urlDetail.setImageType(imageType);
     	}
+	}
+
+    private String addSpaceBeforeUpperCaseCharacter(String imageType, int index, int length) {
+		if (index < length) {
+			if (Character.isUpperCase(imageType.charAt(index))) {
+				imageType = imageType.replace(imageType.substring(index, index + 1), " " + imageType.charAt(index));
+				return addSpaceBeforeUpperCaseCharacter(imageType, index + 2, length);
+			}
+			return addSpaceBeforeUpperCaseCharacter(imageType, index + 1, length);
+		}
+		return imageType;
 	}
 
 	private void copyProperties(ProjectSeoTags projectSeoTags, SeoPage seoPage) {
