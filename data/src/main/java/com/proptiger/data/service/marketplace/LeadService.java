@@ -291,6 +291,7 @@ public class LeadService {
         }
     }
 
+    @Transactional
     public Lead createLead(Lead lead) {
         if (lead.getCityId() == 0) {
             throw new BadRequestException("CityId is mandatory");

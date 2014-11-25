@@ -24,6 +24,7 @@ import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Caching;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -34,7 +35,6 @@ import com.proptiger.data.repo.user.portfolio.ProjectCommentLikesDao;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.data.util.Caching;
 
 @Service
 public class ProjectDiscussionsService {

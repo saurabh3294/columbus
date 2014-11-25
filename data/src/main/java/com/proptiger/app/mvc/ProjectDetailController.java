@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.model.cms.Builder;
 import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.core.model.cms.Locality;
@@ -27,7 +28,6 @@ import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.UtilityClass;
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageEnricher;
