@@ -3,9 +3,10 @@ package com.proptiger.data.mvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PathVariable;
+
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.FIQLSelector;
