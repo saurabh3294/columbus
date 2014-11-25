@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.suggestions.EntitySuggestionHandler;
 import com.proptiger.columbus.suggestions.NLPSuggestionHandler;
+import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
 
 /**
@@ -42,6 +44,7 @@ public class TypeaheadService {
      * @param filterQueries
      * @return List<Typeahead>
      */
+    @Cacheable(value=Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries) {
         List<Typeahead> typeaheads = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
         if (typeaheads != null) {
@@ -52,15 +55,19 @@ public class TypeaheadService {
         return typeaheads;
     }
 
+    @Cacheable(value=Constants.CacheName.COLUMBUS)
     public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
         return typeaheadDao.getExactTypeaheads(query, rows, filterQueries);
     }
 
+    @Cacheable(value=Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
         return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
     }
 
+
+    @Cacheable(value=Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String city) {
 
         /* If any filters were passed in URL, return only normal results */
@@ -85,6 +92,7 @@ public class TypeaheadService {
         return consolidatedResults;
     }
 
+    @Cacheable(value=Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV4(String query, int rows, List<String> filterQueries, String city) {
 
         /* If any filters were passed in URL, return only normal results */
