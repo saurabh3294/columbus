@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.service.ImageService;
 
 /**
