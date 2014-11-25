@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -46,15 +48,7 @@ import com.proptiger.data.util.MSExcelUtils;
 @Service
 public class TrendReportService {
 
-    /** How many trend rows to fetch from DB in one iteration **/
-    /** Discuss before changing this limit **/
-    public static final int     MaxTrendFetchLimit        = 10000;
-
-    /** How many objects to fetch from temp-object-storage-file in one iteration **/
-    /** Discuss before changing this limit **/
-    public static final int     MaxObjectFetchLimit       = 1000;
-
-    private static Logger       logger                    = LoggerFactory.getLogger(TrendReportService.class);
+    private static Logger       logger             = LoggerFactory.getLogger(TrendReportService.class);
 
     @Autowired
     private B2BAttributeService b2bAttributeService;
@@ -76,18 +70,16 @@ public class TrendReportService {
     @Autowired
     MSExcelUtils                msExcelUtils;
 
-    String                      workSheetName             = "sheet1";
+    String                      workSheetName      = "sheet1";
+
+    int                         RandomPrefixLength = 1000000;
 
     @Value("${path.temp.trend.report}")
     private String              trendReportDirPath;
 
-    private File                trendReportDir;
-
-    private static String       ERR_MSG_InvalidTimePeriod = "Invalid or no time period specified for trend report generation.";
-
     @PostConstruct
     private void init() {
-        trendReportDir = new File(trendReportDirPath);
+        File trendReportDir = new File(trendReportDirPath);
         if (!trendReportDir.exists()) {
             trendReportDir.mkdir();
         }
@@ -95,13 +87,26 @@ public class TrendReportService {
                 .getAttributeByName(currentMonthDbLabel));
     }
 
-    public File getTrendReportByCatchmentId(Integer catchmentId, FIQLSelector selector, ActiveUser userInfo) {
-        updateFIQLSelectorBasedOnCatchmentId(catchmentId, selector, userInfo);
-        return (getTrendReportAsMsExcelFile(selector));
+    public File getReportFileByKey(String key) {
+        String filename = trendReportDirPath + "/" + key;
+        File file = new File(filename);
+        if (!file.exists()) {
+            throw new ProAPIException("No Report found for the given key.");
+        }
+        return file;
     }
 
-    public File getTrendReport(FIQLSelector selector) {
-        return (getTrendReportAsMsExcelFile(selector));
+    public String getTrendReportByCatchmentId(Integer catchmentId, FIQLSelector selector, ActiveUser userInfo) {
+        updateFIQLSelectorBasedOnCatchmentId(catchmentId, selector, userInfo);
+        File reportFile = getTrendReportAsMsExcelFile(selector);
+        String fileKey = getFileKeyAndRenameFile(reportFile);
+        return (fileKey);
+    }
+
+    public String getTrendReport(FIQLSelector selector) {
+        File reportFile = getTrendReportAsMsExcelFile(selector);
+        String fileKey = getFileKeyAndRenameFile(reportFile);
+        return (fileKey);
     }
 
     private File getTrendReportAsMsExcelFile(FIQLSelector selector) {
@@ -111,7 +116,7 @@ public class TrendReportService {
         /** Generate a sorted list of months given in FIQL Selector **/
         List<Date> sortedMonthList = getMonthList(selector);
         throwExceptionIfListNullOrEmpty(sortedMonthList, new ProAPIException(
-                TrendReportService.ERR_MSG_InvalidTimePeriod));
+                TrendReportConstants.ErrMsg_InvalidTimePeriod));
 
         String tempObjStorageFileName = getTemporaryFileName();
         File tempObjStoragefile = new File(tempObjStorageFileName);
@@ -136,6 +141,7 @@ public class TrendReportService {
         File excelFile;
         try {
             excelFile = convertFileToExcelFile(tempObjStoragefile, sortedMonthList);
+            logger.debug("PnA_Report: Download request completed");
             return excelFile;
         }
         catch (IOException ioEx) {
@@ -158,7 +164,7 @@ public class TrendReportService {
         int fetched = 0;
         int ctreObjectCountTotal = 0;
         while (true) {
-            selector.setStart(fetched).setRows(MaxTrendFetchLimit);
+            selector.setStart(fetched).setRows(TrendReportConstants.PageSize_TrendObjectsFetch);
             paginatedResponse = trendService.getPaginatedTrend(selector, null, null);
             if (paginatedResponse == null || paginatedResponse.getResults() == null) {
                 break;
@@ -242,7 +248,9 @@ public class TrendReportService {
         /** Get Report-Header column names **/
         List<Object[]> reportColumns = CatchmentTrendReportElement.getReportColumns(sortedMonthList);
 
-        String excelFileName = trendReportDir + "/price-and-absorption-report_" + System.currentTimeMillis() + ".xls";
+        String excelFileName = trendReportDirPath + "/price-and-absorption-report_"
+                + System.currentTimeMillis()
+                + ".xls";
         String excelSheetName = WorkbookUtil.createSafeSheetName(workSheetName);
         Workbook excelWorkbook = new XSSFWorkbook();
         Sheet excelSheet = excelWorkbook.createSheet(excelSheetName);
@@ -258,7 +266,7 @@ public class TrendReportService {
             ctreList.clear();
             reportData.clear();
             try {
-                for (int i = 0; i < MaxObjectFetchLimit; i++) {
+                for (int i = 0; i < TrendReportConstants.PageSize_SerializedObjectsToExcel; i++) {
                     ctrelem = (CatchmentTrendReportElement) (ois.readObject());
                     ctreList.add(ctrelem);
                 }
@@ -274,7 +282,15 @@ public class TrendReportService {
             for (CatchmentTrendReportElement ctre : ctreList) {
                 reportData.addAll(ctre.getReportRows(sortedMonthList));
             }
+            logger.debug("PnA_Report: Appending " + TrendReportConstants.PageSize_SerializedObjectsToExcel
+                    + " Objects i.e "
+                    + reportData.size()
+                    + " rows to workbook");
             msExcelUtils.appendToMsExcelSheet(excelWorkbook, excelSheet, reportColumns, reportData);
+            logger.debug("PnA_Report: Appended " + TrendReportConstants.PageSize_SerializedObjectsToExcel
+                    + " Objects i.e "
+                    + reportData.size()
+                    + " rows to workbook");
 
             if (flag) {
                 break;
@@ -282,6 +298,8 @@ public class TrendReportService {
         }
         ois.close();
         fis.close();
+
+        logger.debug("PnA_Report: Export to workbook completed.");
 
         /** Export WorkBook to report data to File */
         File finalExcelReportFile = msExcelUtils.exportWorkBookToFile(excelWorkbook, excelFileName);
@@ -331,7 +349,7 @@ public class TrendReportService {
         /* Generating Month List in increasing sorted order */
 
         if (startMonth == null || endMonth == null) {
-            throw new ProAPIException(TrendReportService.ERR_MSG_InvalidTimePeriod);
+            throw new ProAPIException(TrendReportConstants.ErrMsg_InvalidTimePeriod);
         }
 
         if (endMonth.after(b2bCurrentMonth)) {
@@ -385,10 +403,11 @@ public class TrendReportService {
     }
 
     private String getTemporaryFileName() {
-        String tempFileName = trendReportDir + "/par_temp_"
+        String tempFileName = trendReportDirPath + "/"
+                + "par_temp_"
                 + System.currentTimeMillis()
                 + "_"
-                + (int) (Math.random() * 100000)
+                + (int) (Math.random() * RandomPrefixLength)
                 + ".tmp";
         return tempFileName;
     }
@@ -399,4 +418,16 @@ public class TrendReportService {
         }
     }
 
+    private String getFileKeyAndRenameFile(File reportFile) {
+        try {
+            String filename = reportFile.getName();
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            String digest = new String(md.digest(filename.getBytes()));
+            reportFile.renameTo(new File(trendReportDirPath + "/" + digest));
+            return digest;
+        }
+        catch (NoSuchAlgorithmException ex) {
+            return null;
+        }
+    }
 }

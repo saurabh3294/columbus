@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Trend;
@@ -33,7 +35,7 @@ public class TrendReportAggregator {
     @Autowired
     private PropertyService propertyService;
 
-    private int             maxFetchLimitAdditionalInfo = 300;
+    private int             maxPageSizeForPropertyFetch = 150;
 
     private static Logger   logger                      = LoggerFactory.getLogger(TrendReportAggregator.class);
 
@@ -227,9 +229,14 @@ public class TrendReportAggregator {
     }
 
     private Map<Integer, AdditionalInfo> getAdditionalInfo(List<Integer> projectIdList) {
-        maxFetchLimitAdditionalInfo = 150;
         logger.debug("PnA_Report: Fetching additional info from Solr for " + projectIdList.size()
                 + " (total) projects pagewise.");
+
+        if (projectIdList.size() > TrendReportConstants.Limit_MaxProjectAllowed) {
+            throw new ProAPIException(ResponseCodes.EMPTY_REPORT_GENERATED, String.format(
+                    TrendReportConstants.ErrMsg_MaxProjectLimitExceeded,
+                    TrendReportConstants.Limit_MaxProjectAllowed));
+        }
 
         List<Project> projectList = new ArrayList<Project>();
 
@@ -241,16 +248,18 @@ public class TrendReportAggregator {
         int fetched = 0;
         int fetch_end;
         while (true) {
-            fetch_end = Math.min(fetched + maxFetchLimitAdditionalInfo, projectIdList.size());
+            fetch_end = Math.min(fetched + maxPageSizeForPropertyFetch, projectIdList.size());
             partialProjectIdList = projectIdList.subList(fetched, fetch_end);
             selector = getSelectorProjectIds(partialProjectIdList);
-            selector.setPaging(new Paging(0, maxFetchLimitAdditionalInfo));
-            fetched += maxFetchLimitAdditionalInfo;
+            selector.setPaging(new Paging(0, maxPageSizeForPropertyFetch));
+            fetched += maxPageSizeForPropertyFetch;
             logger.debug("PnA_Report: Fetching additional info from Solr for " + partialProjectIdList.size()
                     + " projects. Paging = "
                     + selector.getPaging().toString());
 
+            logger.debug("PnA_Report: Property service query : Start");
             paginatedResponse = propertyService.getPropertiesGroupedToProjects(selector);
+            logger.debug("PnA_Report: Property service query : End");
             if (paginatedResponse == null || paginatedResponse.getResults() == null) {
                 break;
             }

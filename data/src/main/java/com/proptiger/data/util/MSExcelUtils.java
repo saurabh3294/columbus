@@ -13,15 +13,21 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.exception.ProAPIException;
 
 @Component
 public class MSExcelUtils {
-    
-   public File exportWorkBookToFile(Workbook workbook, String wbFileName) {
-        
+
+    private static Logger logger = LoggerFactory.getLogger(MSExcelUtils.class);
+
+    public File exportWorkBookToFile(Workbook workbook, String wbFileName) {
+
+        logger.debug("PnA_Report: Export workbook to file : Start.");
+
         FileOutputStream fileOutputStream = null;
         File wbFile = new File(wbFileName);
         try {
@@ -29,11 +35,12 @@ public class MSExcelUtils {
             fileOutputStream = new FileOutputStream(wbFile);
             workbook.write(fileOutputStream);
             fileOutputStream.close();
+            logger.debug("PnA_Report: Export workbook to file : Completed.");
         }
         catch (IOException ex) {
             throw new ProAPIException("Unable to save workbook to file.", ex);
         }
-        
+
         return wbFile;
     }
 
@@ -58,10 +65,10 @@ public class MSExcelUtils {
             String sheetName,
             List<Object[]> columnHeadings,
             List<List<Object>> data) throws ProAPIException {
-        
+
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet(sheetName);
-        
+
         if (columnHeadings == null || columnHeadings.isEmpty()) {
             throw new ProAPIException("No column headings specified while creating sheet");
         }
@@ -72,31 +79,30 @@ public class MSExcelUtils {
 
         /* Fill first row : Heading */
         addColHeadingsToSheet(workbook, sheet, columnHeadings);
-        
+
         /* Fill Data */
         fillWorkBookSheetWithData(workbook, sheet, columnHeadings, data);
-        
+
         return workbook;
     }
-    
+
     public void appendToMsExcelSheet(
             Workbook workbook,
             Sheet sheet,
             List<Object[]> columnHeadings,
             List<List<Object>> data) throws ProAPIException {
-        
-        if (workbook == null || sheet ==null || data == null) {
+
+        if (workbook == null || sheet == null || data == null) {
             throw new ProAPIException("Null workbook, sheet or data given while creating sheet");
         }
-        
-        if(sheet.getLastRowNum() == 0){
+
+        if (sheet.getLastRowNum() == 0) {
             addColHeadingsToSheet(workbook, sheet, columnHeadings);
         }
         fillWorkBookSheetWithData(workbook, sheet, columnHeadings, data);
     }
-    
-    
-    private void addColHeadingsToSheet(Workbook workbook, Sheet sheet, List<Object[]> columnHeadings){
+
+    private void addColHeadingsToSheet(Workbook workbook, Sheet sheet, List<Object[]> columnHeadings) {
         Cell cell = null;
         Row row = sheet.createRow(0);
         int colCount = columnHeadings.size();
@@ -106,8 +112,12 @@ public class MSExcelUtils {
             cell.setCellValue((String) columnHeadings.get(i)[0]);
         }
     }
-    
-    private void fillWorkBookSheetWithData(Workbook workbook, Sheet sheet, List<Object[]> columnHeadings, List<List<Object>> data){
+
+    private void fillWorkBookSheetWithData(
+            Workbook workbook,
+            Sheet sheet,
+            List<Object[]> columnHeadings,
+            List<List<Object>> data) {
         Row row = null;
         Cell cell = null;
 
@@ -124,7 +134,7 @@ public class MSExcelUtils {
             rowIndex++;
         }
     }
-    
+
     private void updateCellPropertiesByClass(Workbook workbook, Cell cell, Object obj, Class<?> clazz) {
         if (clazz.equals(Integer.class) || clazz.equals(Float.class) || clazz.equals(Double.class)) {
             cell.setCellType(Cell.CELL_TYPE_NUMERIC);
@@ -136,13 +146,13 @@ public class MSExcelUtils {
             cell.setCellValue(String.valueOf(obj));
             return;
         }
-        else if(clazz.equals(Date.class)){
+        else if (clazz.equals(Date.class)) {
             CellStyle cellStyle = workbook.createCellStyle();
             CreationHelper createHelper = workbook.getCreationHelper();
             cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("m/d/yy h:mm"));
             cell.setCellStyle(cellStyle);
             cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-            cell.setCellValue((Date)(obj));
+            cell.setCellValue((Date) (obj));
         }
         else {
             cell.setCellType(Cell.CELL_TYPE_BLANK);
