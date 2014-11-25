@@ -524,9 +524,15 @@ public class LeadOfferService {
                         PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
                         Long.class)) {
                     claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
-                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+                    Notification notification = notificationService.findByUserIdAndNotificationId(
+                            userId,
+                            NotificationType.MaxLeadCountForBrokerReached.getId(),
+                            0);
                     if (notification != null) {
-                        notificationService.deleteNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+                        notificationService.deleteNotification(
+                                userId,
+                                NotificationType.MaxLeadCountForBrokerReached.getId(),
+                                0);
                         notificationService
                                 .deleteNotification(
                                         PropertyReader
@@ -543,7 +549,11 @@ public class LeadOfferService {
                                 NotificationType.MaxLeadCountForBrokerReached.getId(),
                                 0);
                         if (notificationLeadLimit == null) {
-                            notificationService.createNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0, null);
+                            notificationService.createNotification(
+                                    userId,
+                                    NotificationType.MaxLeadCountForBrokerReached.getId(),
+                                    0,
+                                    null);
                             notificationService
                                     .createNotification(
                                             PropertyReader
@@ -769,7 +779,8 @@ public class LeadOfferService {
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
                     .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
                     .setMailCC(leadOfferInDB.getAgent().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail())
-                    .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
+                    .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">")
+                    .setMailBCC(propertyReader.getRequiredProperty(PropertyKeys.MARKETPLACE_BCC_EMAIL));
             mailSender.sendMailUsingAws(mailDetails);
         }
     }
@@ -957,7 +968,6 @@ public class LeadOfferService {
                 sortedListLocality,
                 ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
 
-        
         sortedList.addAll(sortedListProject);
         sortedList.addAll(sortedListLocality);
 
@@ -1040,7 +1050,8 @@ public class LeadOfferService {
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
                 senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername())
                 .setReplyTo(activeUser.getUsername())
-                .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
+                .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">")
+                .setMailBCC(propertyReader.getRequiredProperty(PropertyKeys.MARKETPLACE_BCC_EMAIL));
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
     }
