@@ -31,12 +31,12 @@ import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.enums.MediaType;
 import com.proptiger.core.exception.ResourceAlreadyExistException;
 import com.proptiger.core.model.proptiger.Image;
+import com.proptiger.core.util.Caching;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.model.image.ImageQuality;
 import com.proptiger.data.repo.ImageDao;
-import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.MediaUtil;
 
 /**

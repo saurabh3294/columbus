@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.FIQLSelector;
@@ -27,7 +28,6 @@ import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.service.trend.TrendService;
 import com.proptiger.data.service.user.CatchmentService;
 
