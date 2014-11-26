@@ -10,9 +10,6 @@ public class TrendReportConstants {
 
     public static String    FinalOutputExcelFileNameFormat    = "Catchment_Report_%s";
 
-    /** Total projects allowed. **/
-    public static int       Limit_MaxProjectAllowed           = 150;
-
     /** How many trend rows to fetch from DB in one iteration **/
     /** Discuss before changing this limit **/
     public static final int PageSize_TrendObjectsFetch        = 10000;

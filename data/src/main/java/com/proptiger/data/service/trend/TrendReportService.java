@@ -49,13 +49,18 @@ import com.proptiger.data.util.MSExcelUtils;
 @Service
 public class TrendReportService {
 
-    private static Logger       logger             = LoggerFactory.getLogger(TrendReportService.class);
+    private static Logger       logger                  = LoggerFactory.getLogger(TrendReportService.class);
 
     @Autowired
     private B2BAttributeService b2bAttributeService;
 
     @Value("${b2b.price-inventory.max.month.dblabel}")
     private String              currentMonthDbLabel;
+
+    @Value("${b2b.trend-report.max.projects.allowed}")
+    private String              trendReportMaxProjectsAllowed;
+
+    public static int           Limit_MaxProjectAllowed = 0;
 
     private Date                b2bCurrentMonth;
 
@@ -71,11 +76,11 @@ public class TrendReportService {
     @Autowired
     MSExcelUtils                msExcelUtils;
 
-    String                      workSheetName      = "sheet1";
+    String                      workSheetName           = "sheet1";
 
-    int                         RandomPrefixLength = 1000000;
-    
-    private static final String dlimDate = ".";
+    int                         RandomPrefixLength      = 1000000;
+
+    private static final String dlimDate                = ".";
 
     @Value("${path.temp.trend.report}")
     private String              trendReportDirPath;
@@ -88,22 +93,25 @@ public class TrendReportService {
         }
         b2bCurrentMonth = DateUtil.parseYYYYmmddStringToDate(b2bAttributeService
                 .getAttributeByName(currentMonthDbLabel));
+
+        TrendReportService.Limit_MaxProjectAllowed = Integer.parseInt(b2bAttributeService
+                .getAttributeByName(trendReportMaxProjectsAllowed));
     }
 
     public File getReportFileByKey(String key) {
         String[] splitKey = StringUtils.split(key, dlimDate);
-        if(splitKey == null || splitKey.length < 2){
+        if (splitKey == null || splitKey.length < 2) {
             throw new ProAPIException("Invalid key given for downloading trend report.");
         }
-        
+
         String filename = trendReportDirPath + key;
         File file = new File(filename);
         if (!file.exists()) {
             throw new ProAPIException("No Report found for the given key.");
         }
-        
+
         String fileNameNew = String.format(TrendReportConstants.FinalOutputExcelFileNameFormat, splitKey[0]);
-        File newFile = new File(trendReportDirPath + fileNameNew + ".xlsx"); 
+        File newFile = new File(trendReportDirPath + fileNameNew + ".xlsx");
         file.renameTo(newFile);
         return newFile;
     }
@@ -413,19 +421,22 @@ public class TrendReportService {
     }
 
     private String getTemporaryFileName() {
-        String tempFileName = trendReportDirPath
-                + "par_temp_"
+        String tempFileName = trendReportDirPath + "par_temp_"
                 + System.currentTimeMillis()
                 + "_"
                 + (int) (Math.random() * RandomPrefixLength)
                 + ".tmp";
         return tempFileName;
     }
-    
-    private String getTemporaryExcelFileName(List<Date> sml){
+
+    private String getTemporaryExcelFileName(List<Date> sml) {
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
-        String dateStamp = sdf.format(sml.get(0))  + "_" + sdf.format(sml.get(sml.size()-1)); 
-        String tempFileName = dateStamp + dlimDate + "par_" + System.currentTimeMillis() + "_" + (int) (Math.random() * RandomPrefixLength);
+        String dateStamp = sdf.format(sml.get(0)) + "_" + sdf.format(sml.get(sml.size() - 1));
+        String tempFileName = dateStamp + dlimDate
+                + "par_"
+                + System.currentTimeMillis()
+                + "_"
+                + (int) (Math.random() * RandomPrefixLength);
         return tempFileName;
     }
 
@@ -436,12 +447,11 @@ public class TrendReportService {
     }
 
     private String getFileKeyAndRenameFile(File reportFile) {
-            String filename = reportFile.getName();
-            String[] split = StringUtils.split(filename, dlimDate);
-            String digest = split[0] + dlimDate + DigestUtils.md5Hex(split[1]);
-            reportFile.renameTo(new File(trendReportDirPath + digest));
-            return digest;
+        String filename = reportFile.getName();
+        String[] split = StringUtils.split(filename, dlimDate);
+        String digest = split[0] + dlimDate + DigestUtils.md5Hex(split[1]);
+        reportFile.renameTo(new File(trendReportDirPath + digest));
+        return digest;
     }
-    
-    
+
 }

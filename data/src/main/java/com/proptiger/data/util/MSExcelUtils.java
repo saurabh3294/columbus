@@ -3,7 +3,7 @@ package com.proptiger.data.util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -136,9 +136,20 @@ public class MSExcelUtils {
     }
 
     private void updateCellPropertiesByClass(Workbook workbook, Cell cell, Object obj, Class<?> clazz) {
-        if (clazz.equals(Integer.class) || clazz.equals(Float.class) || clazz.equals(Double.class)) {
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        if(obj == null){
+            cell.setCellType(Cell.CELL_TYPE_STRING);
             cell.setCellValue(String.valueOf(obj));
+            return;
+        }
+        
+        if (clazz.equals(Integer.class) || clazz.equals(Double.class)) {
+            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            if(obj instanceof Integer){
+                cell.setCellValue((Integer)obj);
+            }
+            else{
+                cell.setCellValue((Double)(obj));
+            }
             return;
         }
         else if (clazz.equals(String.class)) {
@@ -149,14 +160,15 @@ public class MSExcelUtils {
         else if (clazz.equals(Date.class)) {
             CellStyle cellStyle = workbook.createCellStyle();
             CreationHelper createHelper = workbook.getCreationHelper();
-            cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("m/d/yy h:mm"));
+            cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("d-mmm-yy"));
+            cell.setCellValue((Date)obj);
             cell.setCellStyle(cellStyle);
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-            cell.setCellValue((Date) (obj));
+            return;
         }
         else {
             cell.setCellType(Cell.CELL_TYPE_BLANK);
             cell.setCellValue(String.valueOf(obj));
+            return;
         }
     }
 }

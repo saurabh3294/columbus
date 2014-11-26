@@ -232,10 +232,10 @@ public class TrendReportAggregator {
         logger.debug("PnA_Report: Fetching additional info from Solr for " + projectIdList.size()
                 + " (total) projects pagewise.");
 
-        if (projectIdList.size() > TrendReportConstants.Limit_MaxProjectAllowed) {
+        if (projectIdList.size() > TrendReportService.Limit_MaxProjectAllowed) {
             throw new ProAPIException(ResponseCodes.EMPTY_REPORT_GENERATED, String.format(
                     TrendReportConstants.ErrMsg_MaxProjectLimitExceeded,
-                    TrendReportConstants.Limit_MaxProjectAllowed));
+                    TrendReportService.Limit_MaxProjectAllowed));
         }
 
         List<Project> projectList = new ArrayList<Project>();
