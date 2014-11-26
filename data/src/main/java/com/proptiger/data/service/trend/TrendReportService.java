@@ -8,8 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -18,6 +17,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.PrimitiveStatement;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -73,6 +74,8 @@ public class TrendReportService {
     String                      workSheetName      = "sheet1";
 
     int                         RandomPrefixLength = 1000000;
+    
+    private static final String dlimDate = ".";
 
     @Value("${path.temp.trend.report}")
     private String              trendReportDirPath;
@@ -88,12 +91,21 @@ public class TrendReportService {
     }
 
     public File getReportFileByKey(String key) {
-        String filename = trendReportDirPath + "/" + key;
+        String[] splitKey = StringUtils.split(key, dlimDate);
+        if(splitKey == null || splitKey.length < 2){
+            throw new ProAPIException("Invalid key given for downloading trend report.");
+        }
+        
+        String filename = trendReportDirPath + key;
         File file = new File(filename);
         if (!file.exists()) {
             throw new ProAPIException("No Report found for the given key.");
         }
-        return file;
+        
+        String fileNameNew = String.format(TrendReportConstants.FinalOutputExcelFileNameFormat, splitKey[0]);
+        File newFile = new File(trendReportDirPath + fileNameNew + ".xlsx"); 
+        file.renameTo(newFile);
+        return newFile;
     }
 
     public String getTrendReportByCatchmentId(Integer catchmentId, FIQLSelector selector, ActiveUser userInfo) {
@@ -116,7 +128,7 @@ public class TrendReportService {
         /** Generate a sorted list of months given in FIQL Selector **/
         List<Date> sortedMonthList = getMonthList(selector);
         throwExceptionIfListNullOrEmpty(sortedMonthList, new ProAPIException(
-                TrendReportConstants.ErrMsg_InvalidTimePeriod));
+                TrendReportConstants.ErrMsg_NoProjectsFound));
 
         String tempObjStorageFileName = getTemporaryFileName();
         File tempObjStoragefile = new File(tempObjStorageFileName);
@@ -248,9 +260,7 @@ public class TrendReportService {
         /** Get Report-Header column names **/
         List<Object[]> reportColumns = CatchmentTrendReportElement.getReportColumns(sortedMonthList);
 
-        String excelFileName = trendReportDirPath + "/price-and-absorption-report_"
-                + System.currentTimeMillis()
-                + ".xls";
+        String excelFileName = trendReportDirPath + getTemporaryExcelFileName(sortedMonthList);
         String excelSheetName = WorkbookUtil.createSafeSheetName(workSheetName);
         Workbook excelWorkbook = new XSSFWorkbook();
         Sheet excelSheet = excelWorkbook.createSheet(excelSheetName);
@@ -403,12 +413,19 @@ public class TrendReportService {
     }
 
     private String getTemporaryFileName() {
-        String tempFileName = trendReportDirPath + "/"
+        String tempFileName = trendReportDirPath
                 + "par_temp_"
                 + System.currentTimeMillis()
                 + "_"
                 + (int) (Math.random() * RandomPrefixLength)
                 + ".tmp";
+        return tempFileName;
+    }
+    
+    private String getTemporaryExcelFileName(List<Date> sml){
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+        String dateStamp = sdf.format(sml.get(0))  + "_" + sdf.format(sml.get(sml.size()-1)); 
+        String tempFileName = dateStamp + dlimDate + "par_" + System.currentTimeMillis() + "_" + (int) (Math.random() * RandomPrefixLength);
         return tempFileName;
     }
 
@@ -419,15 +436,12 @@ public class TrendReportService {
     }
 
     private String getFileKeyAndRenameFile(File reportFile) {
-        try {
             String filename = reportFile.getName();
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            String digest = new String(md.digest(filename.getBytes()));
-            reportFile.renameTo(new File(trendReportDirPath + "/" + digest));
+            String[] split = StringUtils.split(filename, dlimDate);
+            String digest = split[0] + dlimDate + DigestUtils.md5Hex(split[1]);
+            reportFile.renameTo(new File(trendReportDirPath + digest));
             return digest;
-        }
-        catch (NoSuchAlgorithmException ex) {
-            return null;
-        }
     }
+    
+    
 }

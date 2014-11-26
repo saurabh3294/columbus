@@ -36,7 +36,7 @@ public class TrendReportController extends BaseController {
 
     @RequestMapping("app/v1/report/download")
     @ResponseBody
-    public void downloadTrendReport(HttpServletResponse response, @PathVariable String key) throws Exception {
+    public void downloadTrendReport(HttpServletResponse response, String key) throws Exception {
 
         File file = trendReportService.getReportFileByKey(key);
         makeHTTPServletResponse(response, file);

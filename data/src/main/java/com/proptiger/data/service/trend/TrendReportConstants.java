@@ -8,7 +8,7 @@ public class TrendReportConstants {
 
     public static String    ErrMsg_InvalidTimePeriod          = "Invalid or no time period specified for trend report generation.";
 
-    public static String    FinalOutputExcelFileNameFormat    = "Catchment_Report_%s_%s";
+    public static String    FinalOutputExcelFileNameFormat    = "Catchment_Report_%s";
 
     /** Total projects allowed. **/
     public static int       Limit_MaxProjectAllowed           = 150;
