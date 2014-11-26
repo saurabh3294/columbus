@@ -3,8 +3,10 @@
  */
 package com.proptiger.data.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,6 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Suburb;
+import com.proptiger.core.model.proptiger.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.repo.SuburbDao;
@@ -52,18 +55,40 @@ public class SuburbService {
      * @param suburbId
      * @return Suburb
      */
-    public Suburb getSuburb(int suburbId) {
+    public Suburb getSuburb(int suburbId, boolean useFieldSelector, Selector selector) {
         Suburb suburb = suburbDao.getSuburb(suburbId);
         if (suburb == null)
             return null;
-
-        suburb.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise(
+        Set<String> fields = selector.getFields() == null ? new HashSet<String>(): selector.getFields();
+        
+        /*
+         * setting avgPricePerUnitAreaBHKWise based on fieldSelector or no selector.
+         */
+        if(useFieldSelector == false || fields.contains("avgPricePerUnitAreaBHKWise")){
+            suburb.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise(
                 "suburbId",
                 suburbId,
                 suburb.getDominantUnitType()));
-        updateProjectCountAndStatusCount(suburb);
-        localityService.updateSuburbRatingAndReviewDetails(suburb);
-        suburb.setImages(imageService.getImages(DomainObject.suburb, null, suburbId));
+        }
+        /*
+         * setting project count and project status count based on field selector.
+         */
+        if(useFieldSelector == false || fields.contains("projectCount") || fields.contains("projectStatusCount")){
+            updateProjectCountAndStatusCount(suburb);
+        }
+        /*
+         * Setting the average rating of the suburb.
+         */
+        if(useFieldSelector == false || fields.contains("avgRatingsByCategory")){
+            LocalityAverageRatingByCategory avgRatingsOfLocalityCategory = localityService.getSuburbRatingAndReviewDetails(suburb);
+            suburb.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
+        }
+        /*
+         * setting images.
+         */
+        if(useFieldSelector == false || fields.contains("images")){
+            suburb.setImages(imageService.getImages(DomainObject.suburb, null, suburbId));
+        }
         return suburb;
     }
 

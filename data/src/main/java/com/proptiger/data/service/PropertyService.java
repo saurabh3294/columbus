@@ -447,4 +447,8 @@ public class PropertyService {
 
         return couponCatalogueService;
     }
+    
+    public Integer getProjectIdFromDeletedPropertyId(Integer propertyId){
+        return projectService.getProjectIdForPropertyId(propertyId);
+    }
 }

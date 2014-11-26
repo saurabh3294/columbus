@@ -23,7 +23,7 @@ import com.proptiger.data.service.CityService;
  * 
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/city")
+@RequestMapping(value = "")
 public class CityController extends BaseController {
 
     @Autowired
@@ -38,7 +38,7 @@ public class CityController extends BaseController {
      * @return
      */
     @Intercepted.CityListing
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "data/v1/entity/city", method = RequestMethod.GET)
     @ResponseBody
     public APIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
@@ -50,14 +50,24 @@ public class CityController extends BaseController {
         return new APIResponse(super.filterFields(list, fieldsToSerialize), list.size());
     }
 
-    @RequestMapping(value = "/{cityId}")
+    @RequestMapping(value = "data/v1/entity/city/{cityId}")
     @ResponseBody
     public APIResponse getCity(@PathVariable int cityId) {
 
-        return new APIResponse(super.filterFields(cityService.getCityInfo(cityId), null));
+        return new APIResponse(super.filterFields(cityService.getCityInfo(cityId, new Selector(), false), null));
     }
     
-    @RequestMapping(value = "/{cityId}/landmark")
+    @RequestMapping(value = "data/v2/entity/city/{cityId}")
+    @ResponseBody
+    public APIResponse getV2City(@PathVariable int cityId, @RequestParam(value="selector") String selectorStr) {
+        Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
+        if(selector == null ){
+            selector = new Selector();
+        }
+        return new APIResponse(super.filterFields(cityService.getCityInfo(cityId, selector, true), null));
+    }
+    
+    @RequestMapping(value = "data/v1/entity/city/{cityId}/landmark")
     @ResponseBody
     public APIResponse getCityLandMarkImages(@PathVariable int cityId) {
         return new APIResponse(cityService.getCityLandMarkImages(cityId));

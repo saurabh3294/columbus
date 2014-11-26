@@ -226,5 +226,11 @@ public class ProjectController extends BaseController {
         projectError.setProjectId(projectId);
         return new APIResponse(errorReportingService.saveReportError(projectError));
     }
+    
+    @RequestMapping(value = "data/v1/entity/project/{id}/active-inactive", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getActiveInactiveProject(@PathVariable int id){
+        return new APIResponse(projectService.getActiveOrInactiveProjectById(id));
+    }
 
 }

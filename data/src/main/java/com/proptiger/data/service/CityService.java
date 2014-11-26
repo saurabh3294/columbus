@@ -1,7 +1,9 @@
 package com.proptiger.data.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -67,22 +69,49 @@ public class CityService {
      * @param cityId
      * @return City.
      */
-    public City getCityInfo(int cityId) {
+    public City getCityInfo(int cityId, Selector selector, boolean useFieldSelector) {
         City city = cityDao.getCity(cityId);
         if (city == null) {
             return null;
         }
-        updateAirportInfo(city);
-        updateProjectCountAndStatusCount(city);
-        city.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise(
+        Set<String> fields = selector.getFields() == null ? new HashSet<String>(): selector.getFields();
+        
+        /*
+         * setting the airport data on selector or fieldSelector false.
+         */
+        if(useFieldSelector == false || fields.contains("amenities")){
+            updateAirportInfo(city);
+        }
+        /*
+         * Setting project and project Status count.
+         */
+        if(useFieldSelector == false || fields.contains("projectCount") || fields.contains("projectStatusCount")){
+            updateProjectCountAndStatusCount(city);
+        }
+        /*
+         * Setting the avgBHKPricePerUnitArea only when demanded or fieldSelector false.
+         */
+        if(useFieldSelector == false || fields.contains("avgBHKPricePerUnitArea")){
+            city.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise(
                 "cityId",
                 cityId,
                 city.getDominantUnitType()));
-        city.setImages(imageService.getImages(DomainObject.city, null, cityId));
-        updateAmenitiesAndAmenityTypeCount(city);
+        }
+        /*
+         * Setting the image only when asked in selector or fieldSelector false.
+         */
+        if(useFieldSelector == false || fields.contains("images")){
+            city.setImages(imageService.getImages(DomainObject.city, null, cityId));
+        }
+        /*
+         * setting amenity Type count.
+         */
+        if(useFieldSelector == false || fields.contains("amenityTypeCount")){
+            updateAmenitiesAndAmenityTypeCount(city);
+        }
         return city;
     }
-
+    
     private void updateAmenitiesAndAmenityTypeCount(City city) {
         if (city == null) {
             return;

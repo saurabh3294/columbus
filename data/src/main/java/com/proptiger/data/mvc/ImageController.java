@@ -133,5 +133,18 @@ public class ImageController extends BaseController {
     Object getResolutionEnumerations() {
         return new APIResponse(ImageResolution.values());
     }
+    
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    Object getImageById(@RequestParam(required = false) String selector, @PathVariable long id) {
+        Image image = imageService.getImage(id);
+
+        Selector imageSelector = new Selector();
+        if (selector != null) {
+            imageSelector = super.parseJsonToObject(selector, Selector.class);
+        }
+
+        return new APIResponse(super.filterFields(image, imageSelector.getFields()));
+    }
 
 }

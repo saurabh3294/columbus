@@ -901,11 +901,12 @@ public class LocalityService {
      * 
      * @param suburb
      */
-    public void updateSuburbRatingAndReviewDetails(Suburb suburb) {
+    public LocalityAverageRatingByCategory getSuburbRatingAndReviewDetails(Suburb suburb) {
 
         LocalityAverageRatingByCategory avgRatingsOfLocalityCategory = localityRatingService
                 .getAvgRatingsOfSuburbByCategory(suburb.getId());
-        suburb.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
+        
+        return avgRatingsOfLocalityCategory;
     }
 
     public int getTopRatedLocalityInCityOrSuburb(String locationType, int locationId) {

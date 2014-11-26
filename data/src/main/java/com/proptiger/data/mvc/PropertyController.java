@@ -108,4 +108,10 @@ public class PropertyController extends BaseController {
         portfolioListing.setUserId(userInfo.getUserIdentifier());
         return new APIResponse(portfolioService.sellYourProperty(portfolioListing));
     }
+    
+    @RequestMapping(value = "data/v1/entity/property/{id}/deleted", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getProjectIdFromPropertyId(@PathVariable Integer id){
+        return new APIResponse(propertyService.getProjectIdFromDeletedPropertyId(id));
+    }
 }
