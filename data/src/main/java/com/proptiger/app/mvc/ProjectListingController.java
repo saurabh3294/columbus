@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +25,7 @@ import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
@@ -45,11 +47,13 @@ public class ProjectListingController extends BaseController {
 
     @Intercepted.ProjectListing
     @RequestMapping(value = "app/v1/project-listing")
+    @Cacheable(value = Constants.CacheName.CACHE)
     public @ResponseBody
     Object getProjectListings(
             @RequestParam(required = false) String selector,
             @RequestParam(required = false) String facets,
             @RequestParam(required = false) String stats) {
+
         Selector projectListingSelector = super.parseJsonToObject(selector, Selector.class);
         if (projectListingSelector == null) {
             projectListingSelector = new Selector();
@@ -57,7 +61,7 @@ public class ProjectListingController extends BaseController {
 
         PaginatedResponse<List<Project>> projects = propertyService
                 .getPropertiesGroupedToProjects(projectListingSelector);
-        
+
         projectService.updateLifestyleScoresByHalf(projects.getResults());
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
@@ -73,9 +77,10 @@ public class ProjectListingController extends BaseController {
         }
         return new APIResponse(response, projects.getTotalCount());
     }
-    
+
     @Intercepted.ProjectListing
     @RequestMapping(value = "app/v2/project-listing")
+    @Cacheable(value = Constants.CacheName.CACHE)
     public @ResponseBody
     Object getProjectListingsV2(
             @RequestParam(required = false) String selector,
@@ -88,7 +93,7 @@ public class ProjectListingController extends BaseController {
 
         PaginatedResponse<List<Project>> projects = propertyService
                 .getPropertiesGroupedToProjects(projectListingSelector);
-        
+
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
         Map<String, Object> response = new HashMap<String, Object>();
