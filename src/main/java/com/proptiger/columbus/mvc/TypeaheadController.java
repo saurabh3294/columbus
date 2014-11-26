@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.core.annotations.Intercepted;
-import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 
@@ -31,7 +30,6 @@ import com.proptiger.core.pojo.response.APIResponse;
  * @author rahul
  */
 @Controller
-@DisableCaching
 public class TypeaheadController extends BaseController {
     @Autowired
     private TypeaheadService typeaheadService;
