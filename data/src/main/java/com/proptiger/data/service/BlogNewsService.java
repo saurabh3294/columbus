@@ -127,9 +127,9 @@ public class BlogNewsService {
             }
             else {
                 Matcher matcher = htmlTagPattern.matcher(post.getPostContent());
-                int len = post.getPostContent().length() < contentLimit ? post.getPostContent().length(): contentLimit;
-                String contentWithoutHtmlTag = matcher.replaceAll("").substring(0, len);
-                post.setPostContent(contentWithoutHtmlTag);
+                String contentWithoutHtmlTag = matcher.replaceAll("");
+                int len = contentWithoutHtmlTag.length() < contentLimit ? contentWithoutHtmlTag.length(): contentLimit;
+                post.setPostContent(contentWithoutHtmlTag.substring(0, len));
             }
         }
     }
