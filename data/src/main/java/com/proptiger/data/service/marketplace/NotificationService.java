@@ -330,8 +330,9 @@ public class NotificationService {
     }
 
     public void sendLimitReachedGCMNotifications() {
-        List<Notification> notifications = notificationDao
-                .getNotifications(NotificationType.MaxLeadCountForBrokerReached.getId());
+        List<Notification> notifications = notificationDao.findByUserIdAndObjectId(
+                NotificationType.MaxLeadCountForBrokerReached.getId(),
+                0);
 
         for (Notification notification : notifications) {
             sendLimitReachedGCMNotification(notification.getUserId());
@@ -941,7 +942,7 @@ public class NotificationService {
     }
 
     public Notification findByUserIdAndNotificationId(int userId, int notificationTypeId, int objectId) {
-        return notificationDao.findByUserIdAndNotificationId(userId, notificationTypeId, objectId);
+        return notificationDao.findByUserIdAndNotificationTypeIdAndObjectId(userId, notificationTypeId, objectId);
     }
 
     public void deleteNotification(int userId, int notificationTypeId) {
