@@ -60,7 +60,7 @@ public class MSExcelUtils {
      *            list-of-objects. Excess objects will be ignored and deficient
      *            lists will be packed will null values.
      */
-    public Workbook exportToMsExcelSheet(
+    public Workbook exportToMsExcelWorkbook(
             String workBookName,
             String sheetName,
             List<Object[]> columnHeadings,
@@ -123,32 +123,45 @@ public class MSExcelUtils {
 
         int rowIndex = sheet.getLastRowNum() + 1;
         int colIndex = 0;
+        CellStyle dateCellStyle = workbook.createCellStyle();
+        CreationHelper createHelper = workbook.getCreationHelper();
+        dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("d-mmm-yy"));
         for (List<Object> rowData : data) {
             row = sheet.createRow(rowIndex);
             colIndex = 0;
             for (Object obj : rowData) {
                 cell = row.createCell(colIndex);
-                updateCellPropertiesByClass(workbook, cell, obj, (Class<?>) columnHeadings.get(colIndex)[1]);
+                updateCellPropertiesByClass(
+                        workbook,
+                        cell,
+                        obj,
+                        (Class<?>) columnHeadings.get(colIndex)[1],
+                        dateCellStyle);
                 colIndex++;
             }
             rowIndex++;
         }
     }
 
-    private void updateCellPropertiesByClass(Workbook workbook, Cell cell, Object obj, Class<?> clazz) {
-        if(obj == null){
+    private void updateCellPropertiesByClass(
+            Workbook workbook,
+            Cell cell,
+            Object obj,
+            Class<?> clazz,
+            CellStyle dateCellStyle) {
+        if (obj == null) {
             cell.setCellType(Cell.CELL_TYPE_STRING);
             cell.setCellValue(String.valueOf(obj));
             return;
         }
-        
+
         if (clazz.equals(Integer.class) || clazz.equals(Double.class)) {
             cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-            if(obj instanceof Integer){
-                cell.setCellValue((Integer)obj);
+            if (obj instanceof Integer) {
+                cell.setCellValue((Integer) obj);
             }
-            else{
-                cell.setCellValue((Double)(obj));
+            else {
+                cell.setCellValue((Double) (obj));
             }
             return;
         }
@@ -158,11 +171,8 @@ public class MSExcelUtils {
             return;
         }
         else if (clazz.equals(Date.class)) {
-            CellStyle cellStyle = workbook.createCellStyle();
-            CreationHelper createHelper = workbook.getCreationHelper();
-            cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("d-mmm-yy"));
-            cell.setCellValue((Date)obj);
-            cell.setCellStyle(cellStyle);
+            cell.setCellValue((Date) obj);
+            cell.setCellStyle(dateCellStyle);
             return;
         }
         else {

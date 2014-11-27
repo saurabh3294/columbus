@@ -24,7 +24,7 @@ import org.apache.cxf.jaxrs.ext.search.PrimitiveStatement;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -270,7 +270,7 @@ public class TrendReportService {
 
         String excelFileName = trendReportDirPath + getTemporaryExcelFileName(sortedMonthList);
         String excelSheetName = WorkbookUtil.createSafeSheetName(workSheetName);
-        Workbook excelWorkbook = new XSSFWorkbook();
+        Workbook excelWorkbook = new SXSSFWorkbook();
         Sheet excelSheet = excelWorkbook.createSheet(excelSheetName);
 
         FileInputStream fis = new FileInputStream(file);

@@ -41,8 +41,8 @@ public class TrendReportController extends BaseController {
         File file = trendReportService.getReportFileByKey(key);
         makeHTTPServletResponse(response, file);
     }
-    
-    // @Intercepted.TrendReport
+
+    @Intercepted.TrendReport
     @RequestMapping("app/v1/report/price-and-absorption")
     @ResponseBody
     public APIResponse getTrendReport(FIQLSelector selector) throws Exception {
@@ -51,12 +51,11 @@ public class TrendReportController extends BaseController {
         return new APIResponse(filekey);
     }
 
-    // @Intercepted.TrendReport
+    @Intercepted.TrendReport
     @RequestMapping("app/v1/report/price-and-absorption/catchment/{catchmentId}")
     @ResponseBody
-    public APIResponse getTrendReportByCatchmentId(
-            @PathVariable Integer catchmentId,
-            FIQLSelector selector) throws Exception {
+    public APIResponse getTrendReportByCatchmentId(@PathVariable Integer catchmentId, FIQLSelector selector)
+            throws Exception {
 
         ActiveUser user = SecurityContextUtils.getActiveUser();
         String filekey = trendReportService.getTrendReportByCatchmentId(catchmentId, selector, user);
