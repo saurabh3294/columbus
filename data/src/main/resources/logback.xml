@@ -55,7 +55,6 @@
 		<appender-ref ref="email-appender" />
 		<appender-ref ref="dal" />
 	</logger>
-
 	<root level="INFO">
 		<appender-ref ref="dal" />
 		<appender-ref ref="STDOUT" />
