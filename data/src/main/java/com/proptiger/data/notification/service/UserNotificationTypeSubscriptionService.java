@@ -12,13 +12,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.util.Caching;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.notification.enums.SubscriptionType;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.UserNotificationTypeSubscription;
 import com.proptiger.data.notification.model.external.NotificationSubscriptionRequest;
 import com.proptiger.data.notification.repo.UserNotificationTypeSubscriptionDao;
-import com.proptiger.data.util.Caching;
 
 @Service
 public class UserNotificationTypeSubscriptionService {
