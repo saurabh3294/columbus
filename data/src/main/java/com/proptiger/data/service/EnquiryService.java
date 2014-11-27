@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -103,19 +104,20 @@ public class EnquiryService {
     @Autowired
     private PropertyReader          propertyReader;
 
-    List<String>                    servingCities       = Arrays.asList(
-                                                                "ahmedabad",
-                                                                "banglore",
-                                                                "chennai",
-                                                                "delhi",
-                                                                "faridabad",
-                                                                "ghaziabad",
-                                                                "gurgaon",
-                                                                "kolkata",
-                                                                "mumbai",
-                                                                "noida",
-                                                                "pune");
+    private List<String>                    servingCities ;
 
+    @PostConstruct
+    public void init(){
+        servingCities = new ArrayList<>();
+        @SuppressWarnings("unchecked")
+        List<String> cities = PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENQUIRY_SERVING_CITIES, List.class);
+       if(cities != null){
+           for(String c: cities){
+               servingCities.add(c.trim().toLowerCase());
+           } 
+       }
+    }
+    
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
 
@@ -271,7 +273,7 @@ public class EnquiryService {
         if ((enquiry.getPageName() != null) && !enquiry.getPageName().equals("CONTACT US")) {
             dataForTemplate = generateDataToMail(enquiry);
             emailReceiver = enquiry.getEmail();
-            if (!enquiry.getCityName().isEmpty() && !servingCities.contains(enquiry.getCityName().toLowerCase())) {
+            if (!enquiry.getCityName().isEmpty() && !servingCities.contains(enquiry.getCityName().trim().toLowerCase())) {
                 dataForTemplate.setLeadMailFlag("non_serving_cities");
             }
             mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LEAD_GENERATION, dataForTemplate);
