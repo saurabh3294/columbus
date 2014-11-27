@@ -13,6 +13,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Trend;
@@ -45,7 +46,7 @@ public class UserSubscriptionService {
 
         List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
         List<String> filterList = new ArrayList<String>();
-        
+
         int objectTypeId = 0;
         Permission permission;
         for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
@@ -98,9 +99,9 @@ public class UserSubscriptionService {
 
         return subscriptionPermissions;
     }
-    
+
     @Cacheable(value = Constants.CacheName.CACHE)
-    public List<UserSubscriptionMapping> getUserSubscriptionMappingList(int userId){
+    public List<UserSubscriptionMapping> getUserSubscriptionMappingList(int userId) {
         return (userSubscriptionMappingDao.findAllByUserId(userId));
     }
 
@@ -183,7 +184,12 @@ public class UserSubscriptionService {
         return cityIdList;
     }
 
-    
+    public int getCompanyTrendReportDownloadLimitDay(ActiveUser user) {
+        return 0;
+    }
 
+    public int getCompanyTrendReportDownloadLimitMonth(int userId) {
+        return 0;
+    }
 
 }
