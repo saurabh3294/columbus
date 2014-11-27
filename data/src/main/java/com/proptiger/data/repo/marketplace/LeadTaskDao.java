@@ -1,4 +1,4 @@
-package com.proptiger.data.repo;
+package com.proptiger.data.repo.marketplace;
 
 import java.util.Date;
 import java.util.List;
