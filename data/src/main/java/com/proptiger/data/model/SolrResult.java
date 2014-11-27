@@ -27,7 +27,6 @@ import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.util.Serializer;
 
-
 /**
  * @author mandeep
  */
@@ -413,16 +412,16 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer           cityLocalityCount;
-    
+
     @Field(value = "LOCALITY_TAG_LINE")
     private String            localityTagLine;
-    
+
     @Field(value = "PROPERTY_COUPON_AVAILABLE")
-    private Boolean isCouponAvailable;
+    private Boolean           isCouponAvailable;
 
     @Field(value = "SUBURB_TAG_LINE")
     private String            suburbTagLine;
-	
+
     @Field(value = "CITY_POPULATION")
     private Integer           cityPopulation;
 
@@ -431,27 +430,27 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "CITY_PROPERTY_COUNT")
     private Integer           cityPropertyCount;
-    
+
     @Field(value = "SUBURB_LOCALITY_COUNT")
     private Integer           suburbLocalityCount;
-    
+
     @Field(value = "SUBURB_PROPERTY_COUNT")
     private Integer           suburbPropertyCount;
-    
-    @Field(value ="POPULATION_SURVEY_DATE")
+
+    @Field(value = "POPULATION_SURVEY_DATE")
     private Date              populationSurveyDate;
-    
-    @Field(value ="IS_PROPERTY_SOLD_OUT")
+
+    @Field(value = "IS_PROPERTY_SOLD_OUT")
     private boolean           isPropertySoldOut;
 
-    @Field(value ="IS_SOLD_OUT")
+    @Field(value = "IS_SOLD_OUT")
     private boolean           isSoldOut;
-    
+
     @Field("PANORAMA_VIEW_PATH")
-    private String              panoramaViewPath;
-    
+    private String            panoramaViewPath;
+
     @Field("AMENITIES_URLS")
-    private String				amenitiesUrls;
+    private String            amenitiesUrls;
 
     public SolrResult() {
         property.setProject(project);
@@ -1382,38 +1381,36 @@ public class SolrResult extends BaseModel {
     public void setSuburbLocalityCount(Integer suburbLocalityCount) {
         suburb.setSuburbLocalityCount(suburbLocalityCount);
     }
-    
+
     @Field(value = "SUBURB_PROPERTY_COUNT")
     public void setSuburbPropertyCount(Integer suburbPropertyCount) {
         suburb.setSuburbPropertyCount(suburbPropertyCount);
     }
-    
-    @Field(value ="POPULATION_SURVEY_DATE")
+
+    @Field(value = "POPULATION_SURVEY_DATE")
     public void setPopulationSurveyDate(Date populationSurveyDate) {
         city.setPopulationSurveyDate(populationSurveyDate);
     }
 
-    @Field(value ="IS_PROPERTY_SOLD_OUT")
+    @Field(value = "IS_PROPERTY_SOLD_OUT")
     public void setIsPropertySoldOut(boolean isPropertySoldOut) {
         property.setIsPropertySoldOut(isPropertySoldOut);
     }
 
-	@Field("PANORAMA_VIEW_PATH")
-	public void setPanoramaViewPath(String panoramaViewPath) {
-		property.setPanoramaViewPath(panoramaViewPath);
-	}
+    @Field("PANORAMA_VIEW_PATH")
+    public void setPanoramaViewPath(String panoramaViewPath) {
+        property.setPanoramaViewPath(panoramaViewPath);
+    }
 
-	@Field("AMENITIES_URLS")
-	public void setAmenitiesUrls(String amenitiesUrls) {
-		List<LandMarkTypes> landmarkTypesList = new ArrayList<LandMarkTypes>();
-		List<List<String>> dataList = new Gson().fromJson(amenitiesUrls,
-				List.class);
-		for (List<String> data : dataList) {
-			landmarkTypesList.add(new LandMarkTypes(Integer.parseInt(data
-					.get(0)), data.get(1), data.get(2), data.get(3), data
-					.get(4)));
-		}
-		locality.setLandmarkTypes(landmarkTypesList);
-	}
+    @Field("AMENITIES_URLS")
+    public void setAmenitiesUrls(String amenitiesUrls) {
+        List<LandMarkTypes> landmarkTypesList = new ArrayList<LandMarkTypes>();
+        List<List<String>> dataList = new Gson().fromJson(amenitiesUrls, List.class);
+        for (List<String> data : dataList) {
+            landmarkTypesList.add(new LandMarkTypes(Integer.parseInt(data.get(0)), data.get(1), data.get(2), data
+                    .get(3), data.get(4)));
+        }
+        locality.setLandmarkTypes(landmarkTypesList);
+    }
 
 }
