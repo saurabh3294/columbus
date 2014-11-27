@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import com.proptiger.core.model.BaseModel;
 import com.proptiger.core.model.cms.Builder;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.CouponCatalogue;
+import com.proptiger.core.model.cms.LandMarkTypes;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
@@ -447,6 +449,9 @@ public class SolrResult extends BaseModel {
     
     @Field("PANORAMA_VIEW_PATH")
     private String              panoramaViewPath;
+    
+    @Field("AMENITIES_URLS")
+    private String				amenitiesUrls;
 
     public SolrResult() {
         property.setProject(project);
@@ -1393,8 +1398,22 @@ public class SolrResult extends BaseModel {
         property.setIsPropertySoldOut(isPropertySoldOut);
     }
 
-    @Field("PANORAMA_VIEW_PATH")
-    public void setPanoramaViewPath(String panoramaViewPath) {
-        property.setPanoramaViewPath(panoramaViewPath);
-    }
+	@Field("PANORAMA_VIEW_PATH")
+	public void setPanoramaViewPath(String panoramaViewPath) {
+		property.setPanoramaViewPath(panoramaViewPath);
+	}
+
+	@Field("AMENITIES_URLS")
+	public void setAmenitiesUrls(String amenitiesUrls) {
+		List<LandMarkTypes> landmarkTypesList = new ArrayList<LandMarkTypes>();
+		List<List<String>> dataList = new Gson().fromJson(amenitiesUrls,
+				List.class);
+		for (List<String> data : dataList) {
+			landmarkTypesList.add(new LandMarkTypes(Integer.parseInt(data
+					.get(0)), data.get(1), data.get(2), data.get(3), data
+					.get(4)));
+		}
+		locality.setLandmarkTypes(landmarkTypesList);
+	}
+
 }
