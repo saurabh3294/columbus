@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.service.LandMarkService;
 
@@ -30,8 +31,10 @@ public class LandMarkController extends BaseController {
     @ResponseBody
     public Object getAmenitiesByLocalityIdAndAmenity(@PathVariable("id") int localityId, @RequestParam(
             value = "amenity",
-            required = false) String amenityName) {
-        return new APIResponse(localityAmenityService.getLocalityAmenities(localityId, amenityName));
+            required = false) String amenityName,
+            @RequestParam(required = false, value = "selector") String selectorStr) {
+        Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
+        return new APIResponse(localityAmenityService.getLocalityAmenitiesWithSelector(localityId, amenityName, selector));
 
     }
 }
