@@ -51,11 +51,6 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select distinct(LO) from LeadOffer LO join LO.masterLeadOfferStatus LOM where LO.leadId = ?1 and LOM.claimedFlag = ?2 and LOM.openFlag = ?3")
     public List<LeadOffer> getByLeadIdAndOpenFlagAndClaimedFlag(int leadId, boolean openFlag, boolean claimedFlag);
 
-    @Modifying
-    @Transactional
-    @Query("update LeadOffer LO set LO.statusId = ?3 where LO.statusId = 2 and LO.leadId = ?1")
-    void updateLeadOfferStatus(int leadId, int prevStatusId, int newStatusId);
-
     @Query("select MAX(LOL.id) from LeadOfferedListing LOL where LOL.leadOfferId in (?1) group by LOL.leadOfferId")
     public List<Integer> findMaxListingByLeadOfferIdGroupbyLeadOfferId(List<Integer> leadOfferIds);
 

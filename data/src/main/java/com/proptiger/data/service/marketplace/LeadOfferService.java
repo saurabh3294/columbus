@@ -1,6 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -821,8 +822,8 @@ public class LeadOfferService {
         if (PropertyReader
                 .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Integer.class).equals(
                         leadOfferCount)) {
-            leadOfferDao.updateLeadOfferStatus(
-                    leadOfferInDB.getLeadId(),
+            leadOfferDao.updateStatusByLeadIdInAndStatus(
+                    Arrays.asList(leadOfferInDB.getLeadId()),
                     LeadOfferStatus.Offered.getId(),
                     LeadOfferStatus.Expired.getId());
         }
