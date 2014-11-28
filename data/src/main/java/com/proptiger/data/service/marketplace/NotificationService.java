@@ -534,7 +534,7 @@ public class NotificationService {
     }
 
     private List<Integer> getLeadOfferIdsFromTaskIds(List<Integer> taskIds) {
-        List<LeadTask> tasks = taskDao.findById(taskIds);
+        List<LeadTask> tasks = taskDao.findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(taskIds);
         List<Integer> leadOfferIds = new ArrayList<>();
         for (LeadTask leadTask : tasks) {
             leadOfferIds.add(leadTask.getLeadOfferId());
@@ -547,7 +547,7 @@ public class NotificationService {
         for (Notification notification : notifications) {
             taskIds.add(notification.getObjectId());
         }
-        List<LeadTask> tasks = taskDao.findByIdUptoLead(taskIds);
+        List<LeadTask> tasks = taskDao.findByIdInWithLead(taskIds);
         String message = "";
 
         if (tasks.size() == 1) {
@@ -592,7 +592,7 @@ public class NotificationService {
 
     private String getTaskOverDueNotificationMessage(List<Notification> notifications) {
         List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
-        List<LeadTask> tasks = taskDao.findByIdUptoLead(taskIds);
+        List<LeadTask> tasks = taskDao.findByIdInWithLead(taskIds);
 
         String message = "";
         if (tasks.size() == 1) {

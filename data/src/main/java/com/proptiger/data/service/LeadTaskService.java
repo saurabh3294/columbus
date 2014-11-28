@@ -414,7 +414,7 @@ public class LeadTaskService {
             if (status.isOpen() || LeadOfferStatus.ClosedWon.equals(LeadOfferStatus.valueOf(status.getStatus()))) {
                 lost = false;
             }
-            if (!(leadTaskDao.findByofferIdAndStatusReason(offer.getId(), interestedInPrimary) == null)) {
+            if (!(leadTaskDao.findByLeadOfferIdAndStatusReason(offer.getId(), interestedInPrimary) == null)) {
                 primaryLead = true;
             }
         }
@@ -725,8 +725,8 @@ public class LeadTaskService {
                 selector.getSpringDataSort());
 
         PaginatedResponse<List<LeadTask>> response = new PaginatedResponse<>();
-        response.setTotalCount(leadTaskDao.getLeadTaskCountForUser(userId));
-        response.setResults(leadTaskDao.getLeadTasksForUser(userId, pageable));
+        response.setTotalCount(leadTaskDao.getCountByAgentId(userId));
+        response.setResults(leadTaskDao.findByAgentIdWithLeadOfferAndMasterLeadTaskAndMasterLeadTaskStatusAndLeadOfferedListingsOrderByScheduledForDesc(userId, pageable));
 
         LeadTask.populateTransientAttributes(response.getResults());
         LeadTask.unlinkCircularLoop(response.getResults());
@@ -764,7 +764,7 @@ public class LeadTaskService {
         Map<Integer, LeadTask> taskMap = new HashMap<>();
 
         if (leadTaskIds != null && !leadTaskIds.isEmpty()) {
-            List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
+            List<LeadTask> leadTasks = leadTaskDao.findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(leadTaskIds);
             Map<Integer, List<TaskOfferedListingMapping>> taskOfferedListingMappings = extractListings(leadTaskDao
                     .getTaskOfferedListingMappings(leadTaskIds));
             LeadTask.populateTransientAttributes(leadTasks);
@@ -781,7 +781,7 @@ public class LeadTaskService {
     }
 
     public List<LeadTask> getTasksByLeadOfferId(int leadOfferId) {
-        List<LeadTask> leadTasks = leadTaskDao.findTasksByLeadOfferId(leadOfferId);
+        List<LeadTask> leadTasks = leadTaskDao.findByLeadOfferIdWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(leadOfferId);
 
         List<Integer> leadTaskIds = new ArrayList<>();
         for (LeadTask leadTask : leadTasks) {
@@ -826,7 +826,7 @@ public class LeadTaskService {
      * @return
      */
     public LeadTask getTaskDetails(int taskId) {
-        return leadTaskDao.getLeadTaskDetails(taskId);
+        return leadTaskDao.findByIdWithLeadOfferAndMasterLeadTaskAndMasterLeadTaskStatusAndLeadOfferedListings(taskId);
     }
 
     public static int getOfferdefaultleadtaskstatusmappingid() {
