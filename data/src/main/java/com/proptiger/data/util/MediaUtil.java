@@ -42,6 +42,7 @@ public class MediaUtil {
     public static String[] endpoints;
     public static String   bucket;
 
+    /** TODO :: Consider using DigestUtils.md5Hex(InputStream is) here **/
     public static String fileMd5Hash(File file) throws FileNotFoundException, IOException {
         int nread = 0;
         MessageDigest md;

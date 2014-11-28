@@ -20,6 +20,7 @@
 		<spring.social.version>1.1.0.RELEASE</spring.social.version>
 		<spring.social.facebook.version>1.1.0.M4</spring.social.facebook.version>
 		<spring.social.google.version>1.0.0.M3</spring.social.google.version>
+		<quartz.version>2.2.1</quartz.version>
 		<skipTests>true</skipTests>
 	</properties>
 	<profiles>
@@ -32,7 +33,7 @@
 		<profile>
 			<id>release</id>
 			<properties>
-				<midl-core.version>1.0.28</midl-core.version>
+				<midl-core.version>1.0.31</midl-core.version>
 			</properties>
 		</profile>
 	</profiles>
@@ -441,6 +442,11 @@
             <artifactId>poi</artifactId>
             <version>3.10.1</version>
         </dependency>
+        <dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-ooxml</artifactId>
+		    <version>3.10.1</version>
+		</dependency>
 		<dependency>
 			<groupId>com.proptiger</groupId>
 			<artifactId>midl-core</artifactId>
@@ -463,7 +469,18 @@
 		  <artifactId>spring-web</artifactId>
 		  <version>${spring.version}</version>
 		</dependency>
-
+		<dependency>
+		    <groupId>org.quartz-scheduler</groupId>
+		    <artifactId>quartz</artifactId>
+		    <version>${quartz.version}</version>
+		    <scope>compile</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.quartz-scheduler</groupId>
+		    <artifactId>quartz-jobs</artifactId>
+		    <version>${quartz.version}</version>
+		    <scope>compile</scope>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>

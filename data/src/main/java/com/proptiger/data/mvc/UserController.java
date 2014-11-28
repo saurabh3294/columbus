@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.Application;
+import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.service.ApplicationNameService;
@@ -25,7 +26,6 @@ import com.proptiger.core.util.Constants;
 import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.RegisterUser;
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
