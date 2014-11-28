@@ -275,7 +275,7 @@ public class NotificationService {
      * @return
      */
     public void createLeadNotification(Lead lead, int notificationTypeId) {
-        List<LeadOffer> leadOffers = leadOfferDao.getLegitimateLeadOffersForDuplicateLeadNotifications(lead.getId());
+        List<LeadOffer> leadOffers = leadOfferDao.getByLeadIdAndOpenFlagAndClaimedFlag(lead.getId(), true, true);
         if (leadOffers != null && !leadOffers.isEmpty()) {
             List<Integer> leadOfferIds = new ArrayList<>();
             for (LeadOffer leadOffer : leadOffers) {
@@ -314,7 +314,7 @@ public class NotificationService {
     }
 
     private void sendDuplicateLeadNotification(int leadOfferId) {
-        LeadOffer offer = leadOfferDao.findById(leadOfferId);
+        LeadOffer offer = leadOfferDao.getById(leadOfferId);
         User user = userService.getUserById(offer.getLead().getClientId());
         String message = user.getFullName() + ", "
                 + offer.getId()
@@ -552,7 +552,7 @@ public class NotificationService {
 
         if (tasks.size() == 1) {
             LeadTask task = tasks.get(0);
-            int userId = leadOfferDao.findById(task.getLeadOfferId()).getLead().getClientId();
+            int userId = leadOfferDao.getById(task.getLeadOfferId()).getLead().getClientId();
             User user = userService.getUserById(userId);
             LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusDetail(task.getTaskStatusId());
             message = "Your " + leadTaskStatus.getMasterLeadTask().getSingularDisplayName()
@@ -668,7 +668,7 @@ public class NotificationService {
      */
 
     public Notification createAndSendLeadOfferNotification(int offerId) {
-        LeadOffer offer = leadOfferDao.getLeadOfferWithRequirements(offerId);
+        LeadOffer offer = leadOfferDao.getByIdWithRequirements(offerId);
         for (LeadRequirement leadRequirement : offer.getLead().getRequirements()) {
             leadRequirement.setLead(null);
         }

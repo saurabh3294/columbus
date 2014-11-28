@@ -173,7 +173,7 @@ public class LeadTaskService {
         
         Integer userId = savedTask.getLeadOffer().getAgentId();
         
-        long countLeadOffersOnThisAgentInNewStatus = leadOfferDao.getcountLeadOffersOnThisAgentInNewStatus(
+        long countLeadOffersOnThisAgentInNewStatus = leadOfferDao.getCountByAgentIdAndStatusId(
                 userId,
                 LeadOfferStatus.New.getId());
 

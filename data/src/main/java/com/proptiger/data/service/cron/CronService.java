@@ -63,7 +63,7 @@ public class CronService {
                         * 1000);
         List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
         Date expireTime = notificationService.getNoBrokerClaimedCutoffTime();
-                
+
         List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired(expireTime);
         Set<Integer> leadIds = new HashSet<Integer>();
 
@@ -109,7 +109,10 @@ public class CronService {
         if (!leadIds.isEmpty()) {
             notificationService
                     .deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
-            leadOfferDao.updateLeadOffers(leadIdList);
+            leadOfferDao.updateStatusByLeadIdInAndStatus(
+                    leadIdList,
+                    LeadOfferStatus.Offered.getId(),
+                    LeadOfferStatus.Expired.getId());
         }
 
         for (Integer leadId : leadIdList) {
