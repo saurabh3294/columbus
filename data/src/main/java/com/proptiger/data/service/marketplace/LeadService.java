@@ -248,7 +248,7 @@ public class LeadService {
     @Transactional
     private List<Integer> getLocalitiesForLead(int leadId) {
         List<Integer> localityIds = new ArrayList<>();
-        Lead lead = leadDao.findRequirementsByLeadId(leadId);
+        Lead lead = leadDao.getByIdWithRequirements(leadId);
 
         for (LeadRequirement requirement : lead.getRequirements()) {
             requirement.setLead(null);
@@ -405,7 +405,7 @@ public class LeadService {
      * @return
      */
     private Lead getExistingLead(int userId, int cityId) {
-        List<Lead> leads = leadDao.getLeads(cityId, userId);
+        List<Lead> leads = leadDao.findByCityIdAndClientIdAndMergedLeadIdIsNullOrderByIdDesc(cityId, userId);
         Lead existingLead = null;
 
         if (!leads.isEmpty()) {
@@ -485,7 +485,7 @@ public class LeadService {
     }
 
     public List<Lead> getLeads(List<Integer> leadIds) {
-        return leadDao.getLeads(leadIds);
+        return leadDao.findByIdIn(leadIds);
     }
 
 }

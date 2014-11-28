@@ -64,7 +64,9 @@ public class CronService {
         List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
         Date expireTime = notificationService.getNoBrokerClaimedCutoffTime();
 
-        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired(expireTime);
+        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsByOfferCreatedAtLessThanAndOfferStatusId(
+                expireTime,
+                LeadOfferStatus.Offered.getId());
         Set<Integer> leadIds = new HashSet<Integer>();
 
         for (Lead lead : leads) {
