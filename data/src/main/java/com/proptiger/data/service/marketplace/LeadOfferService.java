@@ -774,7 +774,7 @@ public class LeadOfferService {
             if (username == null) {
                 username = leadOfferInDB.getAgent().getFullName();
             }
-
+            
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
                     .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
