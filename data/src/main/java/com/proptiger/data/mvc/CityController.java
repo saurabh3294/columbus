@@ -42,7 +42,28 @@ public class CityController extends BaseController {
     @ResponseBody
     public APIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
-        List<City> list = cityService.getCityList(selector);
+        List<City> list = cityService.getCityList(selector, false);
+        Set<String> fieldsToSerialize = null;
+        if (selector != null) {
+            fieldsToSerialize = selector.getFields();
+        }
+        return new APIResponse(super.filterFields(list, fieldsToSerialize), list.size());
+    }
+    
+    /**
+     * This methods get city details, If no filter provided in selector then it
+     * will fetch all city details Single city can be fetched by using filter of
+     * selector object
+     * 
+     * @param selectorStr
+     * @return
+     */
+    @Intercepted.CityListing
+    @RequestMapping(value = "data/v2/entity/city", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getV2Cities(@RequestParam(required = false, value = "selector") String selectorStr) {
+        Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
+        List<City> list = cityService.getCityList(selector, true);
         Set<String> fieldsToSerialize = null;
         if (selector != null) {
             fieldsToSerialize = selector.getFields();

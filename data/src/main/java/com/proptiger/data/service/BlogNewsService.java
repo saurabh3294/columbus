@@ -82,7 +82,7 @@ public class BlogNewsService {
         String selectorString = "{\"filters\":{\"and\":[{\"equal\":{\"id\":" + cityId + "}}]}}";
         Gson gson = new Gson();
         Selector citySelector = gson.fromJson(selectorString, Selector.class);
-        List<City> cities = cityService.getCityList(citySelector);
+        List<City> cities = cityService.getCityList(citySelector, false);
         Paging paging = createPaging(selector);
         List<String> cityNames = new ArrayList<String>();
         for (City city : cities) {

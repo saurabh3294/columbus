@@ -57,12 +57,16 @@ public class CityService {
      * @return List<City>
      */
     @Cacheable(Constants.CacheName.CACHE)
-    public List<City> getCityList(Selector selector) {
+    public List<City> getCityList(Selector selector, boolean useFieldSelector) {
         List<City> cities = cityDao.getCities(selector);
-        updateAirportInfo(cities);
+        Set<String> fields = selector.getFields() == null ? new HashSet<String>(): selector.getFields();
+
+        if(!useFieldSelector || fields.contains("amenties")){
+            updateAirportInfo(cities);
+        }
         return cities;
     }
-
+    
     /**
      * This method will return the city object based on city id.
      * 
@@ -141,7 +145,7 @@ public class CityService {
         String js = "{\"filters\":{\"and\":[{\"equal\":{\"label\":" + cityName + "}}]}}";
         Gson gson = new Gson();
         Selector selector = gson.fromJson(js, Selector.class);
-        List<City> cities = getCityList(selector);
+        List<City> cities = getCityList(selector, false);
         if(cities == null || cities.isEmpty()){
             return null;
         }
