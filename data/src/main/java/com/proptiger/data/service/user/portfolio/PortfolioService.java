@@ -49,6 +49,7 @@ import com.proptiger.core.model.proptiger.PortfolioListing.Source;
 import com.proptiger.core.model.proptiger.PortfolioListingPaymentPlan;
 import com.proptiger.core.model.proptiger.PortfolioListingPrice;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyKeys;
@@ -790,6 +791,11 @@ public class PortfolioService {
         String toStr = user.getEmail();
         MailBody mailBody = null;
         MailDetails mailDetails = null;
+        UserContactNumber priorityContact = userService.getTopPriorityContact(user.getId());
+        String contactNumber = null;
+        if(priorityContact != null){
+            contactNumber = priorityContact.getContactNumber();
+        }
         switch (mailTypeEnum) {
             case LISTING_ADD_MAIL_TO_USER:
                 ListingAddMail listingAddMail = listing.createListingAddMailObject(user);
@@ -799,14 +805,14 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_USER:
-                ListingLoanRequestMail listingLoanRequestMail = listing.createListingLoanRequestObj(user);
+                ListingLoanRequestMail listingLoanRequestMail = listing.createListingLoanRequestObj(user, contactNumber);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_USER,
                         listingLoanRequestMail);
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
-                ListingLoanRequestMail listingLoanRequestMailInternal = listing.createListingLoanRequestObj(user);
+                ListingLoanRequestMail listingLoanRequestMailInternal = listing.createListingLoanRequestObj(user, contactNumber);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL,
                         listingLoanRequestMailInternal);
@@ -814,7 +820,7 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
-                ListingResaleMail listingResaleMailInternal = listing.createListingResaleMailObj(websiteHost, user);
+                ListingResaleMail listingResaleMailInternal = listing.createListingResaleMailObj(websiteHost, user, contactNumber);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL,
                         listingResaleMailInternal);
@@ -822,7 +828,7 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_USER:
-                ListingResaleMail listingResaleMailUser = listing.createListingResaleMailObj(websiteHost, user);
+                ListingResaleMail listingResaleMailUser = listing.createListingResaleMailObj(websiteHost, user, contactNumber);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER,
                         listingResaleMailUser);
