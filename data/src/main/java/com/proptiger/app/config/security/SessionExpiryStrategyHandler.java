@@ -10,6 +10,7 @@ import org.springframework.security.web.RedirectStrategy;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.handler.ResponseErrorWriter;
+import com.proptiger.core.util.IPUtils;
 
 /**
  * This handler overrides the dfault implementation not to redirect on any url
@@ -22,7 +23,7 @@ public class SessionExpiryStrategyHandler implements RedirectStrategy {
 
     @Override
     public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException {
-        String userIpAddress = request.getRemoteAddr();
+        String userIpAddress = IPUtils.getClientIP(request);
         ResponseErrorWriter.writeErrorToResponse(
                 response,
                 ResponseCodes.SESSION_EXPIRED,

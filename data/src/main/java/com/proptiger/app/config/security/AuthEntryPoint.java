@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.handler.ResponseErrorWriter;
+import com.proptiger.core.util.IPUtils;
 
 /**
  * The Entry Point will not redirect to any sort of Login - it will return the
@@ -28,7 +29,7 @@ public class AuthEntryPoint extends LoginUrlAuthenticationEntryPoint {
             final HttpServletRequest request,
             final HttpServletResponse response,
             final AuthenticationException authException) throws IOException {
-        String userIpAddress = request.getRemoteAddr();
+        String userIpAddress = IPUtils.getClientIP(request);
         ResponseErrorWriter.writeErrorToResponse(
                 response,
                 ResponseCodes.UNAUTHORIZED,
