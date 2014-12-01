@@ -215,8 +215,15 @@ public class UserService {
         customUser.setId(user.getId());
         customUser.setEmail(user.getEmail());
         customUser.setFirstName(user.getFullName());
-        customUser.setContactNumber(user.getPriorityContactNumber());
-        customUser.setProfileImageUrl(user.getProfileImageUrl());
+        UserContactNumber priorityContact = getTopPriorityContact(user.getId());
+        if(priorityContact != null){
+            customUser.setContactNumber(priorityContact.getContactNumber());
+        }
+        else{
+            customUser.setContactNumber("");
+        }
+        String profileImage = getUserProfileImageUrl(user.getId());
+        customUser.setProfileImageUrl(profileImage);
         if (needDashboards) {
             List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
             customUser.setDashboards(dashboards);
@@ -226,6 +233,23 @@ public class UserService {
             setAppDetails(customUser, user);
         }
         return customUser;
+    }
+
+    /**
+     * Get first non null non empty image url else null
+     * @param userId
+     * @return
+     */
+    private String getUserProfileImageUrl(int userId) {
+        List<UserAuthProviderDetail> authProviderDetails = authProviderDetailDao.findByUserId(userId);
+        if(!authProviderDetails.isEmpty()){
+            for(UserAuthProviderDetail detail: authProviderDetails){
+                if (detail.getImageUrl() != null && !detail.getImageUrl().isEmpty()) {
+                    return detail.getImageUrl();
+                }
+            }
+        }
+        return null;
     }
 
     @Transactional
@@ -459,7 +483,7 @@ public class UserService {
             throw new UnauthorizedException();
         }
         User user = userDao.findById(activeUser.getUserIdentifier());
-        WhoAmIDetail whoAmIDetail = user.createWhoAmI();
+        WhoAmIDetail whoAmIDetail = new WhoAmIDetail(user.getId(), user.getFullName(), getUserProfileImageUrl(user.getId()));;
         if (whoAmIDetail.getImageUrl() == null || whoAmIDetail.getImageUrl().isEmpty()) {
             whoAmIDetail.setImageUrl(cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
         }
