@@ -13,7 +13,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Trend;
@@ -183,13 +182,4 @@ public class UserSubscriptionService {
         }
         return cityIdList;
     }
-
-    public int getCompanyTrendReportDownloadLimitDay(ActiveUser user) {
-        return 0;
-    }
-
-    public int getCompanyTrendReportDownloadLimitMonth(int userId) {
-        return 0;
-    }
-
 }

@@ -17,8 +17,6 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import net.spy.memcached.tapmessage.ResponseMessage;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
@@ -38,6 +36,7 @@ import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Trend;
+import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.DateUtil;
@@ -145,13 +144,14 @@ public class TrendReportService {
 
         logger.debug("PnA_Report: Download request recieved : FIQLSelector = " + selector);
 
-        if (getRemainingDownloadsDaily() <= 0) {
+        List<UserSubscriptionMapping> usmList = userSubscriptionService.getUserSubscriptionMappingList(user.getUserIdentifier());
+        if (getRemainingDownloadsDaily(user, usmList) <= 0) {
             throw new ProAPIException(
                     ResponseCodes.DAILY_DOWNLOAD_LIMIT_EXPIRED,
                     ResponseErrorMessages.DAILY_DOWNLOAD_LIMIT_EXPIRED);
         }
 
-        if (getRemainingDownloadsMonthly() <= 0) {
+        if (getRemainingDownloadsMonthly(user, usmList) <= 0) {
             throw new ProAPIException(
                     ResponseCodes.MONTHLY_DOWNLOAD_LIMIT_EXPIRED,
                     ResponseErrorMessages.MONTHLY_DOWNLOAD_LIMIT_EXPIRED);
@@ -162,6 +162,8 @@ public class TrendReportService {
         throwExceptionIfListNullOrEmpty(sortedMonthList, new ProAPIException(
                 TrendReportConstants.ErrMsg_NoProjectsFound));
 
+        int transactionId =saveDownloadTransaction(user, usmList, selector.getStringFIQL());
+        
         String tempObjStorageFileName = getTemporaryFileName();
         File tempObjStoragefile = new File(tempObjStorageFileName);
         FileOutputStream fos = null;
@@ -191,7 +193,7 @@ public class TrendReportService {
             throw new ProAPIException(ioEx);
         }
         
-        storeTrendReportDownloadLog(user, selector.getStringFIQL());
+        markDownloadAsSuccess(transactionId);
         return excelFile;
     }
 
@@ -479,21 +481,33 @@ public class TrendReportService {
         return digest;
     }
 
-    private void storeTrendReportDownloadLog(ActiveUser user, String info) {
+    private int saveDownloadTransaction(ActiveUser user, List<UserSubscriptionMapping> usmList, String info) {
+        int usmId = usmList.get(0).getId();
         TrendReportLog trendReportLog = new TrendReportLog();
-        trendReportLog.setUserId(user.getUserIdentifier());
+        trendReportLog.setUsmId(usmId);
         trendReportLog.setDownloadDate(new Date());
         trendReportLog.setInfo(info);
+        trendReportLog = trendReportLogDao.save(trendReportLog);
+        return trendReportLog.getId();
+    }
+
+    private void markDownloadAsSuccess(int reportId) {
+        TrendReportLog trendReportLog = trendReportLogDao.getById(reportId);
+        trendReportLog.setSuccess(true);
         trendReportLogDao.save(trendReportLog);
     }
 
-    private int getRemainingDownloadsDaily() {
-        return 0;
-
+    private int getRemainingDownloadsDaily(ActiveUser user, List<UserSubscriptionMapping> usmList) {
+        int limit = usmList.get(0).getSubscription().getReportDownloadLimitDay();
+        int usage = trendReportLogDao.getCompanyDownloadCountBetweenDates(user.getUserIdentifier(), new Date(), new Date());
+        return (limit - usage);
     }
 
-    private int getRemainingDownloadsMonthly() {
-        return 0;
+    private int getRemainingDownloadsMonthly(ActiveUser user, List<UserSubscriptionMapping> usmList) {
+        int limit = usmList.get(0).getSubscription().getReportDownloadLimitDay();
+        Date currentDate = new Date();
+        Date monthStartDate = DateUtil.getFirstDayOfCurrentMonth(currentDate);
+        int usage = trendReportLogDao.getCompanyDownloadCountBetweenDates(user.getUserIdentifier(), currentDate, monthStartDate);
+        return (limit - usage);
     }
-
 }

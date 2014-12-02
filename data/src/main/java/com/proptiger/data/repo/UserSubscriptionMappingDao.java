@@ -12,4 +12,11 @@ public interface UserSubscriptionMappingDao extends JpaRepository<UserSubscripti
    
    public List<UserSubscriptionMapping> findAllByUserId(int userId);
    
+   public UserSubscriptionMapping findById(int id);
+
+   //@Query("select CU from CompanyUser CU join fetch CU.companyCoverages CC join fetch CC.locality L where CU.userId = ?1")
+
+   //@Query("SELECT CS from UserSubscriptionMappings USM join fetch USM.subscription CS where CS.userId = ?1")
+   //public List<CompanySubscription> getCompanySubscriptionsByUserId();
+   
 }
