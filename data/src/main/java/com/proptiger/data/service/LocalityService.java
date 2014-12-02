@@ -135,9 +135,6 @@ public class LocalityService {
                 updateLocalityRatingAndReviewDetails(locality);
             }
         }
-        if (selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
-            imageEnricher.setLocalityAmenitiesImages(localities);
-        }
         return paginatedRes;
     }
 
@@ -380,7 +377,7 @@ public class LocalityService {
         locality.setAmenityTypeCount(localityAmenityCountMap);
         imageEnricher.setLocalityImages(locality, imageCount);
         if (locality != null && selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
-            imageEnricher.setLocalityAmenitiesImages(Collections.singletonList(locality));
+            imageEnricher.setLocalityAmenitiesImages(locality);
         }
         /*
          * Setting Rating and Review Details.
@@ -455,9 +452,6 @@ public class LocalityService {
         List<Locality> result = localityDao.getPopularLocalities(cityId, suburbId, dateStr, selector);
         for (Locality locality : result) {
             updateLocalityRatingAndReviewDetails(locality);
-        }
-        if (selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
-            imageEnricher.setLocalityAmenitiesImages(result);
         }
         return result;
     }
@@ -544,9 +538,6 @@ public class LocalityService {
         }
 
         imageEnricher.setLocalitiesImages(result, imageCount);
-        if (selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
-            imageEnricher.setLocalityAmenitiesImages(result);
-        }
         return result;
     }
 
@@ -710,9 +701,6 @@ public class LocalityService {
 
         }
         imageEnricher.setLocalitiesImages(localitiesAroundMainLocality, imageCount);
-        if (localitySelector.getFields() != null && localitySelector.getFields().contains("landmarkImages")) {
-            imageEnricher.setLocalityAmenitiesImages(localitiesAroundMainLocality);
-        }
         return localitiesAroundMainLocality;
     }
 
@@ -1028,9 +1016,6 @@ public class LocalityService {
         if (localities == null || localities.size() < 1)
             return null;
         PaginatedResponse<List<Locality>> response = localityDao.findByLocalityIds(localities, null);
-        if (selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
-            imageEnricher.setLocalityAmenitiesImages(response.getResults());
-        }
         return response;
     }
     
@@ -1107,9 +1092,6 @@ public class LocalityService {
             return new PaginatedResponse<List<Locality>>();
         }
         imageEnricher.setLocalitiesImages(localities.getResults(), null);
-        if (localitySelector.getFields() != null && localitySelector.getFields().contains("landmarkImages")) {
-            imageEnricher.setLocalityAmenitiesImages(localities.getResults());
-        }
         return localities;
     }
 
