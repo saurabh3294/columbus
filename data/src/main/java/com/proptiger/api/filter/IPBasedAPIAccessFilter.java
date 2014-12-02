@@ -1,6 +1,8 @@
 package com.proptiger.api.filter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -33,8 +35,8 @@ import com.proptiger.core.util.PropertyReader;
 public class IPBasedAPIAccessFilter implements Filter {
 
     //change API regex, for example /data/v1/entity/city.*
-    private final String              API_REGEX = "/data/v1/(coupon/.*|transaction/offline-coupon\\?.*|entity/notification/sender)";
-    private RequestMatcher            requestMatcher;
+    //private final String  API_REGEX = "/data/v1/(coupon/.*|transaction/offline-coupon\\?.*|entity/notification/sender)";
+    private List<RequestMatcher>            requestMatchers;
     private Set<String>               whiteListIps;
     @Autowired
     private CustomAccessDeniedHandler accessDeniedHandler;
@@ -44,7 +46,11 @@ public class IPBasedAPIAccessFilter implements Filter {
     }
 
     public IPBasedAPIAccessFilter() {
-        requestMatcher = new RegexRequestMatcher(API_REGEX, null);
+        List<String> regex = PropertyReader.getRequiredPropertyAsType(PropertyKeys.SECURITY_SECURED_APIS, List.class);
+        requestMatchers = new ArrayList<>();
+        for(String apiRegex: regex){
+            requestMatchers.add(new RegexRequestMatcher(apiRegex, null));
+        }
         accessDeniedHandler = new CustomAccessDeniedHandler();
         whiteListIps = PropertyReader.getRequiredPropertyAsType(PropertyKeys.WHITELISTED_IP, Set.class);
     }
@@ -54,12 +60,16 @@ public class IPBasedAPIAccessFilter implements Filter {
             ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         boolean secureAccess = true;
-        if (requestMatcher.matches(httpRequest)) {
-            // secure url, should be accessed from specified IP only
-            if (!whiteListIps.contains(IPUtils.getClientIP(request))) {
-                secureAccess = false;
+        for(RequestMatcher requestMatcher: requestMatchers){
+            if (requestMatcher.matches(httpRequest)) {
+                // secure url, should be accessed from specified IP only
+                if (!whiteListIps.contains(IPUtils.getClientIP(request))) {
+                    secureAccess = false;
+                    break;
+                }
             }
         }
+        
         if (!secureAccess) {
             accessDeniedHandler.handle(httpRequest, (HttpServletResponse) response, new AccessDeniedException(
                     ResponseErrorMessages.ACCESS_DENIED));
