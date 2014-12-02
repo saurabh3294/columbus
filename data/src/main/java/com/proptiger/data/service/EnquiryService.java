@@ -40,6 +40,7 @@ import com.proptiger.core.model.proptiger.Enquiry.LeadEnquiryResponse;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.service.security.SecurityUtilService;
+import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
@@ -471,8 +472,8 @@ public class EnquiryService {
         if (request.getHeader("IP") != null) {
             enquiry.setIp(request.getHeader("IP"));
         }
-        else if (request.getRemoteAddr() != null) {
-            enquiry.setIp(securityUtilService.getClientIP(request));
+        else if (IPUtils.getClientIP(request) != null) {
+            enquiry.setIp(IPUtils.getClientIP(request));
         }
         else {
             enquiry.setIp("");

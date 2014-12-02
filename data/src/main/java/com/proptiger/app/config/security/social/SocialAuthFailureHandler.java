@@ -13,6 +13,7 @@ import org.springframework.social.security.SocialAuthenticationRedirectException
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.handler.ResponseErrorWriter;
+import com.proptiger.core.util.IPUtils;
 
 /**
  * Failure handler for spring social flow, if auth requested with access token
@@ -40,7 +41,7 @@ public class SocialAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
              * client requested with access token and that access token might be
              * expired or invalid.
              */
-            String userIpAddress = request.getRemoteAddr();
+            String userIpAddress = IPUtils.getClientIP(request);
             ResponseErrorWriter.writeErrorToResponse(
                     response,
                     ResponseCodes.BAD_CREDENTIAL,
