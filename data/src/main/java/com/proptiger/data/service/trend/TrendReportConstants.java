@@ -10,9 +10,6 @@ public class TrendReportConstants {
 
     public static String    FinalOutputExcelFileNameFormat      = "Catchment_Report_%s";
 
-    public static String    ErrMsg_DailyDownloadLimitExceeded   = "Daily download limit exceeded";
-
-    public static String    ErrMsg_MonthlyDownloadLimitExceeded = "Monthly download limit exceeded";
 
     /** How many trend rows to fetch from DB in one iteration **/
     /** Discuss before changing this limit **/

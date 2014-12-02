@@ -8,12 +8,17 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import com.proptiger.data.model.trend.TrendReportLog;
 
 public interface TrendReportLogDao extends PagingAndSortingRepository<TrendReportLog, Integer> {
-    
+
     public TrendReportLog getById(int reportId);
-    
-    @Query("select count(*) from user.users as u "
-            + "join fetch proptiger.user_subscription_mappings as usm ON (u.id = usm.user_id and u.id=?1) "
-            + "join proptiger.trend_reports as tr On (usm.id = tr.usm_id and download_date>=?1 and download_date<=?3)")
-    public int getCompanyDownloadCountBetweenDates(int usmid, Date date1, Date date2);
-    
+
+    /**
+     * select count(*) from proptiger.trend_reports as tr join
+     * proptiger.user_subscription_mappings as usm ON (tr.usm_id = usm.id) where
+     * (usm.id = 2 and download_date>="2014-11-27" and
+     * download_date<="2014-11-27");
+     **/
+    @Query("SELECT COUNT(*) FROM TrendReportLog TR JOIN TR.usms AS USM "
+            + "where USM.id = ?1 AND download_date >= ?2 AND download_date <= ?3 AND success=true")
+    public long getCompanyDownloadCountBetweenDates(int usmId, Date dateStart, Date dateEnd);
+
 }

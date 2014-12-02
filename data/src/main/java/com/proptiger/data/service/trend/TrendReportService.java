@@ -162,7 +162,7 @@ public class TrendReportService {
         throwExceptionIfListNullOrEmpty(sortedMonthList, new ProAPIException(
                 TrendReportConstants.ErrMsg_NoProjectsFound));
 
-        int transactionId =saveDownloadTransaction(user, usmList, selector.getStringFIQL());
+        int transactionId = saveDownloadTransaction(user, usmList, selector.getStringFIQL());
         
         String tempObjStorageFileName = getTemporaryFileName();
         File tempObjStoragefile = new File(tempObjStorageFileName);
@@ -255,7 +255,7 @@ public class TrendReportService {
         if (ctreObjectCountTotal == 0) {
             throw new ProAPIException(
                     ResponseCodes.EMPTY_REPORT_GENERATED,
-                    "No projects were found for the given search criteria.");
+                    TrendReportConstants.ErrMsg_NoProjectsFound);
         }
 
         logger.debug("PnA_Report: Total " + ctreObjectCountTotal + " ctre objects written to file.");
@@ -268,7 +268,7 @@ public class TrendReportService {
 
         throwExceptionIfListNullOrEmpty(trendList, new ProAPIException(
                 ResponseCodes.EMPTY_REPORT_GENERATED,
-                "No projects were found for the given search criteria."));
+                TrendReportConstants.ErrMsg_NoProjectsFound));
 
         // DebugUtils.exportToNewDebugFile(DebugUtils.getAsListOfStrings(trendList));
 
@@ -498,16 +498,19 @@ public class TrendReportService {
     }
 
     private int getRemainingDownloadsDaily(ActiveUser user, List<UserSubscriptionMapping> usmList) {
-        int limit = usmList.get(0).getSubscription().getReportDownloadLimitDay();
-        int usage = trendReportLogDao.getCompanyDownloadCountBetweenDates(user.getUserIdentifier(), new Date(), new Date());
+        UserSubscriptionMapping activeUsm = usmList.get(0);
+        int limit = activeUsm.getSubscription().getReportDownloadLimitDay();
+        Date startDate = DateUtil.getSameDayStartTime(new Date());
+        int usage = (int)trendReportLogDao.getCompanyDownloadCountBetweenDates(activeUsm.getId(), startDate, new Date());
         return (limit - usage);
     }
 
     private int getRemainingDownloadsMonthly(ActiveUser user, List<UserSubscriptionMapping> usmList) {
-        int limit = usmList.get(0).getSubscription().getReportDownloadLimitDay();
-        Date currentDate = new Date();
-        Date monthStartDate = DateUtil.getFirstDayOfCurrentMonth(currentDate);
-        int usage = trendReportLogDao.getCompanyDownloadCountBetweenDates(user.getUserIdentifier(), currentDate, monthStartDate);
+        UserSubscriptionMapping activeUsm = usmList.get(0);
+        int limit = activeUsm.getSubscription().getReportDownloadLimitMonth();
+        Date todayDate = DateUtil.getSameDayStartTime(new Date());
+        Date monthStartDate = DateUtil.getFirstDayOfCurrentMonth(todayDate);
+        int usage = (int)trendReportLogDao.getCompanyDownloadCountBetweenDates(activeUsm.getId(), monthStartDate, todayDate);
         return (limit - usage);
     }
 }
