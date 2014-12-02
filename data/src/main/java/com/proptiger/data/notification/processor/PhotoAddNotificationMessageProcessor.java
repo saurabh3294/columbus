@@ -35,7 +35,7 @@ public class PhotoAddNotificationMessageProcessor extends NotificationMessagePro
         Integer projectId = Integer.parseInt((String) notificationTypePayload.getPrimaryKeyValue());
 
         logger.debug("Getting properties for project id: " + projectId);
-        List<Property> propertyList = propertyService.getPropertiesForProject(projectId);
+        List<Property> propertyList = propertyService.getPropertyIdsByProjectId(projectId);
 
         Map<Integer, NotificationMessagePayload> payloadMap = new HashMap<Integer, NotificationMessagePayload>();
 
@@ -47,7 +47,8 @@ public class PhotoAddNotificationMessageProcessor extends NotificationMessagePro
             newNTPayload.setPrimaryKeyName("property_id");
             newNTPayload.setPrimaryKeyValue(propertyId);
 
-            List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
+            List<PortfolioListing> portfolioListings = getPortfolioListingsByPropertyId(propertyId);
+            portfolioListings = removeUsersFromPortfolioListings(unsubscribedUserList, portfolioListings);
 
             // TODO: handle cases where user has multiple properties in a
             // particular project.

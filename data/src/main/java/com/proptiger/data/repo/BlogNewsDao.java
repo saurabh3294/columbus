@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.core.config.AppRepositoryConfig;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.data.model.WordpressPost;
+import com.proptiger.data.model.WordpressTerms;
 
 /**
  * This class handles queries for both wordpress and wordpress_news database
@@ -26,16 +27,18 @@ import com.proptiger.data.model.WordpressPost;
  */
 @Component
 public class BlogNewsDao {
-    private static String   THUMBNAIL_QUERY_STRING   = "SELECT WPP1.post_id, WPP2.meta_value FROM wordpress.wp_postmeta WPP1 INNER JOIN wordpress.wp_postmeta WPP2 ON WPP1.meta_value = WPP2.post_id WHERE WPP1.post_id IN (postIdList) " + " AND WPP1.meta_key = '_thumbnail_id' AND WPP2.meta_key = '_wp_attachment_metadata'";
+    private static String THUMBNAIL_QUERY_STRING = "SELECT WPP1.post_id, WPP2.meta_value FROM wordpress.wp_postmeta WPP1 INNER JOIN wordpress.wp_postmeta WPP2 ON WPP1.meta_value = WPP2.post_id WHERE WPP1.post_id IN (postIdList) " + " AND WPP1.meta_key = '_thumbnail_id' AND WPP2.meta_key = '_wp_attachment_metadata'";
 
-    private Pattern FOLDER_PATTERN = Pattern.compile("(\\d{4})/(\\d{2})/");
-    private Pattern IMG_PATTERN    = Pattern.compile("\"thumbnail.*?file.*?:\"(.*?)\";");
-    
+    private Pattern       FOLDER_PATTERN         = Pattern.compile("(\\d{4})/(\\d{2})/");
+    private Pattern       IMG_PATTERN            = Pattern.compile("\"thumbnail.*?file.*?:\"(.*?)\";");
+
     @Value("${blog.image.base.url}")
-    private String  URL_PATH;
+    private String        URL_PATH;
 
     /**
-     * Using wordpress database in this method to find published blogs for a city
+     * Using wordpress database in this method to find published blogs for a
+     * city
+     * 
      * @param cityName
      * @param paging
      * @return
@@ -64,9 +67,64 @@ public class BlogNewsDao {
         List<WordpressPost> results = query.getResultList();
         return results;
     }
-    
+
+    /**
+     * Using wordpress_news database in this method to find published news for a
+     * particular postId
+     * 
+     * @param postId
+     * @return
+     */
+    public WordpressPost findPublishedNewsByPostId(Long postId) {
+        return findNewsOrBlogsByPostId(postId, AppRepositoryConfig.getWordpressNewsEntityFactory());
+    }
+
+    private WordpressPost findNewsOrBlogsByPostId(Long postId, EntityManagerFactory emf) {
+        EntityManager em = emf.createEntityManager();
+        Query query = em.createNamedQuery("Post.blogOrNewsByPostId").setParameter("postId", postId);
+        WordpressPost results = (WordpressPost) query.getSingleResult();
+        return results;
+    }
+
+    /**
+     * Using wordpress_news database in this method to find terms for a
+     * particular termTaxonomyId
+     * 
+     * @param termTaxonomyId
+     * @return
+     */
+    public WordpressTerms findNewsTermByTermTaxonomyId(Long termTaxonomyId) {
+        return findNewsOrBlogTermByTermTaxonomyId(termTaxonomyId, AppRepositoryConfig.getWordpressNewsEntityFactory());
+    }
+
+    private WordpressTerms findNewsOrBlogTermByTermTaxonomyId(Long termTaxonomyId, EntityManagerFactory emf) {
+        EntityManager em = emf.createEntityManager();
+        Query query = em.createNamedQuery("Term.termsByTermTaxonomyId").setParameter("termTaxonomyId", termTaxonomyId);
+        WordpressTerms results = (WordpressTerms) query.getSingleResult();
+        return results;
+    }
+
+    /**
+     * Using wordpress_news database in this method to find categories for a
+     * particular postId
+     * 
+     * @param postId
+     * @return
+     */
+    public List<WordpressTerms> findNewsCategoriesByPostId(Long postId) {
+        return findCategoriesByPostId(postId, AppRepositoryConfig.getWordpressNewsEntityFactory());
+    }
+
+    private List<WordpressTerms> findCategoriesByPostId(Long postId, EntityManagerFactory emf) {
+        EntityManager em = emf.createEntityManager();
+        Query query = em.createNamedQuery("Term.categoriesByPostId").setParameter("postId", postId);
+        List<WordpressTerms> results = query.getResultList();
+        return results;
+    }
+
     /**
      * Find image url for the blog post
+     * 
      * @param postId
      * @return
      */
@@ -76,9 +134,10 @@ public class BlogNewsDao {
         List<String> results = query.getResultList();
         return results;
     }
-    
+
     /**
      * Find image url for the blog post
+     * 
      * @param postId
      * @return
      */
@@ -91,6 +150,7 @@ public class BlogNewsDao {
 
     /**
      * Find Thumbnail image url info for the blog post
+     * 
      * @param postIdList
      * @return
      */
