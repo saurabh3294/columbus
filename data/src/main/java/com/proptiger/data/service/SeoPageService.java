@@ -367,6 +367,14 @@ public class SeoPageService {
             centerLatitude = city.getCenterLatitude();
             centerLongitude = city.getCenterLongitude();
         }
+        if (urlDetail.getCityId() != null) {
+            city = cityService.getCity(urlDetail.getCityId());
+            if (city == null) {
+                throw new ResourceNotAvailableException(ResourceType.CITY, ResourceTypeAction.GET);
+            }
+            centerLatitude = city.getCenterLatitude();
+            centerLongitude = city.getCenterLongitude();
+        }
         if (urlDetail.getBuilderId() != null) {
             builder = builderService.getBuilderById(urlDetail.getBuilderId());
             if (builder == null) {
