@@ -19,6 +19,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.proptiger.app.config.security.CustomAccessDeniedHandler;
 import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
@@ -55,7 +56,7 @@ public class IPBasedAPIAccessFilter implements Filter {
         boolean secureAccess = true;
         if (requestMatcher.matches(httpRequest)) {
             // secure url, should be accessed from specified IP only
-            if (!whiteListIps.contains(httpRequest.getRemoteAddr())) {
+            if (!whiteListIps.contains(IPUtils.getClientIP(request))) {
                 secureAccess = false;
             }
         }

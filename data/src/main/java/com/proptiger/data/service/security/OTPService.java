@@ -25,6 +25,7 @@ import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.model.proptiger.CompanySubscription;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
 import com.proptiger.core.repo.APIAccessLogDao;
+import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
@@ -79,7 +80,7 @@ public class OTPService {
         ActiveUser activeUser = (ActiveUser) auth.getPrincipal();
         if (activeUser.getApplicationType().equals(Application.B2B)) {
             required = true;
-            String userIP = request.getRemoteAddr();
+            String userIP = IPUtils.getClientIP(request);
             if(isUserCompanyIPWhitelisted(userIP, activeUser)){
                 /*
                  * if user company ip is whitelisted then no need of

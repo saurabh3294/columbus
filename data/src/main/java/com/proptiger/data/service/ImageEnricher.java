@@ -532,4 +532,18 @@ public class ImageEnricher {
         List<Image> orderedImages = getImageListSortedOnPriority(images);
         return new PaginatedResponse<List<Image>>(orderedImages, orderedImages.size());
     }
+
+    public void setAmenitiesImages(List<LandMark> amenities) {
+        if (amenities == null || amenities.isEmpty()) {
+            return;
+        }
+        List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
+        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.landmark, amenityIds);
+        for(LandMark amenity : amenities) {
+            List<Image> images = imagesMap.get(new Long(amenity.getId()));
+            if (images != null) {
+                amenity.setImages(images);
+            }
+        }
+    }
 }
