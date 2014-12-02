@@ -1,5 +1,7 @@
 package com.proptiger.data.repo.user;
 
+import java.util.List;
+
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.proptiger.core.model.user.UserAuthProviderDetail;
@@ -14,4 +16,6 @@ public interface UserAuthProviderDetailDao extends PagingAndSortingRepository<Us
     public UserAuthProviderDetail findByProviderIdAndProviderUserId(int providerId, String providerUserId);
 
     public UserAuthProviderDetail findByUserIdAndProviderId(int userId, int providerId);
+    
+    public List<UserAuthProviderDetail> findByUserId(int userId);
 }
