@@ -233,9 +233,9 @@ public class NotificationGeneratedService {
         NotificationTypePayload payload = notificationMessage.getNotificationMessagePayload()
                 .getNotificationTypePayload();
         if (payload != null) {
-            Number objectId = (Number) payload.getPrimaryKeyValue();
+            Integer objectId = Integer.parseInt((String) payload.getPrimaryKeyValue());
             if (objectId != null) {
-                nGenerated.setObjectId(objectId.intValue());
+                nGenerated.setObjectId(objectId);
             }
         }
         return nGenerated;

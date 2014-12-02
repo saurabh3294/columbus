@@ -18,6 +18,10 @@ public class Tokens {
         ProjectName, PropertyName;
     }
 
+    public enum PortfolioNews {
+        NewsTitle, NewsBody;
+    }
+
     public enum PortfolioProjectUpdates {
         ProjectName, PropertyName;
     }
@@ -37,7 +41,7 @@ public class Tokens {
     public enum CouponRedeemed {
         CouponCode, UserName, ProjectName, UnitName, Size, CouponPrice, DiscountPrice, RedeemedDate;
     }
-    
+
     public enum CouponPaymentFailure {
         CouponCode, Date, UserName, ProjectName, UnitName, Size, Discount, CouponPrice, DiscountPrice, FailedAmount;
     }

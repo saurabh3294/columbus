@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.payload.NewsEventTypePayload;
 import com.proptiger.data.event.service.EventTypeProcessorService;
-import com.proptiger.data.model.WordpressPost;
 import com.proptiger.data.model.WordpressTerms;
 import com.proptiger.data.service.BlogNewsService;
 import com.proptiger.data.service.ProjectService;
@@ -65,21 +64,7 @@ public class ProjectNewsProcessor extends DBEventProcessor {
 
         // Populating payload with project id
         payload.setPrimaryKeyName(PROJECT_ID);
-        payload.setPrimaryKeyValue(projectId);
-
-        // Populating news details
-        WordpressPost post = blogNewsService.getNewsDetailsByPostId(postId);
-        if (post == null) {
-            logger.error("Discarding event of eventType: " + event.getEventType().getName()
-                    + " with transactionId: "
-                    + transactionId
-                    + " as wordpress post is null while populating news details.");
-            return null;
-        }
-
-        // Populating payload with news details
-        payload.setNewsTitle(post.getPostTitle());
-        payload.setNewsBody(post.getPostContent());
+        payload.setPrimaryKeyValue(projectId.toString());
 
         return event;
     }

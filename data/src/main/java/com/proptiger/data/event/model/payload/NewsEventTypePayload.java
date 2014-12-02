@@ -8,26 +8,8 @@ public class NewsEventTypePayload extends EventTypePayload {
 
     private static final long serialVersionUID = -1143388818923609238L;
 
-    private String            newsTitle;
-    private String            newsBody;
     private Long              postId;
     private Long              termTaxonomyId;
-
-    public String getNewsTitle() {
-        return newsTitle;
-    }
-
-    public void setNewsTitle(String newsTitle) {
-        this.newsTitle = newsTitle;
-    }
-
-    public String getNewsBody() {
-        return newsBody;
-    }
-
-    public void setNewsBody(String newsBody) {
-        this.newsBody = newsBody;
-    }
 
     public Long getPostId() {
         return postId;
