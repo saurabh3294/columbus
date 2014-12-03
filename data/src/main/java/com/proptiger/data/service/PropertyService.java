@@ -75,15 +75,15 @@ public class PropertyService {
     private ApplicationContext     applicationContext;
 
     private static int             ROWS_THRESHOLD = 200;
-    
-    public static String cdnImageUrl;
-    
+
+    public static String           cdnImageUrl;
+
     @Autowired
-    private PropertyReader reader;
-    
+    private PropertyReader         reader;
+
     @PostConstruct
     private void init() {
-       cdnImageUrl = reader.getRequiredProperty("cdn.image.url");
+        cdnImageUrl = reader.getRequiredProperty("cdn.image.url");
     }
 
     /**
@@ -197,6 +197,20 @@ public class PropertyService {
         return properties;
     }
 
+    public List<Property> getPropertyIdsByProjectId(Integer projectId) {
+        FIQLSelector selector = new FIQLSelector();
+        selector.addField("propertyId");
+        selector.addAndConditionToFilter("projectId==" + projectId);
+        return getProperties(selector).getResults();
+    }
+
+    public List<Property> getPropertyIdsByLocalityId(Integer localityId) {
+        FIQLSelector selector = new FIQLSelector();
+        selector.addField("propertyId");
+        selector.addAndConditionToFilter("localityId==" + localityId);
+        return getProperties(selector).getResults();
+    }
+
     public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
         PaginatedResponse<List<Property>> response = propertyDao.getProperties(selector);
 
@@ -303,10 +317,10 @@ public class PropertyService {
 
         return properties.get(0);
     }
-    
+
     /*
-     *  Only Solr call, no DB call specific changes 
-     *  should be added in this method
+     * Only Solr call, no DB call specific changes should be added in this
+     * method
      */
     public Property getPropertyFromSolr(int propertyId) {
         String jsonSelector = "{\"paging\":{\"rows\":1},\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyId

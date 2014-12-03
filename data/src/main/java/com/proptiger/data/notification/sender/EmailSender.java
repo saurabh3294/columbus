@@ -1,6 +1,5 @@
 package com.proptiger.data.notification.sender;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -8,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -124,13 +125,14 @@ public class EmailSender implements MediumSender {
             return null;
         }
 
-        HashMap<String, String> mailContentMap = getMailContentFromJsonTemplate(template);
-        if (mailContentMap == null || mailContentMap.isEmpty()) {
+        JsonElement jsonElement = new JsonParser().parse(template);
+        if (jsonElement == null) {
             return null;
         }
 
-        String subject = mailContentMap.get(SUBJECT);
-        String body = mailContentMap.get(BODY);
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        String subject = jsonObject.get(SUBJECT).getAsString();
+        String body = jsonObject.get(BODY).getAsString();
 
         if (subject == null || subject.isEmpty() || body == null || body.isEmpty()) {
             logger.info("Subject or Body is null or empty");
@@ -142,19 +144,5 @@ public class EmailSender implements MediumSender {
         mailBody.setSubject(subject);
         mailBody.setBody(body);
         return mailBody;
-    }
-
-    private HashMap<String, String> getMailContentFromJsonTemplate(String template) {
-        HashMap<String, String> map = new HashMap<String, String>();
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            map = mapper.readValue(template, HashMap.class);
-            logger.debug("MailContentMap: " + map.toString());
-            return map;
-        }
-        catch (Exception e) {
-            logger.error("Error while getting MailContent From JsonTemplate.", e.getStackTrace().toString());
-        }
-        return null;
     }
 }

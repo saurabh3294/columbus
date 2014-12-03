@@ -16,6 +16,7 @@ import com.proptiger.core.model.cms.City;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.data.model.WordpressPost;
+import com.proptiger.data.model.WordpressTerms;
 import com.proptiger.data.repo.BlogNewsDao;
 
 /**
@@ -30,8 +31,8 @@ public class BlogNewsService {
 
     @Autowired
     private CityService cityService;
-    
-    private Pattern htmlTagPattern = Pattern.compile("(?s)<[^>]*>(\\s*<[^>]*>)*");
+
+    private Pattern     htmlTagPattern = Pattern.compile("(?s)<[^>]*>(\\s*<[^>]*>)*");
 
     /**
      * Get blog for city name
@@ -127,11 +128,41 @@ public class BlogNewsService {
             }
             else {
                 Matcher matcher = htmlTagPattern.matcher(post.getPostContent());
-                int len = post.getPostContent().length() < contentLimit ? post.getPostContent().length(): contentLimit;
-                String contentWithoutHtmlTag = matcher.replaceAll("").substring(0, len);
-                post.setPostContent(contentWithoutHtmlTag);
+                String contentWithoutHtmlTag = matcher.replaceAll("");
+                int len = contentWithoutHtmlTag.length() < contentLimit ? contentWithoutHtmlTag.length(): contentLimit;
+                post.setPostContent(contentWithoutHtmlTag.substring(0, len));
             }
         }
+    }
+
+    /**
+     * Get news details for a particular postId
+     * 
+     * @param postId
+     * @return
+     */
+    public WordpressPost getNewsDetailsByPostId(Long postId) {
+        return blogNewsDao.findPublishedNewsByPostId(postId);
+    }
+
+    /**
+     * Get categories for a particular postId
+     * 
+     * @param postId
+     * @return
+     */
+    public List<WordpressTerms> getCategoriesByPostId(Long postId) {
+        return blogNewsDao.findNewsCategoriesByPostId(postId);
+    }
+
+    /**
+     * Get term details for a particular termTaxonomyId
+     * 
+     * @param termTaxonomyId
+     * @return
+     */
+    public WordpressTerms getTermDetailsByTermTaxonomyId(Long termTaxonomyId) {
+        return blogNewsDao.findNewsTermByTermTaxonomyId(termTaxonomyId);
     }
 
 }

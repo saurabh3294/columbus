@@ -1,6 +1,5 @@
 package com.proptiger.data.notification.model.payload;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,14 +7,13 @@ import java.util.List;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
+import com.proptiger.data.event.model.payload.NewsEventTypePayload;
 
-public class NotificationTypePayload implements Serializable {
+public class NotificationTypePayload extends BaseModel {
 
-    /**
-     * 
-     */
     private static final long                   serialVersionUID                = -8078901353675223123L;
 
     private String                              primaryKeyName;
@@ -49,13 +47,23 @@ public class NotificationTypePayload implements Serializable {
     }
 
     public void populatePayloadValues(EventTypePayload eventTypePayload) {
-        DefaultEventTypePayload defaultEventTypePayload = (DefaultEventTypePayload) eventTypePayload;
-        this.transactionIdName = defaultEventTypePayload.getTransactionKeyName();
-        this.transactionId = defaultEventTypePayload.getTransactionId();
-        this.transactionDateName = defaultEventTypePayload.getTransactionDateKeyName();
-        this.transactionDate = defaultEventTypePayload.getTransactionDateKeyValue();
-        this.oldValue = defaultEventTypePayload.getOldValue();
-        this.newValue = defaultEventTypePayload.getNewValue();
+        this.transactionIdName = eventTypePayload.getTransactionKeyName();
+        this.transactionId = eventTypePayload.getTransactionId();
+        this.transactionDateName = eventTypePayload.getTransactionDateKeyName();
+        this.transactionDate = eventTypePayload.getTransactionDateKeyValue();
+        this.primaryKeyName = eventTypePayload.getPrimaryKeyName();
+        this.primaryKeyValue = eventTypePayload.getPrimaryKeyValue();
+    }
+
+    public void populatePayloadValues(DefaultEventTypePayload eventTypePayload) {
+        populatePayloadValues((EventTypePayload) eventTypePayload);
+        this.oldValue = eventTypePayload.getOldValue();
+        this.newValue = eventTypePayload.getNewValue();
+    }
+
+    public void populatePayloadValues(NewsEventTypePayload eventTypePayload) {
+        populatePayloadValues((EventTypePayload) eventTypePayload);
+        this.extraAttributes.put("post_id", eventTypePayload.getPostId().toString());
     }
 
     public String getPrimaryKeyName() {

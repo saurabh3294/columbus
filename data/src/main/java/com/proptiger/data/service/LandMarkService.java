@@ -41,6 +41,9 @@ public class LandMarkService {
 
     @Autowired
     private LocalityService localityService;
+    
+    @Autowired
+    private ImageEnricher   imageEnricher;
 
     /**
      * Get the locality amenities based on locality id and amenity name. If
@@ -53,16 +56,24 @@ public class LandMarkService {
      */
     @Cacheable(value = Constants.CacheName.LOCALITY_AMENITY)
     public List<LandMark> getLocalityAmenities(int localityId, String amenityName) {
-        Locality locality = localityService.getLocality(localityId);
-
-        if (amenityName == null || amenityName.isEmpty()) {
-            return getLandMarksForLocality(locality, null, null);
-        }
-        else {
-            return getLandMarksForLocality(locality, amenityName, null);
-        }
+        return getLocalityAmenitiesWithSelector(localityId, amenityName, null);
     }
 
+    public List<LandMark> getLocalityAmenitiesWithSelector(int localityId, String amenityName, Selector selector){
+        Locality locality = localityService.getLocality(localityId);
+        List<LandMark> amenities;
+
+        if (amenityName == null || amenityName.isEmpty()) {
+            amenities = getLandMarksForLocality(locality, null, null);
+        }
+        else {
+            amenities = getLandMarksForLocality(locality, amenityName, null);
+        }
+        if (selector != null && selector.getFields().contains("images")) {
+            imageEnricher.setAmenitiesImages(amenities);
+        }
+        return amenities;
+    }
     /**
      * This method will take the cityId or list of localities and select the
      * locality with highest priority. Then return the amenites of that

@@ -19,6 +19,7 @@ import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.service.trend.TrendReportAggregator;
 import com.proptiger.data.service.trend.TrendReportService;
@@ -33,28 +34,32 @@ public class TrendReportController extends BaseController {
     @Autowired
     TrendReportAggregator trendReportDao;
 
+    @RequestMapping("app/v1/report/download")
+    @ResponseBody
+    public void downloadTrendReport(HttpServletResponse response, String key) throws Exception {
+
+        File file = trendReportService.getReportFileByKey(key);
+        makeHTTPServletResponse(response, file);
+    }
+
     @Intercepted.TrendReport
     @RequestMapping("app/v1/report/price-and-absorption")
     @ResponseBody
-    public void getTrendReport(
-            HttpServletResponse response,
-            FIQLSelector selector) throws Exception {
+    public APIResponse getTrendReport(FIQLSelector selector) throws Exception {
 
-        File file = trendReportService.getTrendReport(selector);
-        makeHTTPServletResponse(response, file);
+        String filekey = trendReportService.getTrendReport(selector);
+        return new APIResponse(filekey);
     }
-    
+
     @Intercepted.TrendReport
     @RequestMapping("app/v1/report/price-and-absorption/catchment/{catchmentId}")
     @ResponseBody
-    public void getTrendReportByCatchmentId(
-            HttpServletResponse response,
-            @PathVariable Integer catchmentId,
-            FIQLSelector selector) throws Exception {
+    public APIResponse getTrendReportByCatchmentId(@PathVariable Integer catchmentId, FIQLSelector selector)
+            throws Exception {
 
         ActiveUser user = SecurityContextUtils.getActiveUser();
-        File file = trendReportService.getTrendReportByCatchmentId(catchmentId, selector, user);
-        makeHTTPServletResponse(response, file);
+        String filekey = trendReportService.getTrendReportByCatchmentId(catchmentId, selector, user);
+        return new APIResponse(filekey);
     }
 
     private void makeHTTPServletResponse(HttpServletResponse response, File file) {

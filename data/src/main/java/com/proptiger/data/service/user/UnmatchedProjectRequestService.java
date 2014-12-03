@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 
@@ -29,9 +29,10 @@ public class UnmatchedProjectRequestService {
     @Autowired
     private PropertyReader          propertyReader;
     
-    @Autowired
-    private UserDao userDao;
 
+    @Autowired
+    private UserService userService;
+    
     private static Logger           logger = LoggerFactory.getLogger(UnmatchedProjectRequestService.class);
 
     /**
@@ -40,9 +41,10 @@ public class UnmatchedProjectRequestService {
      * @return
      */
     public boolean handleUnmatchedProjectRequest(UnmatchedProjectDetails unmatchedProjectDetails, ActiveUser userInfo) {
-        User user = userDao.findById(userInfo.getUserIdentifier());
+        User user = userService.getUserById(userInfo.getUserIdentifier());
+        UserContactNumber priorityContact = userService.getTopPriorityContact(user.getId());
         unmatchedProjectDetails.setUserEmail(user.getEmail());
-        unmatchedProjectDetails.setContact(Long.valueOf(user.getPriorityContactNumber()));
+        unmatchedProjectDetails.setContact(Long.valueOf(priorityContact != null? priorityContact.getContactNumber(): "0"));
         unmatchedProjectDetails.setUserName(user.getFullName());
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.UNMATCHED_PROJECT_INTERNAL,

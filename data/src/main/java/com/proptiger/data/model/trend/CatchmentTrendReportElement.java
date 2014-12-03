@@ -202,8 +202,8 @@ public class CatchmentTrendReportElement implements Serializable {
                 projectName,
                 builderName,
                 phaseName,
-                getDateDisplay(launchDate),
-                getDateDisplay(completionDate),
+                launchDate,
+                completionDate,
                 locality,
                 latitude,
                 longitude,
@@ -229,6 +229,7 @@ public class CatchmentTrendReportElement implements Serializable {
         return reportRows;
     }
     
+    @SuppressWarnings("unused")
     private String getDateDisplay(Date date){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return (date == null ? "null" : sdf.format(date));

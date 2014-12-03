@@ -29,7 +29,9 @@ public class PriceChangeNotificationMessageProcessor extends NotificationMessage
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
         Integer propertyId = Integer.parseInt((String) notificationTypePayload.getPrimaryKeyValue());
-        List<PortfolioListing> portfolioListings = getPropertyListingsByPropertyId(unsubscribedUserList, propertyId);
+        List<PortfolioListing> portfolioListings = getPortfolioListingsByPropertyId(propertyId);
+        portfolioListings = removeUsersFromPortfolioListings(unsubscribedUserList, portfolioListings);
+        
         if (portfolioListings == null) {
             logger.debug("No portfolio listing found for property id : " + propertyId);
             return payloadMap;
