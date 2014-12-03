@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,8 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
-import com.proptiger.core.util.SecurityContextUtils;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.SubscriptionType;
 import com.proptiger.data.notification.model.UserNotificationTypeSubscription;
@@ -29,8 +31,8 @@ import com.proptiger.data.service.user.UserService;
  * 
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/notification")
-public class NotificationSubscriptionController {
+@RequestMapping(value = "data/v1/entity")
+public class NotificationSubscriptionController extends BaseController {
 
     @Autowired
     private UserNotificationTypeSubscriptionService subscriptionService;
@@ -46,15 +48,14 @@ public class NotificationSubscriptionController {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/subscribe", method = RequestMethod.POST)
-    public APIResponse subscribeToNotifications(@RequestBody List<NotificationTypeEnum> notificationTypes) {
+    @RequestMapping(value = "/user/notification/subscribe", method = RequestMethod.POST)
+    public APIResponse subscribeToNotifications(
+            @RequestBody List<NotificationTypeEnum> notificationTypes,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
 
-        ActiveUser activeUser = SecurityContextUtils.getActiveUser();
-        if (activeUser == null || activeUser.getUserId() == null) {
-            return new APIResponse(ResponseCodes.BAD_CREDENTIAL, "Please login for subscribing to notifications.");
-        }
+        User user = new User();
+        user.setId(userInfo.getUserIdentifier());
 
-        User user = userService.getUserById(Integer.parseInt(activeUser.getUserId()));
         NotificationSubscriptionRequest request = new NotificationSubscriptionRequest(
                 user,
                 notificationTypes,
@@ -77,15 +78,14 @@ public class NotificationSubscriptionController {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/unsubscribe", method = RequestMethod.POST)
-    public APIResponse unsubscribeToNotifications(@RequestBody List<NotificationTypeEnum> notificationTypes) {
+    @RequestMapping(value = "/user/notification/unsubscribe", method = RequestMethod.POST)
+    public APIResponse unsubscribeToNotifications(
+            @RequestBody List<NotificationTypeEnum> notificationTypes,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
 
-        ActiveUser activeUser = SecurityContextUtils.getActiveUser();
-        if (activeUser == null || activeUser.getUserId() == null) {
-            return new APIResponse(ResponseCodes.BAD_CREDENTIAL, "Please login for unsubscribing to notifications.");
-        }
+        User user = new User();
+        user.setId(userInfo.getUserIdentifier());
 
-        User user = userService.getUserById(Integer.parseInt(activeUser.getUserId()));
         NotificationSubscriptionRequest request = new NotificationSubscriptionRequest(
                 user,
                 notificationTypes,
@@ -110,7 +110,7 @@ public class NotificationSubscriptionController {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/update-subscription", method = RequestMethod.POST)
+    @RequestMapping(value = "/notification/update-subscription", method = RequestMethod.POST)
     public APIResponse updateNotificationSubscription(@Valid @RequestBody NotificationSubscriptionRequest request) {
 
         List<User> registeredUsers = new ArrayList<User>();
