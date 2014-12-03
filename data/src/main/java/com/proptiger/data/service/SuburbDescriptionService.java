@@ -60,7 +60,7 @@ public class SuburbDescriptionService {
      * @return
      */
     public String getSuburbDescriptionUsingTemplate(Integer suburbId) {
-        Suburb suburb = suburbService.getSuburb(suburbId);
+        Suburb suburb = suburbService.getSuburb(suburbId, false, new Selector());
         if (suburb == null) {
             throw new ResourceNotAvailableException(ResourceType.SUBURB, suburbId, ResourceTypeAction.GET);
         }

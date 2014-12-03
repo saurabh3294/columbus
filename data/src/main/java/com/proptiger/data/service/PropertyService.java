@@ -26,6 +26,7 @@ import com.google.gson.Gson;
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.CouponCatalogue;
@@ -33,6 +34,9 @@ import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.Listing.OtherInfo;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.filter.AbstractQueryBuilder;
+import com.proptiger.core.model.filter.FieldsMapLoader;
+import com.proptiger.core.model.filter.JPAQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
@@ -40,11 +44,7 @@ import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyReader;
-import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.filter.AbstractQueryBuilder;
-import com.proptiger.data.model.filter.FieldsMapLoader;
-import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.repo.PropertyDao;
 
 /**
@@ -460,5 +460,9 @@ public class PropertyService {
         }
 
         return couponCatalogueService;
+    }
+    
+    public Integer getProjectIdFromDeletedPropertyId(Integer propertyId){
+        return projectService.getProjectIdForPropertyId(propertyId);
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
@@ -24,7 +25,6 @@ import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
-import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement.TypeOfData;
 import com.proptiger.data.service.PropertyService;

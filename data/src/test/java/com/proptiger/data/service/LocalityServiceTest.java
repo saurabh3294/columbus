@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
 import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.service.AbstractTest;
 
 public class LocalityServiceTest extends AbstractTest{
     @Autowired
