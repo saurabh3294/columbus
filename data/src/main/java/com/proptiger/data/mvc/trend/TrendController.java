@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -58,6 +60,12 @@ public class TrendController extends BaseController {
                 rangeField,
                 rangeValue,
                 selector);
+        String[] names = {"Sam", "Pamela", "Dave", "Pascal", "Erik"};
+        IntStream.range(0, names.length)
+          .filter(i -> names[i].length() <= i)
+          .mapToObj(i -> names[i])
+          .collect(Collectors.toList());
+        System.out.println("AAAAA");
         return new APIResponse(super.filterFields(paginatedResponse, getFilterFieldSet(selector), PaginatedResponse.class));
     }
 

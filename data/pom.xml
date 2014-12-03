@@ -8,14 +8,14 @@
 	<name>DAL Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<spring.version>3.2.2.RELEASE</spring.version>
-		<spring.security.version>3.2.2.RELEASE</spring.security.version>
+		<spring.version>4.1.2.RELEASE</spring.version>
+		<spring.security.version>3.2.3.RELEASE</spring.security.version>
 		<jackson.version>2.2.2</jackson.version>
-		<jdk.version>1.7</jdk.version>
+		<jdk.version>1.8</jdk.version>
 		<solr.version>4.4.0</solr.version>
 		<slf4j.version>1.7.5</slf4j.version>
 		<logback.version>1.0.13</logback.version>
-		<aspectj.version>1.6.11</aspectj.version>
+		<aspectj.version>1.8.0</aspectj.version>
 		<shiro.version>1.2.1</shiro.version>
 		<spring.social.version>1.1.0.RELEASE</spring.social.version>
 		<spring.social.facebook.version>1.1.0.M4</spring.social.facebook.version>
@@ -26,7 +26,7 @@
 		<profile>
 			<id>develop</id>
 			<properties>
-				<midl-core.version>develop-SNAPSHOT</midl-core.version>
+				<midl-core.version>develop</midl-core.version>
 			</properties>
 		</profile>
 		<profile>
@@ -50,7 +50,7 @@
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.1</version>
+				<version>2.2</version>
 				<configuration>
 					<systemProperties>
 						<JAVA_OPTS>-Xms256m -Xmx1024m
