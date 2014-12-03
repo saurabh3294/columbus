@@ -16,8 +16,8 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationExceptio
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.exception.ResourceAlreadyExistException;
+import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.pojo.FIQLSelector;
-import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.trend.Graph;
 import com.proptiger.data.repo.trend.GraphDao;
 

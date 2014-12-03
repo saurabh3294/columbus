@@ -22,7 +22,7 @@ import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.enums.ImageResolution;
-import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.service.ImageService;
 
 /**
@@ -132,6 +132,19 @@ public class ImageController extends BaseController {
     public @ResponseBody
     Object getResolutionEnumerations() {
         return new APIResponse(ImageResolution.values());
+    }
+    
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    Object getImageById(@RequestParam(required = false) String selector, @PathVariable long id) {
+        Image image = imageService.getImage(id);
+
+        Selector imageSelector = new Selector();
+        if (selector != null) {
+            imageSelector = super.parseJsonToObject(selector, Selector.class);
+        }
+
+        return new APIResponse(super.filterFields(image, imageSelector.getFields()));
     }
 
 }

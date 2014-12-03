@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 import org.testng.annotations.Test;
 
+import com.proptiger.core.model.filter.JPAQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
-import com.proptiger.data.model.filter.JPAQueryBuilder;
 
 public class TestTrendDaoFieldSwitcher {
 

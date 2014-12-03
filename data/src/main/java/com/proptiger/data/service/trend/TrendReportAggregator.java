@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;

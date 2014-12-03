@@ -28,9 +28,14 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.filter.AbstractQueryBuilder;
+import com.proptiger.core.model.filter.FieldsMapLoader;
+import com.proptiger.core.model.filter.JPAQueryBuilder;
+import com.proptiger.core.model.filter.SolrQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
@@ -39,12 +44,7 @@ import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
-import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.filter.AbstractQueryBuilder;
-import com.proptiger.data.model.filter.FieldsMapLoader;
-import com.proptiger.data.model.filter.JPAQueryBuilder;
-import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.util.SolrResponseReader;
 
 /**
