@@ -418,7 +418,7 @@
 		<dependency>
 			<groupId>com.proptiger</groupId>
 			<artifactId>midl-core</artifactId>
-			<version>develop</version>
+			<version>${midl-core.version}</version>
 		</dependency>
 		
 		<dependency>

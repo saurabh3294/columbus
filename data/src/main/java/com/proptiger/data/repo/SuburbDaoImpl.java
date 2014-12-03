@@ -15,6 +15,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.model.filter.SolrQueryBuilder;

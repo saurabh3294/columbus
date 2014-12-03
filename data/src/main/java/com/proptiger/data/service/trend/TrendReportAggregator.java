@@ -25,7 +25,6 @@ import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
-import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement.TypeOfData;
 import com.proptiger.data.service.PropertyService;
