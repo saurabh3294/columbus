@@ -44,8 +44,6 @@ import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.LeadTaskStatusReason;
 import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.model.marketplace.TaskOfferedListingMapping;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.MasterLeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
