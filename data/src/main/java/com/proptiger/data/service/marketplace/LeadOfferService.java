@@ -776,12 +776,13 @@ public class LeadOfferService {
             if (username == null) {
                 username = leadOfferInDB.getAgent().getFullName();
             }
-
+            
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
                     .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
                     .setMailCC(leadOfferInDB.getAgent().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail())
-                    .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
+                    .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">")
+                    .setMailBCC(propertyReader.getRequiredProperty(PropertyKeys.MARKETPLACE_BCC_EMAIL));
             mailSender.sendMailUsingAws(mailDetails);
         }
     }
@@ -1054,7 +1055,8 @@ public class LeadOfferService {
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
                 senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername())
                 .setReplyTo(activeUser.getUsername())
-                .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
+                .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">")
+                .setMailBCC(propertyReader.getRequiredProperty(PropertyKeys.MARKETPLACE_BCC_EMAIL));
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
     }
