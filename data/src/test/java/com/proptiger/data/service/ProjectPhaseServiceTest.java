@@ -17,6 +17,7 @@ import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.ProjectSupply;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.SecondaryPrice;
 import com.proptiger.data.repo.ProjectPhaseDao;

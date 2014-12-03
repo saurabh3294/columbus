@@ -12,7 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.proptiger.data.service.AbstractTest;
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.util.MSExcelUtils;
 
 public class TestTrendReport extends AbstractTest{

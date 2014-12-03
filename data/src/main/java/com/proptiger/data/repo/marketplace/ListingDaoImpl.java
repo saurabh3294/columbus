@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.Status;
 import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.filter.AbstractQueryBuilder;
+import com.proptiger.core.model.filter.JPAQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
-import com.proptiger.data.model.filter.AbstractQueryBuilder;
-import com.proptiger.data.model.filter.JPAQueryBuilder;
 
 /**
  * @author Rajeev Pandey

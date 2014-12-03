@@ -35,6 +35,7 @@ import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.core.model.cms.LandMarkTypes;
@@ -45,16 +46,15 @@ import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.model.proptiger.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.core.model.proptiger.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
-import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
@@ -916,11 +916,12 @@ public class LocalityService {
      * 
      * @param suburb
      */
-    public void updateSuburbRatingAndReviewDetails(Suburb suburb) {
+    public LocalityAverageRatingByCategory getSuburbRatingAndReviewDetails(Suburb suburb) {
 
         LocalityAverageRatingByCategory avgRatingsOfLocalityCategory = localityRatingService
                 .getAvgRatingsOfSuburbByCategory(suburb.getId());
-        suburb.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
+        
+        return avgRatingsOfLocalityCategory;
     }
 
     public int getTopRatedLocalityInCityOrSuburb(String locationType, int locationId) {

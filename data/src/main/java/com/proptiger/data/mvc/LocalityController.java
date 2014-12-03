@@ -342,4 +342,10 @@ public class LocalityController extends BaseController {
                 super.filterFields(localities.getResults(), localitySelector.getFields()),
                 localities.getTotalCount());
     }
+    
+    @RequestMapping(value = "data/v1/entity/locality/{id}/active-inactive")
+    @ResponseBody
+    public APIResponse getActiveInactiveLocality(@PathVariable int id){
+        return new APIResponse(localityService.getActiveOrInactiveLocalityById(id));
+    }
 }
