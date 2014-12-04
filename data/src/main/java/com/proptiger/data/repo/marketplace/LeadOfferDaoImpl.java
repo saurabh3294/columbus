@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -102,8 +103,36 @@ public class LeadOfferDaoImpl {
         else if ("overdue".equalsIgnoreCase(dueDate)) {
             conditions.add(cb.lessThan(leadTaskJoin.<Date> get("scheduledFor"), cb.currentTimestamp()));
         }
-
         cq.where(conditions.toArray(new Predicate[0]));
+
+        int flagSinglePresent = 0;
+
+        if (selector.getSort() != null && selector.getSort() != "") {
+            String[] sortFields = selector.getSort().split(",");
+            List<Order> orders = new ArrayList<Order>();
+            for (String sortField : sortFields) {
+                if (sortField.substring(0, 1).equals("-")) {
+                    try {
+                        orders.add(cb.desc(c.get(sortField.substring(1))));
+                        flagSinglePresent = 1;
+                    }
+                    catch (Exception e) {
+                    }
+                }
+                else {
+                    try {
+                        orders.add(cb.asc(c.get(sortField)));
+                        flagSinglePresent = 1;
+                    }
+                    catch (Exception e) {
+                    }
+                }
+
+            }
+            if (flagSinglePresent == 1) {
+                cq.orderBy(orders);
+            }
+        }
 
         Query query = em.createQuery(cq);
 

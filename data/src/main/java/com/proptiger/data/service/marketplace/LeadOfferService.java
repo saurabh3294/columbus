@@ -203,13 +203,15 @@ public class LeadOfferService {
             FIQLSelector selector,
             List<Integer> statusIds,
             String dueDate) {
+        
+        Set<String> fields = selector.getFieldSet();
+              
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferDao.getLeadOffers(
                 agentId,
                 statusIds,
                 dueDate,
                 selector);
-
-        Set<String> fields = selector.getFieldSet();
+                
         enrichLeadOffers(paginatedResponse.getResults(), fields, agentId);
 
         return paginatedResponse;

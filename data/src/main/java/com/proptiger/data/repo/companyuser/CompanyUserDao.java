@@ -25,7 +25,7 @@ public interface CompanyUserDao extends JpaRepository<CompanyUser, Integer> {
     @Query("select C from CompanyUser CU join CU.company C where CU.userId in (?1)")
     public List<Company> findByAgentId(List<Integer> agentIds);
 
-    @Query("select CU from CompanyUser CU join fetch CU.company join fetch CU.academicQualification join fetch CU.companyCoverages where CU.userId = ?1")
+    @Query("select CU from CompanyUser CU join fetch CU.company C join fetch CU.address join fetch CU.academicQualification join fetch CU.companyCoverages where CU.userId = ?1")
     public CompanyUser findFullByUserId(Integer userId);
 
     @Query("select CU from CompanyUser CU join fetch CU.company C where CU.userId = ?1 ")
