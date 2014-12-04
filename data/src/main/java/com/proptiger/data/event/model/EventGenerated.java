@@ -1,13 +1,18 @@
 package com.proptiger.data.event.model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -31,40 +36,45 @@ public class EventGenerated extends BaseModel {
     @Column(name = "id")
     @Id
     @GeneratedValue
-    private int              id;
+    private int                                id;
 
     @Column(name = "data")
-    private String           data;
+    private String                             data;
 
-    @Transient
-    private EventType        eventType;
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
+    private EventType                          eventType;
 
     @Column(name = "event_type_id")
-    private Integer          eventTypeId;
+    private Integer                            eventTypeId;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private EventStatus      eventStatus;
+    private EventStatus                        eventStatus;
 
     @Column(name = "merged_event_id")
-    private Integer          mergedEventId;
+    private Integer                            mergedEventId;
 
     @Column(name = "expiry_date")
-    private Date             expiryDate;
+    private Date                               expiryDate;
 
     @Column(name = "event_type_unique_key")
-    private String           eventTypeUniqueKey;
+    private String                             eventTypeUniqueKey;
 
     @Transient
-    private EventTypePayload eventTypePayload;
+    private EventTypePayload                   eventTypePayload;
 
     @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date             createdAt;
+    private Date                               createdAt;
 
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date             updatedAt;
+    private Date                               updatedAt;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_type_id", referencedColumnName = "event_type_id")
+    private List<EventTypeToSubscriberMapping> subscriberMapping;
 
     @PreUpdate
     public void autoUpdateFields() {
@@ -165,6 +175,14 @@ public class EventGenerated extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<EventTypeToSubscriberMapping> getSubscriberMapping() {
+        return subscriberMapping;
+    }
+
+    public void setSubscriberMapping(List<EventTypeToSubscriberMapping> subscriberMapping) {
+        this.subscriberMapping = subscriberMapping;
     }
 
 }

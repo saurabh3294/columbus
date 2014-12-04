@@ -15,15 +15,14 @@ import com.proptiger.core.model.BaseModel;
 @Entity
 @Table(name = "notification.subscriber_config")
 public class SubscriberConfig extends BaseModel {
-  
+
     /**
      * 
      */
     private static final long serialVersionUID = 66872383451935024L;
 
     public enum ConfigName {
-        MaxActiveNotificationTypeCount,
-        MaxActiveNotificationMessageCount;
+        MaxActiveNotificationTypeCount, MaxActiveNotificationMessageCount, MaxVerifedEventCount;
     }
 
     @Column(name = "id")

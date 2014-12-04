@@ -53,36 +53,12 @@ public class RawDBEventGenerator {
                     + rawEventTableDetails.getId()
                     + " and table: "
                     + rawEventTableDetails.getTableName());
-            finalRawDBEventList.addAll(rawDBEvents);
 
-            // Updating the last accessed Transaction Key after generating the
-            // RawDBEvents
-            // TODO: Move this to the end where EventGenerated is being
-            // persisted to DB because we are storing this updated value in a
-            // static map. Therefore, if the code fails in between then the
-            // static map will still have the updated value.
-            if (!rawDBEvents.isEmpty()) {
-                rawEventTableDetails.setLastTransactionKeyValue(getLastAccessedTransactionId(
-                        rawDBEvents,
-                        rawDBEventTableConfig.getRawEventTableDetails().getTransactionKeyName()));
-            }
+            finalRawDBEventList.addAll(rawDBEvents);
         }
 
         logger.debug("Generated total " + finalRawDBEventList.size() + " RawDBEvents");
         return finalRawDBEventList;
-    }
-
-    private Long getLastAccessedTransactionId(List<RawDBEvent> rawDBEvents, String transactionKeyName) {
-        Long lastAccessedId = null;
-        for (RawDBEvent rawDBEvent : rawDBEvents) {
-            Number number = (Number) rawDBEvent.getNewDBValueMap().get(transactionKeyName);
-            Long transactionKey = number.longValue();
-            if (lastAccessedId == null || lastAccessedId < transactionKey) {
-                lastAccessedId = transactionKey;
-            }
-        }
-        logger.debug("Setting the LastAccessedTransactionID: " + lastAccessedId);
-        return lastAccessedId;
     }
 
 }

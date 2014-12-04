@@ -1,7 +1,5 @@
 package com.proptiger.data.notification.model;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,13 +14,10 @@ import com.proptiger.core.model.BaseModel;
 @Table(name = "notification.subscriber")
 public class Subscriber extends BaseModel {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 7389423816245412201L;
 
     public enum SubscriberName {
-        Notification;
+        Notification, Seo;
     }
 
     @Column(name = "id")
@@ -34,8 +29,8 @@ public class Subscriber extends BaseModel {
     @Enumerated(EnumType.STRING)
     private SubscriberName subscriberName;
 
-    @Column(name = "last_event_date")
-    private Date           lastEventDate;
+    @Column(name = "last_event_generated_id")
+    private Integer        lastEventGeneratedId;
 
     public int getId() {
         return id;
@@ -53,12 +48,12 @@ public class Subscriber extends BaseModel {
         this.subscriberName = subscriberName;
     }
 
-    public Date getLastEventDate() {
-        return lastEventDate;
+    public Integer getLastEventGeneratedId() {
+        return lastEventGeneratedId;
     }
 
-    public void setLastEventDate(Date lastEventDate) {
-        this.lastEventDate = lastEventDate;
+    public void setLastEventGeneratedId(Integer lastEventGeneratedId) {
+        this.lastEventGeneratedId = lastEventGeneratedId;
     }
 
 }

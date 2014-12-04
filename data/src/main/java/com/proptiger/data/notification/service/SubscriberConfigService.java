@@ -1,6 +1,5 @@
 package com.proptiger.data.notification.service;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,9 +15,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.util.Constants;
-import com.proptiger.core.util.DateUtil;
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.notification.model.Subscriber;
 import com.proptiger.data.notification.model.Subscriber.SubscriberName;
 import com.proptiger.data.notification.model.SubscriberConfig;
@@ -39,11 +35,8 @@ public class SubscriberConfigService {
     private SubscriberDao                          subscriberDao;
 
     @Autowired
-    private EventGeneratedService                  eventGeneratedService;
+    private ApplicationContext                     applicationContext;
 
-    @Autowired
-    private ApplicationContext                    applicationContext;
-    
     private static Map<SubscriberName, Subscriber> subscriberMap = new HashMap<SubscriberName, Subscriber>();
 
     @PostConstruct
@@ -69,7 +62,9 @@ public class SubscriberConfigService {
     public Integer getMaxActiveNotificationTypeCount() {
         SubscriberName subscriberName = Subscriber.SubscriberName.Notification;
         ConfigName configName = SubscriberConfig.ConfigName.MaxActiveNotificationTypeCount;
-        String configValue = applicationContext.getBean(SubscriberConfigService.class).getSubscriberConfig(subscriberName, configName);
+        String configValue = applicationContext.getBean(SubscriberConfigService.class).getSubscriberConfig(
+                subscriberName,
+                configName);
         if (configValue == null) {
             return Integer.MAX_VALUE;
         }
@@ -84,52 +79,24 @@ public class SubscriberConfigService {
     public Integer getMaxActiveNotificationMessageCount() {
         SubscriberName subscriberName = Subscriber.SubscriberName.Notification;
         ConfigName configName = SubscriberConfig.ConfigName.MaxActiveNotificationMessageCount;
-        String configValue = applicationContext.getBean(SubscriberConfigService.class).getSubscriberConfig(subscriberName, configName);
+        String configValue = applicationContext.getBean(SubscriberConfigService.class).getSubscriberConfig(
+                subscriberName,
+                configName);
         if (configValue == null) {
             return Integer.MAX_VALUE;
         }
         return Integer.parseInt(configValue);
     }
 
-    /**
-     * Gets the date of last event that was read by notification
-     * 
-     * @return
-     */
-    public Date getLastEventDateReadByNotification() {
-        Subscriber subscriber = subscriberMap.get(Subscriber.SubscriberName.Notification);
-        if (subscriber == null) {
-            logger.error("Notification Subscriber not found in DB");
+    public Integer getMaxSubscriberEventTypeCount(SubscriberName subscriberName) {
+        ConfigName configName = SubscriberConfig.ConfigName.MaxVerifedEventCount;
+        String configValue = applicationContext.getBean(SubscriberConfigService.class).getSubscriberConfig(
+                subscriberName,
+                configName);
+        if (configValue == null) {
+            return Integer.MAX_VALUE;
         }
-        Date lastEventDate = subscriber.getLastEventDate();
-        logger.debug("Date of last consumend event by Notification Subscriber is " + lastEventDate);
-
-        if (lastEventDate == null) {
-            EventGenerated eventGenerated = eventGeneratedService.getLatestEventGenerated();
-            logger.debug("Latest event generated: " + eventGenerated);
-
-            if (eventGenerated != null) {
-                // Subtracting 1 second to include current events.
-                lastEventDate = DateUtil.addSeconds(eventGenerated.getCreatedAt(), -1);
-            }
-            else {
-                lastEventDate = new Date();
-            }
-            logger.info("Setting last event date for Notification Subscriber for the first time as " + lastEventDate);
-            setLastEventDateReadByNotification(lastEventDate);
-        }
-        return lastEventDate;
-    }
-
-    /**
-     * Sets the date of event that was last read by Notification
-     * 
-     * @param lastEventDate
-     */
-    public void setLastEventDateReadByNotification(Date lastEventDate) {
-        Subscriber subscriber = subscriberMap.get(Subscriber.SubscriberName.Notification);
-        subscriber.setLastEventDate(lastEventDate);
-        subscriberDao.updateLastEventDateById(subscriber.getId(), lastEventDate);
+        return Integer.valueOf(configValue);
     }
 
     @Cacheable(value = Constants.CacheName.NOTIFICATION_SUBSCRIBER_CONFIG, key = "#subscriberName+':'+#configName")
@@ -141,5 +108,18 @@ public class SubscriberConfigService {
             return null;
         }
         return configs.get(0).getConfigValue();
+    }
+
+    public void setLastEventGeneratedIdBySubscriberName(Integer lastEventGeneratedId, SubscriberName subscriberName) {
+        setLastEventGeneratedIdBySubscriber(lastEventGeneratedId, getSubscriber(subscriberName));
+    }
+
+    public void setLastEventGeneratedIdBySubscriber(Integer lastEventGeneratedId, Subscriber subscriber) {
+        subscriber.setLastEventGeneratedId(lastEventGeneratedId);
+        subscriberDao.updateLastEventGeneratedId(subscriber.getId(), lastEventGeneratedId);
+    }
+
+    public Subscriber getSubscriber(SubscriberName subscriberName) {
+        return subscriberMap.get(subscriberName);
     }
 }

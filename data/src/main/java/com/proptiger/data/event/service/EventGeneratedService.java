@@ -23,8 +23,10 @@ import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.repo.EventGeneratedDao;
-import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
+import com.proptiger.data.notification.model.Subscriber;
+import com.proptiger.data.notification.model.Subscriber.SubscriberName;
+import com.proptiger.data.notification.service.SubscriberConfigService;
 import com.proptiger.data.util.Serializer;
 
 @Service
@@ -39,9 +41,6 @@ public class EventGeneratedService {
     private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Autowired
-    private RawEventTableDetailsDao           rawEventTableDetailsDao;
-
-    @Autowired
     private RawEventToEventTypeMappingDao     dbEventMappingDao;
 
     @Autowired
@@ -49,6 +48,9 @@ public class EventGeneratedService {
 
     @Autowired
     private ApplicationContext                applicationContext;
+
+    @Autowired
+    private SubscriberConfigService           subscriberConfigService;
 
     /**
      * Persisting EventGenerateds in DB and updating the last read transaction
@@ -58,12 +60,16 @@ public class EventGeneratedService {
      * @param rawEventTableDetails
      */
     @Transactional
-    public void persistEvents(List<EventGenerated> eventGenerateds, RawEventTableDetails rawEventTableDetails) {
+    public void persistEvents(
+            List<EventGenerated> eventGenerateds,
+            RawEventTableDetails rawEventTableDetails,
+            Long transactionId) {
+
         applicationContext.getBean(this.getClass()).saveOrUpdateEvents(eventGenerateds);
-        rawEventTableDetailsDao.updateLastTransactionKeyValueById(
-                rawEventTableDetails.getId(),
-                rawEventTableDetails.getLastTransactionKeyValue());
-        logger.info("Updated the Last Transaction Value " + rawEventTableDetails.getLastTransactionKeyValue()
+
+        eventTypeMappingService.updateLastAccessedTransactionId(rawEventTableDetails, transactionId);
+
+        logger.info(" Updated the Last Transaction Value " + transactionId
                 + " for table Config "
                 + rawEventTableDetails.getId());
     }
@@ -92,22 +98,6 @@ public class EventGeneratedService {
                 .findByEventStatusAndExpiryDateLessThanEqualOrderByCreatedAtAsc(
                         EventGenerated.EventStatus.Processed,
                         new Date());
-        populateEventsDataAfterLoad(listEventGenerateds);
-        return listEventGenerateds;
-    }
-
-    /**
-     * Get EventGenerateds from DB which are in Verified state and where last
-     * updated after the specified date
-     * 
-     * @param fromDate
-     * @return
-     */
-    public List<EventGenerated> getVerifiedEventsFromDate(Date fromDate) {
-        List<EventGenerated> listEventGenerateds = eventGeneratedDao
-                .findByEventStatusAndUpdatedAtGreaterThanOrderByUpdatedAtAsc(
-                        EventGenerated.EventStatus.Verified,
-                        fromDate);
         populateEventsDataAfterLoad(listEventGenerateds);
         return listEventGenerateds;
     }
@@ -249,6 +239,7 @@ public class EventGeneratedService {
         }
 
         for (String attributeName : rawDBEvent.getNewDBValueMap().keySet()) {
+
             RawDBEventAttributeConfig rawDBEventAttributeConfig = rawDBEventOperationConfig
                     .getRawDBEventAttributeConfig(attributeName);
             if (rawDBEventAttributeConfig != null && rawDBEventAttributeConfig.getListEventTypes() != null) {
@@ -266,8 +257,63 @@ public class EventGeneratedService {
             }
         }
 
-        logger.debug("Number of Events Generated are: " + eventGeneratedList.size());
+        logger.info(" Number of Events Generated are: " + eventGeneratedList.size());
+
         return eventGeneratedList;
+    }
+
+    /**
+     * Get specified latest verified EventGenerateds for a given Subscriber. If
+     * eventTypeNames are not specified then all latest verified EventGenerateds
+     * will be returned
+     * 
+     * @param subscriberName
+     * @param eventTypeNames
+     * @return
+     */
+    public List<EventGenerated> getLatestVerifiedEventGeneratedsBySubscriber(
+            SubscriberName subscriberName,
+            List<String> eventTypeNames) {
+
+        List<EventGenerated> listEventGenerateds = new ArrayList<EventGenerated>();
+        if (checkAndSetSubscriberLastEventId(subscriberName)) {
+            return listEventGenerateds;
+        }
+
+        logger.debug("Finding latest event generated for the Subscriber " + subscriberName);
+        Integer maxEventCount = subscriberConfigService.getMaxSubscriberEventTypeCount(subscriberName);
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, maxEventCount);
+
+        if (eventTypeNames == null) {
+            listEventGenerateds = eventGeneratedDao.getLatestEventGeneratedBySubscriber(
+                    EventStatus.Verified,
+                    subscriberName,
+                    pageable);
+        }
+        else {
+            listEventGenerateds = eventGeneratedDao.getLatestEventGeneratedBySubscriber(
+                    EventStatus.Verified,
+                    subscriberName,
+                    eventTypeNames,
+                    pageable);
+        }
+
+        logger.debug("Number of Event Generated being picked up: " + listEventGenerateds.size());
+        populateEventsDataAfterLoad(listEventGenerateds);
+
+        return listEventGenerateds;
+    }
+
+    private boolean checkAndSetSubscriberLastEventId(SubscriberName subscriberName) {
+        Subscriber subscriber = subscriberConfigService.getSubscriber(subscriberName);
+        if (subscriber.getLastEventGeneratedId() == null) {
+            EventGenerated lastEventGenerated = getLatestEventGenerated();
+            if (lastEventGenerated != null) {
+                subscriberConfigService.setLastEventGeneratedIdBySubscriber(lastEventGenerated.getId(), subscriber);
+            }
+            return true;
+        }
+        return false;
     }
 
     private List<EventGenerated> generateEvents(

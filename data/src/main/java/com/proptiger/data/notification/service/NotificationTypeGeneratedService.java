@@ -16,6 +16,7 @@ import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
+import com.proptiger.data.notification.model.Subscriber.SubscriberName;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypeUpdateHistory;
 import com.proptiger.data.notification.processor.NotificationTypeProcessor;
@@ -136,7 +137,9 @@ public class NotificationTypeGeneratedService {
     @Transactional
     public void persistNotificationTypes(EventGenerated eventGenerated, List<NotificationTypeGenerated> ntGeneratedList) {
         saveOrUpdateTypes(ntGeneratedList);
-        subscriberConfigService.setLastEventDateReadByNotification(eventGenerated.getUpdatedAt());
+        subscriberConfigService.setLastEventGeneratedIdBySubscriberName(
+                eventGenerated.getId(),
+                SubscriberName.Notification);
     }
 
     private Iterable<NotificationTypeGenerated> saveOrUpdateTypes(Iterable<NotificationTypeGenerated> notificationTypes) {

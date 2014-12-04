@@ -1,5 +1,7 @@
 package com.proptiger.data.event.generator;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,9 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawDBEvent;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.event.service.RawDBEventService;
+import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
 
 /**
  * This is the implementation of EventGenerator to generate events from DB
@@ -25,19 +29,22 @@ import com.proptiger.data.event.service.RawDBEventService;
 
 @Service
 public class DBEventGenerator implements EventGeneratorInterface {
-    private static Logger         logger = LoggerFactory.getLogger(DBEventGenerator.class);
+    private static Logger                     logger = LoggerFactory.getLogger(DBEventGenerator.class);
 
     @Autowired
-    private EventGeneratedService eventGeneratedService;
+    private EventGeneratedService             eventGeneratedService;
 
     @Autowired
-    private RawDBEventGenerator   rawDBEventGenerator;
+    private RawDBEventGenerator               rawDBEventGenerator;
 
     @Autowired
-    private RawDBEventService     rawDBEventService;
+    private RawDBEventService                 rawDBEventService;
+
+    @Autowired
+    private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Value("${event.raw.maxCount}")
-    private Integer               MAX_RAW_EVENT_COUNT;
+    private Integer                           MAX_RAW_EVENT_COUNT;
 
     @Override
     public boolean isEventGenerationRequired() {
@@ -62,14 +69,35 @@ public class DBEventGenerator implements EventGeneratorInterface {
         Integer eventCount = 0;
         List<RawDBEvent> rawDBEvents = rawDBEventGenerator.getRawDBEvents();
 
+        // Sort rawDBEvents in ascending order by transaction id
+        Collections.sort(rawDBEvents, new Comparator<RawDBEvent>() {
+            public int compare(RawDBEvent event1, RawDBEvent event2) {
+                Long txn1 = Long.parseLong((String) event1.getTransactionKeyValue());
+                Long txn2 = Long.parseLong((String) event2.getTransactionKeyValue());
+                if (txn1 > txn2) {
+                    return 1;
+                }
+                else if (txn1 < txn2) {
+                    return -1;
+                }
+                else {
+                    return 0;
+                }
+            }
+        });
+
         // TODO: Run below code in multiple threads
         for (RawDBEvent rawDBEvent : rawDBEvents) {
-            Object transactionId = rawDBEvent.getTransactionKeyValue();
+            Long transactionId = Long.parseLong((String) rawDBEvent.getTransactionKeyValue());
+            RawEventTableDetails rawEventTableDetails = rawDBEvent.getRawEventTableDetails();
             rawDBEvent = rawDBEventService.populateRawDBEventData(rawDBEvent);
 
-            // Skipping the raw DB Event if its old value is null
+            // Skipping the raw DB Event for invalid raw db event
             if (rawDBEvent == null) {
-                logger.error("Skipping RawDBEvent with transactionId " + transactionId);
+                logger.error("Skipping RawDBEvent with transactionId " + transactionId
+                        + " and table: "
+                        + rawEventTableDetails.getTableName());
+                eventTypeMappingService.updateLastAccessedTransactionId(rawEventTableDetails, transactionId);
                 continue;
             }
 
@@ -92,7 +120,7 @@ public class DBEventGenerator implements EventGeneratorInterface {
 
             // Persist the events and update the last read transaction value in
             // dbRawEventTableLog
-            eventGeneratedService.persistEvents(events, rawDBEvent.getRawEventTableDetails());
+            eventGeneratedService.persistEvents(events, rawEventTableDetails, transactionId);
         }
 
         return eventCount;
