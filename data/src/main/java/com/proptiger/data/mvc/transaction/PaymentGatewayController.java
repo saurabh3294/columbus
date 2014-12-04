@@ -6,13 +6,14 @@ package com.proptiger.data.mvc.transaction;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.config.scheduling.QuartzScheduledClass;
+import com.proptiger.core.config.scheduling.QuartzScheduledJob;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.service.transaction.CitrusPayPGService;
 
@@ -21,6 +22,7 @@ import com.proptiger.data.service.transaction.CitrusPayPGService;
  * 
  */
 @Controller
+@QuartzScheduledClass
 public class PaymentGatewayController {
     @Autowired
     private CitrusPayPGService citrusPayPGService;
@@ -32,7 +34,7 @@ public class PaymentGatewayController {
         return new APIResponse();
     }
 
-    @Scheduled(cron="0 */15 * * * *")
+    @QuartzScheduledJob(cron="0 */15 * * * ?")
     public void updateTransactions() {
         citrusPayPGService.updateRefundableTransaction();
     }

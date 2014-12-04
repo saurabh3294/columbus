@@ -81,4 +81,5 @@ public class EventTypeProcessorService {
 
         return transactionRow;
     }
+
 }

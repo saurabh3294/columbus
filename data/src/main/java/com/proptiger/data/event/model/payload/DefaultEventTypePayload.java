@@ -4,9 +4,6 @@ import com.proptiger.data.event.model.RawDBEvent;
 
 public class DefaultEventTypePayload extends EventTypePayload {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -8843513036785607117L;
     
     private Object oldValue;
@@ -30,8 +27,10 @@ public class DefaultEventTypePayload extends EventTypePayload {
 
     @Override
     public void populatePayloadValues(RawDBEvent rawDBEvent, String attributeName) {
-        this.oldValue = rawDBEvent.getOldDBValueMap().get(attributeName);
-        this.newValue = rawDBEvent.getNewDBValueMap().get(attributeName);
+        if (attributeName != null) {
+            this.oldValue = rawDBEvent.getOldDBValueMap().get(attributeName);
+            this.newValue = rawDBEvent.getNewDBValueMap().get(attributeName);
+        }
     }
 
 }

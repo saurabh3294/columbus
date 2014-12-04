@@ -13,10 +13,10 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Trend;
+import com.proptiger.core.model.filter.AbstractQueryBuilder;
+import com.proptiger.core.model.filter.JPAQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.model.filter.AbstractQueryBuilder;
-import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.util.ReflectionUtils;
 
 @Repository

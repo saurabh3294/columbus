@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.pojo.response.PaginatedResponse;
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageEnricher;
@@ -225,6 +225,12 @@ public class ProjectController extends BaseController {
 
         projectError.setProjectId(projectId);
         return new APIResponse(errorReportingService.saveReportError(projectError));
+    }
+    
+    @RequestMapping(value = "data/v1/entity/project/{id}/active-inactive", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getActiveInactiveProject(@PathVariable int id){
+        return new APIResponse(projectService.getActiveOrInactiveProjectById(id));
     }
 
 }

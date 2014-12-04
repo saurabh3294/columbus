@@ -11,8 +11,8 @@ import java.util.List;
 import org.restlet.util.Triple;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.core.util.DateUtil;
-import com.proptiger.data.service.AbstractTest;
 
 public class DateUtilTest extends AbstractTest {
 

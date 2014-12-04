@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.external.dto.LeadTaskDto;
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.service.LeadTaskService;
 

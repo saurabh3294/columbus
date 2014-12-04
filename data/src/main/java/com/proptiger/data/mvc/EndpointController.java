@@ -25,9 +25,9 @@ import org.springframework.web.servlet.mvc.condition.NameValueExpression;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.meta.DisableCaching;
 
 /**
  * This class finds all the API in dal project, with method name, and parameters

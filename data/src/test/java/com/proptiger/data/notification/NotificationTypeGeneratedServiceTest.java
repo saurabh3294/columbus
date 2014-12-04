@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.mocker.EventMockerService;
@@ -18,7 +19,6 @@ import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.service.EventTypeToNotificationTypeMappingService;
 import com.proptiger.data.notification.service.NotificationTypeGeneratedService;
-import com.proptiger.data.service.AbstractTest;
 
 /**
  * 
