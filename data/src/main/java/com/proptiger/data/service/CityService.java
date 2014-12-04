@@ -46,7 +46,7 @@ public class CityService {
 
     @Autowired
     private LandMarkService localityAmenityService;
-    
+
     @Autowired
     private ImageEnricher   imageEnricher;
 
@@ -59,14 +59,15 @@ public class CityService {
     @Cacheable(Constants.CacheName.CACHE)
     public List<City> getCityList(Selector selector, boolean useFieldSelector) {
         List<City> cities = cityDao.getCities(selector);
-        Set<String> fields = selector.getFields() == null ? new HashSet<String>(): selector.getFields();
+        Set<String> fields = (selector == null || selector.getFields() == null) ? new HashSet<String>() : selector
+                .getFields();
 
-        if(!useFieldSelector || fields.contains("amenties")){
+        if (!useFieldSelector || fields.contains("amenties")) {
             updateAirportInfo(cities);
         }
         return cities;
     }
-    
+
     /**
      * This method will return the city object based on city id.
      * 
@@ -78,44 +79,45 @@ public class CityService {
         if (city == null) {
             return null;
         }
-        Set<String> fields = selector.getFields() == null ? new HashSet<String>(): selector.getFields();
-        
+        Set<String> fields = selector.getFields() == null ? new HashSet<String>() : selector.getFields();
+
         /*
          * setting the airport data on selector or fieldSelector false.
          */
-        if(useFieldSelector == false || fields.contains("amenities")){
+        if (useFieldSelector == false || fields.contains("amenities")) {
             updateAirportInfo(city);
         }
         /*
          * Setting project and project Status count.
          */
-        if(useFieldSelector == false || fields.contains("projectCount") || fields.contains("projectStatusCount")){
+        if (useFieldSelector == false || fields.contains("projectCount") || fields.contains("projectStatusCount")) {
             updateProjectCountAndStatusCount(city);
         }
         /*
-         * Setting the avgBHKPricePerUnitArea only when demanded or fieldSelector false.
+         * Setting the avgBHKPricePerUnitArea only when demanded or
+         * fieldSelector false.
          */
-        if(useFieldSelector == false || fields.contains("avgBHKPricePerUnitArea")){
+        if (useFieldSelector == false || fields.contains("avgBHKPricePerUnitArea")) {
             city.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise(
-                "cityId",
-                cityId,
-                city.getDominantUnitType()));
+                    "cityId",
+                    cityId,
+                    city.getDominantUnitType()));
         }
         /*
          * Setting the image only when asked in selector or fieldSelector false.
          */
-        if(useFieldSelector == false || fields.contains("images")){
+        if (useFieldSelector == false || fields.contains("images")) {
             city.setImages(imageService.getImages(DomainObject.city, null, cityId));
         }
         /*
          * setting amenity Type count.
          */
-        if(useFieldSelector == false || fields.contains("amenityTypeCount")){
+        if (useFieldSelector == false || fields.contains("amenityTypeCount")) {
             updateAmenitiesAndAmenityTypeCount(city);
         }
         return city;
     }
-    
+
     private void updateAmenitiesAndAmenityTypeCount(City city) {
         if (city == null) {
             return;
@@ -146,7 +148,7 @@ public class CityService {
         Gson gson = new Gson();
         Selector selector = gson.fromJson(js, Selector.class);
         List<City> cities = getCityList(selector, false);
-        if(cities == null || cities.isEmpty()){
+        if (cities == null || cities.isEmpty()) {
             return null;
         }
 
