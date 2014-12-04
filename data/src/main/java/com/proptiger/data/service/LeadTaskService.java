@@ -267,8 +267,8 @@ public class LeadTaskService {
             LeadTask nextTask = getLeadTask(leadOffer.getNextTaskId());
             Date scheduledTime = nextTask.getScheduledFor();
             if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
-                    && leadOffer.getLastTask() != null && nextTask.getTaskStatusId() == LeadTaskService
-                            .getOfferdefaultleadtaskstatusmappingid()) {
+                    && !(leadOffer.getStatusId().equals(LeadOfferStatus.New.getId()) && nextTask.getTaskStatusId() == LeadTaskService
+                            .getOfferdefaultleadtaskstatusmappingid())) {
                 notificationService.sendCallDueNotification(notificationService.createNotificationForTask(
                         notificationTypeId,
                         nextTask));
