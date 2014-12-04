@@ -75,8 +75,16 @@ public class UserNotificationTypeSubscriptionService {
             userIds.add(user.getId());
         }
 
+        logger.debug("Updating Notification Subscription to " + request.getSubscriptionType()
+                + " for UserIds: "
+                + userIds
+                + " and notificationTypeIds: "
+                + notificationTypeIds);
+
         List<UserNotificationTypeSubscription> subscriptions = userNTSubscriptionDao
                 .findByNotificationTypeIdsAndUserIds(notificationTypeIds, userIds);
+
+        logger.debug("Got " + subscriptions.size() + " subscriptions from DB");
 
         Map<String, UserNotificationTypeSubscription> subscriptionMap = getSubscriptionMap(subscriptions);
 
@@ -94,16 +102,22 @@ public class UserNotificationTypeSubscriptionService {
             }
         }
 
+        logger.debug("Updated " + subscriptions.size() + " subscriptions");
+
         // Deleting entries from cache
         for (Integer notificationTypeId : notificationTypeIds) {
+            String keyPattern = "notificationTypeId:" + notificationTypeId + ":";
+
+            logger.debug("Deleting keyPattern: " + keyPattern + " from Cache");
             caching.deleteMultipleResponseFromCacheOnRegex(
-                    "notificationTypeId:" + notificationTypeId + ":",
+                    keyPattern,
                     Constants.CacheName.NOTIFICATION_SUBSCRIBED_USERS);
             caching.deleteMultipleResponseFromCacheOnRegex(
-                    "notificationTypeId:" + notificationTypeId + ":",
+                    keyPattern,
                     Constants.CacheName.NOTIFICATION_UNSUBSCRIBED_USERS);
         }
 
+        logger.debug("Saving " + subscriptions.size() + " updated subscriptions");
         return (List<UserNotificationTypeSubscription>) userNTSubscriptionDao.save(subscriptions);
     }
 
