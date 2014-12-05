@@ -21,6 +21,7 @@
 			<id>develop</id>
 			<properties>
 				<midl-core.version>1.0.30</midl-core.version>
+				<skipTests>false</skipTests>
 			</properties>
 		</profile>
 		<profile>

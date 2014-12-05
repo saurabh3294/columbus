@@ -21,25 +21,25 @@ import com.proptiger.core.util.HttpRequestUtil;
 @Component
 public class TaTestGenerator {
 
-    @Value("${BASE_URL}")
+    @Value("${proptiger.url}")
     private String          BASE_URL;
 
-    @Value("${CITY_API_URL}")
+    @Value("${test.city.api.url}")
     private String          CITY_API_URL;
 
-    @Value("${LOCALITY_API_URL}")
+    @Value("${test.locality.api.url}")
     private String          LOCALITY_API_URL;
 
-    @Value("${PROJECT_API_URL}")
+    @Value("${test.project.api.url}")
     private String          PROJECT_API_URL;
 
-    @Value("${SUBURB_API_URL}")
+    @Value("${test.suburb.api.url}")
     private String          SUBURB_API_URL;
 
-    @Value("${BUILDER_API_URL}")
+    @Value("${test.builder.api.url}")
     private String          BUILDER_API_URL;
 
-    @Value("${default.entity.fetch.pagesize}")
+    @Value("${test.default.entity.fetch.pagesize}")
     private int             DefaultEntityFetchPageSize;
 
     @Autowired

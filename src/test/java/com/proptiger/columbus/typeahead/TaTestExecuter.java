@@ -29,10 +29,10 @@ import com.proptiger.core.pojo.response.APIResponse;
 @Component
 public class TaTestExecuter {
 
-    @Value("${TYPEAHEAD_API_URL}")
+    @Value("${test.typeahead.api.url}")
     private String              TYPEAHEAD_API_URL;
 
-    @Value("${testcase.timeout}")
+    @Value("${test.testcase.timeout}")
     private long                TestTimeout;
 
     @Autowired
@@ -40,18 +40,25 @@ public class TaTestExecuter {
 
     private static Logger       logger = LoggerFactory.getLogger(TaTestExecuter.class);
 
+    /**
+     * Runs top 'limit' number of test-cases from 'testList'.
+     * 
+     * @param testList
+     *            list of test cases to run
+     * @param limit
+     *            number of test cases to run
+     * @return A sublist of 'testList' with results field populated
+     */
     public List<TaTestCase> executeTests(List<TaTestCase> testList, int limit) {
         logger.debug(testList.size() + " tests recieved for execution with limit = " + limit);
-        ExecutorService executerService = Executors.newCachedThreadPool();
+
+        List<TaTestCase> testListLimited = testList.subList(0, limit);
+
+        ExecutorService executerService = Executors.newFixedThreadPool(20);
         List<Future<TaTestCase>> futureList = new ArrayList<Future<TaTestCase>>();
-        int ctr = 0;
-        for (TaTestCase ttc : testList) {
-            if (ctr >= limit) {
-                break;
-            }
+        for (TaTestCase ttc : testListLimited) {
             ttc.setTestUrl(TYPEAHEAD_API_URL + "?query=" + ttc.getQuery());
             futureList.add(executerService.submit(new CustomCallable(ttc)));
-            ctr++;
         }
 
         for (Future<TaTestCase> future : futureList) {
@@ -68,7 +75,7 @@ public class TaTestExecuter {
 
         executerService.shutdown();
 
-        return testList;
+        return testListLimited;
     }
 
     class CustomCallable implements Callable<TaTestCase> {
