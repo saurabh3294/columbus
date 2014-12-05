@@ -35,6 +35,7 @@ import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.core.model.cms.LandMarkTypes;
@@ -45,16 +46,15 @@ import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.model.proptiger.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.core.model.proptiger.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
-import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
@@ -62,6 +62,7 @@ import com.proptiger.data.service.trend.TrendService;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
 import com.proptiger.data.thirdparty.SEC;
+import com.proptiger.data.util.Serializer;
 
 /**
  * @author mandeep
@@ -113,7 +114,7 @@ public class LocalityService {
 
     @Autowired
     private TrendService               trendService;
-    
+
     @PostConstruct
     private void initialize() {
         currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
@@ -143,6 +144,32 @@ public class LocalityService {
         PaginatedResponse<List<Locality>> paginatedRes = new PaginatedResponse<List<Locality>>();
         paginatedRes = localityDao.getLocalities(selector);
         return paginatedRes;
+    }
+
+    /**
+     * Returns the locality id with the given locality name and list of cities
+     * 
+     * @param localityName
+     * @param cities
+     * @return
+     */
+    public Integer getLocalityIdByTagName(String tagName, List<String> cities) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":[");
+        String dilimiter = "";
+        for (String city : cities) {
+            stringBuilder.append(dilimiter + "\"" + city + "\"");
+            dilimiter = ",";
+        }
+        stringBuilder.append("]}},{\"equal\":{\"newsTag\":\"" + tagName + "\"}}]}}");
+        Selector selector = Serializer.fromJson(stringBuilder.toString(), Selector.class);
+        PaginatedResponse<List<Locality>> localityList = getLocalities(selector);
+
+        if (localityList == null || localityList.getResults() == null || localityList.getResults().isEmpty()) {
+            return null;
+        }
+
+        return localityList.getResults().get(0).getLocalityId();
     }
 
     /**
@@ -889,11 +916,12 @@ public class LocalityService {
      * 
      * @param suburb
      */
-    public void updateSuburbRatingAndReviewDetails(Suburb suburb) {
+    public LocalityAverageRatingByCategory getSuburbRatingAndReviewDetails(Suburb suburb) {
 
         LocalityAverageRatingByCategory avgRatingsOfLocalityCategory = localityRatingService
                 .getAvgRatingsOfSuburbByCategory(suburb.getId());
-        suburb.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
+        
+        return avgRatingsOfLocalityCategory;
     }
 
     public int getTopRatedLocalityInCityOrSuburb(String locationType, int locationId) {
@@ -1018,7 +1046,7 @@ public class LocalityService {
         PaginatedResponse<List<Locality>> response = localityDao.findByLocalityIds(localities, null);
         return response;
     }
-    
+
     public PaginatedResponse<List<Locality>> getTopReviewedLocalities(
             String locationTypeStr,
             int locationId,
@@ -1100,8 +1128,14 @@ public class LocalityService {
             int locationId,
             int numberOfLocalities,
             double minimumPriceRise) {
-        return getHighestReturnLocalities(locationTypeStr, locationId, numberOfLocalities, minimumPriceRise, new Selector());
+        return getHighestReturnLocalities(
+                locationTypeStr,
+                locationId,
+                numberOfLocalities,
+                minimumPriceRise,
+                new Selector());
     }
+
     /**
      * This method will return the localities data for all the locality Ids.
      * 
@@ -1162,19 +1196,19 @@ public class LocalityService {
             if (locality.getAverageRating() != null) {
                 locality.setAverageRating(locality.getAverageRating() / 2);
             }
-            
+
             if (locality.getProjectMaxLivabilityScore() != null) {
                 locality.setProjectMaxLivabilityScore(locality.getProjectMaxLivabilityScore() / 2);
             }
-            
+
             if (locality.getProjectMinLivabilityScore() != null) {
                 locality.setProjectMinLivabilityScore(locality.getProjectMinLivabilityScore() / 2);
             }
-            
+
             if (locality.getProjectMaxSafetyScore() != null) {
                 locality.setProjectMaxSafetyScore(locality.getProjectMaxSafetyScore() / 2);
             }
-            
+
             if (locality.getProjectMinSafetyScore() != null) {
                 locality.setProjectMinSafetyScore(locality.getProjectMinSafetyScore() / 2);
             }

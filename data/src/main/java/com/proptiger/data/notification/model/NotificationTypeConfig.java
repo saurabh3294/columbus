@@ -3,10 +3,13 @@ package com.proptiger.data.notification.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
 import com.proptiger.data.notification.processor.DefaultNotificationTypeProcessor;
 import com.proptiger.data.notification.processor.GoalPriceNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.LocalityNewsNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.NewsNotificationTypeProcessor;
 import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.processor.NotificationNonPrimaryKeyProcessor;
 import com.proptiger.data.notification.processor.NotificationPrimaryKeyProcessor;
@@ -14,6 +17,7 @@ import com.proptiger.data.notification.processor.NotificationTypeProcessor;
 import com.proptiger.data.notification.processor.PhotoAddNotificationMessageProcessor;
 import com.proptiger.data.notification.processor.PriceChangeNotificationMessageProcessor;
 import com.proptiger.data.notification.processor.PriceChangeNotificationTypeProcessor;
+import com.proptiger.data.notification.processor.ProjectNewsNotificationMessageProcessor;
 
 public class NotificationTypeConfig {
 
@@ -22,26 +26,40 @@ public class NotificationTypeConfig {
     static {
         notificationTypeConfigMap = new HashMap<String, NotificationTypeConfig>();
 
-        notificationTypeConfigMap.put("portfolio_price_change", new NotificationTypeConfig(
+        notificationTypeConfigMap.put(NotificationTypeEnum.PortfolioPriceChange.getName(), new NotificationTypeConfig(
                 NotificationTypePayload.class,
                 PriceChangeNotificationTypeProcessor.class,
                 NotificationPrimaryKeyProcessor.class,
                 NotificationNonPrimaryKeyProcessor.class,
                 PriceChangeNotificationMessageProcessor.class));
 
-        notificationTypeConfigMap.put("portfolio_goal_price", new NotificationTypeConfig(
+        notificationTypeConfigMap.put(NotificationTypeEnum.PortfolioGoalPrice.getName(), new NotificationTypeConfig(
                 NotificationTypePayload.class,
                 PriceChangeNotificationTypeProcessor.class,
                 NotificationPrimaryKeyProcessor.class,
                 NotificationNonPrimaryKeyProcessor.class,
                 GoalPriceNotificationMessageProcessor.class));
 
-        notificationTypeConfigMap.put("portfolio_photo_add", new NotificationTypeConfig(
+        notificationTypeConfigMap.put(NotificationTypeEnum.PortfolioPhotoAdd.getName(), new NotificationTypeConfig(
                 NotificationTypePayload.class,
                 DefaultNotificationTypeProcessor.class,
                 NotificationPrimaryKeyProcessor.class,
                 NotificationNonPrimaryKeyProcessor.class,
                 PhotoAddNotificationMessageProcessor.class));
+
+        notificationTypeConfigMap.put(NotificationTypeEnum.PortfolioProjectNews.getName(), new NotificationTypeConfig(
+                NotificationTypePayload.class,
+                NewsNotificationTypeProcessor.class,
+                NotificationPrimaryKeyProcessor.class,
+                NotificationNonPrimaryKeyProcessor.class,
+                ProjectNewsNotificationMessageProcessor.class));
+
+        notificationTypeConfigMap.put(NotificationTypeEnum.PortfolioLocalityNews.getName(), new NotificationTypeConfig(
+                NotificationTypePayload.class,
+                NewsNotificationTypeProcessor.class,
+                NotificationPrimaryKeyProcessor.class,
+                NotificationNonPrimaryKeyProcessor.class,
+                LocalityNewsNotificationMessageProcessor.class));
     }
 
     private transient Class<? extends NotificationTypePayload>            dataClassName                         = NotificationTypePayload.class;

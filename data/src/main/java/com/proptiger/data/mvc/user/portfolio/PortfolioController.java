@@ -21,12 +21,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.ListingStatus;
 import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.model.user.portfolio.Portfolio;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.model.Subscription;
-import com.proptiger.data.model.user.portfolio.Portfolio;
 import com.proptiger.data.service.user.SubscriptionService;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
 

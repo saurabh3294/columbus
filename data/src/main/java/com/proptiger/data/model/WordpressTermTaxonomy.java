@@ -20,6 +20,9 @@ public class WordpressTermTaxonomy extends BaseModel {
     @Column(name = "term_id")
     private long              termId;
 
+    @Column(name = "taxonomy")
+    private String            taxonomy;
+
     public long getTermTaxonomyId() {
         return termTaxonomyId;
     }
@@ -36,4 +39,11 @@ public class WordpressTermTaxonomy extends BaseModel {
         this.termId = termId;
     }
 
+    public String getTaxonomy() {
+        return taxonomy;
+    }
+
+    public void setTaxonomy(String taxonomy) {
+        this.taxonomy = taxonomy;
+    }
 }

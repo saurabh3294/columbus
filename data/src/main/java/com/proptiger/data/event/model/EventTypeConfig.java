@@ -4,11 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.proptiger.core.model.BaseModel;
+import com.proptiger.data.event.enums.EventTypeEnum;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
+import com.proptiger.data.event.model.payload.NewsEventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.processor.DefaultDBEventProcessor;
+import com.proptiger.data.event.processor.LocalityNewsProcessor;
 import com.proptiger.data.event.processor.PriceChangeProcessor;
+import com.proptiger.data.event.processor.ProjectNewsProcessor;
 import com.proptiger.data.event.verification.DBEventVerification;
 import com.proptiger.data.event.verification.DefaultDBEventVerification;
 import com.proptiger.data.event.verification.PriceChangeVerification;
@@ -17,20 +21,30 @@ public class EventTypeConfig extends BaseModel {
 
     private static final long                    serialVersionUID      = 5353549466505297871L;
 
-    public static Map<String, EventTypeConfig>   eventTypeConfigMap;
+    private static Map<String, EventTypeConfig>  eventTypeConfigMap    = new HashMap<String, EventTypeConfig>();
+
     static {
 
-        eventTypeConfigMap = new HashMap<String, EventTypeConfig>();
-
-        eventTypeConfigMap.put("portfolio_price_change", new EventTypeConfig(
+        eventTypeConfigMap.put(EventTypeEnum.PortfolioPriceChange.getName(), new EventTypeConfig(
                 DefaultEventTypePayload.class,
                 PriceChangeProcessor.class,
                 PriceChangeVerification.class));
+
+        eventTypeConfigMap.put(EventTypeEnum.PortfolioProjectNews.getName(), new EventTypeConfig(
+                NewsEventTypePayload.class,
+                ProjectNewsProcessor.class,
+                DefaultDBEventVerification.class));
+
+        eventTypeConfigMap.put(EventTypeEnum.PortfolioLocalityNews.getName(), new EventTypeConfig(
+                NewsEventTypePayload.class,
+                LocalityNewsProcessor.class,
+                DefaultDBEventVerification.class));
     }
 
     private Class<? extends EventTypePayload>    dataClassName         = DefaultEventTypePayload.class;
     private Class<? extends DBEventProcessor>    processorClassName    = DefaultDBEventProcessor.class;
     private Class<? extends DBEventVerification> verificationClassName = DefaultDBEventVerification.class;
+
     private DBEventProcessor                     processorObject;
     private EventTypePayload                     eventTypePayloadObject;
     private DBEventVerification                  eventVerificationObject;
@@ -52,7 +66,11 @@ public class EventTypeConfig extends BaseModel {
     }
 
     public EventTypeConfig() {
-        // TODO Auto-generated constructor stub
+
+    }
+
+    public static EventTypeConfig getEventTypeConfig(String configName) {
+        return eventTypeConfigMap.get(configName);
     }
 
     public Class<? extends EventTypePayload> getDataClassName() {
