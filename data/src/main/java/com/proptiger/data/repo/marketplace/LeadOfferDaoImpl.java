@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
@@ -117,6 +118,7 @@ public class LeadOfferDaoImpl {
                         flagSinglePresent = 1;
                     }
                     catch (Exception e) {
+                        throw new BadRequestException("4XX", "you have not passed parameter correctly");
                     }
                 }
                 else {
@@ -125,6 +127,7 @@ public class LeadOfferDaoImpl {
                         flagSinglePresent = 1;
                     }
                     catch (Exception e) {
+                        throw new BadRequestException("4XX", "you have not passed parameter correctly");
                     }
                 }
 
