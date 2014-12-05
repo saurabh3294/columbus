@@ -101,9 +101,13 @@
 	#else
 	$velocityUtility.roundToTwoDecimal($minBudgetInLacs) Lacs
 	#end
--   #end
+  #end
 
-    #if(${leadOffer.lead.maxBudget})		
+#if(${leadOffer.lead.maxBudget} && ${leadOffer.lead.minBudget})
+-
+#end
+
+  #if(${leadOffer.lead.maxBudget})		
 	#set($maxBudgetInLacs = ${leadOffer.lead.maxBudget}/100000.0)
 	#if($maxBudgetInLacs > 100)
 	#set($maxBudgetInCrores = $maxBudgetInLacs/100.0)

@@ -118,7 +118,7 @@ public class LeadOfferDaoImpl {
                         flagSinglePresent = 1;
                     }
                     catch (Exception e) {
-                        throw new BadRequestException("4XX", "you have not passed parameter correctly");
+                        throw new BadRequestException("you have not passed parameter correctly");
                     }
                 }
                 else {
@@ -127,7 +127,7 @@ public class LeadOfferDaoImpl {
                         flagSinglePresent = 1;
                     }
                     catch (Exception e) {
-                        throw new BadRequestException("4XX", "you have not passed parameter correctly");
+                        throw new BadRequestException("you have not passed parameter correctly");
                     }
                 }
 
