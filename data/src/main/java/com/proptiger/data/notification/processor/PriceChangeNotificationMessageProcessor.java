@@ -28,7 +28,7 @@ public class PriceChangeNotificationMessageProcessor extends NotificationMessage
         Map<Integer, NotificationMessagePayload> payloadMap = new HashMap<Integer, NotificationMessagePayload>();
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
-        Integer propertyId = Integer.parseInt((String) notificationTypePayload.getPrimaryKeyValue());
+        Integer propertyId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
         List<PortfolioListing> portfolioListings = getPortfolioListingsByPropertyId(propertyId);
         portfolioListings = removeUsersFromPortfolioListings(unsubscribedUserList, portfolioListings);
         
