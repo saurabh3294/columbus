@@ -26,7 +26,7 @@
 		<profile>
 			<id>develop</id>
 			<properties>
-				<midl-core.version>develop</midl-core.version>
+				<midl-core.version>java8</midl-core.version>
 			</properties>
 		</profile>
 		<profile>
