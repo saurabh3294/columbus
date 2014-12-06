@@ -16,6 +16,7 @@ import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.dto.external.trend.BuilderTrend;
 import com.proptiger.data.service.trend.BuilderTrendService;
 

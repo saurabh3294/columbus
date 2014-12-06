@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.config.scheduling.QuartzScheduledClass;
+import com.proptiger.core.config.scheduling.QuartzScheduledJob;
 import com.proptiger.data.event.generator.DBEventGenerator;
 import com.proptiger.data.event.processor.handler.DBProcessedEventHandler;
 import com.proptiger.data.event.processor.handler.DBRawEventHandler;
@@ -19,6 +21,7 @@ import com.proptiger.data.event.processor.handler.DBRawEventHandler;
  */
 
 @Component
+@QuartzScheduledClass
 public class EventInitiator {
 
     private static Logger           logger = LoggerFactory.getLogger(EventInitiator.class);
@@ -36,7 +39,7 @@ public class EventInitiator {
      * Creates a list of EventGenerateds in Raw State from DB Events at regular
      * intervals.
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.event}",
             initialDelayString = "${scheduler.initialdelay.event.dbEventGenerator}")
     public void dbEventGenerator() {
@@ -54,7 +57,7 @@ public class EventInitiator {
      * in holding state and marks the latest event of a particular primary key
      * as PROCESSED and remaining events as DISCARDED
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.event}",
             initialDelayString = "${scheduler.initialdelay.event.dbRawEventProcessor}")
     public void dbRawEventProcessor() {
@@ -70,7 +73,7 @@ public class EventInitiator {
      * An event is marked as PENDING_VERIFICATION if verification is required
      * else VERIFIED if no verification is required.
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.event}",
             initialDelayString = "${scheduler.initialdelay.event.dbProcessedEventProcessor}")
     public void dbProcessedEventProcessor() {

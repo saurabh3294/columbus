@@ -24,7 +24,9 @@ import com.proptiger.core.enums.Application;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.model.proptiger.CompanySubscription;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.repo.APIAccessLogDao;
+import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
@@ -33,7 +35,6 @@ import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.CompanyIP;
 import com.proptiger.data.model.user.UserOTP;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.CompanyIPDao;
 import com.proptiger.data.repo.user.UserOTPDao;
 import com.proptiger.data.service.mail.MailSender;
@@ -79,7 +80,7 @@ public class OTPService {
         ActiveUser activeUser = (ActiveUser) auth.getPrincipal();
         if (activeUser.getApplicationType().equals(Application.B2B)) {
             required = true;
-            String userIP = request.getRemoteAddr();
+            String userIP = IPUtils.getClientIP(request);
             if(isUserCompanyIPWhitelisted(userIP, activeUser)){
                 /*
                  * if user company ip is whitelisted then no need of

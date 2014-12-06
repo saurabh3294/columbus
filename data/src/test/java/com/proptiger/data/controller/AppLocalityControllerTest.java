@@ -10,8 +10,8 @@ import com.proptiger.app.mvc.AppLocalityController;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.proptiger.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.mvc.LocalityController;
-import com.proptiger.data.service.AbstractTest;
 
 public class AppLocalityControllerTest extends AbstractTest{
     @Autowired

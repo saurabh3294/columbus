@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 
 import com.proptiger.core.enums.ListingStatus;
 import com.proptiger.core.model.proptiger.PortfolioListing;
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
 
 public class PortfolioServiceTest extends AbstractTest{

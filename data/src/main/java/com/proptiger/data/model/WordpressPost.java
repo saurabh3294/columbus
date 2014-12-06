@@ -30,6 +30,11 @@ import com.proptiger.data.meta.ResourceMetaInfo;
                         + "  C.termTaxonomyId = B.termTaxonomyId AND"
                         + "  D.id = C.objectId AND"
                         + " A.name IN :cityName AND D.postStatus = 'publish' AND D.postTitle!='' AND D.postContent!='' GROUP BY D.id ORDER BY D.postDate DESC "),
+
+        @NamedQuery(
+                name = "Post.blogOrNewsByPostId",
+                query = "SELECT P FROM WordpressPost AS P WHERE P.id = :postId AND P.postStatus = 'publish' AND P.postTitle!='' AND P.postContent!=''"),
+
         @NamedQuery(
                 name = "Post.imageUrl",
                 query = "Select WP.guid from WordpressPost WP where WP.parentId=:postId and WP.postMimeType like 'image%' order by WP.postDate") })
@@ -69,14 +74,14 @@ public class WordpressPost extends BaseModel {
 
     @Transient
     private String            primaryImageUrl;
-    
+
     @Column(name = "post_date", insertable = false, updatable = false)
     private java.util.Date    epochPostDate;
-    
+
     @JsonIgnore
     @Column(name = "post_excerpt")
     private String            postExcerpt;
-    
+
     @JsonIgnore
     @Column(name = "post_name")
     private String            postName;
@@ -104,7 +109,7 @@ public class WordpressPost extends BaseModel {
     public void setPostContent(String postContent) {
         this.postContent = postContent;
     }
-    
+
     @JsonProperty
     public String getGuid() {
         if (guid == null || guid.isEmpty() || postName == null || postName.isEmpty()) {

@@ -11,6 +11,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.handler.ResponseErrorWriter;
+import com.proptiger.core.util.IPUtils;
 
 /**
  * @author Rajeev Pandey
@@ -24,7 +25,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             HttpServletResponse response,
             AccessDeniedException accessDeniedException) throws IOException, ServletException {
         if (!response.isCommitted()) {
-            String userIpAddress = request.getRemoteAddr();
+            String userIpAddress = IPUtils.getClientIP(request);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             ResponseErrorWriter.writeErrorToResponse(
                     response,

@@ -28,13 +28,14 @@ import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.proptiger.PortfolioListingPrice;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.DateUtil;
+import com.proptiger.data.internal.dto.GenericKeyValue;
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.B2BAttributeService;
@@ -114,9 +115,26 @@ public class PortfolioPriceTrendService {
      * @param listings
      */
     private void updateProjectName(List<PortfolioListing> listings) {
+        List<Integer> projectIds = new ArrayList<>();
+        
         for (PortfolioListing listing : listings) {
             if (listing.getProperty() != null) {
-                listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
+                projectIds.add(listing.getProperty().getProjectId());
+            }
+        }
+        if(!projectIds.isEmpty()){
+            List<GenericKeyValue> keyValues = projectDBDao.getProjectNameById(projectIds);
+            if(!keyValues.isEmpty()){
+                Map<Integer, String> projectNames = new HashMap<>();
+                for(GenericKeyValue keyValue: keyValues){
+                    projectNames.put(keyValue.getKey(), keyValue.getValue());
+                }
+                
+                for (PortfolioListing listing : listings) {
+                    if (listing.getProperty() != null) {
+                        listing.setProjectName(projectNames.get(listing.getProperty().getProjectId()));
+                    }
+                }
             }
         }
     }

@@ -13,7 +13,7 @@ import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.core.model.proptiger.OverallReturn;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.proptiger.PortfolioListingPrice;
-import com.proptiger.data.model.user.portfolio.Portfolio;
+import com.proptiger.core.model.user.portfolio.Portfolio;
 
 /**
  * Portfolio Utility methods. reference
