@@ -346,7 +346,11 @@ public class PropertyService {
     public Property createUnverifiedPropertyOrGetExisting(Listing listing, Integer userId) {
         Property property = null;
         OtherInfo otherInfo = listing.getOtherInfo();
-        if (otherInfo != null && otherInfo.getSize() > 0 && otherInfo.getBedrooms() > 0 && otherInfo.getProjectId() > 0) {
+        if (otherInfo != null && otherInfo.getSize() > 0
+                && otherInfo.getBedrooms() > 0
+                && otherInfo.getProjectId() > 0
+                && otherInfo.getUnitType() != null
+                && otherInfo.getUnitType() != "Plot") {
             FIQLSelector selector = new FIQLSelector()
                     .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
                     .addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms())
@@ -372,6 +376,42 @@ public class PropertyService {
                 Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, propertyWithMatchingCriteria
                         .getResults().get(0).getUnitType());
                 property = propertyDao.saveAndFlush(toCreate);
+            }
+        }
+        else if (otherInfo != null && otherInfo.getSize() > 0
+                && otherInfo.getProjectId() > 0
+                && otherInfo.getUnitType() != null
+                && otherInfo.getUnitType().equals("Plot")) {
+            FIQLSelector selector = new FIQLSelector()
+                    .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
+                    .addAndConditionToFilter("unitType==Plot").addAndConditionToFilter("size==" + otherInfo.getSize())
+                    .addAndConditionToFilter("project.version==" + DataVersion.Website);
+
+            PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+            if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
+                    && propertyWithMatchingCriteria.getResults().size() > 0) {
+                property = propertyWithMatchingCriteria.getResults().get(0);
+            }
+            else {
+                selector = new FIQLSelector().setGroup("unitType")
+                        .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
+                        .addSortDESC("countPropertyId");
+
+                propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+
+                boolean flagPlot = false;
+                for (Property singleProperty : propertyWithMatchingCriteria.getResults()) {
+                    if (singleProperty.getUnitType().equals("Plot")) {
+                        flagPlot = true;
+                    }
+                }
+                if (flagPlot == true) {
+                    Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, "Plot");
+                    property = propertyDao.saveAndFlush(toCreate);
+                }
+                else {
+                    throw new BadRequestException("This project does not contain plot");
+                }
             }
         }
         else {
@@ -461,8 +501,8 @@ public class PropertyService {
 
         return couponCatalogueService;
     }
-    
-    public Integer getProjectIdFromDeletedPropertyId(Integer propertyId){
+
+    public Integer getProjectIdFromDeletedPropertyId(Integer propertyId) {
         return projectService.getProjectIdForPropertyId(propertyId);
     }
 }
