@@ -282,17 +282,22 @@ public class ResponseInterceptor {
 
     @Cacheable(value = Constants.CacheName.CACHE)
     private List<Integer> getSubscribedBuilderList(int userId) {
+        logger.debug("xxxyyyzzz :: Inside *getSubscribedBuilderList*");
         List<Permission> permissions = getUserPermissions(userId);
         List<Integer> builderList = new ArrayList<>();
-
+        
         int size = permissions.size();
+        logger.debug("xxxyyyzzz :: Permissions Size = " + size);
+        
         logger.debug("TIME AT STEP 11: " + new Date().getTime());
         for (int i = 0; i < size; i = i + maxPermissionCountForApiCall) {
+            logger.debug("xxxyyyzzz :: enter for loop :: i = " + i );
             List<Permission> partialPermissions = permissions.subList(
                     i,
                     Math.min(size, i + maxPermissionCountForApiCall));
             FIQLSelector selector = getUserAppSubscriptionFilters(partialPermissions);
             logger.debug("TIME AT STEP 14: " + new Date().getTime());
+            logger.debug("xxxyyyzzz :: selector.getFilters() : " + String.valueOf(selector.getFilters()));
             if (selector.getFilters() != null) {
                 String builderId = "builderId";
                 selector.setFields(builderId);
@@ -301,15 +306,23 @@ public class ResponseInterceptor {
 
                 String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
                         .getRequiredPropertyAsString(PropertyKeys.TREND_API_URL) + "?" + selector.getStringFIQL();
+
+                logger.debug("xxxyyyzzz :: stringUrl : " + stringUrl);
+                
                 URI uri = URI.create(stringUrl);
 
+                logger.debug("xxxyyyzzz :: URI  : " + uri.toString());
+                logger.debug("xxxyyyzzz :: Attempt list retrieval");
                 List<Trend> list = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, Trend.class);
+                logger.debug("xxxyyyzzz :: list retrieved : size = " + (list != null ? list.size() : null));
                 for (Trend inventoryPriceTrend : list) {
                     builderList.add(inventoryPriceTrend.getBuilderId());
                 }
             }
+            logger.debug("xxxyyyzzz :: exit for loop :: i = " + i );
             logger.debug("TIME AT STEP 15: " + new Date().getTime());
         }
+        logger.debug("xxxyyyzzz :: Exiting *getSubscribedBuilderList*");
         return builderList;
     }
 
