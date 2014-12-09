@@ -157,7 +157,6 @@ public class ResponseInterceptor {
         }
         catch (Exception e) {
             logger.error("Error in extracting user id", e);
-            userId = 155124;
         }
         return getUserSubscriptionMap(userId);
     }

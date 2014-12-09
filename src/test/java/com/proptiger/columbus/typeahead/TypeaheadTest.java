@@ -46,6 +46,9 @@ public class TypeaheadTest extends AbstractTest {
     @Value("${test.report.dir}")
     private String               testReportDir;
 
+    @Value("${test.default.file.export.pagesize}")
+    private static final int PageSize_FileExport = 500;
+
     String fileNameReport;
 
     private static Logger        logger = LoggerFactory.getLogger(TypeaheadTest.class);
@@ -156,8 +159,6 @@ public class TypeaheadTest extends AbstractTest {
             logger.info("Typeahead Test : Test case passed : " + ttc.getLogString());
         }
     }
-
-    private static final int PageSize_FileExport = 500;
     
     /**
      * Writes test-result reports to file page-wise.
