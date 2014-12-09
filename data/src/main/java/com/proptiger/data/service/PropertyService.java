@@ -350,7 +350,8 @@ public class PropertyService {
                 && otherInfo.getBedrooms() > 0
                 && otherInfo.getProjectId() > 0
                 && otherInfo.getUnitType() != null
-                && otherInfo.getUnitType() != "Plot") {
+                && (!otherInfo.getUnitType().equals("Plot"))) {
+
             FIQLSelector selector = new FIQLSelector()
                     .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
                     .addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms())
@@ -373,15 +374,25 @@ public class PropertyService {
                         .addSortDESC("countPropertyId");
 
                 propertyWithMatchingCriteria = getPropertiesFromDB(selector);
-                Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, propertyWithMatchingCriteria
-                        .getResults().get(0).getUnitType());
-                property = propertyDao.saveAndFlush(toCreate);
+
+                if (propertyWithMatchingCriteria.getResults().get(0).getUnitType().equals(otherInfo.getUnitType())) {
+                    Property toCreate = Property.createUnverifiedProperty(
+                            userId,
+                            otherInfo,
+                            propertyWithMatchingCriteria.getResults().get(0).getUnitType());
+                    property = propertyDao.saveAndFlush(toCreate);
+                }
+                else {
+                    throw new BadRequestException("This project does not contain " + otherInfo.getUnitType());
+                }
             }
         }
         else if (otherInfo != null && otherInfo.getSize() > 0
                 && otherInfo.getProjectId() > 0
                 && otherInfo.getUnitType() != null
                 && otherInfo.getUnitType().equals("Plot")) {
+
+
             FIQLSelector selector = new FIQLSelector()
                     .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
                     .addAndConditionToFilter("unitType==Plot").addAndConditionToFilter("size==" + otherInfo.getSize())
