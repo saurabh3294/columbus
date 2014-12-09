@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import com.proptiger.columbus.service.AbstractTest;
 
 @Component
+@Test(singleThreaded=true)
 public class TypeaheadTest extends AbstractTest {
 
     @Autowired
@@ -47,9 +48,9 @@ public class TypeaheadTest extends AbstractTest {
     private String               testReportDir;
 
     @Value("${test.default.file.export.pagesize}")
-    private static final int PageSize_FileExport = 500;
+    private int                  PageSize_FileExport;
 
-    String fileNameReport;
+    String                       fileNameReport;
 
     private static Logger        logger = LoggerFactory.getLogger(TypeaheadTest.class);
 
@@ -80,7 +81,9 @@ public class TypeaheadTest extends AbstractTest {
 
         if (testMode == TestMode.report) {
             FileUtils.forceMkdir(new File(testReportDir));
-            fileNameReport = testReportDir + "test-report" + StringUtils.replaceChars((new Date()).toString(), ' ', '_') + ".csv";
+            fileNameReport = testReportDir + "test-report-"
+                    + StringUtils.replaceChars((new Date()).toString(), ' ', '_')
+                    + ".csv";
         }
     }
 
@@ -148,37 +151,45 @@ public class TypeaheadTest extends AbstractTest {
     private void runTests(List<TaTestCase> testList, int testLimit, TestMode tmode) {
         testList = taTestExecuter.executeTests(testList, testLimit);
         if (tmode == TestMode.report) {
-            exportTestResultsToReport(testList);
+            try {
+                exportTestResultsToReport(testList);
+            }
+            catch (IOException ioEx) {
+                logger.error("IO Exception while writing to file : " + fileNameReport, ioEx);
+            }
             return;
         }
-        
+
         TaTestReport tr;
         for (TaTestCase ttc : testList) {
             tr = TaTestReport.getReport(ttc);
             Assert.assertTrue(tr.status, tr.message);
-            logger.info("Typeahead Test : Test case passed : " + ttc.getLogString());
+            logger.debug("Test case passed : [" + ttc.getLogString() + "]");
         }
     }
-    
+
     /**
-     * Writes test-result reports to file page-wise.
+     * Writes test-result reports to file, page wise.
+     * 
      * @param testList
      */
-    private synchronized void exportTestResultsToReport(List<TaTestCase> testList){
+    private synchronized void exportTestResultsToReport(List<TaTestCase> testList) throws IOException {
+        logger.info("Exporting test results to file : " + fileNameReport);
         List<String> reportLines = new ArrayList<String>();
+
+        /* Write report-lines to file page wise. */
         for (TaTestCase ttc : testList) {
             reportLines.add(TaTestReport.getReport(ttc).getReportLine());
-            logger.info("Typeahead Test : Test case passed : " + ttc.getLogString());
-            if(reportLines.size() > PageSize_FileExport){
-                logger.info("Writing " + reportLines.size() + "test case reports to file.");
-                try {
-                    FileUtils.writeLines(new File(fileNameReport), reportLines, true);
-                }
-                catch (IOException ioEx) {
-                    logger.error("IO Exception while writing to file : " + fileNameReport, ioEx);
-                }
+            logger.debug("Test case passed : [" + ttc.getLogString() + "]");
+            if (reportLines.size() >= PageSize_FileExport) {
+                logger.debug("Writing " + reportLines.size() + "test report-lines to file.");
+                FileUtils.writeLines(new File(fileNameReport), reportLines, true);
                 reportLines.clear();
             }
         }
-    }    
+
+        /* Write remaining report-lines to file page wise. */
+        logger.debug("Writing " + reportLines.size() + "test report-lines to file.");
+        FileUtils.writeLines(new File(fileNameReport), reportLines, true);
+    }
 }

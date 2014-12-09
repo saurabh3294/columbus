@@ -41,7 +41,7 @@ public class TaTestGenerator {
 
     @Value("${test.default.entity.fetch.pagesize}")
     private int             DefaultEntityFetchPageSize;
-
+    
     @Autowired
     private HttpRequestUtil httpRequestUtil;
 
@@ -130,11 +130,12 @@ public class TaTestGenerator {
     }
 
     private List<TaTestCase> getBuilderTestCases(int limit) {
+        int defaultEntityFetchPageSize_buidler = Math.min(DefaultEntityFetchPageSize, 150);
         List<Builder> entityList = getEntityList(
                 selectorAllBuilder,
                 BUILDER_API_URL,
                 Builder.class,
-                DefaultEntityFetchPageSize,
+                defaultEntityFetchPageSize_buidler,
                 limit);
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
         for (Builder x : entityList) {
@@ -145,7 +146,7 @@ public class TaTestGenerator {
 
     private <T> List<T> getEntityList(String selector, String API_URL, Class<T> clazz, int pageSize, int limit) {
         String entityName = clazz.getSimpleName();
-        logger.debug("Fetching entity list for : " + entityName);
+        logger.info("Fetching entity list : [" + entityName + ", " + pageSize + ", " + limit + "]");
         int start = 0, count = pageSize, templimit = limit;
         String url = "";
         URI uri = null;
@@ -159,7 +160,13 @@ public class TaTestGenerator {
             url = BASE_URL + API_URL + "?" + String.format(selector, start, count);
             logger.debug("Api Url for fetching entity " + entityName + " : [ " + url + "]");
             uri = URI.create(UriComponentsBuilder.fromUriString(url).build().encode().toString());
-            templist = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, clazz);
+            try{
+                templist = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, clazz);
+            }
+            catch (Exception ex){
+                logger.error("Error while fetching enities. URL = (" + url + ")");
+                throw ex;
+            }
             if (templist == null || templist.isEmpty()) {
                 break;
             }
@@ -167,7 +174,7 @@ public class TaTestGenerator {
             templimit -= count;
             start += count;
         }
-        logger.debug(entitylist.size() + " Entities recieved for : " + entityName);
+        logger.info(entitylist.size() + " Entities recieved for : " + entityName);
         return entitylist;
     }
 

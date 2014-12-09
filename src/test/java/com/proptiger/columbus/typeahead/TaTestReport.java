@@ -26,25 +26,27 @@ public class TaTestReport {
         list.add(this.status);
         list.add(this.testCaseInfo);
         list.add(this.position);
-        list.addAll(betterResults);
+        if(this.betterResults != null){
+            list.addAll(betterResults);
+        }
         return StringUtils.join(list, ",");
     }
 
     public static TaTestReport getReport(TaTestCase ttc) {
-        TaTestReport taTestReport;
         String message = "";
         int pos = getTypeaheadPosition(ttc);
         if (pos < 0) {
-            message = "Test=" + ttc.getLogString() + " : Outcome=[INVALID TEST CASE]";
+            message = "Test=[" + ttc.getLogString() + "] : Outcome=[INVALID TEST CASE]";
             return new TaTestReport(false, message);
         }
-
+        
         boolean status = (pos >= ttc.getMinRank() && pos <= ttc.getMaxRank());
-        message = "Test=" + ttc.getLogString() + " : Outcome=[Position=" + pos + "]";
-        taTestReport = new TaTestReport(status, message);
+        message = "Test=[" + ttc.getLogString() + "] : Outcome=[Position=" + pos + "]";
+        TaTestReport taTestReport = new TaTestReport(status, message);
+        taTestReport.position = pos;
         taTestReport.betterResults = getResultsAbovePos(ttc, pos);
         taTestReport.testCaseInfo = ttc.getLogString(); 
-        return new TaTestReport(status, message);
+        return taTestReport;
     }
 
     private static int getTypeaheadPosition(TaTestCase taTestCase) {

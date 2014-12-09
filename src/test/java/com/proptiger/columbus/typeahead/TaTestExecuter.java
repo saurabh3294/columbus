@@ -50,8 +50,8 @@ public class TaTestExecuter {
      * @return A sublist of 'testList' with results field populated
      */
     public List<TaTestCase> executeTests(List<TaTestCase> testList, int limit) {
-        logger.debug(testList.size() + " tests recieved for execution with limit = " + limit);
-
+        logger.info(testList.size() + " tests recieved for execution with limit = " + limit);
+        limit = Math.min(limit, testList.size());
         List<TaTestCase> testListLimited = testList.subList(0, limit);
 
         ExecutorService executerService = Executors.newFixedThreadPool(20);
@@ -65,11 +65,11 @@ public class TaTestExecuter {
             try {
                 future.get(TestTimeout, TimeUnit.MILLISECONDS);
             }
-            catch (TimeoutException e) {
-                logger.error("Test case execution timed out.");
+            catch (TimeoutException e1) {
+                logger.error("Some test case execution timed out. Moving On.", e1);
             }
-            catch (InterruptedException | ExecutionException e) {
-                logger.error("Test case execution failed or was interrupted.");
+            catch (InterruptedException | ExecutionException e2) {
+                logger.error("Some test case execution failed or was interrupted. Moving On.", e2);
             }
         }
 
@@ -99,7 +99,7 @@ public class TaTestExecuter {
                 response = mhsr.getContentAsString();
             }
             catch (Exception ex) {
-                logger.error("Exception while executing testcase callable : " + taTestCase.getLogString(), ex);
+                logger.error("Exception while executing testcase callable : " + taTestCase.getLogString() + " Moving On." , ex);
             }
             if (mhsr.getStatus() == 404) {
                 logger.error("Problem executing testcase : " + taTestCase.getLogString(), "Invalid Url : Status = 404");
