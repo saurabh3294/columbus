@@ -177,6 +177,7 @@ public class CronService {
         }
     }
 
+    @Scheduled(initialDelay = 50000, fixedDelay = 1800000)
     public void manageLeadOfferedReminder() {
         Date endDate = notificationService.getAuctionOverCutoffTime();
         Date startDate = new Date(
