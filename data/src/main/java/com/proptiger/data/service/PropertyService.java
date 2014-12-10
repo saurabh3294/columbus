@@ -319,6 +319,7 @@ public class PropertyService {
     }
 
     /*
+     * 
      * Only Solr call, no DB call specific changes should be added in this
      * method
      */
@@ -346,7 +347,8 @@ public class PropertyService {
     public Property createUnverifiedPropertyOrGetExisting(Listing listing, Integer userId) {
         Property property = null;
         OtherInfo otherInfo = listing.getOtherInfo();
-        if (otherInfo != null && otherInfo.getSize() > 0
+        if (otherInfo != null && otherInfo.getSize() != null
+                && otherInfo.getSize() > 0
                 && otherInfo.getBedrooms() > 0
                 && otherInfo.getProjectId() > 0
                 && otherInfo.getUnitType() != null
@@ -387,46 +389,48 @@ public class PropertyService {
                 }
             }
         }
-        else if (otherInfo != null && otherInfo.getSize() > 0
+        else if (otherInfo != null && otherInfo.getSize() != null
+                && otherInfo.getSize() > 0
                 && otherInfo.getProjectId() > 0
                 && otherInfo.getUnitType() != null
-                && otherInfo.getUnitType().equals("Plot")) {
-
-
-            FIQLSelector selector = new FIQLSelector()
-                    .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
-                    .addAndConditionToFilter("unitType==Plot").addAndConditionToFilter("size==" + otherInfo.getSize())
-                    .addAndConditionToFilter("project.version==" + DataVersion.Website);
-
-            PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
-            if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
-                    && propertyWithMatchingCriteria.getResults().size() > 0) {
-                property = propertyWithMatchingCriteria.getResults().get(0);
-            }
-            else {
-                selector = new FIQLSelector().setGroup("unitType")
-                        .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
-                        .addSortDESC("countPropertyId");
-
-                propertyWithMatchingCriteria = getPropertiesFromDB(selector);
-
-                boolean flagPlot = false;
-                for (Property singleProperty : propertyWithMatchingCriteria.getResults()) {
-                    if (singleProperty.getUnitType().equals("Plot")) {
-                        flagPlot = true;
-                    }
-                }
-                if (flagPlot == true) {
-                    Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, "Plot");
-                    property = propertyDao.saveAndFlush(toCreate);
-                }
-                else {
-                    throw new BadRequestException("This project does not contain plot");
-                }
-            }
+                && otherInfo.getUnitType().equals("Plot")) {            
+           property =  creatingOrGettingPropertyInCaseOfPlot(otherInfo,userId,property);
         }
         else {
             throw new BadRequestException("Other info is invalid");
+        }
+        return property;
+    }
+
+    public Property creatingOrGettingPropertyInCaseOfPlot(OtherInfo otherInfo,int userId,Property property) {
+        FIQLSelector selector = new FIQLSelector().addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
+                .addAndConditionToFilter("unitType==Plot").addAndConditionToFilter("size==" + otherInfo.getSize())
+                .addAndConditionToFilter("project.version==" + DataVersion.Website);
+
+        PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+        if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
+                && propertyWithMatchingCriteria.getResults().size() > 0) {
+            property = propertyWithMatchingCriteria.getResults().get(0);
+        }
+        else {
+            selector = new FIQLSelector().setGroup("unitType")
+                    .addAndConditionToFilter("projectId==" + otherInfo.getProjectId()).addSortDESC("countPropertyId");
+
+            propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+
+            boolean flagPlot = false;
+            for (Property singleProperty : propertyWithMatchingCriteria.getResults()) {
+                if (singleProperty.getUnitType().equals("Plot")) {
+                    flagPlot = true;
+                }
+            }
+            if (flagPlot == true) {
+                Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, "Plot");
+                property = propertyDao.saveAndFlush(toCreate);
+            }
+            else {
+                throw new BadRequestException("This project does not contain plot");
+            }
         }
         return property;
     }
