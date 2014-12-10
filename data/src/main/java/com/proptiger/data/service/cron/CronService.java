@@ -11,7 +11,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.config.scheduling.QuartzScheduledClass;
@@ -177,7 +176,7 @@ public class CronService {
         }
     }
 
-    @Scheduled(initialDelay = 50000, fixedDelay = 1800000)
+    @QuartzScheduledJob(initialDelay = 50000, fixedDelay = 1800000)
     public void manageLeadOfferedReminder() {
         Date endDate = notificationService.getAuctionOverCutoffTime();
         Date startDate = new Date(
