@@ -1,13 +1,18 @@
 package com.proptiger.data.event.model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -36,7 +41,8 @@ public class EventGenerated extends BaseModel {
     @Column(name = "data")
     private String           data;
 
-    @Transient
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
     private EventType        eventType;
 
     @Column(name = "event_type_id")
@@ -65,6 +71,10 @@ public class EventGenerated extends BaseModel {
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date             updatedAt;
+    
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name="event_type_id", referencedColumnName = "event_type_id")
+    private List<EventTypeToSubscriberMapping> subscriberMapping;
 
     @PreUpdate
     public void autoUpdateFields() {
@@ -165,6 +175,14 @@ public class EventGenerated extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<EventTypeToSubscriberMapping> getSubscriberMapping() {
+        return subscriberMapping;
+    }
+
+    public void setSubscriberMapping(List<EventTypeToSubscriberMapping> subscriberMapping) {
+        this.subscriberMapping = subscriberMapping;
     }
 
 }

@@ -2,6 +2,8 @@ package com.proptiger.data.event.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -28,6 +30,10 @@ public class EventType extends BaseModel {
         Replace, Merge;
     }
 
+    public enum Strategy {
+        MERGE, SUPPRESS, NO_STRATEGY
+    }
+
     @Id
     @Column(name = "id")
     private int                       id;
@@ -35,8 +41,9 @@ public class EventType extends BaseModel {
     @Column(name = "name")
     private String                    name;
 
-    @Column(name = "is_mergeable")
-    private boolean                   isMergeable;
+    @Column(name = "strategy")
+    @Enumerated(EnumType.STRING)
+    private Strategy                  strategy;
 
     @Column(name = "validation_cycle_in_hours")
     private int                       validationCycleHours;
@@ -63,14 +70,6 @@ public class EventType extends BaseModel {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public boolean isMergeable() {
-        return isMergeable;
-    }
-
-    public void setMergeable(boolean isMergeable) {
-        this.isMergeable = isMergeable;
     }
 
     public int getValidationCycleHours() {
@@ -127,6 +126,14 @@ public class EventType extends BaseModel {
 
     public String getName() {
         return name;
+    }
+
+    public Strategy getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(Strategy strategy) {
+        this.strategy = strategy;
     }
 
 }

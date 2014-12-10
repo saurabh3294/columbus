@@ -16,6 +16,7 @@ import javax.persistence.EntityManagerFactory;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
+import org.hibernate.ejb.event.EntityCallbackHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -24,9 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.EntityType;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
-import com.proptiger.core.enums.filter.Operator;
+import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.CouponCatalogue;
@@ -93,13 +95,25 @@ public class PropertyService {
      * @return
      */
     public List<Property> getProperties(Selector propertyFilter) {
-        List<Property> properties = propertyDao.getProperties(propertyFilter);
+        List<Property> properties = getPropertiesFromSolr(propertyFilter);
         imageEnricher.setPropertiesImages(properties);
 
         Set<String> fields = propertyFilter.getFields();
         if (fields != null && fields.contains("couponCatalogue")) {
             setCouponCatalogueForProperties(properties);
         }
+
+        return properties;
+    }
+
+    /**
+     * Returns properties given a selector
+     * 
+     * @param propertyFilter
+     * @return
+     */
+    public List<Property> getPropertiesFromSolr(Selector propertyFilter) {
+        List<Property> properties = propertyDao.getProperties(propertyFilter);
 
         return properties;
     }
@@ -317,10 +331,10 @@ public class PropertyService {
 
         return properties.get(0);
     }
-
+    
     /*
-     * Only Solr call, no DB call specific changes should be added in this
-     * method
+     *  Only Solr call, no DB call specific changes 
+     *  should be added in this method
      */
     public Property getPropertyFromSolr(int propertyId) {
         String jsonSelector = "{\"paging\":{\"rows\":1},\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyId
@@ -462,7 +476,31 @@ public class PropertyService {
         return couponCatalogueService;
     }
     
-    public Integer getProjectIdFromDeletedPropertyId(Integer propertyId){
+    /**
+     * Get Active Properties from DB.
+     * ********* NO CACHING *********
+     * @param propertyId
+     * @return
+     */
+    public Property getActivePropertyByIdFromDB(int propertyId) {
+        FIQLSelector fiqlSelector = new FIQLSelector();
+        fiqlSelector.addAndConditionToFilter("optionCategory==" + EntityType.Actual
+                + ";(unitType=="
+                + UnitType.Apartment
+                + ",unitType=="
+                + UnitType.Villa
+                + ",unitType=="
+                + UnitType.Plot
+                + ")");
+         PaginatedResponse<List<Property>> properties = getPropertiesFromDB(fiqlSelector);
+         
+         if(properties == null || properties.getResults() == null || properties.getResults().isEmpty())
+             return null;
+         
+         return properties.getResults().get(0);
+    }
+
+	public Integer getProjectIdFromDeletedPropertyId(Integer propertyId){
         return projectService.getProjectIdForPropertyId(propertyId);
     }
 }

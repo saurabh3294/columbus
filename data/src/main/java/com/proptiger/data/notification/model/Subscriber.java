@@ -22,7 +22,7 @@ public class Subscriber extends BaseModel {
     private static final long serialVersionUID = 7389423816245412201L;
 
     public enum SubscriberName {
-        Notification;
+        Notification, Seo;
     }
 
     @Column(name = "id")
@@ -36,6 +36,9 @@ public class Subscriber extends BaseModel {
 
     @Column(name = "last_event_date")
     private Date           lastEventDate;
+    
+    @Column(name = "last_event_generated_id")
+    private Integer lastEventGeneratedId;
 
     public int getId() {
         return id;
@@ -59,6 +62,14 @@ public class Subscriber extends BaseModel {
 
     public void setLastEventDate(Date lastEventDate) {
         this.lastEventDate = lastEventDate;
+    }
+
+    public Integer getLastEventGeneratedId() {
+        return lastEventGeneratedId;
+    }
+
+    public void setLastEventGeneratedId(Integer lastEventGeneratedId) {
+        this.lastEventGeneratedId = lastEventGeneratedId;
     }
 
 }

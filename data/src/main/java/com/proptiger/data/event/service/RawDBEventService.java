@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.enums.DBOperation;
+import com.proptiger.data.event.enums.EventAllAttributeName;
 import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.model.RawEventTableDetails;
@@ -115,8 +116,11 @@ public class RawDBEventService {
     }
 
     private RawDBEvent populateInsertRawDBEventData(RawDBEvent rawDBEvent) {
-        logger.debug("Populating RawDBEvent data for INSERT event with TransactionId : " + rawDBEvent
-                .getTransactionKeyValue());
+        logger.debug(" INSERT RAW DB EVENT ");
+        Map<String, Object> allattributes = new HashMap<String, Object>();
+        allattributes.put(EventAllAttributeName.All.name(), rawDBEvent.getNewDBValueMap());
+        rawDBEvent.setNewDBValueMap(allattributes);
+        
         return rawDBEvent;
     }
 

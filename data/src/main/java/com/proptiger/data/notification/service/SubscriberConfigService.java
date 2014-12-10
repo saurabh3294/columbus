@@ -56,7 +56,7 @@ public class SubscriberConfigService {
             subscriberMap.put(subscriber.getSubscriberName(), subscriber);
         }
     }
-
+    
     public Iterable<Subscriber> findAllSubscriber() {
         return subscriberDao.findAll();
     }
@@ -90,8 +90,17 @@ public class SubscriberConfigService {
         }
         return Integer.parseInt(configValue);
     }
-
-    /**
+    
+    public Integer getMaxSubscriberEventTypeCount(SubscriberName subscriberName){
+        ConfigName configName = SubscriberConfig.ConfigName.MaxVerifedEventCount;
+        String configValue = applicationContext.getBean(SubscriberConfigService.class).getSubscriberConfig(subscriberName, configName);
+        if (configValue == null) {
+            return Integer.MAX_VALUE;
+        }
+        return Integer.valueOf(configValue);
+    }
+    
+	/**
      * Gets the date of last event that was read by notification
      * 
      * @return
@@ -132,7 +141,7 @@ public class SubscriberConfigService {
         subscriberDao.updateLastEventDateById(subscriber.getId(), lastEventDate);
     }
 
-    @Cacheable(value = Constants.CacheName.NOTIFICATION_SUBSCRIBER_CONFIG, key = "#subscriberName+':'+#configName")
+    //@Cacheable(value = Constants.CacheName.NOTIFICATION_SUBSCRIBER_CONFIG, key = "#subscriberName+':'+#configName")
     public String getSubscriberConfig(SubscriberName subscriberName, ConfigName configName) {
         logger.debug("GETTING SUBSCRIBER CONFIG FOR SUBSCRIBER: " + subscriberName + " and CONFIG: " + configName);
         List<SubscriberConfig> configs = subscriberConfigDao.findConfigBySubscriber(subscriberName, configName);
@@ -141,5 +150,14 @@ public class SubscriberConfigService {
             return null;
         }
         return configs.get(0).getConfigValue();
+    }
+    
+    public void setLastEventGeneratedIdBySubscriber(Integer lastEventGeneratedId, Subscriber subscriber) {
+        subscriber.setLastEventGeneratedId(lastEventGeneratedId);
+        subscriberDao.updateLastEventGeneratedId(subscriber.getId(), lastEventGeneratedId);
+    }
+    
+    public static Map<SubscriberName, Subscriber> getSubscriberMap() {
+        return subscriberMap;
     }
 }

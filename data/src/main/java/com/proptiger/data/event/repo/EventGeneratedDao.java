@@ -8,8 +8,11 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import com.proptiger.core.pojo.Paging;
+import com.proptiger.data.event.enums.EventTypeName;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
+import com.proptiger.data.notification.model.Subscriber.SubscriberName;
 
 /**
  * 
@@ -32,6 +35,8 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
     public List<EventGenerated> findByEventStatusAndUpdatedAtGreaterThanOrderByUpdatedAtAsc(
             EventStatus status,
             Date updatedDate);
+    
+    public EventGenerated findByEventStatusOrderByUpdatedAtDesc(EventStatus eventStatus);
 
     @Query("Select E from EventGenerated E ORDER BY E.createdAt Desc")
     public List<EventGenerated> getLatestEventGenerated(Pageable pageable);
@@ -42,4 +47,12 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
 
     @Query("Select count(id) from EventGenerated E where E.eventStatus = ?1 ")
     public Long getEventCountByEventStatus(EventStatus eventStatus);
+
+    @Query("Select e from EventGenerated e JOIN Fetch e.subscriberMapping sm JOIN e.eventType et JOIN Fetch sm.subscriber s"
+            + " where e.eventStatus = ?1 and s.subscriberName = ?2 and et.name IN ?3 and e.id > s.lastEventGeneratedId order by e.id asc")
+    public List<EventGenerated> getLatestEventGeneratedBySubscriber(
+            EventStatus EventStatus,
+            SubscriberName subscriberName,
+            List<String> listEventTypeNames,
+            Pageable pageable);
 }
