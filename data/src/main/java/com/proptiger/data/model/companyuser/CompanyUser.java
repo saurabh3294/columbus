@@ -77,11 +77,6 @@ public class CompanyUser extends BaseModel {
     @OneToMany
     @JoinColumn(name = "company_id", referencedColumnName = "company_id", insertable = false, updatable = false)
     private List<CompanyCoverage> companyCoverages;
-    
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id", referencedColumnName = "table_id", insertable = false, updatable = false)
-    @Where(clause = "cms.addresses.table_name = 'company'")
-    private List<Address> address;
         
     @Transient
     private List<Locality>        localities;
