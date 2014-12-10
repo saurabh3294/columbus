@@ -10,16 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Builder;
 import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.model.URLDetail;
-import com.proptiger.data.model.seo.SeoURLs;
-import com.proptiger.data.model.seo.URLCategories;
+//import com.proptiger.data.model.URLDetail;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.URLCreaterService;
 import com.proptiger.data.service.seo.SeoURLService;
+import com.proptiger.seo.model.SeoURLs;
+import com.proptiger.seo.model.URLCategories;
 
 @Service
 public class SeoEventUrlCreator {
-    @Autowired
+    /*@Autowired
     private URLCreaterService urlCreaterService;
 
     @Autowired
@@ -146,12 +146,12 @@ public class SeoEventUrlCreator {
         return totalUrls;
     }
     
-    /**
+    *//**
      * Adding the city builder urls.
      * @param eventGenerated
      * @param urlCategories
      * @return
-     */
+     *//*
     public int generateBuilderUrls(EventGenerated eventGenerated, List<URLCategories> urlCategories) {
         URLDetail urlDetail = new URLDetail();
         String url = null;
@@ -167,5 +167,5 @@ public class SeoEventUrlCreator {
         }
         seoURLService.saveDomainUrls(seoURLs, eventGenerated);
         return totalUrls;
-    }
+    }*/
 }

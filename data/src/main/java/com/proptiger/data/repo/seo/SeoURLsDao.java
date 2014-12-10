@@ -3,7 +3,7 @@ package com.proptiger.data.repo.seo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.proptiger.data.model.seo.SeoURLs;
+import com.proptiger.seo.model.SeoURLs;
 
 public interface SeoURLsDao extends JpaRepository<SeoURLs, Integer>{
  

@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.model.seo.SeoURLs;
-import com.proptiger.data.model.seo.SeoURLs.URLInfo;
-import com.proptiger.data.model.seo.SeoURLs.URLStatus;
-import com.proptiger.data.model.seo.URLCategories;
 import com.proptiger.data.notification.model.Subscriber;
 import com.proptiger.data.notification.service.SubscriberConfigService;
 import com.proptiger.data.repo.seo.SeoURLsDao;
+import com.proptiger.seo.model.SeoURLs;
+import com.proptiger.seo.model.URLCategories;
+import com.proptiger.seo.model.SeoURLs.URLInfo;
+import com.proptiger.seo.model.SeoURLs.URLStatus;
 
 @Service
 public class SeoURLService {

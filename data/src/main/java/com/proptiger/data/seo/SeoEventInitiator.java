@@ -9,7 +9,7 @@ import com.proptiger.data.processor.handler.SeoEventHandler;
 
 @Service
 public class SeoEventInitiator {
-    private static Logger                logger = LoggerFactory.getLogger(SeoEventInitiator.class);
+    /*private static Logger                logger = LoggerFactory.getLogger(SeoEventInitiator.class);
 
     @Autowired
     private SeoEventHandler seoEventHandler;
@@ -20,5 +20,5 @@ public class SeoEventInitiator {
         logger.info("SEO Event URL Generator starting.");
         int numberOfUrls = seoEventHandler.generateUrls(100);
         logger.info("SEO Event URL Generator : generated "+numberOfUrls+" urls. ");
-    }
+    }*/
 }

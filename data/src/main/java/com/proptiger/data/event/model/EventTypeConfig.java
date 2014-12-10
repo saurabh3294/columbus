@@ -7,6 +7,7 @@ import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.event.enums.EventTypeEnum;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
+import com.proptiger.data.event.model.payload.MultiValueEventTypePayload;
 import com.proptiger.data.event.model.payload.NewsEventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.processor.DefaultDBEventProcessor;
@@ -23,6 +24,9 @@ import com.proptiger.data.event.processor.seo.SeoProjectContentChangeProcessor;
 import com.proptiger.data.event.processor.seo.SeoProjectDeleteProcessor;
 import com.proptiger.data.event.processor.seo.SeoPropertyChangeProcessor;
 import com.proptiger.data.event.processor.seo.SeoPropertyDeleteProcessor;
+import com.proptiger.data.event.processor.seo.SeoBuilderChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoBuilderDeleteProcessor;
+
 
 public class EventTypeConfig extends BaseModel {
 

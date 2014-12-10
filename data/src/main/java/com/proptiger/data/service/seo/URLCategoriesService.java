@@ -8,8 +8,8 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.DomainObject;
-import com.proptiger.data.model.seo.URLCategories;
 import com.proptiger.data.repo.seo.URLCategoriesDao;
+import com.proptiger.seo.model.URLCategories;
 
 @Service
 public class URLCategoriesService {

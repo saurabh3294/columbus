@@ -40,6 +40,7 @@ import com.proptiger.core.model.filter.AbstractQueryBuilder;
 import com.proptiger.core.model.filter.FieldsMapLoader;
 import com.proptiger.core.model.filter.JPAQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;

@@ -13,19 +13,19 @@ import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
-import com.proptiger.data.model.URLDetail;
-import com.proptiger.data.model.seo.URLPropertyTypeCategory;
-import com.proptiger.data.model.seo.URLPropertyTypes;
-import com.proptiger.data.util.Caching;
+//import com.proptiger.data.model.URLDetail;
+import com.proptiger.core.util.Caching;
 import com.proptiger.data.util.Serializer;
 import com.proptiger.data.enums.seo.PropertyType;
 import com.proptiger.data.enums.seo.TaxonomyPropertyTypes;
 import com.proptiger.data.enums.seo.URLTypeCategories;
+import com.proptiger.seo.model.URLPropertyTypeCategory;
+import com.proptiger.seo.model.URLPropertyTypes;
 
 @Service
 public class URLCreaterService {
 
-    @Autowired
+   /* @Autowired
     private Caching         caching;
 
     @Autowired
@@ -545,7 +545,7 @@ public class URLCreaterService {
         currentProperty = propertyService.getPropertyFromSolr(id);
         caching.saveResponse(cacheKey, currentProperty);
         
-        /*int start = 0, rows = 5000, size;
+        int start = 0, rows = 5000, size;
         List<Property> properties = null;
         do {
             properties = getAllProperties(start, rows);
@@ -565,7 +565,7 @@ public class URLCreaterService {
             properties.clear();
             System.gc();
         }
-        while (size > 0);*/
+        while (size > 0);
 
         return currentProperty;
     }
@@ -587,7 +587,7 @@ public class URLCreaterService {
         
         currentProject = projectService.getProjectDataFromSolr(id);
         caching.saveResponse(cacheKey, currentProject);
-        /*int start = 0, rows = 5000, size = 0;
+        int start = 0, rows = 5000, size = 0;
         List<Project> projects = null;
         do {
             projects = getAllProjects(start, rows);
@@ -606,7 +606,7 @@ public class URLCreaterService {
             }
             projects.clear();
         }
-        while (size > 0);*/
+        while (size > 0);
 
         return currentProject;
     }
@@ -797,6 +797,6 @@ public class URLCreaterService {
 
         return properties;
 
-    }
+    }*/
 
 }

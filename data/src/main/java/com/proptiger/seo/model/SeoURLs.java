@@ -1,4 +1,4 @@
-package com.proptiger.data.model.seo;
+package com.proptiger.seo.model;
 
 import java.util.Date;
 

@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.proptiger.data.model.seo.URLCategories;
+import com.proptiger.seo.model.URLCategories;
 
 public interface URLCategoriesDao extends PagingAndSortingRepository<URLCategories, Integer>{
     

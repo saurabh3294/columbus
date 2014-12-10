@@ -14,14 +14,14 @@ import com.proptiger.core.enums.DomainObject;
 import com.proptiger.data.event.enums.EventTypeName;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.service.EventGeneratedService;
-import com.proptiger.data.model.seo.URLCategories;
 import com.proptiger.data.notification.model.Subscriber.SubscriberName;
 import com.proptiger.data.seo.processor.SeoEventUrlCreator;
 import com.proptiger.data.service.seo.URLCategoriesService;
+import com.proptiger.seo.model.URLCategories;
 
 @Service
 public class SeoEventHandler {
-    private static Logger         logger = LoggerFactory.getLogger(SeoEventHandler.class);
+    /*private static Logger         logger = LoggerFactory.getLogger(SeoEventHandler.class);
 
     @Autowired
     private EventGeneratedService eventGeneratedService;
@@ -51,7 +51,7 @@ public class SeoEventHandler {
         return totalUrls;
     }
 
-    /*protected Map<DomainObject, List<EventGenerated>> groupEventsByEventType(List<EventGenerated> eventsGenerated) {
+    protected Map<DomainObject, List<EventGenerated>> groupEventsByEventType(List<EventGenerated> eventsGenerated) {
         Map<DomainObject, List<EventGenerated>> mapEvents = new HashMap<DomainObject, List<EventGenerated>>();
         List<EventGenerated> groupEvents;// = new ArrayList<EventGenerated>();
 
@@ -67,7 +67,7 @@ public class SeoEventHandler {
         }
 
         return mapEvents;
-    }*/
+    }
 
     private List<String> getUrlGeneratorEventTypeList() {
         List<String> eventTypeNames = new ArrayList<String>();
@@ -79,5 +79,5 @@ public class SeoEventHandler {
         eventTypeNames.add(EventTypeName.LocalityGenerateUrl.getEventTypeName());
 
         return eventTypeNames;
-    }
+    }*/
 }
