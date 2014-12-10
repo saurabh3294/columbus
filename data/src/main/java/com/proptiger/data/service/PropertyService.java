@@ -393,8 +393,8 @@ public class PropertyService {
                 && otherInfo.getSize() > 0
                 && otherInfo.getProjectId() > 0
                 && otherInfo.getUnitType() != null
-                && otherInfo.getUnitType().equals("Plot")) {            
-           property =  creatingOrGettingPropertyInCaseOfPlot(otherInfo,userId,property);
+                && otherInfo.getUnitType().equals("Plot")) {
+            property = creatingOrGettingPropertyInCaseOfPlot(otherInfo, userId, property);
         }
         else {
             throw new BadRequestException("Other info is invalid");
@@ -402,7 +402,7 @@ public class PropertyService {
         return property;
     }
 
-    public Property creatingOrGettingPropertyInCaseOfPlot(OtherInfo otherInfo,int userId,Property property) {
+    public Property creatingOrGettingPropertyInCaseOfPlot(OtherInfo otherInfo, int userId, Property property) {
         FIQLSelector selector = new FIQLSelector().addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
                 .addAndConditionToFilter("unitType==Plot").addAndConditionToFilter("size==" + otherInfo.getSize())
                 .addAndConditionToFilter("project.version==" + DataVersion.Website);
