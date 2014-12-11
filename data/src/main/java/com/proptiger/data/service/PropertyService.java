@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.ProjectTypeToOptionTypeMapping;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.filter.Operator;
@@ -349,48 +350,38 @@ public class PropertyService {
         OtherInfo otherInfo = listing.getOtherInfo();
         if (otherInfo != null && otherInfo.getSize() != null
                 && otherInfo.getSize() > 0
-                && otherInfo.getBedrooms() > 0
                 && otherInfo.getProjectId() > 0
-                && otherInfo.getUnitType() != null
-                && (!otherInfo.getUnitType().equals("Plot"))) {
+                && otherInfo.getUnitType() != null) {
+
+            if (otherInfo.getBedrooms() == 0 && (!otherInfo.getUnitType().equals("Plot"))) {
+                throw new BadRequestException("Other info is invalid");
+            }
 
             FIQLSelector selector = new FIQLSelector()
                     .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
-                    .addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms())
                     .addAndConditionToFilter("size==" + otherInfo.getSize())
+                    .addAndConditionToFilter("unitType==" + otherInfo.getUnitType())
                     .addAndConditionToFilter("project.version==" + DataVersion.Website);
 
-            if (otherInfo.getBathrooms() > 0) {
+            if (otherInfo.getBedrooms() > 0 && (!otherInfo.getUnitType().equals("Plot"))) {
+                selector.addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms());
+            }
+
+            if (otherInfo.getBathrooms() > 0 && (!otherInfo.getUnitType().equals("Plot"))) {
                 selector.addAndConditionToFilter("bathrooms==" + otherInfo.getBathrooms());
             }
             PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
             if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
                     && propertyWithMatchingCriteria.getResults().size() > 0) {
-                // matching property object found for the given other
-                // information
                 property = propertyWithMatchingCriteria.getResults().get(0);
             }
             else {
+                Project project = projectService.getProject(otherInfo.getProjectId());
+                int projectTypeId = project.getProjectTypeId();
 
-                Project project = projectService.getProjectWithTypes(otherInfo.getProjectId());
-
-                String[] validTypes = project.getProjectTypes().getTypeName().split(" ");
-
-                boolean flagType = false;
-                for (String validtype : validTypes) {
-                    
-                    System.out.println(validtype);
-                    
-                    if (validtype.toLowerCase().equals(otherInfo.getUnitType().toLowerCase())) {
-                        flagType = true;
-                    }
-                }
-
-                if (flagType == true) {
-                    Property toCreate = Property.createUnverifiedProperty(
-                            userId,
-                            otherInfo,
-                            propertyWithMatchingCriteria.getResults().get(0).getUnitType());
+                if (getByName(otherInfo.getUnitType()) != null && getByName(otherInfo.getUnitType()).contains(
+                        projectTypeId)) {
+                    Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, otherInfo.getUnitType());
                     property = propertyDao.saveAndFlush(toCreate);
                 }
                 else {
@@ -398,65 +389,25 @@ public class PropertyService {
                 }
             }
         }
-        else if (otherInfo != null && otherInfo.getSize() != null
-                && otherInfo.getSize() > 0
-                && otherInfo.getProjectId() > 0
-                && otherInfo.getUnitType() != null
-                && otherInfo.getUnitType().equals("Plot")) {
-            property = creatingOrGettingPropertyInCaseOfPlot(otherInfo, userId, property);
-        }
         else {
             throw new BadRequestException("Other info is invalid");
         }
         return property;
     }
 
-    public Property creatingOrGettingPropertyInCaseOfPlot(OtherInfo otherInfo, int userId, Property property) {
-        FIQLSelector selector = new FIQLSelector().addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
-                .addAndConditionToFilter("unitType==Plot").addAndConditionToFilter("size==" + otherInfo.getSize())
-                .addAndConditionToFilter("project.version==" + DataVersion.Website);
-
-        PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
-        if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
-                && propertyWithMatchingCriteria.getResults().size() > 0) {
-            property = propertyWithMatchingCriteria.getResults().get(0);
+    public List<Integer> getByName(String name) {
+        if (name.equals("Apartment")) {
+            return ProjectTypeToOptionTypeMapping.Apartment.getProjectTypeIds();
+        }
+        else if (name.equals("Plot")) {
+            return ProjectTypeToOptionTypeMapping.Plot.getProjectTypeIds();
+        }
+        else if (name.equals("Villa")) {
+            return ProjectTypeToOptionTypeMapping.Villa.getProjectTypeIds();
         }
         else {
-            
-            Project project = projectService.getProjectWithTypes(otherInfo.getProjectId());
-
-            String[] validTypes = project.getProjectTypes().getTypeName().split(" ");
-
-            boolean flagType = false;
-            for (String validtype : validTypes) {
-                
-                System.out.println(validtype);
-                
-                if (validtype.toLowerCase().equals(otherInfo.getUnitType().toLowerCase())) {
-                    flagType = true;
-                }
-            }
-            
-            if (flagType == true) {
-                Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, "Plot");
-                property = propertyDao.saveAndFlush(toCreate);
-            }
-            else {
-                throw new BadRequestException("This project does not contain plot");
-            }
+            return null;
         }
-        return property;
-    }
-
-    public void updateProjectsLifestyleScores(List<Property> properties) {
-        if (properties == null || properties.isEmpty()) {
-            return;
-        }
-        List<Project> projects = new ArrayList<Project>();
-        for (Property property : properties) {
-            projects.add(property.getProject());
-        }
-        projectService.updateLifestyleScoresByHalf(projects);
     }
 
     /**

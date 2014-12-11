@@ -866,8 +866,8 @@ public class ProjectService {
 
     }
 
-    public Project getProjectWithTypes(int projectId) {        
-        return projectDao.findProjectWithType(projectId);        
+    public Project getProject(int projectId) {        
+        return projectDao.getProject(projectId);        
     }
 
 }
