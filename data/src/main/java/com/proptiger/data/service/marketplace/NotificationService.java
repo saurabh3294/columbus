@@ -873,6 +873,7 @@ public class NotificationService {
             stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.CRM_URL) + PropertyReader
                     .getRequiredPropertyAsString(PropertyKeys.CRM_MOVE_RESALE_LEAD_TO_PRIMARY) + LeadId;
             uri = new URI(stringUrl);
+            logger.debug("CALLING CRM API:" + uri);
             restTemplate.getForObject(uri, Object.class);
         }
         catch (Exception e) {
