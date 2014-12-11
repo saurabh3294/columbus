@@ -16,6 +16,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.core.model.cms.Company;
@@ -75,12 +77,11 @@ public class CompanyUser extends BaseModel {
     @OneToMany
     @JoinColumn(name = "company_id", referencedColumnName = "company_id", insertable = false, updatable = false)
     private List<CompanyCoverage> companyCoverages;
-    
+        
     @Transient
     private List<Locality>        localities;
 
-
-    public int getId() {
+     public int getId() {
         return id;
     }
 
