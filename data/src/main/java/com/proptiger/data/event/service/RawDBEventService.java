@@ -19,22 +19,21 @@ import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.repo.RawDBEventDao;
-import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.util.Serializer;
 
 @Service
 public class RawDBEventService {
 
-    private static Logger           logger = LoggerFactory.getLogger(RawDBEventService.class);
+    private static Logger                     logger = LoggerFactory.getLogger(RawDBEventService.class);
 
     @Autowired
-    private RawDBEventDao           rawDBEventDao;
+    private RawDBEventDao                     rawDBEventDao;
 
     @Autowired
-    private RawEventTableDetailsDao rawEventTableDetailsDao;
+    private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Value("${transaction.maxCount}")
-    private Integer                 MAX_TRANSACTION_COUNT;
+    private Integer                           MAX_TRANSACTION_COUNT;
 
     /**
      * Generates list of RawDBEvents corresponding to a particular
@@ -53,7 +52,7 @@ public class RawDBEventService {
         if (tableLog.getLastTransactionKeyValue() == null) {
             Map<String, Object> latestTransaction = rawDBEventDao.getLatestTransaction(tableLog);
             Long transactionId = Long.parseLong(latestTransaction.get(tableLog.getTransactionKeyName()).toString());
-            rawEventTableDetailsDao.updateLastTransactionKeyValueById(tableLog.getId(), transactionId);
+            eventTypeMappingService.updateLastAccessedTransactionId(tableLog, transactionId);
             logger.info("Retrieving transactions for RawEventTableDetailsID: " + tableLog.getId()
                     + " Table: "
                     + tableLog.getTableName()
@@ -62,7 +61,9 @@ public class RawDBEventService {
             return rawDBEventList;
         }
 
-        List<Map<String, Object>> rawDBEventDataList = rawDBEventDao.getRawDBEventByTableNameAndId(tableLog, MAX_TRANSACTION_COUNT);
+        List<Map<String, Object>> rawDBEventDataList = rawDBEventDao.getRawDBEventByTableNameAndId(
+                tableLog,
+                MAX_TRANSACTION_COUNT);
         logger.debug("Retrieved data: " + rawDBEventDataList
                 + " for the RawEventTableDetailsID: "
                 + tableLog.getId()
@@ -72,12 +73,6 @@ public class RawDBEventService {
         for (Map<String, Object> rawDBEventMap : rawDBEventDataList) {
             DBOperation dbOperation = DBOperation.getDBOperationEnum((Character) rawDBEventMap
                     .get(RawDBEventTableConfig.getDbOperationAttributeName()));
-
-            if (rawDBEventTableConfig.getDbRawEventOperationConfig(dbOperation) == null) {
-                logger.debug("Skipping raw event creation as DbRawEventOperationConfig not found for " + rawDBEventMap
-                        .toString());
-                continue;
-            }
 
             RawDBEvent rawDBEvent = new RawDBEvent();
             rawDBEvent.setRawEventTableDetails(tableLog);
@@ -102,6 +97,12 @@ public class RawDBEventService {
      */
     public RawDBEvent populateRawDBEventData(RawDBEvent rawDBEvent) {
         logger.debug("Populating RawDBEvent data with TransactionId : " + rawDBEvent.getTransactionKeyValue());
+
+        if (rawDBEvent.getRawDBEventOperationConfig() == null) {
+            logger.debug("No operation config found for RawDBEvent with TransactionId : " + rawDBEvent
+                    .getTransactionKeyValue() + " and table: " + rawDBEvent.getRawEventTableDetails().getTableName());
+            return null;
+        }
 
         if (DBOperation.INSERT.equals(rawDBEvent.getRawDBEventOperationConfig().getDbOperation())) {
             rawDBEvent = populateInsertRawDBEventData(rawDBEvent);

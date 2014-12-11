@@ -12,12 +12,9 @@ import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.notification.model.Subscriber;
 
 @Entity
-@Table(name = "event_type_to_subscriber_mapping")
+@Table(name = "notification.event_type_to_subscriber_mapping")
 public class EventTypeToSubscriberMapping extends BaseModel{
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -6970713382337775984L;
 
     @Id

@@ -17,7 +17,9 @@ import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
 import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
 import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
 import com.proptiger.data.event.model.EventType;
+import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.RawEventToEventTypeMapping;
+import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
 import com.proptiger.data.util.Serializer;
 
@@ -30,6 +32,9 @@ public class RawEventToEventTypeMappingService {
 
     @Autowired
     private EventTypeService                  eventTypeService;
+
+    @Autowired
+    private RawEventTableDetailsDao           rawEventTableDetailsDao;
 
     public static List<RawDBEventTableConfig> rawDBEventTableConfigs;
 
@@ -197,4 +202,20 @@ public class RawEventToEventTypeMappingService {
     public void setDbRawEventTableConfigs(List<RawDBEventTableConfig> rawDBEventTableConfigs) {
         RawEventToEventTypeMappingService.rawDBEventTableConfigs = rawDBEventTableConfigs;
     }
+
+    /**
+     * Update the last accessed transaction Id in RawEventTableDetails and
+     * persist the change in DB
+     * 
+     * @param rawEventTableDetails
+     * @param transactionId
+     * @return
+     */
+    public RawEventTableDetails updateLastAccessedTransactionId(
+            RawEventTableDetails rawEventTableDetails,
+            Long transactionId) {
+        rawEventTableDetails.setLastTransactionKeyValue(transactionId);
+        return rawEventTableDetailsDao.save(rawEventTableDetails);
+    }
+
 }

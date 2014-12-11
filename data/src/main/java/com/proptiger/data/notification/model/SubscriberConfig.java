@@ -22,9 +22,7 @@ public class SubscriberConfig extends BaseModel {
     private static final long serialVersionUID = 66872383451935024L;
 
     public enum ConfigName {
-        MaxActiveNotificationTypeCount,
-        MaxActiveNotificationMessageCount,
-        MaxVerifedEventCount;
+        MaxActiveNotificationTypeCount, MaxActiveNotificationMessageCount, MaxVerifedEventCount;
     }
 
     @Column(name = "id")

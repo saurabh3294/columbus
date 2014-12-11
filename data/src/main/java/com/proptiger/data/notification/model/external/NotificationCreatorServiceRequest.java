@@ -16,18 +16,18 @@ import com.proptiger.data.notification.enums.NotificationTypeEnum;
 
 public class NotificationCreatorServiceRequest extends BaseModel {
 
-    private static final long    serialVersionUID = 1156368440678315380L;
+    private static final long   serialVersionUID = 1156368440678315380L;
 
     @NotNull
-    private NotificationTypeEnum notificationType;
+    private String              notificationType;
 
     @Size(min = 1)
-    private List<User>           users            = new ArrayList<User>();
+    private List<User>          users            = new ArrayList<User>();
 
-    private Map<String, Object>  payloadMap       = new HashMap<String, Object>();
+    private Map<String, Object> payloadMap       = new HashMap<String, Object>();
 
     @Size(min = 1)
-    private List<MediumDetails>  mediumDetails    = new ArrayList<MediumDetails>();
+    private List<MediumDetails> mediumDetails    = new ArrayList<MediumDetails>();
 
     public NotificationCreatorServiceRequest() {
 
@@ -38,7 +38,7 @@ public class NotificationCreatorServiceRequest extends BaseModel {
         user.setId(userId);
         this.users.add(user);
         this.mediumDetails.add(mediumDetails);
-        this.notificationType = NotificationTypeEnum.Default;
+        this.notificationType = NotificationTypeEnum.Default.name();
     }
 
     public NotificationCreatorServiceRequest(
@@ -53,7 +53,7 @@ public class NotificationCreatorServiceRequest extends BaseModel {
         user.setId(userId);
         this.users.add(user);
         this.mediumDetails.add(mediumDetails);
-        this.notificationType = notificationType;
+        this.notificationType = notificationType.name();
     }
 
     public NotificationCreatorServiceRequest(
@@ -65,7 +65,7 @@ public class NotificationCreatorServiceRequest extends BaseModel {
         if (notificationType == null) {
             notificationType = NotificationTypeEnum.Default;
         }
-        this.notificationType = notificationType;
+        this.notificationType = notificationType.name();
 
         User user = new User();
         user.setId(userId);
@@ -80,11 +80,11 @@ public class NotificationCreatorServiceRequest extends BaseModel {
         }
     }
 
-    public NotificationTypeEnum getNotificationType() {
+    public String getNotificationType() {
         return notificationType;
     }
 
-    public void setNotificationType(NotificationTypeEnum notificationType) {
+    public void setNotificationType(String notificationType) {
         this.notificationType = notificationType;
     }
 

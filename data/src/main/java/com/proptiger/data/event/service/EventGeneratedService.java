@@ -245,7 +245,6 @@ public class EventGeneratedService {
         }
 
         for (String attributeName : rawDBEvent.getNewDBValueMap().keySet()) {
-
             RawDBEventAttributeConfig rawDBEventAttributeConfig = rawDBEventOperationConfig
                     .getRawDBEventAttributeConfig(attributeName);
             if (rawDBEventAttributeConfig != null && rawDBEventAttributeConfig.getListEventTypes() != null) {
@@ -305,8 +304,8 @@ public class EventGeneratedService {
         }
 
         logger.debug("Number of Event Generated being picked up: " + listEventGenerateds.size());
-
         populateEventsDataAfterLoad(listEventGenerateds);
+
         return listEventGenerateds;
     }
 
@@ -371,12 +370,5 @@ public class EventGeneratedService {
 
         return eventGenerated;
     }
-
-    public SubscriberConfigService getSubscriberConfigService() {
-        if(subscriberConfigService == null){
-            subscriberConfigService = applicationContext.getBean(SubscriberConfigService.class);
-        }
-        return subscriberConfigService;
-    }
-
+   
 }

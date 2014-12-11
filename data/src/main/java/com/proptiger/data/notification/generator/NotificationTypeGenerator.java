@@ -2,7 +2,6 @@ package com.proptiger.data.notification.generator;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -14,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
+import com.proptiger.data.notification.model.Subscriber.SubscriberName;
 import com.proptiger.data.notification.service.NotificationTypeGeneratedService;
 import com.proptiger.data.notification.service.SubscriberConfigService;
 
@@ -58,23 +58,17 @@ public class NotificationTypeGenerator {
     @Transactional
     public Integer generateNotificationTypes() {
         Integer ntCount = 0;
-        
-        // Get the date of event last accessed by Notification subscriber
-        Date fromDate = subscriberConfigService.getLastEventDateReadByNotification();
 
-        // Get all the new verified events 
-        List<EventGenerated> eventGeneratedList = eventGeneratedService.getVerifiedEventsFromDate(fromDate);
-        logger.debug("Found " + eventGeneratedList.size() + " EventGenerateds from Date " + fromDate);
+        // Get all the new verified events
+        List<EventGenerated> eventGeneratedList = eventGeneratedService.getLatestVerifiedEventGeneratedsBySubscriber(
+                SubscriberName.Notification,
+                null);
+        logger.debug("Found " + eventGeneratedList.size() + " EventGenerateds");
 
-        // Sort them in ascending order by last accessed date
+        // Sort them in ascending order by id of eventGenerated
         Collections.sort(eventGeneratedList, new Comparator<EventGenerated>() {
             public int compare(EventGenerated event1, EventGenerated event2) {
-                if (event1.getUpdatedAt().after(event2.getUpdatedAt()))
-                    return 1;
-                else if (event1.getUpdatedAt().before(event2.getUpdatedAt()))
-                    return -1;
-                else
-                    return 0;
+                return (event1.getId() - event2.getId());
             }
         });
 

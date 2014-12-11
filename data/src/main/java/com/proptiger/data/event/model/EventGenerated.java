@@ -36,44 +36,44 @@ public class EventGenerated extends BaseModel {
     @Column(name = "id")
     @Id
     @GeneratedValue
-    private int              id;
+    private int                                id;
 
     @Column(name = "data")
-    private String           data;
+    private String                             data;
 
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
-    private EventType        eventType;
+    private EventType                          eventType;
 
     @Column(name = "event_type_id")
-    private Integer          eventTypeId;
+    private Integer                            eventTypeId;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private EventStatus      eventStatus;
+    private EventStatus                        eventStatus;
 
     @Column(name = "merged_event_id")
-    private Integer          mergedEventId;
+    private Integer                            mergedEventId;
 
     @Column(name = "expiry_date")
-    private Date             expiryDate;
+    private Date                               expiryDate;
 
     @Column(name = "event_type_unique_key")
-    private String           eventTypeUniqueKey;
+    private String                             eventTypeUniqueKey;
 
     @Transient
-    private EventTypePayload eventTypePayload;
+    private EventTypePayload                   eventTypePayload;
 
     @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date             createdAt;
+    private Date                               createdAt;
 
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date             updatedAt;
-    
+    private Date                               updatedAt;
+
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name="event_type_id", referencedColumnName = "event_type_id")
+    @JoinColumn(name = "event_type_id", referencedColumnName = "event_type_id")
     private List<EventTypeToSubscriberMapping> subscriberMapping;
 
     @PreUpdate

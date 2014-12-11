@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.NotificationStatus;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
@@ -133,7 +132,7 @@ public class NotificationMessageService {
      * @return
      */
     public NotificationMessage createNotificationMessage(
-            NotificationTypeEnum notificationType,
+            String notificationType,
             int userId,
             Map<String, Object> payloadMap) {
 
@@ -142,7 +141,7 @@ public class NotificationMessageService {
             notiType = notiTypeService.findDefaultNotificationType();
         }
         else {
-            notiType = notiTypeService.findByName(notificationType.getName());
+            notiType = notiTypeService.findByName(notificationType);
         }
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setExtraAttributes(payloadMap);
@@ -202,7 +201,8 @@ public class NotificationMessageService {
                 .getNotificationMessageProcessorObject();
 
         if (NotificationTypeUserStrategy.OnlySubscribed.equals(notificationType.getUserStrategy())) {
-            List<User> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType.getId());
+            List<User> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType
+                    .getId());
             logger.debug("Found " + userList.size()
                     + " Subscribed users for NotificationType "
                     + notificationType.getName());
