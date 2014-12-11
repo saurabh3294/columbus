@@ -21,11 +21,11 @@ import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceNotFoundException;
 import com.proptiger.core.exception.UnauthorizedException;
-import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
@@ -37,7 +37,6 @@ import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.MasterLeadOfferStatus;
 import com.proptiger.data.model.MasterLeadTask;
-import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadTask;
@@ -170,9 +169,9 @@ public class LeadTaskService {
             finalTask.setNextTask(nextTask);
         }
         finalTask.unlinkCircularLoop();
-        
+
         Integer userId = savedTask.getLeadOffer().getAgentId();
-        
+
         long countLeadOffersOnThisAgentInNewStatus = leadOfferDao.getCountByAgentIdAndStatusId(
                 userId,
                 LeadOfferStatus.New.getId());
@@ -180,18 +179,20 @@ public class LeadTaskService {
         if (countLeadOffersOnThisAgentInNewStatus < PropertyReader.getRequiredPropertyAsType(
                 PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
                 Long.class)) {
-            Notification notification = notificationService.findByUserIdAndNotificationId(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+            Notification notification = notificationService.findByUserIdAndNotificationId(
+                    userId,
+                    NotificationType.MaxLeadCountForBrokerReached.getId(),
+                    0);
             if (notification != null) {
-                notificationService.deleteNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
                 notificationService
-                        .deleteNotification(
-                                PropertyReader
-                                        .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
-                                NotificationType.MaxLeadCountForBrokerReached.getId(),
-                                userId);
+                        .deleteNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+                notificationService.deleteNotification(
+                        PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID),
+                        NotificationType.MaxLeadCountForBrokerReached.getId(),
+                        userId);
             }
         }
-        
+
         return finalTask.populateTransientAttributes();
     }
 
@@ -401,11 +402,6 @@ public class LeadTaskService {
      * @param leadId
      */
     private void manageMoveToPrimary(int leadId) {
-        Lead lead = leadDao.findOne(leadId);
-        // skipping interested in primary check
-        // if
-        // (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString()))
-        // {
         List<LeadOffer> offers = leadOfferDao.findByLeadId(leadId);
         boolean lost = true;
         boolean primaryLead = false;
@@ -419,9 +415,15 @@ public class LeadTaskService {
             }
         }
         if (lost && primaryLead) {
-            notificationService.moveToPrimaryAsync(leadId);
+            notificationService.moveToPrimary(leadId);
         }
-        // }
+        else {
+            logger.debug("Lead " + leadId
+                    + " doesn't qualify for move to primary. Lost: "
+                    + lost
+                    + " PrimaryLead: "
+                    + primaryLead);
+        }
     }
 
     // XXX -- introduced only because we have not yet found a solution to load
@@ -726,7 +728,10 @@ public class LeadTaskService {
 
         PaginatedResponse<List<LeadTask>> response = new PaginatedResponse<>();
         response.setTotalCount(leadTaskDao.getCountByAgentId(userId));
-        response.setResults(leadTaskDao.findByAgentIdWithLeadOfferAndMasterLeadTaskAndMasterLeadTaskStatusAndLeadOfferedListingsOrderByScheduledForDesc(userId, pageable));
+        response.setResults(leadTaskDao
+                .findByAgentIdWithLeadOfferAndMasterLeadTaskAndMasterLeadTaskStatusAndLeadOfferedListingsOrderByScheduledForDesc(
+                        userId,
+                        pageable));
 
         LeadTask.populateTransientAttributes(response.getResults());
         LeadTask.unlinkCircularLoop(response.getResults());
@@ -764,7 +769,8 @@ public class LeadTaskService {
         Map<Integer, LeadTask> taskMap = new HashMap<>();
 
         if (leadTaskIds != null && !leadTaskIds.isEmpty()) {
-            List<LeadTask> leadTasks = leadTaskDao.findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(leadTaskIds);
+            List<LeadTask> leadTasks = leadTaskDao
+                    .findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(leadTaskIds);
             Map<Integer, List<TaskOfferedListingMapping>> taskOfferedListingMappings = extractListings(leadTaskDao
                     .getTaskOfferedListingMappings(leadTaskIds));
             LeadTask.populateTransientAttributes(leadTasks);
@@ -781,7 +787,8 @@ public class LeadTaskService {
     }
 
     public List<LeadTask> getTasksByLeadOfferId(int leadOfferId) {
-        List<LeadTask> leadTasks = leadTaskDao.findByLeadOfferIdWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(leadOfferId);
+        List<LeadTask> leadTasks = leadTaskDao
+                .findByLeadOfferIdWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(leadOfferId);
 
         List<Integer> leadTaskIds = new ArrayList<>();
         for (LeadTask leadTask : leadTasks) {
