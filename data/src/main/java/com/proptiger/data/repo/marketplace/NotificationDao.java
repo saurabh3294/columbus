@@ -29,8 +29,6 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
 
     public List<Notification> findByUserIdAndNotificationTypeId(int userId, int notificationTypeId);
 
-    public List<Notification> findByUserIdAndObjectId(int userId, int objectId);
-
     @Query(
             value = "SELECT N from LeadTask LT INNER JOIN LT.notifications N INNER JOIN LT.taskStatus LTS WHERE N.notificationTypeId = ?1 AND LTS.masterTaskId IN (?2)")
     public List<Notification> findByNotificationTypeIdAndMasterTaskIdIn(

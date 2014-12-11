@@ -24,9 +24,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.UnauthorizedException;
-import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.dto.external.marketplace.GcmMessage;
@@ -330,9 +330,8 @@ public class NotificationService {
     }
 
     public void sendLimitReachedGCMNotifications() {
-        List<Notification> notifications = notificationDao.findByUserIdAndObjectId(
-                NotificationType.MaxLeadCountForBrokerReached.getId(),
-                0);
+        List<Notification> notifications = notificationDao
+                .findByNotificationTypeId(NotificationType.MaxLeadCountForBrokerReached.getId());
 
         for (Notification notification : notifications) {
             sendLimitReachedGCMNotification(notification.getUserId());
@@ -534,7 +533,8 @@ public class NotificationService {
     }
 
     private List<Integer> getLeadOfferIdsFromTaskIds(List<Integer> taskIds) {
-        List<LeadTask> tasks = taskDao.findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(taskIds);
+        List<LeadTask> tasks = taskDao
+                .findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(taskIds);
         List<Integer> leadOfferIds = new ArrayList<>();
         for (LeadTask leadTask : tasks) {
             leadOfferIds.add(leadTask.getLeadOfferId());
