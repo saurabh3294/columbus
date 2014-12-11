@@ -33,4 +33,10 @@ public class NewsEventTypePayload extends EventTypePayload {
         this.termTaxonomyId = ((BigInteger) rawDBEvent.getNewDBValueMap().get("term_taxonomy_id")).longValue();
     }
 
+    @Override
+    public Object getPayloadValues() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

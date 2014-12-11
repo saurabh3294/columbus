@@ -7,6 +7,7 @@ import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.event.enums.EventTypeEnum;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
+import com.proptiger.data.event.model.payload.MultiValueEventTypePayload;
 import com.proptiger.data.event.model.payload.NewsEventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.processor.DefaultDBEventProcessor;
@@ -16,9 +17,22 @@ import com.proptiger.data.event.processor.ProjectNewsProcessor;
 import com.proptiger.data.event.verification.DBEventVerification;
 import com.proptiger.data.event.verification.DefaultDBEventVerification;
 import com.proptiger.data.event.verification.PriceChangeVerification;
+import com.proptiger.data.event.processor.seo.SeoLocalityChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoLocalityDeleteProcessor;
+import com.proptiger.data.event.processor.seo.SeoProjectChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoProjectContentChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoProjectDeleteProcessor;
+import com.proptiger.data.event.processor.seo.SeoPropertyChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoPropertyDeleteProcessor;
+import com.proptiger.data.event.processor.seo.SeoBuilderChangeProcessor;
+import com.proptiger.data.event.processor.seo.SeoBuilderDeleteProcessor;
+
 
 public class EventTypeConfig extends BaseModel {
 
+    /**
+     * 
+     */
     private static final long                    serialVersionUID      = 5353549466505297871L;
 
     private static Map<String, EventTypeConfig>  eventTypeConfigMap    = new HashMap<String, EventTypeConfig>();
@@ -29,8 +43,44 @@ public class EventTypeConfig extends BaseModel {
                 DefaultEventTypePayload.class,
                 PriceChangeProcessor.class,
                 PriceChangeVerification.class));
+        eventTypeConfigMap.put("project_url_generation", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoProjectChangeProcessor.class,
+                null));
+        eventTypeConfigMap.put("property_url_generation", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoPropertyChangeProcessor.class,
+                null));
+        eventTypeConfigMap.put("project_url_delete", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoProjectDeleteProcessor.class,
+                null));
+        eventTypeConfigMap.put("property_url_delete", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoPropertyDeleteProcessor.class,
+                null));
+        eventTypeConfigMap.put("locality_url_generation", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoLocalityChangeProcessor.class,
+                null));
+        eventTypeConfigMap.put("locality_url_delete", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoLocalityDeleteProcessor.class,
+                null));
+        eventTypeConfigMap.put("builder_url_generation", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoBuilderChangeProcessor.class,
+                null));
+        eventTypeConfigMap.put("builder_url_delete", new EventTypeConfig(
+                DefaultEventTypePayload.class,
+                SeoBuilderDeleteProcessor.class,
+                null));
+        eventTypeConfigMap.put("project_url_content_change", new EventTypeConfig(
+                MultiValueEventTypePayload.class,
+                SeoProjectContentChangeProcessor.class,
+                null));
 
-        eventTypeConfigMap.put(EventTypeEnum.PortfolioProjectNews.getName(), new EventTypeConfig(
+ 		eventTypeConfigMap.put(EventTypeEnum.PortfolioProjectNews.getName(), new EventTypeConfig(
                 NewsEventTypePayload.class,
                 ProjectNewsProcessor.class,
                 DefaultDBEventVerification.class));
@@ -44,7 +94,6 @@ public class EventTypeConfig extends BaseModel {
     private Class<? extends EventTypePayload>    dataClassName         = DefaultEventTypePayload.class;
     private Class<? extends DBEventProcessor>    processorClassName    = DefaultDBEventProcessor.class;
     private Class<? extends DBEventVerification> verificationClassName = DefaultDBEventVerification.class;
-
     private DBEventProcessor                     processorObject;
     private EventTypePayload                     eventTypePayloadObject;
     private DBEventVerification                  eventVerificationObject;

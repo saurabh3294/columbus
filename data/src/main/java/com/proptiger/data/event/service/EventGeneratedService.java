@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
+import com.proptiger.data.event.enums.EventTypeName;
 import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
 import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
 import com.proptiger.data.event.model.EventGenerated;
@@ -23,6 +24,7 @@ import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.repo.EventGeneratedDao;
+import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
 import com.proptiger.data.notification.model.Subscriber;
 import com.proptiger.data.notification.model.Subscriber.SubscriberName;
@@ -41,6 +43,9 @@ public class EventGeneratedService {
     private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Autowired
+    private RawEventTableDetailsDao           rawEventTableDetailsDao;
+
+    @Autowired
     private RawEventToEventTypeMappingDao     dbEventMappingDao;
 
     @Autowired
@@ -48,6 +53,7 @@ public class EventGeneratedService {
 
     @Autowired
     private ApplicationContext                applicationContext;
+	
 
     @Autowired
     private SubscriberConfigService           subscriberConfigService;
@@ -239,7 +245,6 @@ public class EventGeneratedService {
         }
 
         for (String attributeName : rawDBEvent.getNewDBValueMap().keySet()) {
-
             RawDBEventAttributeConfig rawDBEventAttributeConfig = rawDBEventOperationConfig
                     .getRawDBEventAttributeConfig(attributeName);
             if (rawDBEventAttributeConfig != null && rawDBEventAttributeConfig.getListEventTypes() != null) {
@@ -307,7 +312,7 @@ public class EventGeneratedService {
     private boolean checkAndSetSubscriberLastEventId(SubscriberName subscriberName) {
         Subscriber subscriber = subscriberConfigService.getSubscriber(subscriberName);
         if (subscriber.getLastEventGeneratedId() == null) {
-            EventGenerated lastEventGenerated = getLatestEventGenerated();
+            EventGenerated lastEventGenerated = getLastVerifiedEventGenerated();
             if (lastEventGenerated != null) {
                 subscriberConfigService.setLastEventGeneratedIdBySubscriber(lastEventGenerated.getId(), subscriber);
             }
@@ -359,5 +364,11 @@ public class EventGeneratedService {
     private void populateEventsDataBeforeSave(EventGenerated eventGenerated) {
         eventGenerated.setData(Serializer.toJson(eventGenerated.getEventTypePayload()));
     }
+    
+    private EventGenerated getLastVerifiedEventGenerated() {
+        EventGenerated eventGenerated = eventGeneratedDao.findByEventStatusOrderByUpdatedAtDesc(EventStatus.Verified);
 
+        return eventGenerated;
+    }
+   
 }

@@ -15,7 +15,7 @@ import com.proptiger.core.model.BaseModel;
 @Entity
 @Table(name = "notification.subscriber_config")
 public class SubscriberConfig extends BaseModel {
-
+  
     /**
      * 
      */

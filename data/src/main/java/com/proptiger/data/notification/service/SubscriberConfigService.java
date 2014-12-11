@@ -1,5 +1,6 @@
 package com.proptiger.data.notification.service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +38,7 @@ public class SubscriberConfigService {
     @Autowired
     private ApplicationContext                     applicationContext;
 
-    private static Map<SubscriberName, Subscriber> subscriberMap = new HashMap<SubscriberName, Subscriber>();
+     private static Map<SubscriberName, Subscriber> subscriberMap = new HashMap<SubscriberName, Subscriber>();
 
     @PostConstruct
     public void constructSubscriberConfig() {
@@ -98,8 +99,8 @@ public class SubscriberConfigService {
         }
         return Integer.valueOf(configValue);
     }
-
-    @Cacheable(value = Constants.CacheName.NOTIFICATION_SUBSCRIBER_CONFIG, key = "#subscriberName+':'+#configName")
+    
+	@Cacheable(value = Constants.CacheName.NOTIFICATION_SUBSCRIBER_CONFIG, key = "#subscriberName+':'+#configName")
     public String getSubscriberConfig(SubscriberName subscriberName, ConfigName configName) {
         logger.debug("GETTING SUBSCRIBER CONFIG FOR SUBSCRIBER: " + subscriberName + " and CONFIG: " + configName);
         List<SubscriberConfig> configs = subscriberConfigDao.findConfigBySubscriber(subscriberName, configName);
