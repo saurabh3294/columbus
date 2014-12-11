@@ -89,4 +89,8 @@ public class ProjectDao extends ProjectSolrDao {
     public Project findActiveOrInactiveProjectById(Integer id) {
         return projectDaoNew.findByProjectIdAndVersion(id, DataVersion.Website);
     }
+
+    public Project findProjectWithType(int projectId) {
+        return projectDaoNew.findProjectWithType(projectId);
+    }
 }

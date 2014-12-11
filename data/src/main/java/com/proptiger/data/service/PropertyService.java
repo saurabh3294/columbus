@@ -371,13 +371,22 @@ public class PropertyService {
                 property = propertyWithMatchingCriteria.getResults().get(0);
             }
             else {
-                selector = new FIQLSelector().setGroup("unitType")
-                        .addAndConditionToFilter("projectId==" + otherInfo.getProjectId()).setRows(1)
-                        .addSortDESC("countPropertyId");
 
-                propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+                Project project = projectService.getProjectWithTypes(otherInfo.getProjectId());
 
-                if (propertyWithMatchingCriteria.getResults().get(0).getUnitType().equals(otherInfo.getUnitType())) {
+                String[] validTypes = project.getProjectTypes().getTypeName().split(" ");
+
+                boolean flagType = false;
+                for (String validtype : validTypes) {
+                    
+                    System.out.println(validtype);
+                    
+                    if (validtype.toLowerCase().equals(otherInfo.getUnitType().toLowerCase())) {
+                        flagType = true;
+                    }
+                }
+
+                if (flagType == true) {
                     Property toCreate = Property.createUnverifiedProperty(
                             userId,
                             otherInfo,
@@ -413,18 +422,22 @@ public class PropertyService {
             property = propertyWithMatchingCriteria.getResults().get(0);
         }
         else {
-            selector = new FIQLSelector().setGroup("unitType")
-                    .addAndConditionToFilter("projectId==" + otherInfo.getProjectId()).addSortDESC("countPropertyId");
+            
+            Project project = projectService.getProjectWithTypes(otherInfo.getProjectId());
 
-            propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+            String[] validTypes = project.getProjectTypes().getTypeName().split(" ");
 
-            boolean flagPlot = false;
-            for (Property singleProperty : propertyWithMatchingCriteria.getResults()) {
-                if (singleProperty.getUnitType().equals("Plot")) {
-                    flagPlot = true;
+            boolean flagType = false;
+            for (String validtype : validTypes) {
+                
+                System.out.println(validtype);
+                
+                if (validtype.toLowerCase().equals(otherInfo.getUnitType().toLowerCase())) {
+                    flagType = true;
                 }
             }
-            if (flagPlot == true) {
+            
+            if (flagType == true) {
                 Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, "Plot");
                 property = propertyDao.saveAndFlush(toCreate);
             }
