@@ -54,6 +54,7 @@ import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
 import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.service.marketplace.ListingService;
+import com.proptiger.data.service.marketplace.MasterLeadOfferStatusService;
 import com.proptiger.data.service.marketplace.NotificationService;
 import com.proptiger.data.util.SerializationUtils;
 
@@ -110,6 +111,9 @@ public class LeadTaskService {
 
     @Autowired
     private TaskOfferedListingMappingDao taskOfferedListingMappingDao;
+
+    @Autowired
+    private MasterLeadOfferStatusService offerStatusService;
 
     /**
      * function to update leadtask for a user
@@ -407,7 +411,7 @@ public class LeadTaskService {
         boolean lost = true;
         boolean primaryLead = false;
         for (LeadOffer offer : offers) {
-            MasterLeadOfferStatus status = offer.getMasterLeadOfferStatus();
+            MasterLeadOfferStatus status = offerStatusService.getLeadOfferStatus(offer.getStatusId());
             if (status.isOpen() || LeadOfferStatus.ClosedWon.equals(LeadOfferStatus.valueOf(status.getStatus()))) {
                 logger.debug("marking lost as false... offer = " + SerializationUtils.objectToJson(offer)
                         + " status: "
