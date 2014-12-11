@@ -93,22 +93,29 @@
 #else 	
 	${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq ft, 
 #end
-#set($minBudgetInLacs = ${leadOffer.lead.minBudget}/100000.0)
-#set($maxBudgetInLacs = ${leadOffer.lead.maxBudget}/100000.0)
+    #if(${leadOffer.lead.minBudget})	
+	#set($minBudgetInLacs = ${leadOffer.lead.minBudget}/100000.0)
+	#if($minBudgetInLacs > 100)
+	#set($minBudgetInCrores = $minBudgetInLacs/100.0)
+	$velocityUtility.roundToTwoDecimal($minBudgetInCrores) Cr.
+	#else
+	$velocityUtility.roundToTwoDecimal($minBudgetInLacs) Lacs
+	#end
+  #end
 
-#if($minBudgetInLacs > 100)
-#set($minBudgetInCrores = $minBudgetInLacs/100.0)
-$velocityUtility.roundToTwoDecimal($minBudgetInCrores) Cr.
-#else
-$velocityUtility.roundToTwoDecimal($minBudgetInLacs) Lacs
-#end
+#if(${leadOffer.lead.maxBudget} && ${leadOffer.lead.minBudget})
 -
-#if($maxBudgetInLacs > 100)
-#set($maxBudgetInCrores = $maxBudgetInLacs/100.0)
-$velocityUtility.roundToTwoDecimal($maxBudgetInCrores) Cr.
-#else
-$velocityUtility.roundToTwoDecimal($maxBudgetInLacs) Lacs.
 #end
+
+  #if(${leadOffer.lead.maxBudget})		
+	#set($maxBudgetInLacs = ${leadOffer.lead.maxBudget}/100000.0)
+	#if($maxBudgetInLacs > 100)
+	#set($maxBudgetInCrores = $maxBudgetInLacs/100.0)
+	$velocityUtility.roundToTwoDecimal($maxBudgetInCrores) Cr.
+	#else
+	$velocityUtility.roundToTwoDecimal($maxBudgetInLacs) Lacs.
+	#end
+    #end 	
  You can find the property details below.
     
     </td>

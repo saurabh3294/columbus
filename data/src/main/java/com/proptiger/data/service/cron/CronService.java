@@ -11,7 +11,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.config.scheduling.QuartzScheduledClass;
@@ -66,8 +65,10 @@ public class CronService {
                         * 1000);
         List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
         Date expireTime = notificationService.getNoBrokerClaimedCutoffTime();
-                
-        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired(expireTime);
+
+        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsByOfferCreatedAtLessThanAndOfferStatusId(
+                expireTime,
+                LeadOfferStatus.Offered.getId());
         Set<Integer> leadIds = new HashSet<Integer>();
 
         for (Lead lead : leads) {
@@ -112,7 +113,10 @@ public class CronService {
         if (!leadIds.isEmpty()) {
             notificationService
                     .deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
-            leadOfferDao.updateLeadOffers(leadIdList);
+            leadOfferDao.updateStatusByLeadIdInAndStatus(
+                    leadIdList,
+                    LeadOfferStatus.Offered.getId(),
+                    LeadOfferStatus.Expired.getId());
         }
 
         for (Integer leadId : leadIdList) {
@@ -172,6 +176,7 @@ public class CronService {
         }
     }
 
+    @QuartzScheduledJob(initialDelay = 50000, fixedDelay = 1800000)
     public void manageLeadOfferedReminder() {
         Date endDate = notificationService.getAuctionOverCutoffTime();
         Date startDate = new Date(

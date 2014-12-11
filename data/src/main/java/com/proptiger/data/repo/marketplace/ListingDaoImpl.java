@@ -40,7 +40,7 @@ public class ListingDaoImpl {
     public List<Listing> findListings(Integer userId, DataVersion dataVersion, Status status, FIQLSelector selector) {
         EntityManager em = emf.createEntityManager();
         Query query = em
-                .createQuery("select l from Listing l left join fetch l.projectSupply left join fetch l.currentListingPrice join fetch l.property prop join fetch prop.project as p join fetch p.projectStatusMaster join fetch p.builder join fetch p.locality pl join fetch pl.suburb pls join fetch pls.city where l.sellerId=?1 and p.version=?2  and l.status=?3");
+                .createQuery("select l from Listing l left join fetch l.projectSupply left join fetch l.currentListingPrice join fetch l.property prop join fetch prop.project as p join fetch p.projectStatusMaster join fetch p.builder join fetch p.locality pl join fetch pl.suburb pls join fetch pls.city where l.sellerId=?1 and p.version=?2  and l.status=?3 order by l.id desc");
         query.setParameter(1, userId);
         query.setParameter(2, dataVersion);
         query.setParameter(3, status);
