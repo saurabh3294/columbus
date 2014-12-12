@@ -27,7 +27,7 @@
 		<profile>
 			<id>develop</id>
 			<properties>
-				<midl-core.version>java8</midl-core.version>
+				<midl-core.version>java8-SNAPSHOT</midl-core.version>
 			</properties>
 		</profile>
 		<profile>
