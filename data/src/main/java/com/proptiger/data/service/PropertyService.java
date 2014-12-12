@@ -27,6 +27,7 @@ import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.ProjectTypeToOptionTypeMapping;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
@@ -353,7 +354,7 @@ public class PropertyService {
                 && otherInfo.getProjectId() > 0
                 && otherInfo.getUnitType() != null) {
 
-            if (otherInfo.getBedrooms() == 0 && (!otherInfo.getUnitType().equals("Plot"))) {
+            if (otherInfo.getBedrooms() == 0 && (!otherInfo.getUnitType().equals(UnitType.Plot.toString()))) {
                 throw new BadRequestException("Other info is invalid");
             }
 
@@ -363,11 +364,11 @@ public class PropertyService {
                     .addAndConditionToFilter("unitType==" + otherInfo.getUnitType())
                     .addAndConditionToFilter("project.version==" + DataVersion.Website);
 
-            if (otherInfo.getBedrooms() > 0 && (!otherInfo.getUnitType().equals("Plot"))) {
+            if (otherInfo.getBedrooms() > 0 && (!otherInfo.getUnitType().equals(UnitType.Plot.toString()))) {
                 selector.addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms());
             }
 
-            if (otherInfo.getBathrooms() > 0 && (!otherInfo.getUnitType().equals("Plot"))) {
+            if (otherInfo.getBathrooms() > 0 && (!otherInfo.getUnitType().equals(UnitType.Plot.toString()))) {
                 selector.addAndConditionToFilter("bathrooms==" + otherInfo.getBathrooms());
             }
             PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
@@ -376,7 +377,7 @@ public class PropertyService {
                 property = propertyWithMatchingCriteria.getResults().get(0);
             }
             else {
-                Project project = projectService.getProject(otherInfo.getProjectId());
+                Project project = projectService.getProjectWithVersionWebsite(otherInfo.getProjectId(),DataVersion.Website);
                 int projectTypeId = project.getProjectTypeId();
 
                 if (getByName(otherInfo.getUnitType()) != null && getByName(otherInfo.getUnitType()).contains(
@@ -396,13 +397,13 @@ public class PropertyService {
     }
 
     public List<Integer> getByName(String name) {
-        if (name.equals("Apartment")) {
+        if (name.equals(UnitType.Apartment.toString())) {
             return ProjectTypeToOptionTypeMapping.Apartment.getProjectTypeIds();
         }
-        else if (name.equals("Plot")) {
+        else if (name.equals(UnitType.Plot.toString())) {
             return ProjectTypeToOptionTypeMapping.Plot.getProjectTypeIds();
         }
-        else if (name.equals("Villa")) {
+        else if (name.equals(UnitType.Villa.toString())) {
             return ProjectTypeToOptionTypeMapping.Villa.getProjectTypeIds();
         }
         else {
