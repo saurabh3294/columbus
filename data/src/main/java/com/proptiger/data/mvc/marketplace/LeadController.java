@@ -36,7 +36,6 @@ public class LeadController extends BaseController {
             leadService.manageLeadAuctionWithBeforeCycle(createdLead.getId());
         }
         catch (Exception e) {
-            System.out.println("error in lead creation " + e);
         }
         return new APIResponse(createdLead);
     }
