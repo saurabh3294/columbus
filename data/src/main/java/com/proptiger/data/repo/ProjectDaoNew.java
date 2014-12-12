@@ -42,7 +42,6 @@ public interface ProjectDaoNew extends PagingAndSortingRepository<Project, Integ
     @Query("SELECT P FROM Project P left join fetch P.builder B where P.projectId IN ?1 AND P.version = 'Website' ")
     public List<Project> getProjectsOnId(List<Integer> projectId);
 
-    @Query("select P from Project P join fetch P.projectTypes where P.projectId = ?1")
-    public Project findProjectWithType(int projectId);
+    
     
 }
