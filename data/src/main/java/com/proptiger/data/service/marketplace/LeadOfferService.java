@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -131,6 +133,8 @@ public class LeadOfferService {
     @Autowired
     private DeclineReasonService         declineReasonService;
 
+    private static Logger                logger = LoggerFactory.getLogger(LeadOfferService.class);
+
     private LeadService getLeadService() {
         if (leadService == null) {
             leadService = applicationContext.getBean(LeadService.class);
@@ -204,15 +208,15 @@ public class LeadOfferService {
             FIQLSelector selector,
             List<Integer> statusIds,
             String dueDate) {
-        
+
         Set<String> fields = selector.getFieldSet();
-              
+
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferDao.getLeadOffers(
                 agentId,
                 statusIds,
                 dueDate,
                 selector);
-                
+
         enrichLeadOffers(paginatedResponse.getResults(), fields, agentId);
 
         return paginatedResponse;
@@ -643,6 +647,7 @@ public class LeadOfferService {
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
         String heading = "Matching Property suggested by our trusted broker";
         String templatePath = marketplaceTemplateBasePath + claimTemplate;
+        logger.debug("Sending email from inside claim lead");
         sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId, "Proptiger.com");
     }
 
@@ -729,7 +734,9 @@ public class LeadOfferService {
                 String heading = "More properties matching your requirement";
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
 
-                if (leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId()) {
+                if (newListingIds != null && !newListingIds.isEmpty()
+                        && leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId()) {
+                    logger.debug("Sending email from inside offer listings");
                     sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId, null);
                 }
                 return newListingIds;
@@ -778,7 +785,7 @@ public class LeadOfferService {
             if (username == null) {
                 username = leadOfferInDB.getAgent().getFullName();
             }
-            
+
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
                     .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
