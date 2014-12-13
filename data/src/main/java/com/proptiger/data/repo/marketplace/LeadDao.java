@@ -17,11 +17,12 @@ import com.proptiger.data.model.marketplace.Lead;
  */
 
 public interface LeadDao extends JpaRepository<Lead, Integer> {
-    @Query("select L from Lead L where L.clientId = ?1 and L.mergedLeadId is null order by L.id desc")
-    public List<Lead> findByClientId(int Id);
+    public List<Lead> findByIdIn(List<Integer> ids);
 
-    @Query("select L from Lead L  where L.cityId = ?1 and L.clientId = ?2 and L.mergedLeadId is null order by L.id desc")
-    public List<Lead> getLeads(int cityId, int id);
+    public List<Lead> findByCityIdAndClientIdAndMergedLeadIdIsNullOrderByIdDesc(int cityId, int clientId);
+
+    @Query(nativeQuery = true, value = "select * from marketplace.leads where id = ?1 for update")
+    public Lead getLock(int id);
 
     @Query("SELECT L FROM Lead L LEFT JOIN L.leadOffers LO WHERE LO.id IS NULL AND L.mergedLeadId IS NULL AND L.createdAt > ?1")
     public List<Lead> getMergedLeadsWithoutOfferCreatedSince(Date createdSince);
@@ -29,19 +30,9 @@ public interface LeadDao extends JpaRepository<Lead, Integer> {
     @Query("SELECT DISTINCT L FROM Lead L INNER JOIN L.leadOffers LO WHERE L.mergedLeadId IS NULL AND LO.createdAt BETWEEN ?1 AND ?2 AND LO.statusId = ?3")
     public List<Lead> getMergedLeadsByOfferredAtBetweenAndOfferStatusId(Date startDate, Date endDate, int offerStatusId);
 
-    @Query("select L from Lead L where L.id in (?1)")
-    public List<Lead> getLeads(List<Integer> leadIds);
-
-    @Query(nativeQuery = true, value = "select * from marketplace.leads where id = ?1 for update")
-    public Lead getLock(int id);
-
-    @Query("select L from Lead L join fetch L.leadOffers LO join fetch LO.masterLeadOfferStatus MLOS where L.mergedLeadId is null and LO.statusId = 1 and LO.createdAt < ?1")
-    public List<Lead> getMergedLeadsWithOfferExpired(Date expireTime);
+    @Query("select L from Lead L join fetch L.leadOffers LO join fetch LO.masterLeadOfferStatus MLOS where L.mergedLeadId is null and LO.statusId = ?2 and LO.createdAt < ?1")
+    public List<Lead> getMergedLeadsByOfferCreatedAtLessThanAndOfferStatusId(Date offerCreatedAt, int offerStatusId);
 
     @Query("select L from Lead L join fetch L.requirements where L.id = ?1")
-    public Lead findRequirementsByLeadId(int leadId);
-
-    @Query("select L from Lead L where L.id = ?1")
-    public Lead findById(int leadId);
-
+    public Lead getByIdWithRequirements(int id);
 }
