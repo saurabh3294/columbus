@@ -377,7 +377,7 @@ public class PropertyService {
                 property = propertyWithMatchingCriteria.getResults().get(0);
             }
             else {
-                Project project = projectService.getProjectWithVersionWebsite(otherInfo.getProjectId(),DataVersion.Website);
+                Project project = projectService.getProjectWithVersion(otherInfo.getProjectId(),DataVersion.Website);
                 int projectTypeId = project.getProjectTypeId();
 
                 if (getByName(otherInfo.getUnitType()) != null && getByName(otherInfo.getUnitType()).contains(

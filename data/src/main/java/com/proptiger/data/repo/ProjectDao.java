@@ -90,7 +90,7 @@ public class ProjectDao extends ProjectSolrDao {
         return projectDaoNew.findByProjectIdAndVersion(id, DataVersion.Website);
     }
 
-    public Project getProject(int projectId, DataVersion version) {
+    public Project getProjectWithVersion(int projectId, DataVersion version) {
         return projectDaoNew.findByProjectIdAndVersion(projectId, version);
     }
 }

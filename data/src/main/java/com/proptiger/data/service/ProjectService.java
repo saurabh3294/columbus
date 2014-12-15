@@ -867,8 +867,8 @@ public class ProjectService {
 
     }
 
-    public Project getProjectWithVersionWebsite(int projectId, DataVersion version) {        
-        return projectDao.getProject(projectId,version);        
+    public Project getProjectWithVersion(int projectId, DataVersion version) {        
+        return projectDao.getProjectWithVersion(projectId,version);        
     }
 
 }
