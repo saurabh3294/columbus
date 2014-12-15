@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
@@ -864,6 +865,10 @@ public class ProjectService {
 
         }
 
+    }
+
+    public Project getProjectWithVersion(int projectId, DataVersion version) {        
+        return projectDao.getProjectWithVersion(projectId,version);        
     }
 
 }
