@@ -18,8 +18,9 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.proptiger.core.annotations.ExcludeFromBeanCopy;
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.data.model.LeadTaskStatus;
@@ -32,6 +33,7 @@ import com.proptiger.data.model.MasterLeadTaskStatus;
  */
 @Entity
 @Table(name = "marketplace.lead_tasks")
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 public class LeadTask extends BaseModel {
     private static final long               serialVersionUID = -5139446103498473442L;
     @Id
@@ -71,7 +73,6 @@ public class LeadTask extends BaseModel {
     @Column(name = "updated_at")
     private Date                            updatedAt;
 
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lead_offer_id", insertable = false, updatable = false)
     private LeadOffer                       leadOffer;
