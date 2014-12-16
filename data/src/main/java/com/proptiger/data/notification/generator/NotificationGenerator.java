@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.notification.generator.handler.NotificationProcessorHandler;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
@@ -15,7 +16,6 @@ import com.proptiger.data.notification.processor.dto.NotificationProcessorDto;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.NotificationProcessorDtoService;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.util.Serializer;
 
 @Service

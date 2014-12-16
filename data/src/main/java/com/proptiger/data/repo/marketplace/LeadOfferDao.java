@@ -11,44 +11,45 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOffer.CountListingObject;
-import com.proptiger.data.model.marketplace.LeadOfferedListing;
 
 public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOfferCustomDao {
-    @Query("select count(LO) from LeadOffer LO join LO.masterLeadOfferStatus MLOS where LO.leadId = ?1 and MLOS.claimedFlag = 1")
-    long getCountClaimed(Integer leadId);
+    public List<LeadOffer> findByLeadId(int leadId);
 
-    @Query("select LO from LeadOffer LO join LO.lead L where L.cityId = ?1 and L.clientId = ?2 order by LO.id desc")
-    public List<LeadOffer> getLeadOffers(int cityId, int clientId);
+    public LeadOffer findByLeadIdAndAgentId(int leadId, int agentId);
+
+    public List<LeadOffer> findByLeadIdAndStatusId(int leadId, int statusId);
+
+    @Query(nativeQuery = true, value = "select * from marketplace.lead_offers where id = ?1 for update")
+    public LeadOffer getLock(int ledOfferId);
+
+    @Query("select max(LO.cycleId) from LeadOffer LO where LO.leadId = ?1 and LO.phaseId = ?2")
+    Integer getMaxCycleIdByLeadIdAndPhaseId(int leadId, int phaseId);
+
+    @Query("select count(LO) from LeadOffer LO where LO.leadId = ?1 and LO.phaseId = ?2")
+    long getCountByLeadIdAndPhaseId(int leadId, int phaseId);
+
+    @Query("select MAX(LO.phaseId) from LeadOffer LO where LO.leadId = ?1")
+    Integer getMaxPhaseIdByLeadId(int leadId);
+
+    @Query("select count(LO.id) from LeadOffer LO where LO.agentId = ?1 and LO.statusId = ?2")
+    long getCountByAgentIdAndStatusId(int userId, int statusId);
+
+    @Query("select LO from LeadOffer LO join fetch LO.masterLeadOfferStatus MLOS join fetch LO.lead L where LO.id = ?1")
+    public LeadOffer getById(int leadOfferId);
+
+    @Query(
+            value = "SELECT DISTINCT LO FROM LeadOffer LO JOIN FETCH LO.lead L JOIN FETCH L.requirements LR WHERE LO.id = ?1")
+    LeadOffer getByIdWithRequirements(int id);
 
     @Query("select LO from LeadOffer LO join fetch LO.masterLeadOfferStatus where LO.leadId = ?1 order by LO.statusId")
-    public List<LeadOffer> getLeadOffers(int leadId);
-
-    @Query("select DISTINCT(LOL) from LeadOffer LO join LO.offeredListings LOL join fetch LOL.listing LI left join fetch LI.projectSupply LIPS left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LIPP.version='Website' and LOL.leadOfferId in (?1) and LO.agentId = ?2")
-    public List<LeadOfferedListing> getLeadOfferedListings(List<Integer> leadOfferIds, Integer userId);
-
-    @Query("select LO from LeadOffer LO join fetch LO.masterLeadOfferStatus MLOS where LO.id = ?1 and LO.agentId = ?2")
-    public LeadOffer findByIdAndAgentId(int leadOfferId, Integer userIdentifier);
-
-    @Query("select LO from LeadOffer LO join fetch LO.masterLeadOfferStatus MLOS join fetch LO.lead where LO.id = ?1 and LO.agentId = ?2")
-    public LeadOffer findByIdAndAgentIdAndFetchLead(int leadOfferId, Integer userIdentifier);
+    public List<LeadOffer> getByLeadId(int leadId);
 
     // XXX Hard coding for Banglore for faster retrieval
     @Query("select LI from LeadOffer LO join LO.matchingListings LI left join fetch LI.projectSupply left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LO.id = ?1 and LI.property.project.locality.suburb.cityId = 2 and LI.status = 'Active' and LIPP.version='Website' and LI.sellerId = ?2 group by LI")
     public List<Listing> getMatchingListings(int leadOfferId, int userId);
 
-    @Query("select LO from LeadOffer LO join fetch LO.lead L where LO.id = ?1")
-    public LeadOffer findById(int leadOfferId);
-
-    @Query("select distinct(LO) from LeadOffer LO join LO.masterLeadOfferStatus LOM where LO.leadId = ?1 and LOM.claimedFlag = true and LOM.openFlag = true")
-    public List<LeadOffer> getLegitimateLeadOffersForDuplicateLeadNotifications(int leadId);
-
-    @Query("select LO from LeadOffer LO join LO.masterLeadOfferStatus MLOS where LO.leadId = ?1")
-    public List<LeadOffer> findByLeadId(int leadId);
-
-    @Modifying
-    @Transactional
-    @Query("update LeadOffer LO set LO.statusId = 2 where LO.statusId = 1 and LO.leadId = ?1")
-    void expireRestOfTheLeadOffers(int leadId);
+    @Query("select distinct(LO) from LeadOffer LO join LO.masterLeadOfferStatus LOM where LO.leadId = ?1 and LOM.claimedFlag = ?2 and LOM.openFlag = ?3")
+    public List<LeadOffer> getByLeadIdAndOpenFlagAndClaimedFlag(int leadId, boolean openFlag, boolean claimedFlag);
 
     @Query("select MAX(LOL.id) from LeadOfferedListing LOL where LOL.leadOfferId in (?1) group by LOL.leadOfferId")
     public List<Integer> findMaxListingByLeadOfferIdGroupbyLeadOfferId(List<Integer> leadOfferIds);
@@ -70,38 +71,12 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
             int notificationTypeId,
             List<Integer> masterTaskIds);
 
-    @Query(nativeQuery = true, value = "select * from marketplace.lead_offers where id = ?1 for update")
-    public LeadOffer getLock(int ledOfferId);
-
     // XXX Hard coding for Banglore for faster retrieval
     @Query("SELECT NEW com.proptiger.data.model.marketplace.LeadOffer$CountListingObject(LO.id,count(LI)) from LeadOffer LO join LO.matchingListings LI where LO.id in (?1) and LI.property.project.locality.suburb.cityId = 2 and LI.status = 'Active' and LI.property.project.version='Website' and LI.isDeleted = false group by LO")
     List<CountListingObject> getMatchingListingCount(List<Integer> leadOfferIds);
 
-    @Query(
-            value = "SELECT DISTINCT LO FROM LeadOffer LO JOIN FETCH LO.lead L JOIN FETCH L.requirements LR WHERE LO.id = ?1")
-    LeadOffer getLeadOfferWithRequirements(int leadOfferId);
-
     @Modifying
     @Transactional
-    @Query("update LeadOffer LO set LO.statusId = 2 where LO.leadId in (?1) and LO.statusId = 1")
-    void updateLeadOffers(List<Integer> leadIdList);
-
-    @Query("select max(LO.cycleId) from LeadOffer LO where LO.leadId = ?1 and LO.phaseId = ?2")
-    Integer getMaxCycleIdAndPhaseId(int id, int phaseId);
-
-    @Query("select count(LO) from LeadOffer LO where LO.leadId = ?1 and LO.phaseId = ?2")
-    Long findByLeadIdAndPhaseId(int id, Integer phaseId);
-
-    @Query("select MAX(LO.phaseId) from LeadOffer LO where LO.leadId = ?1")
-    Integer getMaxPhaseId(int leadId);
-
-    @Query("select LO from LeadOffer LO where LO.leadId = ?1 and LO.agentId = ?2")
-    LeadOffer findByLeadIdAndAgentId(int id, int agentId);
-
-    @Query("select LO from LeadOffer LO where LO.statusId = ?2 and LO.leadId = ?1")
-    List<LeadOffer> findByLeadIdWhereStatusOffered(int leadId, int statusId);
-
-    @Query("select count(LO.id) from LeadOffer LO where LO.agentId = ?1 and LO.statusId = ?2")
-    long getcountLeadOffersOnThisAgentInNewStatus(int userId, int id);
-
+    @Query("update LeadOffer LO set LO.statusId = ?3 where LO.leadId in (?1) and LO.statusId = ?2")
+    void updateStatusByLeadIdInAndStatus(List<Integer> leadIdList, int oldStatus, int newStatus);
 }

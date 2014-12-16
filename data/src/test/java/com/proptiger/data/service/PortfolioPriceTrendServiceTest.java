@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;

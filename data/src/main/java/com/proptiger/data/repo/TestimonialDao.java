@@ -7,11 +7,11 @@ import javax.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.model.filter.AbstractQueryBuilder;
+import com.proptiger.core.model.filter.JPAQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.data.model.Testimonial;
-import com.proptiger.data.model.filter.AbstractQueryBuilder;
-import com.proptiger.data.model.filter.JPAQueryBuilder;
 
 /**
  * @author Rajeev Pandey

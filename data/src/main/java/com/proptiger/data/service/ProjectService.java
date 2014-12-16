@@ -53,6 +53,7 @@ import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.IdConverterForDatabase;
+import com.proptiger.data.util.Serializer;
 
 /**
  * 
@@ -102,9 +103,9 @@ public class ProjectService {
 
     @Autowired
     private TemplateToHtmlGenerator mailBodyGenerator;
-    
+
     @Autowired
-    private ApplicationContext applicationContext;
+    private ApplicationContext      applicationContext;
 
     @Value("${proptiger.url}")
     private String                  websiteHost;
@@ -137,6 +138,32 @@ public class ProjectService {
         PaginatedResponse<List<Project>> projects = projectDao.getProjects(projectFilter);
         imageEnricher.setImagesOfProjects(projects.getResults());
         return projects;
+    }
+
+    /**
+     * Returns the project id with the given project name and list of cities
+     * 
+     * @param projectName
+     * @param cities
+     * @return
+     */
+    public Integer getProjectIdByTagName(String tagName, List<String> cities) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":[");
+        String dilimiter = "";
+        for (String city : cities) {
+            stringBuilder.append(dilimiter + "\"" + city + "\"");
+            dilimiter = ",";
+        }
+        stringBuilder.append("]}},{\"equal\":{\"newsTag\":\"" + tagName + "\"}}]}}");
+        Selector selector = Serializer.fromJson(stringBuilder.toString(), Selector.class);
+        PaginatedResponse<List<Project>> projectList = getProjects(selector);
+
+        if (projectList == null || projectList.getResults() == null || projectList.getResults().isEmpty()) {
+            return null;
+        }
+
+        return projectList.getResults().get(0).getProjectId();
     }
 
     /**
@@ -202,9 +229,10 @@ public class ProjectService {
      * @return Project Model Object
      */
     public Project getProjectInfoDetails(Selector selector, Integer projectId) {
-        Project project = applicationContext.getBean(ProjectService.class).getProjectDataBySelector(selector, projectId);
+        Project project = applicationContext.getBean(ProjectService.class)
+                .getProjectDataBySelector(selector, projectId);
         Set<String> fields = selector.getFields();
-        
+
         /*
          * Coupon Catalogue data will be fetched only when the coupon flag is
          * demanded by client.
@@ -215,21 +243,21 @@ public class ProjectService {
         }
 
         List<Property> properties = setProjectFieldFromPropertiesAndCoupon(project, isCouponCatalogueNeeded);
-        
+
         applicationContext.getBean(ProjectService.class).setPropertyFieldsForProject(selector, project, properties);
-        
+
         return project;
     }
-    
+
     /*
-     *  Only Solr call, no DB call specific changes 
-     *  should be added in this method
+     * Only Solr call, no DB call specific changes should be added in this
+     * method
      */
     @Cacheable(value = Constants.CacheName.PROJECT_DETAILS, key = "#projectId+':'+#selector")
     public Project getProjectInfoDetailsFromSolr(Selector selector, Integer projectId) {
-    	
-    	List<Project> projects = getProjectListByIds(new HashSet<Integer>(Arrays.asList(projectId)));
-    	if (projects == null || projects.size() < 1) {
+
+        List<Project> projects = getProjectListByIds(new HashSet<Integer>(Arrays.asList(projectId)));
+        if (projects == null || projects.size() < 1) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
         }
 
@@ -245,11 +273,11 @@ public class ProjectService {
         }
         List<Property> properties = getPropertyFromIdAndUpdateObjectField(project);
         project.setProperties(properties);
-		return project;
-	}
-    
+        return project;
+    }
+
     @Cacheable(value = Constants.CacheName.PROJECT_DETAILS, key = "#projectId+':'+#selector")
-    public Project getProjectDataBySelector(Selector selector, Integer projectId){
+    public Project getProjectDataBySelector(Selector selector, Integer projectId) {
         List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(projectId)));
         if (solrProjects == null || solrProjects.size() < 1) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
@@ -314,7 +342,7 @@ public class ProjectService {
          * setting images.
          */
         imageEnricher.setProjectImages(project);
-        
+
         /*
          * set project LandMark Images.
          */
@@ -326,8 +354,8 @@ public class ProjectService {
 
         return project;
     }
-    
-    public void setPropertyFieldsForProject(Selector selector, Project project, List<Property> properties){
+
+    public void setPropertyFieldsForProject(Selector selector, Project project, List<Property> properties) {
         Set<String> fields = selector.getFields();
         /*
          * Setting properites if needed.
@@ -621,10 +649,10 @@ public class ProjectService {
 
         throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
     }
-    
+
     /*
-     *  Only Solr call, no DB call specific changes 
-     *  should be added in this method
+     * Only Solr call, no DB call specific changes should be added in this
+     * method
      */
     public Project getProjectDataFromSolr(int projectId) {
         Set<Integer> projectIds = new HashSet<>();
@@ -730,13 +758,14 @@ public class ProjectService {
             setProjectFieldFromPropertiesAndCoupon(project, isCouponCatalogueNeeded);
         }
     }
-    
-    private List<Property> setProjectFieldFromPropertiesAndCoupon(Project project, boolean isCouponCatalogueNeeded){
+
+    private List<Property> setProjectFieldFromPropertiesAndCoupon(Project project, boolean isCouponCatalogueNeeded) {
         List<Property> properties = getPropertyFromIdAndUpdateObjectField(project);
         updateCouponDetailsInProject(project, properties, isCouponCatalogueNeeded);
-        
+
         return properties;
     }
+
     /**
      * This method will set fields derived from the properties of a project to
      * the project object. It will return the list of properties for a project.
@@ -747,11 +776,11 @@ public class ProjectService {
     @Cacheable(value = Constants.CacheName.PROJECT)
     private List<Property> getPropertyFromIdAndUpdateObjectField(Project project) {
         List<Property> properties = propertyService.getPropertiesForProject(project.getProjectId());
-       
+
         for (int i = 0; i < properties.size(); i++) {
             Property property = properties.get(i);
             Double pricePerUnitArea = property.getPricePerUnitArea();
-            
+
             if (pricePerUnitArea == null)
                 pricePerUnitArea = 0D;
 
@@ -770,19 +799,21 @@ public class ProjectService {
 
             property.setProject(null);
         }
-        
 
         project.setMinResaleOrPrimaryPrice(UtilityClass.min(project.getMinPrice(), project.getMinResalePrice()));
         project.setMaxResaleOrPrimaryPrice(UtilityClass.max(project.getMaxPrice(), project.getMaxResalePrice()));
 
         return properties;
     }
-    
-    private void updateCouponDetailsInProject(Project project, List<Property> properties, boolean isCouponCatalogueNeeded){
-        if (!isCouponCatalogueNeeded || properties ==null || properties.isEmpty()) {
+
+    private void updateCouponDetailsInProject(
+            Project project,
+            List<Property> properties,
+            boolean isCouponCatalogueNeeded) {
+        if (!isCouponCatalogueNeeded || properties == null || properties.isEmpty()) {
             return;
         }
-                
+
         propertyService.setCouponCatalogueForProperties(properties);
 
         CouponCatalogue couponCatalogue = null;
@@ -796,39 +827,43 @@ public class ProjectService {
             Integer discountPricePerUnitArea = null;
             Double minResaleOrDiscountPrice = null;
             Double maxResaleOrDiscountPrice = null;
-                
+
             if (property.isCouponAvailable() != null && property.isCouponAvailable()) {
                 couponCatalogue = property.getCouponCatalogue();
-                
-                if(primaryPrice != null){
-                    discountPricePerUnitArea = property.getPricePerUnitArea().intValue() - new Long(Math.round( couponCatalogue.getDiscount()/property.getSize() )).intValue();
+
+                if (primaryPrice != null) {
+                    discountPricePerUnitArea = property.getPricePerUnitArea().intValue() - new Long(
+                            Math.round(couponCatalogue.getDiscount() / property.getSize())).intValue();
                     couponCatalogue.setDiscountPricePerUnitArea(discountPricePerUnitArea);
                     discountPrice = primaryPrice - couponCatalogue.getDiscount();
                 }
-                
-                project.setMaxCouponExpiryAt(UtilityClass.max(project.getMaxCouponExpiryAt(), couponCatalogue.getPurchaseExpiryAt()));
+
+                project.setMaxCouponExpiryAt(UtilityClass.max(
+                        project.getMaxCouponExpiryAt(),
+                        couponCatalogue.getPurchaseExpiryAt()));
                 project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), couponCatalogue.getDiscount()));
                 project.setCouponAvailable(true);
                 totalCouponsLeft += couponCatalogue.getInventoryLeft();
                 totalCoupons += couponCatalogue.getTotalInventory();
                 project.setTotalCouponsInventory(totalCoupons);
                 project.setCouponsInventoryLeft(totalCouponsLeft);
-                                
+
             }
-            
+
             minResaleOrDiscountPrice = UtilityClass.min(resalePrice, discountPrice);
             maxResaleOrDiscountPrice = UtilityClass.max(resalePrice, discountPrice);
-            
-            project.setMinDiscountPrice(UtilityClass.min(
-                        project.getMinDiscountPrice(),
-                        discountPrice));
-            project.setMaxDiscountPrice(UtilityClass.max(
-                        project.getMaxDiscountPrice(),
-                        discountPrice));
-            project.setMinResaleOrDiscountPrice(UtilityClass.min(project.getMinResaleOrDiscountPrice(), minResaleOrDiscountPrice));
-            project.setMaxResaleOrDiscountPrice(UtilityClass.max(project.getMaxResaleOrDiscountPrice(), maxResaleOrDiscountPrice));
+
+            project.setMinDiscountPrice(UtilityClass.min(project.getMinDiscountPrice(), discountPrice));
+            project.setMaxDiscountPrice(UtilityClass.max(project.getMaxDiscountPrice(), discountPrice));
+            project.setMinResaleOrDiscountPrice(UtilityClass.min(
+                    project.getMinResaleOrDiscountPrice(),
+                    minResaleOrDiscountPrice));
+            project.setMaxResaleOrDiscountPrice(UtilityClass.max(
+                    project.getMaxResaleOrDiscountPrice(),
+                    maxResaleOrDiscountPrice));
 
         }
 
     }
+
 }

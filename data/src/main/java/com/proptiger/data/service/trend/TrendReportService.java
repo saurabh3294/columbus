@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.exception.APIServerException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
@@ -159,7 +160,8 @@ public class TrendReportService {
 
         /** Generate a sorted list of months given in FIQL Selector **/
         List<Date> sortedMonthList = getMonthList(selector);
-        throwExceptionIfListNullOrEmpty(sortedMonthList, new ProAPIException(
+        throwExceptionIfListNullOrEmpty(sortedMonthList, new APIServerException(
+                ResponseCodes.EMPTY_REPORT_GENERATED,
                 TrendReportConstants.ErrMsg_NoProjectsFound));
 
         int transactionId = saveDownloadTransaction(user, usmList, selector.getStringFIQL());
@@ -253,7 +255,7 @@ public class TrendReportService {
         }
 
         if (ctreObjectCountTotal == 0) {
-            throw new ProAPIException(
+            throw new APIServerException(
                     ResponseCodes.EMPTY_REPORT_GENERATED,
                     TrendReportConstants.ErrMsg_NoProjectsFound);
         }
@@ -266,7 +268,7 @@ public class TrendReportService {
             List<Trend> trendList,
             List<Date> sortedMonthList) {
 
-        throwExceptionIfListNullOrEmpty(trendList, new ProAPIException(
+        throwExceptionIfListNullOrEmpty(trendList, new APIServerException(
                 ResponseCodes.EMPTY_REPORT_GENERATED,
                 TrendReportConstants.ErrMsg_NoProjectsFound));
 
@@ -467,9 +469,9 @@ public class TrendReportService {
         return tempFileName;
     }
 
-    private <T> void throwExceptionIfListNullOrEmpty(List<T> l, ProAPIException papiEx) {
+    private <T> void throwExceptionIfListNullOrEmpty(List<T> l, RuntimeException ex) {
         if (l == null || l.isEmpty()) {
-            throw papiEx;
+            throw ex;
         }
     }
 

@@ -1,7 +1,9 @@
 package com.proptiger.data.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -44,7 +46,7 @@ public class CityService {
 
     @Autowired
     private LandMarkService localityAmenityService;
-    
+
     @Autowired
     private ImageEnricher   imageEnricher;
 
@@ -55,9 +57,14 @@ public class CityService {
      * @return List<City>
      */
     @Cacheable(Constants.CacheName.CACHE)
-    public List<City> getCityList(Selector selector) {
+    public List<City> getCityList(Selector selector, boolean useFieldSelector) {
         List<City> cities = cityDao.getCities(selector);
-        updateAirportInfo(cities);
+        Set<String> fields = (selector == null || selector.getFields() == null) ? new HashSet<String>() : selector
+                .getFields();
+
+        if (!useFieldSelector || fields.contains("amenties")) {
+            updateAirportInfo(cities);
+        }
         return cities;
     }
 
@@ -67,19 +74,47 @@ public class CityService {
      * @param cityId
      * @return City.
      */
-    public City getCityInfo(int cityId) {
+    public City getCityInfo(int cityId, Selector selector, boolean useFieldSelector) {
         City city = cityDao.getCity(cityId);
         if (city == null) {
             return null;
         }
-        updateAirportInfo(city);
-        updateProjectCountAndStatusCount(city);
-        city.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise(
-                "cityId",
-                cityId,
-                city.getDominantUnitType()));
-        city.setImages(imageService.getImages(DomainObject.city, null, cityId));
-        updateAmenitiesAndAmenityTypeCount(city);
+        Set<String> fields = selector.getFields() == null ? new HashSet<String>() : selector.getFields();
+
+        /*
+         * setting the airport data on selector or fieldSelector false.
+         */
+        if (useFieldSelector == false || fields.contains("amenities")) {
+            updateAirportInfo(city);
+        }
+        /*
+         * Setting project and project Status count.
+         */
+        if (useFieldSelector == false || fields.contains("projectCount") || fields.contains("projectStatusCount")) {
+            updateProjectCountAndStatusCount(city);
+        }
+        /*
+         * Setting the avgBHKPricePerUnitArea only when demanded or
+         * fieldSelector false.
+         */
+        if (useFieldSelector == false || fields.contains("avgBHKPricePerUnitArea")) {
+            city.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise(
+                    "cityId",
+                    cityId,
+                    city.getDominantUnitType()));
+        }
+        /*
+         * Setting the image only when asked in selector or fieldSelector false.
+         */
+        if (useFieldSelector == false || fields.contains("images")) {
+            city.setImages(imageService.getImages(DomainObject.city, null, cityId));
+        }
+        /*
+         * setting amenity Type count.
+         */
+        if (useFieldSelector == false || fields.contains("amenityTypeCount")) {
+            updateAmenitiesAndAmenityTypeCount(city);
+        }
         return city;
     }
 
@@ -112,8 +147,8 @@ public class CityService {
         String js = "{\"filters\":{\"and\":[{\"equal\":{\"label\":" + cityName + "}}]}}";
         Gson gson = new Gson();
         Selector selector = gson.fromJson(js, Selector.class);
-        List<City> cities = getCityList(selector);
-        if(cities == null || cities.isEmpty()){
+        List<City> cities = getCityList(selector, false);
+        if (cities == null || cities.isEmpty()) {
             return null;
         }
 

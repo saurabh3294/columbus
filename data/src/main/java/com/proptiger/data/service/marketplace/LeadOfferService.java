@@ -1,6 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -130,6 +133,8 @@ public class LeadOfferService {
     @Autowired
     private DeclineReasonService         declineReasonService;
 
+    private static Logger                logger = LoggerFactory.getLogger(LeadOfferService.class);
+
     private LeadService getLeadService() {
         if (leadService == null) {
             leadService = applicationContext.getBean(LeadService.class);
@@ -203,13 +208,15 @@ public class LeadOfferService {
             FIQLSelector selector,
             List<Integer> statusIds,
             String dueDate) {
+
+        Set<String> fields = selector.getFieldSet();
+
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferDao.getLeadOffers(
                 agentId,
                 statusIds,
                 dueDate,
                 selector);
 
-        Set<String> fields = selector.getFieldSet();
         enrichLeadOffers(paginatedResponse.getResults(), fields, agentId);
 
         return paginatedResponse;
@@ -322,8 +329,7 @@ public class LeadOfferService {
                 .findMaxListingByLeadOfferIdGroupbyLeadOfferId(leadOfferIds);
 
         if (latestOfferedListingIds != null && !latestOfferedListingIds.isEmpty()) {
-            List<LeadOfferedListing> latestOfferedListings = leadOfferedListingDao
-                    .getListingsById(latestOfferedListingIds);
+            List<LeadOfferedListing> latestOfferedListings = leadOfferedListingDao.getByIdIn(latestOfferedListingIds);
 
             for (LeadOfferedListing latestOfferedListing : latestOfferedListings) {
                 listingMap.put(latestOfferedListing.getLeadOfferId(), latestOfferedListing);
@@ -414,7 +420,9 @@ public class LeadOfferService {
     private Map<Integer, List<LeadOfferedListing>> getLeadOfferedListing(List<Integer> leadOfferIds, Integer userId) {
 
         Map<Integer, List<LeadOfferedListing>> listingMap = new HashMap<>();
-        List<LeadOfferedListing> leadOfferListings = leadOfferDao.getLeadOfferedListings(leadOfferIds, userId);
+        List<LeadOfferedListing> leadOfferListings = leadOfferedListingDao.getByLeadOfferIdAndAgentId(
+                leadOfferIds,
+                userId);
 
         for (LeadOfferedListing leadOfferedListing : leadOfferListings) {
             if (!listingMap.containsKey(leadOfferedListing.getLeadOfferId())) {
@@ -443,7 +451,7 @@ public class LeadOfferService {
 
     public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId, Integer phaseId) {
         List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
-        Integer countLeadOfferInDB = (int) (long) leadOfferDao.findByLeadIdAndPhaseId(lead.getId(), phaseId);
+        Integer countLeadOfferInDB = (int) (long) leadOfferDao.getCountByLeadIdAndPhaseId(lead.getId(), phaseId);
         LeadOffer leadOffer = null;
         LeadOffer leadOfferInDB = null;
         if (!agents.isEmpty()) {
@@ -483,7 +491,7 @@ public class LeadOfferService {
      */
     public PaginatedResponse<List<Listing>> getOfferedListings(int leadOfferId, Integer userId) {
         List<Listing> listings = new ArrayList<>();
-        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(
+        for (LeadOfferedListing leadOfferListing : leadOfferedListingDao.getByLeadOfferIdAndAgentId(
                 Collections.singletonList(leadOfferId),
                 userId)) {
             listings.add(leadOfferListing.getListing());
@@ -503,9 +511,9 @@ public class LeadOfferService {
      * @return
      */
     public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {
-        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentIdAndFetchLead(leadOfferId, userId);
+        LeadOffer leadOfferInDB = leadOfferDao.getById(leadOfferId);
 
-        if (leadOfferInDB == null) {
+        if (leadOfferInDB == null || leadOfferInDB.getAgentId() != userId) {
             throw new BadRequestException("Invalid lead offer");
         }
 
@@ -516,7 +524,7 @@ public class LeadOfferService {
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
 
-                long countLeadOffersOnThisAgentInNewStatus = leadOfferDao.getcountLeadOffersOnThisAgentInNewStatus(
+                long countLeadOffersOnThisAgentInNewStatus = leadOfferDao.getCountByAgentIdAndStatusId(
                         userId,
                         LeadOfferStatus.New.getId());
 
@@ -524,9 +532,15 @@ public class LeadOfferService {
                         PropertyKeys.MARKETPLACE_MAX_LEADS_LIMIT_FOR_COMPANY_NEW_STATUS,
                         Long.class)) {
                     claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
-                    Notification notification = notificationService.findByUserIdAndNotificationId(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+                    Notification notification = notificationService.findByUserIdAndNotificationId(
+                            userId,
+                            NotificationType.MaxLeadCountForBrokerReached.getId(),
+                            0);
                     if (notification != null) {
-                        notificationService.deleteNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0);
+                        notificationService.deleteNotification(
+                                userId,
+                                NotificationType.MaxLeadCountForBrokerReached.getId(),
+                                0);
                         notificationService
                                 .deleteNotification(
                                         PropertyReader
@@ -543,7 +557,11 @@ public class LeadOfferService {
                                 NotificationType.MaxLeadCountForBrokerReached.getId(),
                                 0);
                         if (notificationLeadLimit == null) {
-                            notificationService.createNotification(userId, NotificationType.MaxLeadCountForBrokerReached.getId(), 0, null);
+                            notificationService.createNotification(
+                                    userId,
+                                    NotificationType.MaxLeadCountForBrokerReached.getId(),
+                                    0,
+                                    null);
                             notificationService
                                     .createNotification(
                                             PropertyReader
@@ -614,7 +632,7 @@ public class LeadOfferService {
             LeadOffer leadOfferInDB,
             List<Integer> newListingIds,
             Integer userId) {
-        List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(
+        List<LeadOfferedListing> leadOfferedListingList = leadOfferedListingDao.getByLeadOfferIdAndAgentId(
                 Collections.singletonList(leadOfferInDB.getId()),
                 userId);
         if (leadOfferedListingList == null || leadOfferedListingList.isEmpty()) {
@@ -629,13 +647,14 @@ public class LeadOfferService {
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
         String heading = "Matching Property suggested by our trusted broker";
         String templatePath = marketplaceTemplateBasePath + claimTemplate;
+        logger.debug("Sending email from inside claim lead");
         sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId, "Proptiger.com");
     }
 
     @Transactional
     public void manageLeadOfferedNotificationDeletionForLead(int leadId) {
         Lead lead = leadDao.getLock(leadId);
-        List<LeadOffer> offers = leadOfferDao.getLeadOffers(leadId);
+        List<LeadOffer> offers = leadOfferDao.getByLeadId(leadId);
 
         Date endDate = notificationService.getNoBrokerClaimedCutoffTime();
         Date startDate = new Date(
@@ -715,7 +734,9 @@ public class LeadOfferService {
                 String heading = "More properties matching your requirement";
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
 
-                if (leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId()) {
+                if (newListingIds != null && !newListingIds.isEmpty()
+                        && leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId()) {
+                    logger.debug("Sending email from inside offer listings");
                     sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId, null);
                 }
                 return newListingIds;
@@ -769,14 +790,15 @@ public class LeadOfferService {
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template))
                     .setMailTo(leadOfferInDB.getLead().getClient().getEmail())
                     .setMailCC(leadOfferInDB.getAgent().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail())
-                    .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
+                    .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">")
+                    .setMailBCC(propertyReader.getRequiredProperty(PropertyKeys.MARKETPLACE_BCC_EMAIL));
             mailSender.sendMailUsingAws(mailDetails);
         }
     }
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
-        LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
-        Integer maxPhaseId = leadOfferDao.getMaxPhaseId(leadOfferInDB.getLeadId());
+        LeadOffer leadOfferInDB = leadOfferDao.getById(leadOfferId);
+        Integer maxPhaseId = leadOfferDao.getMaxPhaseIdByLeadId(leadOfferInDB.getLeadId());
         List<LeadOffer> allLeadOffers = leadOfferDao.findByLeadId(leadOfferInDB.getLeadId());
 
         Integer leadOfferCount = 0;
@@ -810,7 +832,10 @@ public class LeadOfferService {
         if (PropertyReader
                 .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Integer.class).equals(
                         leadOfferCount)) {
-            leadOfferDao.expireRestOfTheLeadOffers(leadOfferInDB.getLeadId());
+            leadOfferDao.updateStatusByLeadIdInAndStatus(
+                    Arrays.asList(leadOfferInDB.getLeadId()),
+                    LeadOfferStatus.Offered.getId(),
+                    LeadOfferStatus.Expired.getId());
         }
         else {
 
@@ -854,7 +879,7 @@ public class LeadOfferService {
 
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
 
-        LeadOffer leadOfferInDB = leadOfferDao.findById(leadOfferId);
+        LeadOffer leadOfferInDB = leadOfferDao.getById(leadOfferId);
         if (leadOfferInDB.getAgentId() != userId) {
             throw new BadRequestException("you can only view listings offered by you for lead offers assigned to you");
         }
@@ -865,7 +890,7 @@ public class LeadOfferService {
 
     private void populateOfferedFlag(int leadOfferId, List<Listing> matchingListings, Integer userId) {
         Set<Integer> offeredListingIds = new HashSet<>();
-        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(
+        for (LeadOfferedListing leadOfferListing : leadOfferedListingDao.getByLeadOfferIdAndAgentId(
                 Collections.singletonList(leadOfferId),
                 userId)) {
             offeredListingIds.add(leadOfferListing.getListingId());
@@ -957,7 +982,6 @@ public class LeadOfferService {
                 sortedListLocality,
                 ListingComparator.ascending(ListingComparator.getComparator(compratorList)));
 
-        
         sortedList.addAll(sortedListProject);
         sortedList.addAll(sortedListLocality);
 
@@ -973,7 +997,7 @@ public class LeadOfferService {
     }
 
     public LeadOffer get(int leadOfferId, Integer userId, FIQLSelector selector) {
-        LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
+        LeadOffer leadOffer = leadOfferDao.getById(leadOfferId);
         Set<String> fields = selector.getFieldSet();
         enrichLeadOffers(Collections.singletonList(leadOffer), fields, userId);
 
@@ -991,8 +1015,8 @@ public class LeadOfferService {
      */
     @Transactional
     public LeadOffer updateLeadOfferForEmailTask(int leadOfferId, ActiveUser activeUser, SenderDetail senderDetails) {
-        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, activeUser.getUserIdentifier());
-        if (leadOfferInDB == null) {
+        LeadOffer leadOfferInDB = leadOfferDao.getById(leadOfferId);
+        if (leadOfferInDB == null || leadOfferInDB.getAgentId() != activeUser.getUserIdentifier()) {
             throw new ResourceNotAvailableException(ResourceType.LEAD_OFFER, ResourceTypeAction.UPDATE);
         }
         /*
@@ -1040,7 +1064,8 @@ public class LeadOfferService {
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
                 senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername())
                 .setReplyTo(activeUser.getUsername())
-                .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">");
+                .setFrom(username + "<" + propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY) + ">")
+                .setMailBCC(propertyReader.getRequiredProperty(PropertyKeys.MARKETPLACE_BCC_EMAIL));
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
     }
@@ -1056,6 +1081,6 @@ public class LeadOfferService {
     }
 
     public Integer getMaxCycleIdAndPhaseId(int id, int phaseId) {
-        return leadOfferDao.getMaxCycleIdAndPhaseId(id, phaseId);
+        return leadOfferDao.getMaxCycleIdByLeadIdAndPhaseId(id, phaseId);
     }
 }

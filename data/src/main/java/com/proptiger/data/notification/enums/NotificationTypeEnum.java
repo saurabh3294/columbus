@@ -7,6 +7,8 @@ public enum NotificationTypeEnum {
     PortfolioPriceChange("portfolio_price_change"),
     PortfolioGoalPrice("portfolio_goal_price"),
     PortfolioPhotoAdd("portfolio_photo_add"),
+    PortfolioProjectNews("portfolio_project_news"),
+    PortfolioLocalityNews("portfolio_locality_news"),
     PortfolioProjectUpdates("portfolio_project_updates"),
     PortfolioUpdates("portfolio_updates"),
      

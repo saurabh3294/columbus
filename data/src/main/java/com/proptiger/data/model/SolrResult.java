@@ -451,6 +451,9 @@ public class SolrResult extends BaseModel {
 
     @Field("AMENITIES_URLS")
     private String            amenitiesUrls;
+    
+    @Field(value = "NEWS_TAG")
+    private String            newsTag;
 
     public SolrResult() {
         property.setProject(project);
@@ -1413,4 +1416,9 @@ public class SolrResult extends BaseModel {
         locality.setLandmarkTypes(landmarkTypesList);
     }
 
+    @Field("NEWS_TAG")
+    public void setNewsTag(String newsTag) {
+        project.setNewsTag(newsTag);
+        locality.setNewsTag(newsTag);
+    }
 }

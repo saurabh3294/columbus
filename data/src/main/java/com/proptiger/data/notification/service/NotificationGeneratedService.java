@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -24,7 +25,6 @@ import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.repo.NotificationGeneratedDao;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.util.Serializer;
 
 @Service
@@ -233,9 +233,9 @@ public class NotificationGeneratedService {
         NotificationTypePayload payload = notificationMessage.getNotificationMessagePayload()
                 .getNotificationTypePayload();
         if (payload != null) {
-            Number objectId = (Number) payload.getPrimaryKeyValue();
+            Integer objectId = Integer.parseInt((String) payload.getPrimaryKeyValue());
             if (objectId != null) {
-                nGenerated.setObjectId(objectId.intValue());
+                nGenerated.setObjectId(objectId);
             }
         }
         return nGenerated;

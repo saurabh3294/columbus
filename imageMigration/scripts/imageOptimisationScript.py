@@ -174,7 +174,6 @@ class WorkerThread(threading.Thread):
 if __name__ == "__main__":
     logging("Image Optimisation Script")
     logging("===========================")
-    
 
     # Create a pool with three worker threads
     pool = ThreadPool(30) 
@@ -265,7 +264,9 @@ if __name__ == "__main__":
     # prepare a cursor object using cursor() method
     cursor = db.cursor()
 
-    cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.watermark_name), I.watermark_name FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) JOIN RESI_PROJECT RP ON (RP.city_id in (" + sys.argv[1] + ") AND RP.ACTIVE = 1) JOIN RESI_PROJECT_TYPES RPT ON (RP.PROJECT_ID=RPT.PROJECT_ID  AND (I.object_id=RP.PROJECT_ID OR I.object_id=RPT.TYPE_ID)) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID ")
+    #cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.watermark_name), I.watermark_name FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) JOIN RESI_PROJECT RP ON (RP.city_id in (" + sys.argv[1] + ") AND RP.ACTIVE = 1) JOIN RESI_PROJECT_TYPES RPT ON (RP.PROJECT_ID=RPT.PROJECT_ID  AND (I.object_id=RP.PROJECT_ID OR I.object_id=RPT.TYPE_ID)) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID ")
+
+    cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.watermark_name), I.watermark_name FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id AND OT.type in ('" + sys.argv[1] +"' )) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID ")
 
     rows = cursor.fetchall()
     cols = []

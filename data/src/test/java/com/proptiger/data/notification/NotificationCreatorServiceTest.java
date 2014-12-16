@@ -10,6 +10,7 @@ import junit.framework.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.MediumDetails;
@@ -18,7 +19,6 @@ import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
-import com.proptiger.data.service.AbstractTest;
 
 public class NotificationCreatorServiceTest extends AbstractTest {
 
