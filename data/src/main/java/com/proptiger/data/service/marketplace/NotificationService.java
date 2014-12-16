@@ -32,6 +32,7 @@ import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.dto.external.marketplace.GcmMessage;
+import com.proptiger.data.dto.external.marketplace.TaskNotificationDetail;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
@@ -191,8 +192,18 @@ public class NotificationService {
     private void updateDetailInTaskNotification(List<Notification> notifications) {
         List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
         Map<Integer, LeadTask> tasks = getIndexedLeadTasksByIds(populateUserDetailsInLeadTasks(taskService
-                .getLeadTaskByIdsWithLead(taskIds)));
-        notifications.forEach(n -> n.setDetails(SerializationUtils.objectToJson(tasks.get(n.getObjectId()))));
+                .getLeadTaskByIdsWithLeadAndMasterTask(taskIds)));
+        for (Notification notification : notifications) {
+            LeadTask task = tasks.get(notification.getObjectId());
+            TaskNotificationDetail notificationDetail = new TaskNotificationDetail();
+            notificationDetail.setId(task.getId());
+            notificationDetail.setTaskName(task.getTaskStatus().getMasterLeadTask().getName());
+            notificationDetail.setLeadOfferId(task.getLeadOfferId());
+            notificationDetail.setScheduledFor(task.getScheduledFor());
+            notificationDetail.setClientName(task.getLeadOffer().getLead().getClient().getFullName());
+
+            notification.setDetails(SerializationUtils.objectToJson(notificationDetail));
+        }
     }
 
     /**

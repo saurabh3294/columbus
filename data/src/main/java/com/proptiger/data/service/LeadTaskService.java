@@ -868,10 +868,10 @@ public class LeadTaskService {
      * @param taskIds
      * @return List LeadTask
      */
-    public List<LeadTask> getLeadTaskByIdsWithLead(List<Integer> taskIds) {
+    public List<LeadTask> getLeadTaskByIdsWithLeadAndMasterTask(List<Integer> taskIds) {
         List<LeadTask> tasks = new ArrayList<>();
         if (tasks != null) {
-            tasks = leadTaskDao.findByIdInWithLead(taskIds);
+            tasks = leadTaskDao.findByIdInWithLeadAndMasterLeadTask(taskIds);
         }
         return tasks;
     }
