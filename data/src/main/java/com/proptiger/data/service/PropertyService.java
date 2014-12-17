@@ -411,6 +411,18 @@ public class PropertyService {
         }
     }
 
+    public void updateProjectsLifestyleScores(List<Property> properties) {
+                        if (properties == null || properties.isEmpty()) {
+                           return;
+                        }
+                        List<Project> projects = new ArrayList<Project>();
+                        for (Property property : properties) {
+                            projects.add(property.getProject());
+                        }
+                        projectService.updateLifestyleScoresByHalf(projects);
+             }
+    
+    
     /**
      * Get property objects from database using filters provided in fiql
      * selector
