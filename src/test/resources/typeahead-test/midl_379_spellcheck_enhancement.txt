@@ -1,0 +1,24 @@
+
+#====== Priority ======#
+
+# guru builder comes above gurgaon
+gur,City,1,1,TYPEAHEAD-CITY-11
+
+#prestige infratech comes above prestige 
+Prestige,Builder,1,1,TYPEAHEAD-BUILDER-100365
+
+#====== Spelling mistakes ======#
+
+boida,City,1,1,TYPEAHEAD-CITY-20
+Gaur soundaryam,Project,1,1,TYPEAHEAD-PROJECT-513515
+Gaursuns sdundaryam,Project,1,1,TYPEAHEAD-PROJECT-513515
+XBIA,Project,1,1,TYPEAHEAD-BUILDER-102595
+unitech sunbreexze,Project,1,1,TYPEAHEAD-PROJECT-501453
+Hill shir,Project,1,1,TYPEAHEAD-PROJECT-644389
+guargian,Builder,1,1,TYPEAHEAD-BUILDER-103849
+guargian hill shire,Project,1,1,TYPEAHEAD-PROJECT-644389
+
+
+#====== Misc ======#
+
+one world,Project,1,1,TYPEAHEAD-PROJECT-654803
