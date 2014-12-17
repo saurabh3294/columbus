@@ -263,16 +263,12 @@ public class ListingService {
             }
 
             if (fields.contains("seller")) {
-                System.out.println("check");
-                System.out.println("inside seller");
                 Set<Integer> sellerIds = extractSellerIds(listings);
-                System.out.println("after extracting");
-                Map<Integer, User> users =  userService.getUsers(sellerIds);
-                System.out.println("after users");
+                Map<Integer, User> users = userService.getUsers(sellerIds);
                 for (Listing l : listings) {
-                    System.out.println("inside loop");
-                    System.out.println(users.get(l.getSellerId()).getId());
-                    l.setSeller(users.get(l.getSellerId()));
+                    if (users.get(l.getSellerId()) != null) {
+                        l.setSeller(users.get(l.getSellerId()));
+                    }
                 }
             }
         }
