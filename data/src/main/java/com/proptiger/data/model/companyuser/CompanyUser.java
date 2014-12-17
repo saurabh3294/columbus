@@ -81,8 +81,7 @@ public class CompanyUser extends BaseModel {
     @Transient
     private List<Locality>        localities;
 
-
-    public int getId() {
+     public int getId() {
         return id;
     }
 
