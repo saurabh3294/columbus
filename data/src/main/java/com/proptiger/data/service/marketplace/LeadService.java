@@ -386,9 +386,13 @@ public class LeadService {
         existingLead.setMaxSize(UtilityClass.max(existingLead.getMaxSize(), lead.getMaxSize()));
         existingLead.setMinBudget(UtilityClass.min(existingLead.getMinBudget(), lead.getMinBudget()));
         existingLead.setMaxBudget(UtilityClass.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
+
+        if (lead.isFlexibleBudgetFlag()) {
+            existingLead.setFlexibleBudgetFlag(lead.isFlexibleBudgetFlag());
+        }
         
-        existingLead.setFlexibleBudgetFlag(lead.isFlexibleBudgetFlag());        
         leadDao.save(existingLead);
+        lead.setFlexibleBudgetFlag(existingLead.isFlexibleBudgetFlag());
     }
 
     /**
