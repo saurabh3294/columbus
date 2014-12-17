@@ -29,7 +29,7 @@ import com.proptiger.core.pojo.response.APIResponse;
 @Component
 public class TaTestExecuter {
 
-    @Value("${test.typeahead.api.url}")
+    @Value("${typeahead.api.url}")
     private String              TYPEAHEAD_API_URL;
 
     @Value("${test.testcase.timeout}")

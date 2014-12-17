@@ -24,23 +24,26 @@ public class TaTestGenerator {
     @Value("${proptiger.url}")
     private String          BASE_URL;
 
-    @Value("${test.city.api.url}")
+    @Value("${city.api.url}")
     private String          CITY_API_URL;
 
-    @Value("${test.locality.api.url}")
+    @Value("${locality.api.url.list}")
     private String          LOCALITY_API_URL;
 
-    @Value("${test.project.api.url}")
+    @Value("${project.api.url}")
     private String          PROJECT_API_URL;
 
-    @Value("${test.suburb.api.url}")
+    @Value("${suburb.api.url}")
     private String          SUBURB_API_URL;
 
-    @Value("${test.builder.api.url}")
+    @Value("${builder.api.url}")
     private String          BUILDER_API_URL;
 
     @Value("${test.default.entity.fetch.pagesize}")
     private int             DefaultEntityFetchPageSize;
+    
+    @Value("${test.default.entity.fetch.pagesize.builder}")
+    private int             DefaultEntityFetchPageSizeBuilder;
     
     @Autowired
     private HttpRequestUtil httpRequestUtil;
@@ -130,12 +133,11 @@ public class TaTestGenerator {
     }
 
     private List<TaTestCase> getBuilderTestCases(int limit) {
-        int defaultEntityFetchPageSize_buidler = Math.min(DefaultEntityFetchPageSize, 150);
         List<Builder> entityList = getEntityList(
                 selectorAllBuilder,
                 BUILDER_API_URL,
                 Builder.class,
-                defaultEntityFetchPageSize_buidler,
+                DefaultEntityFetchPageSizeBuilder,
                 limit);
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
         for (Builder x : entityList) {
