@@ -1,6 +1,7 @@
 package com.proptiger.data.repo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.proptiger.core.enums.DocumentType;
 import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.core.model.filter.SolrQueryBuilder;
 import com.proptiger.core.pojo.Paging;
@@ -124,5 +126,27 @@ public class LandMarkDaoImpl {
 
     private List<LandMarkResult> convertLandMarkResult(SolrDocumentList result) {
         return new DocumentObjectBinder().getBeans(LandMarkResult.class, result);
+    }
+    
+    public LandMark getLandMark(Integer landMarkId) {
+        Selector selector = new Selector();
+
+        Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
+        List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+        Map<String, Map<String, Object>> searchType = new HashMap<>();
+        Map<String, Object> filterCriteria = new HashMap<>();
+
+        filterCriteria.put("id", landMarkId);
+        searchType.put(Operator.equal.name(), filterCriteria);
+        list.add(searchType);
+        filter.put(Operator.and.name(), list);
+
+        selector.setFilters(filter);
+
+        List<LandMark> landMarks = getLocalityAmenitiesOnSelector(selector);
+        if (landMarks == null || landMarks.isEmpty())
+            return null;
+
+        return landMarks.get(0);
     }
 }
