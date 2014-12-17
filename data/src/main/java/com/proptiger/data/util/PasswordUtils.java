@@ -78,7 +78,7 @@ public class PasswordUtils {
         if (newPassword == null || newPassword.trim().length() < REQUIRED_PASS_LEN) {
             throw new BadRequestException(
                     ResponseCodes.BAD_REQUEST,
-                    "Invalid password length, minumum length required " + REQUIRED_PASS_LEN);
+                    "Invalid password length, minimum length required " + REQUIRED_PASS_LEN);
         }
     }
 

@@ -49,6 +49,7 @@ import com.proptiger.core.model.user.UserAuthProviderDetail;
 import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.model.user.UserPreference;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.DateUtil;
@@ -83,6 +84,7 @@ import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
+import com.proptiger.data.repo.user.UserRolesDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
@@ -182,6 +184,9 @@ public class UserService {
     @Autowired
     private CompanyDao companyDao;
     
+    @Autowired
+    private UserRolesDao userRolesDao;
+    
     @PostConstruct
     private void initialize() {
         currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
@@ -215,6 +220,7 @@ public class UserService {
         customUser.setId(user.getId());
         customUser.setEmail(user.getEmail());
         customUser.setFirstName(user.getFullName());
+        customUser.setCountryId(user.getCountryId());
         UserContactNumber priorityContact = getTopPriorityContact(user.getId());
         if(priorityContact != null){
             customUser.setContactNumber(priorityContact.getContactNumber());
@@ -231,6 +237,10 @@ public class UserService {
 
         if (application.equals(Application.B2B)) {
             setAppDetails(customUser, user);
+        }
+        List<String> roles = userRolesDao.getUserRolesName(user.getId());
+        if(!roles.isEmpty()){
+            customUser.setRoles(roles);
         }
         return customUser;
     }
@@ -249,7 +259,8 @@ public class UserService {
                 }
             }
         }
-        return null;
+        //return default avatar image url
+        return (cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
     }
 
     @Transactional
@@ -602,7 +613,7 @@ public class UserService {
                 throw new BadRequestException(ResponseErrorMessages.EMAIL_NOT_REGISTERED);
             }
             ForumUserToken forumUserToken = createForumUserToken(user.getId());
-            StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append("/").append(
+            StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append(
                     PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_RESET_PASSWORD_PAGE)).append(
                     "?token=" + forumUserToken.getToken());
             ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
@@ -615,9 +626,7 @@ public class UserService {
         }
         else if (token != null && !token.isEmpty()) {
             ForumUserToken forumUserToken = forumUserTokenDao.findByToken(token);
-            if (forumUserToken == null || changePassword == null) {
-                throw new BadRequestException("Invalid token "+token);
-            }
+            validateForumUserToken(forumUserToken);
             String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
                     changePassword.getNewPassword(),
                     changePassword.getConfirmNewPassword());
@@ -634,17 +643,26 @@ public class UserService {
     }
 
     private ForumUserToken createForumUserToken(Integer userId) {
+        List<ForumUserToken> existingTokenList = forumUserTokenDao.findLatestTokenByUserId(userId, new LimitOffsetPageRequest(
+                0,
+                1));
         // token valid for 1 month
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MONTH, 1);
-        String token = PasswordUtils.generateTokenBase64Encoded();
-        token = PasswordUtils.encode(token);
-        ForumUserToken forumUserToken = new ForumUserToken();
-        forumUserToken.setUserId(userId);
-        forumUserToken.setToken(token);
-        forumUserToken.setExpirationDate(calendar.getTime());
-        forumUserToken = forumUserTokenDao.save(forumUserToken);
-        return forumUserToken;
+        if (existingTokenList.isEmpty()) {
+            String token = PasswordUtils.generateTokenBase64Encoded();
+            token = PasswordUtils.encode(token);
+            ForumUserToken forumUserToken = new ForumUserToken();
+            forumUserToken.setUserId(userId);
+            forumUserToken.setToken(token);
+            forumUserToken.setExpirationDate(calendar.getTime());
+            forumUserToken = forumUserTokenDao.save(forumUserToken);
+            return forumUserToken;
+        }
+        ForumUserToken existingToken = existingTokenList.get(0);
+        existingToken.setExpirationDate(calendar.getTime());
+        existingToken = forumUserTokenDao.save(existingToken);
+        return existingToken;
     }
 
     /**
@@ -913,13 +931,7 @@ public class UserService {
      */
     public void validateUserCommunicationDetails(UserCommunicationType type, String token) {
         ForumUserToken userToken = forumUserTokenDao.findByToken(token);
-        Calendar cal = Calendar.getInstance();
-        if (userToken == null) {
-            throw new BadRequestException("Invalid token");
-        }
-        if (userToken.getExpirationDate().before(cal.getTime())) {
-            throw new BadRequestException("Token expired");
-        }
+        validateForumUserToken(userToken);
         User user = userDao.findById(userToken.getUserId());
         switch (type) {
             case email:
@@ -936,6 +948,16 @@ public class UserService {
         userDao.save(user);
         // delete the token
         forumUserTokenDao.delete(userToken);
+    }
+
+    private void validateForumUserToken(ForumUserToken userToken) {
+        Calendar cal = Calendar.getInstance();
+        if (userToken == null) {
+            throw new BadRequestException("Invalid token");
+        }
+        if (userToken.getExpirationDate().before(cal.getTime())) {
+            throw new BadRequestException("Token expired");
+        }
     }
 
     public static class UserRegisterMailTemplate {
