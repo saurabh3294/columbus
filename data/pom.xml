@@ -26,7 +26,7 @@
 		<profile>
 			<id>develop</id>
 			<properties>
-				<midl-core.version>develop-SNAPSHOT</midl-core.version>
+				<midl-core.version>marketplace-SNAPSHOT</midl-core.version>
 			</properties>
 		</profile>
 		<profile>
