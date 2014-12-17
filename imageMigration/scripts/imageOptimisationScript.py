@@ -321,9 +321,13 @@ if __name__ == "__main__":
             uploadStatus = 1
             imageArray.append(imgId)
             newUrl= 'original'
-	    pool.queueTask(task, (img, imgId, newUrl, objectId, altText, priority, imageType, objectType, title, takenAt,imgWidth,imgHeight,db,cursor,path, hyphon, i, total_resolutions), None)
-	    s3lsCommand = ["s3cmd", "ls", s3url + path + str(imId)]
+            s3lsCommand = ["s3cmd", "ls", s3url + path + str(imId)]
 	    files = subprocess.Popen(s3lsCommand, stdout=subprocess.PIPE).communicate()[0]
+            if files.find(path +str(imId)+"-o"+extension) == -1:
+                logging("Adding task to upload optimized image for => " + str(url) + "-o" + extension)
+	        pool.queueTask(task, (img, imgId, newUrl, objectId, altText, priority, imageType, objectType, title, takenAt,imgWidth,imgHeight,db,cursor,path, hyphon, i, total_resolutions), None)
+            else:
+                logging("Optimized image already uploaded for => " + str(url) + "-o" + extension)
             while(i<total_resolutions):
                 totalImages = totalImages + 1
                 width=resolutions[2*i]
