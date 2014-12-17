@@ -17,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.gson.Gson;
 import com.proptiger.core.enums.DocumentType;
 import com.proptiger.core.enums.SortOrder;
-import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.core.model.filter.SolrQueryBuilder;
 import com.proptiger.core.pojo.Paging;
@@ -129,20 +129,8 @@ public class LandMarkDaoImpl {
     }
     
     public LandMark getLandMark(Integer landMarkId) {
-        Selector selector = new Selector();
-
-        Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
-        List<Map<String, Map<String, Object>>> list = new ArrayList<>();
-        Map<String, Map<String, Object>> searchType = new HashMap<>();
-        Map<String, Object> filterCriteria = new HashMap<>();
-
-        filterCriteria.put("id", landMarkId);
-        searchType.put(Operator.equal.name(), filterCriteria);
-        list.add(searchType);
-        filter.put(Operator.and.name(), list);
-
-        selector.setFilters(filter);
-
+        String jsonSelector = "{\"filters\":{\"and\":[{\"equal\":{\"id\":" + landMarkId + "}}]}}";
+        Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
         List<LandMark> landMarks = getLocalityAmenitiesOnSelector(selector);
         if (landMarks == null || landMarks.isEmpty())
             return null;
