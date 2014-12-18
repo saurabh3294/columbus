@@ -108,6 +108,9 @@ public class Lead extends BaseModel {
     @OneToMany(mappedBy = "leadId")
     private List<LeadRequirement> requirements;
 
+    @Column(name = "flexible_budget_flag")
+    private boolean               flexibleBudget    = false;
+
     public int getSourceId() {
         return sourceId;
     }
@@ -295,4 +298,13 @@ public class Lead extends BaseModel {
     public void setDerivedBedroomsString(String derivedBedroomsString) {
         this.derivedBedroomsString = derivedBedroomsString;
     }
+
+    public boolean isFlexibleBudget() {
+        return flexibleBudget;
+    }
+
+    public void setFlexibleBudget(boolean flexibleBudgetFlag) {
+        this.flexibleBudget = flexibleBudgetFlag;
+    }
+    
 }

@@ -387,6 +387,10 @@ public class LeadService {
         existingLead.setMinBudget(UtilityClass.min(existingLead.getMinBudget(), lead.getMinBudget()));
         existingLead.setMaxBudget(UtilityClass.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
 
+        if (lead.isFlexibleBudget()) {
+            existingLead.setFlexibleBudget(lead.isFlexibleBudget());
+        }
+        
         leadDao.save(existingLead);
     }
 
