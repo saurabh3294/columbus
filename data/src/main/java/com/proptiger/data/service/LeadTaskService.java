@@ -860,4 +860,19 @@ public class LeadTaskService {
     public List<LeadTask> getLeadTaskIdsByLeadOfferId(int leadOfferId) {
         return leadTaskDao.findByLeadOfferId(leadOfferId);
     }
+
+    /**
+     * method to get list of lead tasks from list of task ids... task objects
+     * will contain nested objects lead offer and lead
+     * 
+     * @param taskIds
+     * @return List LeadTask
+     */
+    public List<LeadTask> getLeadTaskByIdsWithLeadAndMasterTask(List<Integer> taskIds) {
+        List<LeadTask> tasks = new ArrayList<>();
+        if (tasks != null) {
+            tasks = leadTaskDao.findByIdInWithLeadAndMasterLeadTask(taskIds);
+        }
+        return tasks;
+    }
 }

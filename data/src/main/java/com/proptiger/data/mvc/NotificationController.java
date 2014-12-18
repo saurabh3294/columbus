@@ -35,7 +35,7 @@ public class NotificationController extends BaseController {
                 notificationService.getNotificationsForUser(SecurityContextUtils.getLoggedInUserId(),notificationTypeId));
     }
 
-    @RequestMapping("/data/v1/entity/user/notification/count")
+    @RequestMapping({"/data/v1/entity/user/notification/count", "/app/v1/entity/user/notification/count"})
     @ResponseBody
     public APIResponse getNotificationCountForUser() {
         return new APIResponse(null, notificationService.getNotificationsCountForUser(SecurityContextUtils
