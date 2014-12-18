@@ -598,48 +598,49 @@ public class UserService {
     }
 
     /**
+     * Process reset password request and send an eamil containing the instructions to reset password
+     * @param email
+     * @return
+     */
+    public String processResetPasswordRequest(String email){
+        User user = userDao.findByEmail(email);
+        if (user == null || !user.isRegistered()) {
+            throw new BadRequestException(ResponseErrorMessages.EMAIL_NOT_REGISTERED);
+        }
+        ForumUserToken forumUserToken = createForumUserToken(user.getId());
+        StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append(
+                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_RESET_PASSWORD_PAGE)).append(
+                "?token=" + forumUserToken.getToken());
+        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
+                user.getFullName(),
+                retrivePasswordLink.toString());
+        MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
+        MailDetails details = new MailDetails(mailBody).setMailTo(email);
+        mailSender.sendMailUsingAws(details);
+        return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
+    
+    }
+    
+    /**
      * This method verifies the user by email from database, if registered then
      * send a password recovery mail
      * 
-     * @param email
      * @param changePassword 
      * @param token 
      * @return
      */
-    public Object resetPassword(String email, String token, ChangePassword changePassword) {
-        if (email != null && !email.isEmpty()) {
-            User user = userDao.findByEmail(email);
-            if (user == null || !user.isRegistered()) {
-                throw new BadRequestException(ResponseErrorMessages.EMAIL_NOT_REGISTERED);
-            }
-            ForumUserToken forumUserToken = createForumUserToken(user.getId());
-            StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append(
-                    PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_RESET_PASSWORD_PAGE)).append(
-                    "?token=" + forumUserToken.getToken());
-            ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
-                    user.getFullName(),
-                    retrivePasswordLink.toString());
-            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
-            MailDetails details = new MailDetails(mailBody).setMailTo(email);
-            mailSender.sendMailUsingAws(details);
-            return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
-        }
-        else if (token != null && !token.isEmpty()) {
-            ForumUserToken forumUserToken = forumUserTokenDao.findByToken(token);
-            validateForumUserToken(forumUserToken);
-            String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
-                    changePassword.getNewPassword(),
-                    changePassword.getConfirmNewPassword());
-            User user = userDao.findOne(forumUserToken.getUserId());
-            user.setPassword(encodedPass);
-            user = userDao.save(user);
-            SecurityContextUtils.autoLogin(user);
-            forumUserTokenDao.delete(forumUserToken);
-            return getUserDetails(user.getId(), Application.DEFAULT, false);
-        }
-        else{
-            throw new BadRequestException("Invalid input");
-        }
+    public Object resetPasswordUsingToken(String token, ChangePassword changePassword) {
+        ForumUserToken forumUserToken = forumUserTokenDao.findByToken(token);
+        validateForumUserToken(forumUserToken);
+        String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
+                changePassword.getNewPassword(),
+                changePassword.getConfirmNewPassword());
+        User user = userDao.findOne(forumUserToken.getUserId());
+        user.setPassword(encodedPass);
+        user = userDao.save(user);
+        SecurityContextUtils.autoLogin(user);
+        forumUserTokenDao.delete(forumUserToken);
+        return getUserDetails(user.getId(), Application.DEFAULT, false);
     }
 
     private ForumUserToken createForumUserToken(Integer userId) {
