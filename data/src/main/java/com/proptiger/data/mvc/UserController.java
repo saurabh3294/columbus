@@ -107,13 +107,20 @@ public class UserController extends BaseController {
         return new APIResponse(userService.getUserDetails(userId, applicationType, true));
     }
 
-    @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST)
+    @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST, params = {"email"})
     @ResponseBody
     public APIResponse resetPassword(
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String token,
-            @RequestBody(required = false) ChangePassword changePassword) {
-        Object message = userService.resetPassword(email, token, changePassword);
+            @RequestParam(required = false) String email) {
+        Object message = userService.resetPassword(email, null, null);
+        return new APIResponse(message);
+    }
+    
+    @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST, params = {"token"})
+    @ResponseBody
+    public APIResponse resetPasswordUsingToken(
+            @RequestParam String token,
+            @RequestBody ChangePassword changePassword) {
+        Object message = userService.resetPassword(null, token, changePassword);
         return new APIResponse(message);
     }
 
