@@ -21,27 +21,30 @@ import com.proptiger.core.util.HttpRequestUtil;
 @Component
 public class TaTestGenerator {
 
-    @Value("${BASE_URL}")
+    @Value("${proptiger.url}")
     private String          BASE_URL;
 
-    @Value("${CITY_API_URL}")
+    @Value("${city.api.url}")
     private String          CITY_API_URL;
 
-    @Value("${LOCALITY_API_URL}")
+    @Value("${locality.api.url.list}")
     private String          LOCALITY_API_URL;
 
-    @Value("${PROJECT_API_URL}")
+    @Value("${project.api.url}")
     private String          PROJECT_API_URL;
 
-    @Value("${SUBURB_API_URL}")
+    @Value("${suburb.api.url}")
     private String          SUBURB_API_URL;
 
-    @Value("${BUILDER_API_URL}")
+    @Value("${builder.api.url}")
     private String          BUILDER_API_URL;
 
-    @Value("${default.entity.fetch.pagesize}")
+    @Value("${test.default.entity.fetch.pagesize}")
     private int             DefaultEntityFetchPageSize;
-
+    
+    @Value("${test.default.entity.fetch.pagesize.builder}")
+    private int             DefaultEntityFetchPageSizeBuilder;
+    
     @Autowired
     private HttpRequestUtil httpRequestUtil;
 
@@ -134,7 +137,7 @@ public class TaTestGenerator {
                 selectorAllBuilder,
                 BUILDER_API_URL,
                 Builder.class,
-                DefaultEntityFetchPageSize,
+                DefaultEntityFetchPageSizeBuilder,
                 limit);
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
         for (Builder x : entityList) {
@@ -145,7 +148,7 @@ public class TaTestGenerator {
 
     private <T> List<T> getEntityList(String selector, String API_URL, Class<T> clazz, int pageSize, int limit) {
         String entityName = clazz.getSimpleName();
-        logger.debug("Fetching entity list for : " + entityName);
+        logger.info("Fetching entity list : [" + entityName + ", " + pageSize + ", " + limit + "]");
         int start = 0, count = pageSize, templimit = limit;
         String url = "";
         URI uri = null;
@@ -159,7 +162,13 @@ public class TaTestGenerator {
             url = BASE_URL + API_URL + "?" + String.format(selector, start, count);
             logger.debug("Api Url for fetching entity " + entityName + " : [ " + url + "]");
             uri = URI.create(UriComponentsBuilder.fromUriString(url).build().encode().toString());
-            templist = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, clazz);
+            try{
+                templist = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, clazz);
+            }
+            catch (Exception ex){
+                logger.error("Error while fetching enities. URL = (" + url + ")");
+                throw ex;
+            }
             if (templist == null || templist.isEmpty()) {
                 break;
             }
@@ -167,7 +176,7 @@ public class TaTestGenerator {
             templimit -= count;
             start += count;
         }
-        logger.debug(entitylist.size() + " Entities recieved for : " + entityName);
+        logger.info(entitylist.size() + " Entities recieved for : " + entityName);
         return entitylist;
     }
 

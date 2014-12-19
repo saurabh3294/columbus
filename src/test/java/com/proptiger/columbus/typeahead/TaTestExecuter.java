@@ -29,10 +29,10 @@ import com.proptiger.core.pojo.response.APIResponse;
 @Component
 public class TaTestExecuter {
 
-    @Value("${TYPEAHEAD_API_URL}")
+    @Value("${typeahead.api.url}")
     private String              TYPEAHEAD_API_URL;
 
-    @Value("${testcase.timeout}")
+    @Value("${test.testcase.timeout}")
     private long                TestTimeout;
 
     @Autowired
@@ -40,35 +40,42 @@ public class TaTestExecuter {
 
     private static Logger       logger = LoggerFactory.getLogger(TaTestExecuter.class);
 
+    /**
+     * Runs top 'limit' number of test-cases from 'testList'.
+     * 
+     * @param testList
+     *            list of test cases to run
+     * @param limit
+     *            number of test cases to run
+     * @return A sublist of 'testList' with results field populated
+     */
     public List<TaTestCase> executeTests(List<TaTestCase> testList, int limit) {
-        logger.debug(testList.size() + " tests recieved for execution with limit = " + limit);
-        ExecutorService executerService = Executors.newCachedThreadPool();
+        logger.info(testList.size() + " tests recieved for execution with limit = " + limit);
+        limit = Math.min(limit, testList.size());
+        List<TaTestCase> testListLimited = testList.subList(0, limit);
+
+        ExecutorService executerService = Executors.newFixedThreadPool(20);
         List<Future<TaTestCase>> futureList = new ArrayList<Future<TaTestCase>>();
-        int ctr = 0;
-        for (TaTestCase ttc : testList) {
-            if (ctr >= limit) {
-                break;
-            }
+        for (TaTestCase ttc : testListLimited) {
             ttc.setTestUrl(TYPEAHEAD_API_URL + "?query=" + ttc.getQuery());
             futureList.add(executerService.submit(new CustomCallable(ttc)));
-            ctr++;
         }
 
         for (Future<TaTestCase> future : futureList) {
             try {
                 future.get(TestTimeout, TimeUnit.MILLISECONDS);
             }
-            catch (TimeoutException e) {
-                logger.error("Test case execution timed out.");
+            catch (TimeoutException e1) {
+                logger.error("Some test case execution timed out. Moving On.", e1);
             }
-            catch (InterruptedException | ExecutionException e) {
-                logger.error("Test case execution failed or was interrupted.");
+            catch (InterruptedException | ExecutionException e2) {
+                logger.error("Some test case execution failed or was interrupted. Moving On.", e2);
             }
         }
 
         executerService.shutdown();
 
-        return testList;
+        return testListLimited;
     }
 
     class CustomCallable implements Callable<TaTestCase> {
@@ -92,7 +99,7 @@ public class TaTestExecuter {
                 response = mhsr.getContentAsString();
             }
             catch (Exception ex) {
-                logger.error("Exception while executing testcase callable : " + taTestCase.getLogString(), ex);
+                logger.error("Exception while executing testcase callable : " + taTestCase.getLogString() + " Moving On." , ex);
             }
             if (mhsr.getStatus() == 404) {
                 logger.error("Problem executing testcase : " + taTestCase.getLogString(), "Invalid Url : Status = 404");

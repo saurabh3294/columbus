@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomTestCaseReader {
 
-    @Value("${testcase.custom.dir}")
+    @Value("${test.testcase.custom.dir}")
     private String        dirName;
 
     private String[]      extensions = new String[] { "txt" };

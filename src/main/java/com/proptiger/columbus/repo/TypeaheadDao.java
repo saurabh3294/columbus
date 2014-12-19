@@ -8,8 +8,10 @@ import java.util.StringTokenizer;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
 
 //import com.google.common.base.Joiner;
 //import com.proptiger.core.model.cms.City;
@@ -111,7 +113,8 @@ public class TypeaheadDao {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
         QueryResponse response = solrDao.executeQuery(solrQuery);
-        String spellsuggestion = response.getSpellCheckResponse().getCollatedResult();
+        SpellCheckResponse scr = response.getSpellCheckResponse();
+        String spellsuggestion = ((scr != null) ? scr.getCollatedResult() : null);
         results = response.getBeans(Typeahead.class);
 
         if (spellsuggestion != null && results.size() < 5) {
@@ -160,9 +163,14 @@ public class TypeaheadDao {
         QueryResponse response = solrDao.executeQuery(solrQuery);
         resultsOriginal = response.getBeans(Typeahead.class);
 
+        SpellCheckResponse scr = response.getSpellCheckResponse();
+        if(scr == null){
+            return resultsOriginal;
+        }
+        
         /* If spell-check suggestions are there, get those results as well */
 
-        String spellsuggestion = response.getSpellCheckResponse().getCollatedResult();
+        String spellsuggestion = scr.getCollatedResult();
         List<Typeahead> resultsSuggested = new ArrayList<Typeahead>();
         if (spellsuggestion != null && !spellsuggestion.isEmpty()) {
             SolrQuery newQuery = this.getSolrQueryV4(spellsuggestion.toString(), rows, filterQueries);

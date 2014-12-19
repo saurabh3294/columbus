@@ -24,7 +24,7 @@
 	</appender>
 
 	<logger name="com.proptiger.columbus.typeahead">
-		<level value="DEBUG" />
+		<level value="INFO" />
 	</logger>
 
 	<root level="ERROR">
