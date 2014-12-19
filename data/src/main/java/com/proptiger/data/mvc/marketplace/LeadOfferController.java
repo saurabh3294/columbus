@@ -71,6 +71,20 @@ public class LeadOfferController extends BaseController {
                 matchingListings.getTotalCount());
     }
 
+    @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/matching-listings/typeahead")
+    @ResponseBody
+    public APIResponse getMatchingListingsTypeAhead(
+            @PathVariable int leadOfferId,
+            @RequestParam String query,
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam String typeAheadType) {
+        return new APIResponse(leadOfferService.getMatchingListingsTypeAhead(
+                leadOfferId,
+                query,
+                typeAheadType,
+                rows));
+    }
+
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}")
     @ResponseBody
     public APIResponse get(
