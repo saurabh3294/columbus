@@ -41,8 +41,7 @@ public class TypeAheadService {
         listings.forEach(l -> pidMap.put(l.getProperty().getProjectId(), true));
         List<Typeahead> finalTypeaheadList = new ArrayList<>();
         for (Typeahead typeahead : typeaheads) {
-            Integer projectId = Integer.parseInt(typeahead.getId().substring(18));
-            if (pidMap.containsKey(projectId)) {
+            if (pidMap.containsKey(typeahead.getProjectId())) {
                 finalTypeaheadList.add(typeahead);
             }
         }
