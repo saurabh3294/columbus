@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.columbus.model.Typeahead;
@@ -34,7 +35,17 @@ public class CitySuggestions {
             suggestions.add(obj);
         }
 
+        return filterByCustomRules(suggestions);
+    }
+
+    private List<Typeahead> filterByCustomRules(List<Typeahead> suggestions) {
         Collections.shuffle(suggestions);
+        String temp = (suggestions.get(0).getDisplayText() + " " + suggestions.get(1).getDisplayText());
+        if (StringUtils.containsIgnoreCase(temp, "Resale property") && StringUtils.containsIgnoreCase(
+                temp,
+                "Ready to move")) {
+            suggestions.remove(0);
+        }
         return UtilityClass.getFirstNElementsOfList(suggestions, 2);
     }
 
