@@ -25,17 +25,22 @@ import com.proptiger.core.enums.Status;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceAlreadyExistException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.ListingAmenity;
 import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.HttpRequestUtil;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.service.TypeAheadService;
 import com.proptiger.data.util.JsonUtil;
 
 /**
@@ -44,7 +49,7 @@ import com.proptiger.data.util.JsonUtil;
  */
 @Service
 public class ListingService {
-    private static Logger         logger = LoggerFactory.getLogger(ListingService.class);
+    private static Logger         logger                 = LoggerFactory.getLogger(ListingService.class);
     @Autowired
     private PropertyService       propertyService;
 
@@ -62,6 +67,14 @@ public class ListingService {
 
     @Autowired
     private PropertyDao           propertyDao;
+
+    @Autowired
+    private HttpRequestUtil       requestUtil;
+
+    @Autowired
+    private TypeAheadService      typeAheadService;
+
+    private final String          supportedTypeAheadType = "project";
 
     public Listing getListingByListingId(Integer listingId) {
         return listingDao.findOne(listingId);
@@ -263,6 +276,20 @@ public class ListingService {
             }
         }
         return new PaginatedResponse<>(listings, listingSize.get(0));
+    }
+
+    public List<Typeahead> getListingTypeaheadForUser(String query, String typeAheadType, int rows) {
+        if (!typeAheadType.equals(supportedTypeAheadType)) {
+            throw new BadRequestException("Unsupported typeahead type");
+        }
+        FIQLSelector selector = new FIQLSelector();
+        selector.setFields("property,projectId");
+        List<Listing> listings = getListings(SecurityContextUtils.getLoggedInUserId(), selector).getResults();
+        List<Typeahead> typeAheads = typeAheadService.getTypeaheadResultsFromColumbus(
+                query,
+                typeAheadType,
+                rows * Constants.TYPEAHEAD_CALL_FACTOR);
+        return typeAheadService.filterTypeAheadContainingListings(typeAheads, listings, rows);
     }
 
     /**
