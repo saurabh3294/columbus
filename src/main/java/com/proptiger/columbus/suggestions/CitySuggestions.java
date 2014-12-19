@@ -43,7 +43,6 @@ public class CitySuggestions {
         String temp = (suggestions.get(0).getDisplayText() + " " + suggestions.get(1).getDisplayText());
         if(StringUtils.containsIgnoreCase(temp, "Resale property") && StringUtils.containsIgnoreCase(temp, "Ready to move")){
             suggestions.remove(0);
-            System.out.println("\n\n --||-- \n\n");
         }
         return UtilityClass.getFirstNElementsOfList(suggestions, 2);
     }
