@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
@@ -30,6 +32,7 @@ import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.ListingAmenity;
 import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.user.User;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
@@ -40,6 +43,7 @@ import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.TypeAheadService;
+import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.JsonUtil;
 
 /**
@@ -71,6 +75,9 @@ public class ListingService {
     private TypeAheadService      typeAheadService;
 
     private final String          supportedTypeAheadType = "project";
+
+    @Autowired
+    private UserService           userService;
 
     public Listing getListingByListingId(Integer listingId) {
         return listingDao.findOne(listingId);
@@ -263,7 +270,18 @@ public class ListingService {
                     }
                 }
             }
+
+            if (fields.contains("seller")) {
+                Set<Integer> sellerIds = extractSellerIds(listings);
+                Map<Integer, User> users = userService.getUsers(sellerIds);
+                for (Listing l : listings) {
+                    if (users.get(l.getSellerId()) != null) {
+                        l.setSeller(users.get(l.getSellerId()));
+                    }
+                }
+            }
         }
+
         // TODO due to explicit join would be fetched so if not asked then set
         // this to null, handle using FIQL
         if (fields == null || !fields.contains("property")) {
@@ -286,6 +304,16 @@ public class ListingService {
                 typeAheadType,
                 rows * Constants.TYPEAHEAD_CALL_FACTOR);
         return typeAheadService.filterTypeAheadContainingListings(typeAheads, listings, rows);
+    }
+
+    private Set<Integer> extractSellerIds(List<Listing> listings) {
+        Set<Integer> listingIds = new HashSet<Integer>();
+        for (Listing listing : listings) {
+            if (listing.getSellerId() != null) {
+                listingIds.add(listing.getSellerId());
+            }
+        }
+        return listingIds;
     }
 
     /**
