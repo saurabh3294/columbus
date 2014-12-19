@@ -167,7 +167,7 @@ public class DatabaseSessionOperations {
 
     @Async
     public void delete(String id) {
-        logger.error("delete session id {}",id);
+        logger.debug("delete session id {}",id);
         userSessionDao.deleteBySessionId(id);
         removeSessionIdFromRedis(id);
     }

@@ -8,6 +8,7 @@ import org.springframework.security.crypto.codec.Base64;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.internal.dto.ChangePassword;
 
 /**
@@ -18,7 +19,6 @@ import com.proptiger.data.internal.dto.ChangePassword;
  */
 public class PasswordUtils {
 
-    private static final int          REQUIRED_PASS_LEN = 6;
     private static Md5PasswordEncoder passwordEncoder   = new Md5PasswordEncoder();
     private static int tokenLength = 16;
     private static SecureRandom secureRandom = new SecureRandom();
@@ -31,10 +31,10 @@ public class PasswordUtils {
      */
     public static void validateChangePasword(ChangePassword changePassword) {
         if (changePassword == null) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_PASSWORD);
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.User.INVALID_PASSWORD);
         }
         if (changePassword.getOldPassword() == null || changePassword.getOldPassword().isEmpty()) {
-            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.OLD_PASSWORD_REQUIRED);
+            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.User.OLD_PASSWORD_REQUIRED);
         }
         String encodedPass = validateNewAndConfirmPassword(
                 changePassword.getNewPassword(),
@@ -52,16 +52,14 @@ public class PasswordUtils {
      */
     public static String validateNewAndConfirmPassword(String newPassword, String confirmPassword) {
         if (newPassword == null || confirmPassword == null) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_PASSWORD);
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.User.INVALID_PASSWORD);
         }
-        newPassword = newPassword.trim();
-        confirmPassword = confirmPassword.trim();
         if (!newPassword.equals(confirmPassword)) {
             throw new BadRequestException(
                     ResponseCodes.BAD_CREDENTIAL,
-                    ResponseErrorMessages.NEW_PASS_CONFIRM_PASS_NOT_MATCHED);
+                    ResponseErrorMessages.User.NEW_PASS_CONFIRM_PASS_NOT_MATCHED);
         }
-        validatePasswordLength(newPassword);
+        newPassword = validatePasswordLength(newPassword);
         validateSpecialCharRequirement(newPassword);
         return encode(newPassword);
     }
@@ -74,12 +72,24 @@ public class PasswordUtils {
 
     }
 
-    public static void validatePasswordLength(String newPassword) {
-        if (newPassword == null || newPassword.trim().length() < REQUIRED_PASS_LEN) {
+    private static String validatePasswordLength(String password) {
+        if(password == null){
             throw new BadRequestException(
                     ResponseCodes.BAD_REQUEST,
-                    "Invalid password length, minimum length required " + REQUIRED_PASS_LEN);
+                    ResponseErrorMessages.User.PASSWORD_LEN_TOO_SHORT);
         }
+        password = password.trim();
+        if (password.length() < Constants.User.PASSWORD_MIN_LEN) {
+            throw new BadRequestException(
+                    ResponseCodes.BAD_REQUEST,
+                    ResponseErrorMessages.User.PASSWORD_LEN_TOO_SHORT);
+        }
+        else if(password.length() > Constants.User.PASSWORD_MAX_LEN){
+            throw new BadRequestException(
+                    ResponseCodes.BAD_REQUEST,
+                    ResponseErrorMessages.User.PASSWORD_LEN_TOO_LONG);
+        }
+        return password;
     }
 
     public static String generateTokenBase64Encoded() {

@@ -43,7 +43,7 @@ public class RequestInterceptorTrend {
     public void addSubscriptionPermissionsToSelectorTrendreport(JoinPoint joinPoint) {
         ActiveUser user = SecurityContextUtils.getActiveUser();
         if (user == null) {
-            throw new UnauthorizedException(ResponseCodes.ACCESS_DENIED, ResponseErrorMessages.ACCESS_DENIED);
+            throw new UnauthorizedException(ResponseCodes.ACCESS_DENIED, ResponseErrorMessages.User.ACCESS_DENIED);
         }
         addSubscriptionBasedFiltersToFIQLSelector(joinPoint, user);
     }
@@ -54,7 +54,7 @@ public class RequestInterceptorTrend {
         if (permissionList == null || permissionList.isEmpty()) {
             throw new UnauthorizedException(
                     ResponseCodes.ACCESS_EXPIRED,
-                    ResponseErrorMessages.EXPIRED_PERMISSION_B2B_USER);
+                    ResponseErrorMessages.User.EXPIRED_PERMISSION_B2B_USER);
         }
 
         Object[] methodArgs = jointPoint.getArgs();

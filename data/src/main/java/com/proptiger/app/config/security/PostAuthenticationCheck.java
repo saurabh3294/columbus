@@ -60,7 +60,7 @@ public class PostAuthenticationCheck implements UserDetailsChecker {
              */
             List<?> userSubscriptionMappingList = userSubscriptionService.getUserSubscriptionMappingList(userId);
             if (userSubscriptionMappingList == null || userSubscriptionMappingList.isEmpty()) {
-                throw new AuthenticationExceptionImpl(ResponseCodes.ACCESS_DENIED, ResponseErrorMessages.NON_B2B_USER);
+                throw new AuthenticationExceptionImpl(ResponseCodes.ACCESS_DENIED, ResponseErrorMessages.User.NON_B2B_USER);
             }
 
             /* Throw error if user has no *active* subscriptions. */
@@ -68,7 +68,7 @@ public class PostAuthenticationCheck implements UserDetailsChecker {
             if (permissionList == null || permissionList.isEmpty()) {
                 throw new AuthenticationExceptionImpl(
                         ResponseCodes.ACCESS_EXPIRED,
-                        ResponseErrorMessages.EXPIRED_PERMISSION_B2B_USER);
+                        ResponseErrorMessages.User.EXPIRED_PERMISSION_B2B_USER);
             }
         }
         else if (activeUser.getApplicationType().equals(Application.RMP)) {
@@ -80,7 +80,7 @@ public class PostAuthenticationCheck implements UserDetailsChecker {
             List<CompanyUser> companyUsers = companyUserService.getCompanyUsers(activeUser.getUserIdentifier());
             if (companyUsers == null || companyUsers.isEmpty()) {
                 // not a company user
-                throw new AuthenticationExceptionImpl(ResponseCodes.ACCESS_DENIED, ResponseErrorMessages.NON_RMP_USER);
+                throw new AuthenticationExceptionImpl(ResponseCodes.ACCESS_DENIED, ResponseErrorMessages.User.NON_RMP_USER);
             }
             else {
                 boolean isActiveUser = false;
@@ -99,7 +99,7 @@ public class PostAuthenticationCheck implements UserDetailsChecker {
                 if (!(isActiveCompany && isActiveUser)) {
                     throw new AuthenticationExceptionImpl(
                             ResponseCodes.ACCESS_DENIED,
-                            ResponseErrorMessages.INACTIVE_RMP_USER_COMPANY);
+                            ResponseErrorMessages.User.INACTIVE_RMP_USER_COMPANY);
                 }
             }
         }
