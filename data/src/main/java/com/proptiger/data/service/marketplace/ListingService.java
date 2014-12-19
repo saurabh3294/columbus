@@ -286,7 +286,9 @@ public class ListingService {
     private Set<Integer> extractSellerIds(List<Listing> listings) {
         Set<Integer> listingIds = new HashSet<Integer>();
         for (Listing listing : listings) {
-            listingIds.add(listing.getSellerId());
+            if (listing.getSellerId() != null) {
+                listingIds.add(listing.getSellerId());
+            }
         }
         return listingIds;
     }
