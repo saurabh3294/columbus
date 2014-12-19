@@ -34,7 +34,7 @@ public class AuthFailureHandler implements AuthenticationFailureHandler {
         ResponseErrorWriter.writeErrorToResponse(
                 response,
                 code,
-                exception.getMessage() != null ? exception.getMessage() : ResponseErrorMessages.BAD_CREDENTIAL,
+                exception.getMessage() != null ? exception.getMessage() : ResponseErrorMessages.User.BAD_CREDENTIAL,
                 userIpAddress);
     }
 }

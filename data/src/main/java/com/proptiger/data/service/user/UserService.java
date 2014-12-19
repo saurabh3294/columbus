@@ -267,7 +267,7 @@ public class UserService {
     public CustomUser getUserDetailsByEmail(String email) {
         User user = userDao.findByEmail(email);
         if (user == null) {
-            throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, ResponseErrorMessages.EMAIL_NOT_REGISTERED);
+            throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, ResponseErrorMessages.User.EMAIL_NOT_REGISTERED);
         }
         CustomUser customUser = createCustomUserObj(user, Application.DEFAULT, false);
         return customUser;
@@ -515,7 +515,7 @@ public class UserService {
                     .getOldPassword()));
         }
         catch (AuthenticationException e) {
-            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.BAD_CREDENTIAL);
+            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.User.BAD_CREDENTIAL);
         }
         PasswordUtils.validateChangePasword(changePassword);
         logger.debug("Changing password for user {}", activeUser.getUsername());
@@ -542,7 +542,7 @@ public class UserService {
             user = userDao.saveAndFlush(toCreate);
         }
         else if (user.isRegistered()) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.User.EMAIL_ALREADY_REGISTERED);
         }
         else if (!user.isRegistered()) {
             user.setRegistered(true);
@@ -605,7 +605,7 @@ public class UserService {
     public String processResetPasswordRequest(String email){
         User user = userDao.findByEmail(email);
         if (user == null || !user.isRegistered()) {
-            throw new BadRequestException(ResponseErrorMessages.EMAIL_NOT_REGISTERED);
+            throw new BadRequestException(ResponseErrorMessages.User.EMAIL_NOT_REGISTERED);
         }
         ForumUserToken forumUserToken = createForumUserToken(user.getId());
         StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append(
@@ -617,7 +617,7 @@ public class UserService {
         MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
         MailDetails details = new MailDetails(mailBody).setMailTo(email);
         mailSender.sendMailUsingAws(details);
-        return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
+        return ResponseErrorMessages.User.PASSWORD_RECOVERY_MAIL_SENT;
     
     }
     

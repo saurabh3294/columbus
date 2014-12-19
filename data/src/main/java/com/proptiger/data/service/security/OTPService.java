@@ -137,7 +137,7 @@ public class OTPService {
         Pageable pageable = new LimitOffsetPageRequest(0, 1, Direction.DESC, "id");
         List<UserOTP> userOTPs = userOTPDao.findLatestOTPByUserId(activeUser.getUserIdentifier(), pageable);
         if (userOTPs.isEmpty() || otp == null) {
-            throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.WRONG_OTP);
+            throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.User.WRONG_OTP);
         }
         Calendar cal = Calendar.getInstance();
         if (cal.getTime().after(userOTPs.get(0).getExpiresAt())) {
@@ -146,7 +146,7 @@ public class OTPService {
              * in case OTP expired re-send otp
              */
             respondWithOTP(activeUser);
-            throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.OTP_EXPIRED);
+            throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.User.OTP_EXPIRED);
         }
         if (otp.equals(userOTPs.get(0).getOtp().toString())) {
             SecurityContextUtils.grantUserAuthorityToActiveUser();
@@ -159,7 +159,7 @@ public class OTPService {
             }
         }
         else {
-            throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.WRONG_OTP);
+            throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.User.WRONG_OTP);
         }
     }
 
