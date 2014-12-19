@@ -46,11 +46,13 @@ public class SuburbSuggestions {
     private String makeSuburbRedirectUrl(String redirectUrl) {
         return (StringUtils.split(redirectUrl, '/')[1].substring("property-sale-".length()));
     }
-    
+
     private List<Typeahead> filterByCustomRules(List<Typeahead> suggestions) {
         Collections.shuffle(suggestions);
         String temp = (suggestions.get(0).getDisplayText() + " " + suggestions.get(1).getDisplayText());
-        if(StringUtils.containsIgnoreCase(temp, "Resale property") && StringUtils.containsIgnoreCase(temp, "Ready to move")){
+        if (StringUtils.containsIgnoreCase(temp, "Resale property") && StringUtils.containsIgnoreCase(
+                temp,
+                "Ready to move")) {
             suggestions.remove(0);
         }
         return UtilityClass.getFirstNElementsOfList(suggestions, 2);

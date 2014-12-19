@@ -44,11 +44,13 @@ public class LocalitySuggestions {
 
         return filterByCustomRules(suggestions);
     }
-    
+
     private List<Typeahead> filterByCustomRules(List<Typeahead> suggestions) {
         Collections.shuffle(suggestions);
         String temp = (suggestions.get(0).getDisplayText() + " " + suggestions.get(1).getDisplayText());
-        if(StringUtils.containsIgnoreCase(temp, "Resale property") && StringUtils.containsIgnoreCase(temp, "Ready to move")){
+        if (StringUtils.containsIgnoreCase(temp, "Resale property") && StringUtils.containsIgnoreCase(
+                temp,
+                "Ready to move")) {
             suggestions.remove(0);
         }
         return UtilityClass.getFirstNElementsOfList(suggestions, 2);
