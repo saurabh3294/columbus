@@ -33,7 +33,6 @@ import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
-import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.repo.PropertyDao;
@@ -67,9 +66,6 @@ public class ListingService {
 
     @Autowired
     private PropertyDao           propertyDao;
-
-    @Autowired
-    private HttpRequestUtil       requestUtil;
 
     @Autowired
     private TypeAheadService      typeAheadService;
