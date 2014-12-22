@@ -5,19 +5,19 @@ import java.util.Map;
 
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
-import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
-import com.proptiger.data.notification.processor.DefaultNotificationTypeProcessor;
-import com.proptiger.data.notification.processor.GoalPriceNotificationMessageProcessor;
-import com.proptiger.data.notification.processor.LocalityNewsNotificationMessageProcessor;
-import com.proptiger.data.notification.processor.NewsNotificationTypeProcessor;
-import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.processor.NotificationNonPrimaryKeyProcessor;
 import com.proptiger.data.notification.processor.NotificationPrimaryKeyProcessor;
-import com.proptiger.data.notification.processor.NotificationTypeProcessor;
-import com.proptiger.data.notification.processor.PhotoAddNotificationMessageProcessor;
-import com.proptiger.data.notification.processor.PriceChangeNotificationMessageProcessor;
-import com.proptiger.data.notification.processor.PriceChangeNotificationTypeProcessor;
-import com.proptiger.data.notification.processor.ProjectNewsNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.message.DefaultNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.message.GoalPriceNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.message.LocalityNewsNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.message.NotificationMessageProcessor;
+import com.proptiger.data.notification.processor.message.PhotoAddNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.message.PriceChangeNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.message.ProjectNewsNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.type.DefaultNotificationTypeProcessor;
+import com.proptiger.data.notification.processor.type.NewsNotificationTypeProcessor;
+import com.proptiger.data.notification.processor.type.NotificationTypeProcessor;
+import com.proptiger.data.notification.processor.type.PriceChangeNotificationTypeProcessor;
 
 public class NotificationTypeConfig {
 

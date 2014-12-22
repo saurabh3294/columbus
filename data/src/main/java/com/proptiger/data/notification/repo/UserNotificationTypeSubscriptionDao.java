@@ -21,4 +21,12 @@ public interface UserNotificationTypeSubscriptionDao extends
             List<Integer> notificationTypeIds,
             List<Integer> userIds);
 
+    @Query("SELECT S FROM UserNotificationTypeSubscription S JOIN FETCH S.userProjectSubscriptions P JOIN FETCH S.user U WHERE S.notificationTypeId = ?1 AND S.subscriptionType = 'Subscribed' AND P.projectId IN ?2")
+    public List<UserNotificationTypeSubscription> findSubscribedByNotificationTypeIdAndProjectIds(
+            Integer notificationTypeId,
+            List<Integer> projectIds);
+
+    @Query("SELECT S FROM UserNotificationTypeSubscription S JOIN FETCH S.user U WHERE S.notificationTypeId = ?1 AND S.subscriptionType = 'Unsubscribed'")
+    public List<UserNotificationTypeSubscription> findUnsubscribedByNotificationTypeId(Integer notificationTypeId);
+
 }

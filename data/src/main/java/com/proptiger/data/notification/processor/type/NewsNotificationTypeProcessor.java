@@ -1,4 +1,7 @@
-package com.proptiger.data.notification.processor;
+package com.proptiger.data.notification.processor.type;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -15,10 +18,23 @@ public class NewsNotificationTypeProcessor extends NotificationTypeProcessor {
             EventGenerated eventGenerated,
             NotificationType notificationType) {
 
-        NotificationTypePayload payload = notificationType.getNotificationTypeConfig()
-                .getNotificationTypePayloadObject();
         EventTypePayload eventTypePayload = eventGenerated.getEventTypePayload();
+        return getNotificationTypePayload(eventTypePayload);
+    }
+
+    private NotificationTypePayload getNotificationTypePayload(EventTypePayload eventTypePayload) {
+
+        NotificationTypePayload payload = new NotificationTypePayload();
         payload.populatePayloadValues((NewsEventTypePayload) eventTypePayload);
+
+        if (eventTypePayload.getChildEventTypePayloads() != null) {
+            List<NotificationTypePayload> childPayloads = new ArrayList<NotificationTypePayload>();
+            for (EventTypePayload childEventTypePayload : eventTypePayload.getChildEventTypePayloads()) {
+                childPayloads.add(getNotificationTypePayload(childEventTypePayload));
+            }
+            payload.setChildNotificationTypePayloads(childPayloads);
+        }
+
         return payload;
     }
 }

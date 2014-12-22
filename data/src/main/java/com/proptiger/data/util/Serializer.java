@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.notification.util.MediumDetailsSerializerDeserializer;
 
@@ -23,7 +24,8 @@ public class Serializer {
                 .excludeFieldsWithModifiers(Modifier.TRANSIENT)
                 .addSerializationExclusionStrategy(jsonExclusionStrategy)
                 .addDeserializationExclusionStrategy(jsonExclusionStrategy)
-                .registerTypeAdapter(MediumDetails.class, new MediumDetailsSerializerDeserializer());
+                .registerTypeAdapter(MediumDetails.class, new MediumDetailsSerializerDeserializer())
+                .registerTypeAdapter(EventTypePayload.class, new InterfaceAdapter<EventTypePayload>());
 
         gson = gsonBuilder.create();
     }

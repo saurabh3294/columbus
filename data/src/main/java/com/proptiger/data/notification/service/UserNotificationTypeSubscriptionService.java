@@ -2,8 +2,10 @@ package com.proptiger.data.notification.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.util.Caching;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.notification.enums.SubscriptionType;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.UserNotificationTypeSubscription;
 import com.proptiger.data.notification.model.external.NotificationSubscriptionRequest;
@@ -37,10 +38,13 @@ public class UserNotificationTypeSubscriptionService {
 
     @Cacheable(
             value = Constants.CacheName.NOTIFICATION_SUBSCRIBED_USERS,
-            key = "'notificationTypeId:'+#notificationTypeId+':'")
-    public List<User> getSubscribedUsersByNotificationType(Integer notificationTypeId) {
+            key = "'notificationTypeId:'+#notificationTypeId+':primaryKey:'+#primaryKey+':'")
+    public List<User> getSubscribedUsersByNotificationType(
+            Integer notificationTypeId,
+            Integer primaryKey,
+            List<Integer> projectIds) {
         List<UserNotificationTypeSubscription> subscriptions = userNTSubscriptionDao
-                .findByNotificationTypeIdAndSubscriptionType(notificationTypeId, SubscriptionType.Subscribed);
+                .findSubscribedByNotificationTypeIdAndProjectIds(notificationTypeId, projectIds);
         return getUsersFromSubscriptions(subscriptions);
     }
 
@@ -49,7 +53,7 @@ public class UserNotificationTypeSubscriptionService {
             key = "'notificationTypeId:'+#notificationTypeId+':'")
     public List<User> getUnsubscribedUsersByNotificationType(Integer notificationTypeId) {
         List<UserNotificationTypeSubscription> subscriptions = userNTSubscriptionDao
-                .findByNotificationTypeIdAndSubscriptionType(notificationTypeId, SubscriptionType.Unsubscribed);
+                .findUnsubscribedByNotificationTypeId(notificationTypeId);
         return getUsersFromSubscriptions(subscriptions);
     }
 
@@ -112,6 +116,7 @@ public class UserNotificationTypeSubscriptionService {
             caching.deleteMultipleResponseFromCacheOnRegex(
                     keyPattern,
                     Constants.CacheName.NOTIFICATION_SUBSCRIBED_USERS);
+
             caching.deleteMultipleResponseFromCacheOnRegex(
                     keyPattern,
                     Constants.CacheName.NOTIFICATION_UNSUBSCRIBED_USERS);
@@ -123,12 +128,17 @@ public class UserNotificationTypeSubscriptionService {
 
     private List<User> getUsersFromSubscriptions(List<UserNotificationTypeSubscription> subscriptions) {
         List<User> users = new ArrayList<User>();
+        Set<Integer> userIds = new HashSet<Integer>();
         if (subscriptions == null) {
             logger.debug("No subscriptions found in DB");
             return users;
         }
         for (UserNotificationTypeSubscription subscription : subscriptions) {
-            users.add(subscription.getUser());
+            User user = subscription.getUser();
+            if (!userIds.contains(user.getId())) {
+                users.add(user);
+                userIds.add(user.getId());
+            }
         }
         return users;
     }

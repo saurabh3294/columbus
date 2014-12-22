@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.event.enums.EventTypeName;
 import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
 import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
 import com.proptiger.data.event.model.EventGenerated;
@@ -53,7 +52,6 @@ public class EventGeneratedService {
 
     @Autowired
     private ApplicationContext                applicationContext;
-	
 
     @Autowired
     private SubscriberConfigService           subscriberConfigService;
@@ -134,23 +132,6 @@ public class EventGeneratedService {
     }
 
     /**
-     * Find the last recent event that was generated in the DB
-     * 
-     * @return
-     */
-    public EventGenerated getLatestEventGenerated() {
-        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
-        List<EventGenerated> listEventGenerateds = eventGeneratedDao.getLatestEventGenerated(pageable);
-        logger.info("Latest Event generated: " + listEventGenerateds);
-
-        if (listEventGenerateds == null || listEventGenerateds.isEmpty()) {
-            return null;
-        }
-        populateEventsDataAfterLoad(listEventGenerateds);
-        return listEventGenerateds.get(0);
-    }
-
-    /**
      * Updating the status of EventGenerateds to a new status if the current
      * status matches the provided status
      * 
@@ -161,10 +142,19 @@ public class EventGeneratedService {
         Integer numberOfRowsAffected;
         for (Map.Entry<EventStatus, List<EventGenerated>> entry : updateEventGeneratedByOldValue.entrySet()) {
             for (EventGenerated eventGenerated : entry.getValue()) {
-                numberOfRowsAffected = eventGeneratedDao.updateEventStatusByIdAndOldStatus(
-                        eventGenerated.getEventStatus(),
-                        entry.getKey(),
-                        eventGenerated.getId());
+                if (eventGenerated.getMergedEventId() != null) {
+                    numberOfRowsAffected = eventGeneratedDao.updateEventStatusAndMergeIdByIdAndOldStatus(
+                            eventGenerated.getEventStatus(),
+                            entry.getKey(),
+                            eventGenerated.getId(),
+                            eventGenerated.getMergedEventId());
+                }
+                else {
+                    numberOfRowsAffected = eventGeneratedDao.updateEventStatusByIdAndOldStatus(
+                            eventGenerated.getEventStatus(),
+                            entry.getKey(),
+                            eventGenerated.getId());
+                }
                 logger.debug("Event with Id" + eventGenerated.getId()
                         + " was being updated from Old Status : "
                         + entry.getKey()
@@ -364,11 +354,19 @@ public class EventGeneratedService {
     private void populateEventsDataBeforeSave(EventGenerated eventGenerated) {
         eventGenerated.setData(Serializer.toJson(eventGenerated.getEventTypePayload()));
     }
-    
-    private EventGenerated getLastVerifiedEventGenerated() {
-        EventGenerated eventGenerated = eventGeneratedDao.findByEventStatusOrderByUpdatedAtDesc(EventStatus.Verified);
 
-        return eventGenerated;
+    private EventGenerated getLastVerifiedEventGenerated() {
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao.findByEventStatusOrderByUpdatedAtDesc(
+                EventStatus.Verified,
+                pageable);
+        logger.info("Latest Event generated: " + listEventGenerateds);
+
+        if (listEventGenerateds == null || listEventGenerateds.isEmpty()) {
+            return null;
+        }
+        populateEventsDataAfterLoad(listEventGenerateds);
+        return listEventGenerateds.get(0);
     }
-   
+
 }

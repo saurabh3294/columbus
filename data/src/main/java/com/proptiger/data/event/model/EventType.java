@@ -13,25 +13,16 @@ import com.proptiger.core.model.BaseModel;
 
 @Entity
 @Table(name = "notification.event_type")
-/**
- * TODO to make the configuration required for the event type in json format and then load it
- * into the  coressponding model for each event type. The model mapping will be present in the
- * Types Enum.
- * @author Mukand Agarwal
- *
- */
 public class EventType extends BaseModel {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -7894812665751049177L;
 
-    public enum Operation {
-        Replace, Merge;
-    }
+    private static final long serialVersionUID = -7894812665751049177L;
 
     public enum Strategy {
         MERGE, SUPPRESS, NO_STRATEGY
+    }
+
+    public enum HoldingPeriodType {
+        SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, UPCOMING_MONTHS
     }
 
     @Id
@@ -45,17 +36,15 @@ public class EventType extends BaseModel {
     @Enumerated(EnumType.STRING)
     private Strategy                  strategy;
 
-    @Column(name = "validation_cycle_in_hours")
-    private int                       validationCycleHours;
+    @Column(name = "holding_period_type")
+    @Enumerated(EnumType.STRING)
+    private HoldingPeriodType         holdingPeriodType;
+
+    @Column(name = "holding_period_value")
+    private int                       holdingPeriodValue;
 
     @Column(name = "verification_required")
-    private int                       verficationRequired;
-
-    @Column(name = "queued_items_in_validation_cycle")
-    private int                       queuedItemsValidationCycle;
-
-    @Column(name = "operation")
-    private Operation                 operation;
+    private Boolean                   verficationRequired;
 
     @Column(name = "overwrite_config_name")
     private String                    overwriteConfigName;
@@ -70,38 +59,6 @@ public class EventType extends BaseModel {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getValidationCycleHours() {
-        return validationCycleHours;
-    }
-
-    public void setValidationCycleHours(int validationCycleHours) {
-        this.validationCycleHours = validationCycleHours;
-    }
-
-    public int getVerficationRequired() {
-        return verficationRequired;
-    }
-
-    public void setVerficationRequired(int verficationRequired) {
-        this.verficationRequired = verficationRequired;
-    }
-
-    public int getQueuedItemsValidationCycle() {
-        return queuedItemsValidationCycle;
-    }
-
-    public void setQueuedItemsValidationCycle(int queuedItemsValidationCycle) {
-        this.queuedItemsValidationCycle = queuedItemsValidationCycle;
-    }
-
-    public Operation getOperation() {
-        return operation;
-    }
-
-    public void setOperation(Operation operation) {
-        this.operation = operation;
     }
 
     public EventTypeConfig getEventTypeConfig() {
@@ -134,6 +91,30 @@ public class EventType extends BaseModel {
 
     public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
+    }
+
+    public HoldingPeriodType getHoldingPeriodType() {
+        return holdingPeriodType;
+    }
+
+    public void setHoldingPeriodType(HoldingPeriodType holdingPeriodType) {
+        this.holdingPeriodType = holdingPeriodType;
+    }
+
+    public int getHoldingPeriodValue() {
+        return holdingPeriodValue;
+    }
+
+    public void setHoldingPeriodValue(int holdingPeriodValue) {
+        this.holdingPeriodValue = holdingPeriodValue;
+    }
+
+    public Boolean getVerficationRequired() {
+        return verficationRequired;
+    }
+
+    public void setVerficationRequired(Boolean verficationRequired) {
+        this.verficationRequired = verficationRequired;
     }
 
 }

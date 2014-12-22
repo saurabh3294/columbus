@@ -3,7 +3,6 @@ package com.proptiger.data.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.config.scheduling.QuartzScheduledClass;
@@ -54,8 +53,8 @@ public class EventInitiator {
 
     /**
      * Takes the list of Raw events and Processed events from DB which are still
-     * in holding state and marks the latest event of a particular primary key
-     * as PROCESSED and remaining events as DISCARDED
+     * in holding state and Merge/Suppress the events of a particular primary
+     * key based on the config of the event type.
      */
     @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.event}",
@@ -68,10 +67,8 @@ public class EventInitiator {
 
     /**
      * Takes the list of all events that are in Processed state and whose
-     * holding period has expired and checks the latest event of a particular
-     * primary key for verification and marks the remaining events as DISCARDED.
-     * An event is marked as PENDING_VERIFICATION if verification is required
-     * else VERIFIED if no verification is required.
+     * holding period has expired marks it as PENDING_VERIFICATION if
+     * verification is required else VERIFIED if no verification is required.
      */
     @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.event}",
