@@ -654,7 +654,7 @@ public class LeadOfferService {
         leadOfferInDB.setOfferedListings(leadOfferedListingList);
         restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
-        String heading = "Matching Property suggested by our trusted broker";
+        String heading = "Matching Property suggested by our trusted broker | PropTiger.com";
         String templatePath = marketplaceTemplateBasePath + claimTemplate;
         logger.debug("Sending email from inside claim lead");
         sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId, "Proptiger.com");

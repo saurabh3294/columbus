@@ -54,10 +54,8 @@
               
               <tr><td>&nbsp;</td></tr>
                   <tr>
-                    <td style="text-align:center;"><div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif;  color:#f16d20; line-height:30px;"> Get the mobile app <img src="http://cdn.proptiger.com/images/appple_app.gif"  width="36" height="37" border="0" align="absmiddle" />&nbsp; <img src="http://cdn.proptiger.com/images/andriod_app.gif" width="36" height="37" border="0" align="absmiddle" /></div>
-                      
-                      
-                    </td></tr></table>
+                    <td style="text-align:center;"><div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif;  color:#f16d20; line-height:30px;"> Get the mobile app <a href="https://itunes.apple.com/in/app/proptiger-real-estate-property/id935244607?ls=1&mt=8"><img src="http://cdn.proptiger.com/images/appple_app.gif"  width="36" height="37" border="0" align="absmiddle" />&nbsp;</a> <a href="https://play.google.com/store/apps/details?id=com.proptiger"><img src="http://cdn.proptiger.com/images/andriod_app.gif" width="36" height="37" border="0" align="absmiddle" /></a></div>                                            
+              </td></tr></table>
                       
                       
                       
@@ -73,7 +71,7 @@
     
     Hi ${leadOffer.lead.client.fullName.substring(0,1).toUpperCase()}${leadOffer.lead.client.fullName.substring(1)},<br /><br />
     Greetings from Proptiger.com and thank you for using Proptiger services.<br />
-    ${leadOffer.agent.fullName}, our trusted broker has suggested properties as per your property requirements of 
+    ${leadOffer.agent.fullName}, our trusted broker has suggested properties as per your property requirements of  <b>
 
 #foreach (${requirement} in ${leadOffer.lead.requirements})
 	#if (${requirement.project})    
@@ -116,6 +114,7 @@
 	$velocityUtility.roundToTwoDecimal($maxBudgetInLacs) Lacs.
 	#end
     #end 	
+  </b>
  You can find the property details below.
     
     </td>
@@ -129,7 +128,7 @@
     <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
     <tr><td height="5"></td></tr>
              <tr>
-    <td style="font-size:12px;">Suggested by Broker:  ${leadOffer.agent.fullName}</td>
+    <td style="font-size:12px;"><b>Suggested by Broker:  ${leadOffer.agent.fullName}</b></td>
   </tr>         
         
             </table>
@@ -162,20 +161,20 @@
     <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><span href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name} ${offeredListing.listing.property.project.name}</span></td>
     </tr>
   <tr>
-    <td width="173" style="padding:10px;"><strong>Locality:</strong> </td>
-    <td colspan="3" style="padding:10px;">${offeredListing.listing.property.project.locality.label}, ${offeredListing.listing.property.project.locality.suburb.label}, ${offeredListing.listing.property.project.locality.suburb.city.label}</td>
+    <td width="173" style="padding:10px;">Locality: </td>
+    <td colspan="3" style="padding:10px;"><strong>${offeredListing.listing.property.project.locality.label}, ${offeredListing.listing.property.project.locality.suburb.city.label}</strong></td>
     </tr>
   <tr>
-    <td style="padding:10px;"><strong>Configuration: </strong></td>
-    <td width="156" style="padding:10px;">${offeredListing.listing.property.unitName}</td>
-    <td width="91" style="padding:10px;"><strong>Size</strong> </td>
-    <td style="padding:10px;">${offeredListing.listing.property.size.intValue()}  ${offeredListing.listing.property.measure}</td>    
+    <td style="padding:10px;">Configuration:</td>
+    <td width="156" style="padding:10px;"><strong>${offeredListing.listing.property.unitName}</strong></td>
+    <td width="91" style="padding:10px;">Size </td>
+    <td style="padding:10px;"><strong>${offeredListing.listing.property.size.intValue()}  ${offeredListing.listing.property.measure}</strong></td>    
     
   </tr>
   <tr>
 	#if (${offeredListing.listing.currentListingPrice.price}) 
-    <td width="91" style="padding:10px;"><strong>Asking Price:</strong> </td>
-    <td style="padding:10px;">
+    <td width="91" style="padding:10px;">Asking Price:</td>
+    <td style="padding:10px;"><strong>
 
 			#if (${offeredListing.listing.currentListingPrice.price} != 0)	
 			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000.0)			      
@@ -191,13 +190,14 @@
 				#set($priceInCrores = $priceInLacs/100.0)
 				$velocityUtility.roundToTwoDecimal($priceInCrores) Cr.					
 			      	#else		
-				$velocityUtility.roundToTwoDecimal($priceInLacs) Lacs </td>
+				$velocityUtility.roundToTwoDecimal($priceInLacs) Lacs </strong></td>
 		  	      	#end
 		
 	#end
    			     #if(${offeredListing.listing.floor}) 	
-    <td width="91" style="padding:10px;"><strong>Floor</strong> </td>
-    <td style="padding:10px;">${offeredListing.listing.floor}</td>#end
+    <td width="91" style="padding:10px;">Floor </td>
+    <td style="padding:10px;"><strong>${offeredListing.listing.floor}</strong></td>
+    #end
   </tr>
 
 
@@ -226,31 +226,51 @@
 #end  
 
 	    <tr>    
-	    <td style="padding:10px;"><strong>Power Backup</strong></td>
-	    <td style="padding:10px;">#if ($powerBackup == 1) 
+	    <td style="padding:10px;">Power Backup</td>
+	    <td style="padding:10px;"><strong>#if ($powerBackup == 1) 
 					Available 
 				      #else
 					Not Available
 				      #end	
+            </strong>
  </td>
-	    <td style="padding:10px;"><strong>Parking</strong></td>
-	    <td style="padding:10px;">#if ($carParking == 1) 
+	    <td style="padding:10px;">Parking</td>
+	    <td style="padding:10px;"><strong>#if ($carParking == 1) 
 					Available 
 				      #else
 					Not Available
-				      #end</td>
+				      #end</strong></td>
 	    </tr>
 
 	    <tr>    
-	    <td style="padding:10px;"><strong>Club Membership</strong></td>
-	    <td style="padding:10px;">#if ($clubHouse == 1) 
+	    <td style="padding:10px;">Club Membership</td>
+	    <td style="padding:10px;"><strong>#if ($clubHouse == 1) 
 					Available 
 				      #else
 					Not Available
 				      #end	
+            </strong>
  </td>
 	    
 	    </tr>	
+
+#set($otherFlag = 0)
+#foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
+
+#if(${listingAmenity.amenity.amenityMaster.amenityId} != 13 && ${listingAmenity.amenity.amenityMaster.amenityId} != 17 && ${listingAmenity.amenity.amenityMaster.amenityId} != 4)    
+  #if($otherFlag == 0)
+    <td style="padding:10px;">Other Special Features:</td><td>
+    <strong>${listingAmenity.amenity.amenityDisplayName}</strong>
+    #set($otherFlag = 1)
+  #else
+    <strong>,${listingAmenity.amenity.amenityDisplayName}</strong>
+  #end
+#end
+#if($otherFlag == 1)
+  </td>
+#end
+</td>
+
 
 </table>
 
@@ -267,6 +287,23 @@
 
    <tr>
   <td style="padding:10px; line-height:20px;">The broker will get in touch with you shortly, to discuss your requirements in details.  <br /><br />
+
+</td>
+</tr>
+<tr>
+  <td align="center">
+    <span style="background-color:#f6921e;padding:10px;color:white;">OFFER: Buy a property through PropTiger and get Rs 5000 on homeloan</span>
+<br />
+<br />
+
+</td>
+</tr>
+<tr>
+  <td>
+
+
+
+
 
 Yours sincerely, <br />
 
