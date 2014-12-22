@@ -47,6 +47,7 @@ import com.proptiger.core.model.user.User.WhoAmIDetail;
 import com.proptiger.core.model.user.UserAttribute;
 import com.proptiger.core.model.user.UserAuthProviderDetail;
 import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.model.user.UserHierarchy;
 import com.proptiger.core.model.user.UserPreference;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
@@ -71,6 +72,7 @@ import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.ProjectDiscussionSubscription;
+import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.repo.CompanyDao;
 import com.proptiger.data.repo.EnquiryDao;
@@ -78,6 +80,7 @@ import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
+import com.proptiger.data.repo.companyuser.CompanyUserDao;
 import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.repo.user.UserAttributeDao;
 import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
@@ -186,6 +189,9 @@ public class UserService {
     
     @Autowired
     private UserRolesDao userRolesDao;
+    
+    @Autowired
+    private CompanyUserDao companyUserDao;
     
     @PostConstruct
     private void initialize() {
@@ -1014,4 +1020,57 @@ public class UserService {
         originalUser = userDao.saveAndFlush(originalUser);
         return originalUser;
     }
+
+    /**
+     * Get all child of active user and create create a tree data structure
+     * @param activeUser
+     * @return
+     */
+    @Transactional
+    public UserHierarchy getChildHeirarchy(ActiveUser activeUser) {
+        CompanyUser companyUser = companyUserDao.findByUserId(activeUser.getUserIdentifier());
+        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRange(companyUser.getLeft(), companyUser.getRight());
+        UserHierarchy root = new UserHierarchy();
+        root.setUserId(activeUser.getUserIdentifier());
+        root.setUserName(activeUser.getFullName());
+        root.setId(companyUser.getId());
+        
+        Set<Integer> userIds = new HashSet<Integer>();
+        for(CompanyUser u: companyUsers){
+            userIds.add(u.getUserId());
+        }
+        Map<Integer, User> userDetailsMap = getUsers(userIds);
+        
+        Map<Integer, List<UserHierarchy>> parentIdToUserMap = new HashMap<Integer, List<UserHierarchy>>();
+        for(CompanyUser u: companyUsers){
+            if(parentIdToUserMap.get(u.getParentId()) == null){
+                parentIdToUserMap.put(u.getParentId(), new ArrayList<UserHierarchy>());
+            }
+            UserHierarchy hierarchy = new UserHierarchy();
+            hierarchy.setId(u.getId());
+            hierarchy.setUserId(u.getUserId());
+            hierarchy.setUserName(userDetailsMap.get(u.getUserId()) != null ? userDetailsMap.get(u.getUserId()).getFullName() :"NA");
+            parentIdToUserMap.get(u.getParentId()).add(hierarchy);
+        }
+        updateChild(root, parentIdToUserMap);
+        return root;
+    }
+
+    /**
+     * Recursive call to update list of children in root and so on using
+     * inverted map of data of parent id to list of children
+     * 
+     * @param root
+     * @param parentIdToUserMap
+     */
+    private void updateChild(UserHierarchy root, Map<Integer, List<UserHierarchy>> parentIdToUserMap) {
+        if(root == null || parentIdToUserMap.get(root.getId()) == null){
+            return;
+        }
+        root.setChild(parentIdToUserMap.get(root.getId()));
+        for(UserHierarchy u: root.getChild()){
+            updateChild(u, parentIdToUserMap);
+        }
+    }
+    
 }
