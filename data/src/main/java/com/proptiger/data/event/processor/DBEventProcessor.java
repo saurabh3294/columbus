@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.EventType;
+import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypeUpdateHistory;
 import com.proptiger.data.event.service.EventGeneratedService;

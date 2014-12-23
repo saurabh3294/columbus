@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
 import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.EventTypeConfig;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.model.RawEventTableDetails;
+import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 
