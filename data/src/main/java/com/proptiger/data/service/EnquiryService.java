@@ -286,6 +286,7 @@ public class EnquiryService {
         if (city.getIsServing()) {
             return true;
         }
+        
         else {
             return false;
         }
