@@ -368,5 +368,10 @@ public class EventGeneratedService {
         populateEventsDataAfterLoad(listEventGenerateds);
         return listEventGenerateds.get(0);
     }
+    
+    @Transactional
+    public Integer updateEventStatusByEventTypeAndUniqueKey(String eventTypeName, String uniqueKey, EventStatus eventStatus){
+    	return eventGeneratedDao.updateEventStatusByEventTypeAndUniqueKey(eventTypeName, uniqueKey, eventStatus);
+    }
 
 }

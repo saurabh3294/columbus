@@ -63,4 +63,8 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
             EventStatus EventStatus,
             SubscriberName subscriberName,
             Pageable pageable);
+    
+    @Modifying
+    @Query("Update EventGenerated e JOIN e.eventType ET set status = ?3 WHERE eventTypeUniqueKey = ?2 and ET.name = ?1")
+    public Integer updateEventStatusByEventTypeAndUniqueKey(String eventTypeName, String uniqueKey, EventStatus eventStatus);
 }
