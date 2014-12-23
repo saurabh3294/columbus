@@ -131,7 +131,7 @@ public class EmailSender implements MediumSender {
                 + " and userId: "
                 + userId);
 
-        if (result.getMessageId() == null) {
+        if (result == null || result.getMessageId() == null) {
             return false;
         }
 
