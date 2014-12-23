@@ -1,4 +1,7 @@
-package com.proptiger.data.notification.processor;
+package com.proptiger.data.notification.processor.type;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,18 +29,31 @@ public class PriceChangeNotificationTypeProcessor extends NotificationTypeProces
             EventGenerated eventGenerated,
             NotificationType notificationType) {
 
-        NotificationTypePayload payload = notificationType.getNotificationTypeConfig()
-                .getNotificationTypePayloadObject();
-
         EventTypePayload eventTypePayload = eventGenerated.getEventTypePayload();
+        return getNotificationTypePayload(eventTypePayload);
+    }
+
+    private NotificationTypePayload getNotificationTypePayload(EventTypePayload eventTypePayload) {
+
+        NotificationTypePayload payload = new NotificationTypePayload();
         payload.populatePayloadValues((DefaultEventTypePayload) eventTypePayload);
-        
+
         Integer listingId = Integer.parseInt((String) eventTypePayload.getPrimaryKeyValue());
         logger.debug("Getting listing for listing id: " + listingId);
         Listing listing = listingService.getListingByListingId(listingId);
         Integer propertyId = listing.getPropertyId();
         payload.setPrimaryKeyName("property_id");
-        payload.setPrimaryKeyValue(propertyId);
+        payload.setPrimaryKeyValue(propertyId.toString());
+
+        if (eventTypePayload.getChildEventTypePayloads() != null) {
+            List<NotificationTypePayload> childPayloads = new ArrayList<NotificationTypePayload>();
+            for (EventTypePayload childEventTypePayload : eventTypePayload.getChildEventTypePayloads()) {
+                childPayloads.add(getNotificationTypePayload(childEventTypePayload));
+            }
+            payload.setChildNotificationTypePayloads(childPayloads);
+        }
+
         return payload;
     }
+
 }

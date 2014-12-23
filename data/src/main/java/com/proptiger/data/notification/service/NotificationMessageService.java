@@ -22,7 +22,7 @@ import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
-import com.proptiger.data.notification.processor.NotificationMessageProcessor;
+import com.proptiger.data.notification.processor.message.NotificationMessageProcessor;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
 import com.proptiger.data.util.Serializer;
 
@@ -200,24 +200,32 @@ public class NotificationMessageService {
         NotificationMessageProcessor nmProcessor = notificationType.getNotificationTypeConfig()
                 .getNotificationMessageProcessorObject();
 
+        List<User> userList = null;
         if (NotificationTypeUserStrategy.OnlySubscribed.equals(notificationType.getUserStrategy())) {
-            List<User> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType
-                    .getId());
+            Integer primaryKey = Integer.parseInt((String) ntGenerated.getNotificationTypePayload()
+                    .getPrimaryKeyValue());
+            List<Integer> projectIds = nmProcessor.getProjectIdsByPrimaryKey(primaryKey);
+            userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(
+                    notificationType.getId(),
+                    primaryKey,
+                    projectIds);
             logger.debug("Found " + userList.size()
                     + " Subscribed users for NotificationType "
                     + notificationType.getName());
-            nmPayloadMap = nmProcessor.getNotificationMessagePayloadBySubscribedUserList(userList, ntGenerated);
+
         }
         else if (NotificationTypeUserStrategy.MinusUnsubscribed.equals(notificationType.getUserStrategy())) {
-            List<User> unsubscribedUserList = userNTSubscriptionService
-                    .getUnsubscribedUsersByNotificationType(notificationType.getId());
-            logger.debug("Found " + unsubscribedUserList.size()
+            userList = userNTSubscriptionService.getUnsubscribedUsersByNotificationType(notificationType.getId());
+            logger.debug("Found " + userList.size()
                     + " unsubscribed users for NotificationType "
                     + notificationType.getName());
-            nmPayloadMap = nmProcessor.getNotificationMessagePayloadByUnsubscribedUserList(
-                    unsubscribedUserList,
-                    ntGenerated);
         }
+
+        nmPayloadMap = nmProcessor.getNotificationMessagePayload(
+                ntGenerated,
+                userList,
+                notificationType.getUserStrategy());
+
         return nmPayloadMap;
     }
 

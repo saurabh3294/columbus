@@ -37,7 +37,6 @@ import com.proptiger.core.exception.DuplicateNameResourceException;
 import com.proptiger.core.exception.InvalidResourceException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
-import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.core.model.cms.Locality;
@@ -50,10 +49,12 @@ import com.proptiger.core.model.proptiger.PortfolioListing.Source;
 import com.proptiger.core.model.proptiger.PortfolioListingPaymentPlan;
 import com.proptiger.core.model.proptiger.PortfolioListingPrice;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.model.user.portfolio.Portfolio;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
@@ -78,7 +79,6 @@ import com.proptiger.data.service.user.LeadGenerationService;
 import com.proptiger.data.service.user.SubscriptionService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.portfolio.PortfolioUtil;
-import com.proptiger.core.model.user.UserContactNumber;
 
 /**
  * This class provides CRUD operations over a property listing that is a
@@ -140,9 +140,9 @@ public class PortfolioService {
 
     @Autowired
     private ImageEnricher             imageEnricher;
-    
+
     @Autowired
-    private UserService userService;
+    private UserService               userService;
 
     /**
      * Get portfolio object for a particular user id
@@ -381,7 +381,8 @@ public class PortfolioService {
     public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId) {
         logger.debug("Getting portfolio listing {} for user id {}", listingId, userId);
 
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId,
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(
+                userId,
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
 
@@ -582,7 +583,8 @@ public class PortfolioService {
     }
 
     private PortfolioListing preProcessUpdate(Integer userId, PortfolioListing toUpdate) {
-        PortfolioListing resourcePresent = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
+        PortfolioListing resourcePresent = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(
+                userId,
                 toUpdate.getId(),
                 Constants.LISTINGSTATUS_LIST);
         if (resourcePresent == null) {
@@ -608,7 +610,8 @@ public class PortfolioService {
     @CacheEvict(value = Constants.CacheName.PORTFOLIO_LISTING, key = "#listingId")
     public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId, String reason) {
         logger.debug("Delete Portfolio Listing id {} for userid {}", listingId, userId);
-        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
+        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(
+                userId,
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
         if (propertyPresent == null) {
@@ -704,7 +707,8 @@ public class PortfolioService {
                 userId,
                 listingId,
                 interestedToSell);
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId,
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(
+                userId,
                 listingId,
                 Arrays.asList(ListingStatus.ACTIVE));
         if (listing == null || !listing.getUserId().equals(userId)) {
@@ -747,7 +751,8 @@ public class PortfolioService {
                 userId,
                 listingId,
                 interestedToLoan);
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(
+                userId,
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
         if (listing == null) {
@@ -793,7 +798,7 @@ public class PortfolioService {
         MailDetails mailDetails = null;
         UserContactNumber priorityContact = userService.getTopPriorityContact(user.getId());
         String contactNumber = null;
-        if(priorityContact != null){
+        if (priorityContact != null) {
             contactNumber = priorityContact.getContactNumber();
         }
         switch (mailTypeEnum) {
@@ -805,14 +810,17 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_USER:
-                ListingLoanRequestMail listingLoanRequestMail = listing.createListingLoanRequestObj(user, contactNumber);
+                ListingLoanRequestMail listingLoanRequestMail = listing
+                        .createListingLoanRequestObj(user, contactNumber);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_USER,
                         listingLoanRequestMail);
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
-                ListingLoanRequestMail listingLoanRequestMailInternal = listing.createListingLoanRequestObj(user, contactNumber);
+                ListingLoanRequestMail listingLoanRequestMailInternal = listing.createListingLoanRequestObj(
+                        user,
+                        contactNumber);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL,
                         listingLoanRequestMailInternal);
@@ -820,7 +828,10 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
-                ListingResaleMail listingResaleMailInternal = listing.createListingResaleMailObj(websiteHost, user, contactNumber);
+                ListingResaleMail listingResaleMailInternal = listing.createListingResaleMailObj(
+                        websiteHost,
+                        user,
+                        contactNumber);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL,
                         listingResaleMailInternal);
@@ -828,7 +839,10 @@ public class PortfolioService {
                 mailDetails = new MailDetails(mailBody).setMailTo(toStr);
                 return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_USER:
-                ListingResaleMail listingResaleMailUser = listing.createListingResaleMailObj(websiteHost, user, contactNumber);
+                ListingResaleMail listingResaleMailUser = listing.createListingResaleMailObj(
+                        websiteHost,
+                        user,
+                        contactNumber);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER,
                         listingResaleMailUser);
@@ -922,7 +936,7 @@ public class PortfolioService {
         if (savePortfolioListing == null) {
             throw new PersistenceException("Sell your property request cannot be saved.");
         }
-        
+
         sendMailOnSellYourProperty(savePortfolioListing);
         return savePortfolioListing;
     }
@@ -969,14 +983,67 @@ public class PortfolioService {
         return portfolioListingDao.findByListingIdAndListingStatusIn(portfolioId, Constants.LISTINGSTATUS_LIST);
     }
 
-    public List<PortfolioListing> getActivePortfolioListingsByPropertyId(Integer propertyId) {
+    /**
+     * Get the Active PortfolioListings with given properties. If includeUsers
+     * is true then only those PortfolioListings will be returned whose userId
+     * is among the given set of userIds else only those PortfolioListings will
+     * be returned whose userId is not among the given set of userIds
+     * 
+     * @param properties
+     * @param users
+     * @param includeUsers
+     * @return
+     */
+    public List<PortfolioListing> getActivePortfolioListingsByPropertiesAndUsers(
+            List<Property> properties,
+            List<User> users,
+            boolean includeUsers) {
+
+        if (properties == null || properties.isEmpty()) {
+            return new ArrayList<PortfolioListing>();
+        }
+
+        List<Integer> propertyIds = new ArrayList<Integer>();
+        for (Property property : properties) {
+            propertyIds.add(property.getPropertyId());
+        }
+
         List<Source> sourceTypes = new ArrayList<Source>();
         sourceTypes.add(Source.backend);
         sourceTypes.add(Source.portfolio);
-        return portfolioListingDao.findByTypeIdAndListingStatusAndSourceTypeIn(
-                propertyId,
-                ListingStatus.ACTIVE,
-                sourceTypes);
+
+        ListingStatus activeListingStatus = ListingStatus.ACTIVE;
+
+        if (users == null || users.isEmpty()) {
+            if (includeUsers) {
+                return new ArrayList<PortfolioListing>();
+            }
+            return portfolioListingDao.findByTypeIdInAndListingStatusAndSourceTypeIn(
+                    propertyIds,
+                    activeListingStatus,
+                    sourceTypes);
+        }
+
+        List<Integer> userIds = new ArrayList<Integer>();
+
+        for (User user : users) {
+            userIds.add(user.getId());
+        }
+
+        if (includeUsers) {
+            return portfolioListingDao.findByTypeIdInAndListingStatusAndSourceTypeInAndUserIdIn(
+                    propertyIds,
+                    activeListingStatus,
+                    sourceTypes,
+                    userIds);
+        }
+        else {
+            return portfolioListingDao.findByTypeIdInAndListingStatusAndSourceTypeInAndUserIdNotIn(
+                    propertyIds,
+                    activeListingStatus,
+                    sourceTypes,
+                    userIds);
+        }
     }
 
 }

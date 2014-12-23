@@ -1,11 +1,9 @@
-package com.proptiger.data.notification.processor;
+package com.proptiger.data.notification.processor.message;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +14,7 @@ import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.WordpressPost;
+import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
@@ -38,50 +37,80 @@ public abstract class NotificationMessageProcessor {
     @Autowired
     private BlogNewsService  blogNewsService;
 
-    public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadBySubscribedUserList(
+    /**
+     * Returns the NotificationMessagePayload for the given users and strategy
+     * 
+     * @param userList
+     * @param ntGenerated
+     * @return
+     */
+    public Map<Integer, NotificationMessagePayload> getNotificationMessagePayload(
+            NotificationTypeGenerated ntGenerated,
             List<User> userList,
-            NotificationTypeGenerated ntGenerated) {
-        return new HashMap<Integer, NotificationMessagePayload>();
-    }
-
-    public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
-            List<User> unsubscribedUserList,
-            NotificationTypeGenerated ntGenerated) {
+            NotificationTypeUserStrategy strategy) {
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
+        // Assuming that the primary key is the property id
         Integer propertyId = Integer.parseInt((String) notificationTypePayload.getPrimaryKeyValue());
-        List<PortfolioListing> portfolioListings = getPortfolioListingsByPropertyId(propertyId);
-        portfolioListings = removeUsersFromPortfolioListings(unsubscribedUserList, portfolioListings);
+        List<PortfolioListing> portfolioListings = getPortfolioListingsByPropertyId(propertyId, userList, strategy);
         return createDefaultNMPayloadByPropertyListings(portfolioListings, ntGenerated.getNotificationTypePayload());
     }
 
-    protected List<PortfolioListing> getPortfolioListingsByPropertyId(Integer propertyId) {
-        logger.debug("Getting portfolioListings for property id: " + propertyId);
-        return portfolioService.getActivePortfolioListingsByPropertyId(propertyId);
+    /**
+     * Returns the list of projectIds corresponding to the given primary key
+     * 
+     * @param primaryKey
+     * @return
+     */
+    public List<Integer> getProjectIdsByPrimaryKey(Integer primaryKey) {
+        // Assuming that the primary key is the property id
+        List<Integer> projectIds = new ArrayList<Integer>();
+        projectIds.add(propertyService.getProjectIdFromPropertyId(primaryKey));
+        return projectIds;
     }
 
-    protected List<PortfolioListing> getPortfolioListingsByProjectId(Integer projectId) {
-        Set<PortfolioListing> portfolioListings = new HashSet<PortfolioListing>();
+    protected List<PortfolioListing> getPortfolioListingsByProperties(
+            List<Property> properties,
+            List<User> userList,
+            NotificationTypeUserStrategy strategy) {
+
+        boolean includeUsers = Boolean.TRUE;
+        if (NotificationTypeUserStrategy.MinusUnsubscribed.equals(strategy)) {
+            includeUsers = Boolean.FALSE;
+        }
+
+        return portfolioService.getActivePortfolioListingsByPropertiesAndUsers(properties, userList, includeUsers);
+    }
+
+    protected List<PortfolioListing> getPortfolioListingsByPropertyId(
+            Integer propertyId,
+            List<User> userList,
+            NotificationTypeUserStrategy strategy) {
+        logger.debug("Getting portfolioListings for propertyId: " + propertyId);
+        Property property = propertyService.getProperty(propertyId);
+        List<Property> properties = new ArrayList<Property>();
+        if (property != null) {
+            properties.add(property);
+        }
+        return getPortfolioListingsByProperties(properties, userList, strategy);
+    }
+
+    protected List<PortfolioListing> getPortfolioListingsByProjectId(
+            Integer projectId,
+            List<User> userList,
+            NotificationTypeUserStrategy strategy) {
         logger.debug("Getting properties for project id: " + projectId);
-        List<Property> propertyList = propertyService.getPropertyIdsByProjectId(projectId);
-
-        for (Property property : propertyList) {
-            portfolioListings.addAll(getPortfolioListingsByPropertyId(property.getPropertyId()));
-        }
-
-        return new ArrayList<PortfolioListing>(portfolioListings);
+        List<Property> properties = propertyService.getPropertiesByProjectId(projectId);
+        return getPortfolioListingsByProperties(properties, userList, strategy);
     }
 
-    protected List<PortfolioListing> getPortfolioListingsByLocalityId(Integer localityId) {
-        Set<PortfolioListing> portfolioListings = new HashSet<PortfolioListing>();
+    protected List<PortfolioListing> getPortfolioListingsByLocalityId(
+            Integer localityId,
+            List<User> userList,
+            NotificationTypeUserStrategy strategy) {
         logger.debug("Getting properties for locality id: " + localityId);
-        List<Property> propertyList = propertyService.getPropertyIdsByLocalityId(localityId);
-
-        for (Property property : propertyList) {
-            portfolioListings.addAll(getPortfolioListingsByPropertyId(property.getPropertyId()));
-        }
-
-        return new ArrayList<PortfolioListing>(portfolioListings);
+        List<Property> properties = propertyService.getPropertiesByLocalityId(localityId);
+        return getPortfolioListingsByProperties(properties, userList, strategy);
     }
 
     protected Map<Integer, NotificationMessagePayload> createDefaultNMPayloadByPropertyListings(
@@ -136,36 +165,20 @@ public abstract class NotificationMessageProcessor {
         return payloadMap;
     }
 
-    protected List<PortfolioListing> removeUsersFromPortfolioListings(
-            List<User> users,
-            List<PortfolioListing> portfolioListings) {
-        Map<Integer, User> userMap = new HashMap<Integer, User>();
-        for (User user : users) {
-            userMap.put(user.getId(), user);
-        }
-
-        List<PortfolioListing> newPortfolioListings = new ArrayList<PortfolioListing>();
-
-        if (portfolioListings == null) {
-            return newPortfolioListings;
-        }
-
-        for (PortfolioListing portfolioListing : portfolioListings) {
-            if (userMap.get(portfolioListing.getUserId()) != null) {
-                logger.debug("Ignoring unsubscribed user: " + portfolioListing.getUserId());
-                continue;
-            }
-            newPortfolioListings.add(portfolioListing);
-        }
-        return newPortfolioListings;
-    }
-
     public PortfolioService getPortfolioService() {
         return portfolioService;
     }
 
     public void setPortfolioService(PortfolioService portfolioService) {
         this.portfolioService = portfolioService;
+    }
+
+    public PropertyService getPropertyService() {
+        return propertyService;
+    }
+
+    public void setPropertyService(PropertyService propertyService) {
+        this.propertyService = propertyService;
     }
 
 }

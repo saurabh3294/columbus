@@ -25,7 +25,6 @@ import com.google.gson.Gson;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.DomainObject;
-import com.proptiger.core.enums.ProjectStatus;
 import com.proptiger.core.enums.ResidentialFlag;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
@@ -143,8 +142,8 @@ public class ProjectService {
         imageEnricher.setImagesOfProjects(projects.getResults());
         return projects;
     }
-	
-/**
+
+    /**
      * This method will return the list of projects and total projects found
      * based on the selector.
      * 
@@ -741,7 +740,9 @@ public class ProjectService {
                 + ";version=="
                 + DataVersion.Website
                 + ";activeStatus=="
-                + Status.Active +";residentialFlag=="+ResidentialFlag.Residential);
+                + Status.Active
+                + ";residentialFlag=="
+                + ResidentialFlag.Residential);
 
         PaginatedResponse<List<Project>> projects = getProjects(fiqlSelector);
         if (projects == null || projects.getResults() == null || projects.getResults().isEmpty()) {
@@ -805,6 +806,7 @@ public class ProjectService {
 
         return properties;
     }
+
     /**
      * This method will set fields derived from the properties of a project to
      * the project object. It will return the list of properties for a project.
@@ -838,7 +840,6 @@ public class ProjectService {
 
             property.setProject(null);
         }
-        
 
         project.setMinResaleOrPrimaryPrice(UtilityClass.min(project.getMinPrice(), project.getMinResalePrice()));
         project.setMaxResaleOrPrimaryPrice(UtilityClass.max(project.getMaxPrice(), project.getMaxResalePrice()));
@@ -904,6 +905,17 @@ public class ProjectService {
 
         }
 
+    }
+
+    public List<Integer> getProjectIdsFromLocalityId(Integer localityId) {
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId
+                + "}}]}}", Selector.class);
+        List<Project> projects = projectDao.getProjects(selector).getResults();
+        List<Integer> projectIds = new ArrayList<Integer>();
+        for (Project project : projects) {
+            projectIds.add(project.getProjectId());
+        }
+        return projectIds;
     }
 
 }

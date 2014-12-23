@@ -1,4 +1,4 @@
-package com.proptiger.data.notification.processor;
+package com.proptiger.data.notification.processor.message;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
+import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
@@ -21,17 +22,17 @@ public class PriceChangeNotificationMessageProcessor extends NotificationMessage
     private static Logger logger = LoggerFactory.getLogger(PriceChangeNotificationMessageProcessor.class);
 
     @Override
-    public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
-            List<User> unsubscribedUserList,
-            NotificationTypeGenerated ntGenerated) {
+    public Map<Integer, NotificationMessagePayload> getNotificationMessagePayload(
+            NotificationTypeGenerated ntGenerated,
+            List<User> userList,
+            NotificationTypeUserStrategy strategy) {
 
         Map<Integer, NotificationMessagePayload> payloadMap = new HashMap<Integer, NotificationMessagePayload>();
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
-        Integer propertyId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
-        List<PortfolioListing> portfolioListings = getPortfolioListingsByPropertyId(propertyId);
-        portfolioListings = removeUsersFromPortfolioListings(unsubscribedUserList, portfolioListings);
-        
+        Integer propertyId = Integer.parseInt((String) notificationTypePayload.getPrimaryKeyValue());
+        List<PortfolioListing> portfolioListings = getPortfolioListingsByPropertyId(propertyId, userList, strategy);
+
         if (portfolioListings == null) {
             logger.debug("No portfolio listing found for property id : " + propertyId);
             return payloadMap;

@@ -1,4 +1,4 @@
-package com.proptiger.data.notification.processor;
+package com.proptiger.data.notification.processor.message;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
+import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
@@ -19,20 +20,15 @@ public class GoalPriceNotificationMessageProcessor extends NotificationMessagePr
 
     private static Logger logger = LoggerFactory.getLogger(GoalPriceNotificationMessageProcessor.class);
 
-    /**
-     * Gets the NotificationMessagePayload for all users except those who have
-     * unsubscribed from such notification whose portfolio contains the given
-     * property
-     */
     @Override
-    public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
-            List<User> unsubscribedUserList,
-            NotificationTypeGenerated ntGenerated) {
+    public Map<Integer, NotificationMessagePayload> getNotificationMessagePayload(
+            NotificationTypeGenerated ntGenerated,
+            List<User> userList,
+            NotificationTypeUserStrategy strategy) {
 
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
-        Integer propertyId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
-        List<PortfolioListing> portfolioListings = getPortfolioListingsByPropertyId(propertyId);
-        portfolioListings = removeUsersFromPortfolioListings(unsubscribedUserList, portfolioListings);
+        Integer propertyId = Integer.parseInt((String) notificationTypePayload.getPrimaryKeyValue());
+        List<PortfolioListing> portfolioListings = getPortfolioListingsByPropertyId(propertyId, userList, strategy);
 
         List<PortfolioListing> newPortfolioListings = new ArrayList<PortfolioListing>();
 

@@ -19,7 +19,7 @@ import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.Subscriber.SubscriberName;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypeUpdateHistory;
-import com.proptiger.data.notification.processor.NotificationTypeProcessor;
+import com.proptiger.data.notification.processor.type.NotificationTypeProcessor;
 import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
 import com.proptiger.data.util.Serializer;
 

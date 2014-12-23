@@ -1,5 +1,7 @@
 package com.proptiger.data.notification.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -7,6 +9,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -18,26 +21,26 @@ import com.proptiger.data.notification.enums.SubscriptionType;
 @Table(name = "notification.user_notification_type_subscription")
 public class UserNotificationTypeSubscription extends BaseModel {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -8470633621269549071L;
+    private static final long             serialVersionUID = -8470633621269549071L;
 
     @Id
     @GeneratedValue
     @Column(name = "id")
-    private int               id;
+    private int                           id;
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    private User              user;
+    private User                          user;
 
     @Column(name = "notification_type_id")
-    private int               notificationTypeId;
+    private int                           notificationTypeId;
 
     @Column(name = "subscription_type")
     @Enumerated(EnumType.STRING)
-    private SubscriptionType  subscriptionType;
+    private SubscriptionType              subscriptionType;
+
+    @OneToMany(mappedBy = "notificationTypeSubscription")
+    private List<UserProjectSubscription> userProjectSubscriptions;
 
     public int getId() {
         return id;
@@ -69,6 +72,14 @@ public class UserNotificationTypeSubscription extends BaseModel {
 
     public void setSubscriptionType(SubscriptionType subscriptionType) {
         this.subscriptionType = subscriptionType;
+    }
+
+    public List<UserProjectSubscription> getUserProjectSubscriptions() {
+        return userProjectSubscriptions;
+    }
+
+    public void setUserProjectSubscriptions(List<UserProjectSubscription> userProjectSubscriptions) {
+        this.userProjectSubscriptions = userProjectSubscriptions;
     }
 
 }
