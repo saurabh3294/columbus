@@ -322,7 +322,12 @@ public class ImageEnricher {
         String path = projectMainUrl.substring(endpoint.length() + 1, index1 + 1);
         String waterMarkName = projectMainUrl.substring(index1 + 1);
 
-        return imageService.getImage(imageId);
+        Image image = imageService.getImage(imageId);
+        if (image != null) {
+            // setting image sitemap enabled field 0 for random project main image
+            image.getImageTypeObj().setImageSitemapEnabled(0);
+        }
+        return image;
     }
 
     public void setBuilderImages(Builder builder) {
