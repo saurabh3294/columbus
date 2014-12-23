@@ -80,6 +80,19 @@ public class DatabaseSessionOperations {
                     putSessionIdInRedis(session.getId(), true);
                 }
             }
+            else{
+                //update session last accessed time in database
+                UserSession userSession = userSessionDao.getUserSessionBySessionId(session.getId());
+                if(userSession != null){
+                    Date lastAccessedTime = new Date(session.getLastAccessedTime());
+                    if(lastAccessedTime.after(userSession.getLastAccessedTime())){
+                        userSession.setLastAccessedTime(lastAccessedTime);
+                        userSessionDao.save(userSession);
+                    }
+                   
+                }
+               
+            }
         }
     }
 
@@ -154,7 +167,7 @@ public class DatabaseSessionOperations {
 
     @Async
     public void delete(String id) {
-        logger.error("delete session id {}",id);
+        logger.debug("delete session id {}",id);
         userSessionDao.deleteBySessionId(id);
         removeSessionIdFromRedis(id);
     }

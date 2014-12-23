@@ -33,7 +33,7 @@ public class AuthEntryPoint extends LoginUrlAuthenticationEntryPoint {
         ResponseErrorWriter.writeErrorToResponse(
                 response,
                 ResponseCodes.UNAUTHORIZED,
-                ResponseErrorMessages.AUTHENTICATION_ERROR,
+                ResponseErrorMessages.User.AUTHENTICATION_ERROR,
                 userIpAddress);
     }
     
