@@ -37,7 +37,6 @@ import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.model.proptiger.Enquiry.LeadEnquiryResponse;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
-import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.service.security.SecurityUtilService;
 import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
@@ -282,19 +281,14 @@ public class EnquiryService {
     }
 
     private Boolean checkIfServingCity(Enquiry enquiry) {
+        City city = cityService.getCityByName(enquiry.getCityName());
 
-        Selector citySelector = new Gson().fromJson(
-                "{\"filters\":{\"and\":[{\"equal\":{\"isServing\":true}}]}}",
-                Selector.class);
-        List<City> cities = cityService.getCityList(citySelector, true);
-
-        for (City city : cities) {
-            if (city.getLabel().toLowerCase().equals(enquiry.getCityName().toLowerCase())) {
-                return true;
-            }
+        if (city.getIsServing()) {
+            return true;
         }
-
-        return false;
+        else {
+            return false;
+        }
     }
 
     private LeadSubmitMail generateDataToMail(Enquiry enquiry) {
