@@ -280,7 +280,7 @@ public class EnquiryService {
         }
     }
 
-    private Boolean checkIfServingCity(Enquiry enquiry) {
+    private boolean checkIfServingCity(Enquiry enquiry) {
         City city = cityService.getCityByName(enquiry.getCityName());
 
         if (city.getIsServing()) {
