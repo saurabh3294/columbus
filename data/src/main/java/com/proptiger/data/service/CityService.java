@@ -143,6 +143,7 @@ public class CityService {
         return city;
     }
 
+    @Cacheable(Constants.CacheName.CACHE)
     public City getCityByName(String cityName) {
         String js = "{\"filters\":{\"and\":[{\"equal\":{\"label\":" + cityName + "}}]}}";
         Gson gson = new Gson();
