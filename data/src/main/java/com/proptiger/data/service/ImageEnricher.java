@@ -282,8 +282,6 @@ public class ImageEnricher {
 
         if (images.isEmpty() || !images.get(0).getImageTypeObj().getType().equals("main")) {
             Image image = getProjectRandomMainImage(mainImageURL);
-            // setting image sitemap enabled field 0 for random project main image
-            image.getImageTypeObj().setImageSitemapEnabled(0);
             if (image != null) {
                 images.add(0, image);
             }
@@ -324,7 +322,12 @@ public class ImageEnricher {
         String path = projectMainUrl.substring(endpoint.length() + 1, index1 + 1);
         String waterMarkName = projectMainUrl.substring(index1 + 1);
 
-        return imageService.getImage(imageId);
+        Image image = imageService.getImage(imageId);
+        if (image != null) {
+            // setting image sitemap enabled field 0 for random project main image
+            image.getImageTypeObj().setImageSitemapEnabled(0);
+        }
+        return image;
     }
 
     public void setBuilderImages(Builder builder) {
