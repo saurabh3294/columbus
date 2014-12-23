@@ -3,7 +3,6 @@ package com.proptiger.data.service;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,6 +37,7 @@ import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.model.proptiger.Enquiry.LeadEnquiryResponse;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.service.security.SecurityUtilService;
 import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
@@ -105,20 +104,6 @@ public class EnquiryService {
     @Autowired
     private PropertyReader          propertyReader;
 
-    private List<String>                    servingCities ;
-
-    @PostConstruct
-    public void init(){
-        servingCities = new ArrayList<>();
-        @SuppressWarnings("unchecked")
-        List<String> cities = PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENQUIRY_SERVING_CITIES, List.class);
-       if(cities != null){
-           for(String c: cities){
-               servingCities.add(c.trim().toLowerCase());
-           } 
-       }
-    }
-    
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
 
@@ -274,9 +259,11 @@ public class EnquiryService {
         if ((enquiry.getPageName() != null) && !enquiry.getPageName().equals("CONTACT US")) {
             dataForTemplate = generateDataToMail(enquiry);
             emailReceiver = enquiry.getEmail();
-            if (!enquiry.getCityName().isEmpty() && !servingCities.contains(enquiry.getCityName().trim().toLowerCase())) {
+
+            if (!enquiry.getCityName().isEmpty() && !checkIfServingCity(enquiry)) {
                 dataForTemplate.setLeadMailFlag("non_serving_cities");
             }
+
             mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LEAD_GENERATION, dataForTemplate);
             mailDetails = new MailDetails(mailBody).setMailTo(emailReceiver);
             mailSender.sendMailUsingAws(mailDetails);
@@ -292,6 +279,22 @@ public class EnquiryService {
             mailDetails = new MailDetails(mailBody).setMailTo(emailReceiver);
             mailSender.sendMailUsingAws(mailDetails);
         }
+    }
+
+    private Boolean checkIfServingCity(Enquiry enquiry) {
+
+        Selector citySelector = new Gson().fromJson(
+                "{\"filters\":{\"and\":[{\"equal\":{\"isServing\":true}}]}}",
+                Selector.class);
+        List<City> cities = cityService.getCityList(citySelector, true);
+
+        for (City city : cities) {
+            if (city.getLabel().toLowerCase().equals(enquiry.getCityName().toLowerCase())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private LeadSubmitMail generateDataToMail(Enquiry enquiry) {
