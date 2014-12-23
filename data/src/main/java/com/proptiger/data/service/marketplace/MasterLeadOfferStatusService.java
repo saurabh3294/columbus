@@ -33,4 +33,13 @@ public class MasterLeadOfferStatusService {
         return paginatedResponse;
     }
 
+    /**
+     * returns master lead offer status based on id
+     * 
+     * @param id
+     * @return
+     */
+    public MasterLeadOfferStatus getLeadOfferStatus(int id) {
+        return masterLeadOfferStatusDao.findById(id);
+    }
 }
