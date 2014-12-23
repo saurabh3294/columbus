@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.services.simpleemail.model.SendEmailResult;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -35,6 +36,7 @@ public class EmailSender implements MediumSender {
     @Autowired
     private TemplateGenerator   templateGenerator;
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean send(NotificationGenerated nGenerated) {
 
@@ -111,8 +113,27 @@ public class EmailSender implements MediumSender {
             mailDetails.setMailBCC(bccList.toArray(new String[bccList.size()]));
         }
 
-        logger.debug("Sending email with mailDetails: " + mailDetails);
-        amazonMailSender.sendMail(mailDetails);
+        logger.info("Sending email for notificationGeneratedId: " + nGenerated.getId()
+                + " and typeName: "
+                + typeName
+                + " and userId: "
+                + userId
+                + " with mailDetails: "
+                + mailDetails);
+
+        SendEmailResult result = amazonMailSender.sendSyncMail(mailDetails);
+
+        logger.info("Email sent with result: " + result
+                + " for notificationGeneratedId: "
+                + nGenerated.getId()
+                + " and typeName: "
+                + typeName
+                + " and userId: "
+                + userId);
+
+        if (result.getMessageId() == null) {
+            return false;
+        }
 
         return true;
     }
