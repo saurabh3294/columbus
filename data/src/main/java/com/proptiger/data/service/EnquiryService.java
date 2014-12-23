@@ -282,14 +282,8 @@ public class EnquiryService {
 
     private boolean checkIfServingCity(Enquiry enquiry) {
         City city = cityService.getCityByName(enquiry.getCityName());
-
-        if (city.getIsServing()) {
-            return true;
-        }
-        
-        else {
-            return false;
-        }
+       
+        return city.getIsServing();
     }
 
     private LeadSubmitMail generateDataToMail(Enquiry enquiry) {
