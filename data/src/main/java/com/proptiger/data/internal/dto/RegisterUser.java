@@ -15,6 +15,10 @@ public class RegisterUser extends User {
 
     private String            confirmPassword;
 
+    //TODO Just to make sure register api works for ios app, as they are using userName instead of fullName. Should be removed 
+    @Deprecated
+    private String userName;
+
     //overriding this field as it's marked as JsonIgnore in User class
     private String password;
     
@@ -34,6 +38,15 @@ public class RegisterUser extends User {
         this.confirmPassword = confirmPassword;
     }
     
+    public String getUserName() {
+        return super.getFullName();
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+        super.setFullName(userName);
+    }
+
     public User createUserObj(){
         User user = new User();
         user.setAttributes(this.getAttributes());
