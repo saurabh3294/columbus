@@ -282,9 +282,7 @@ public abstract class DBEventProcessor implements EventProcessor {
 
             eventsGeneratedByKeyGroup.add(eventGenerated);
             groupEventsByUniqueKey.put(eventGenerated.getEventTypeUniqueKey(), eventsGeneratedByKeyGroup);
-
         }
-
         return groupEventsByUniqueKey;
     }
 
@@ -303,10 +301,8 @@ public abstract class DBEventProcessor implements EventProcessor {
         }
         EventTypeUpdateHistory newHistory = new EventTypeUpdateHistory(eventStatus, new Date());
         eventTypeUpdateHistories.add(newHistory);
-
         eventGenerated.getEventTypePayload().setEventTypeUpdateHistories(eventTypeUpdateHistories);
         eventGenerated.setData(Serializer.toJson(eventGenerated.getEventTypePayload()));
-
     }
 
     /**
