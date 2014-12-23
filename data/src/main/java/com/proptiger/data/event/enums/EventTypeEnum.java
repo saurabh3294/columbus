@@ -5,6 +5,7 @@ public enum EventTypeEnum {
     LocalityGenerateUrl("locality_url_generation"), SuburbGenerateUrl("suburb_url_generation"), CityGenerateUrl("city_url_generation"),
     ProjectDeleteUrl("project_url_delete"), PropertyDeleteUrl("property_url_delete"), BuilderDeleteUrl("builder_url_delete"),
     LocalityDeleteUrl("locality_url_delete"), SuburbDeleteUrl("suburb_url_delete"), CityDeleteUrl("city_url_delete"),
+    ProjectContentChange("project_url_content_change"),
     PortfolioPriceChange("portfolio_price_change"),
     PortfolioProjectNews("portfolio_project_news"),
     PortfolioLocalityNews("portfolio_locality_news");

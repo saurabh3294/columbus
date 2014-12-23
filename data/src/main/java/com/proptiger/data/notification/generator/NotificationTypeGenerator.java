@@ -62,7 +62,7 @@ public class NotificationTypeGenerator {
         // Get all the new verified events
         List<EventGenerated> eventGeneratedList = eventGeneratedService.getLatestVerifiedEventGeneratedsBySubscriber(
                 SubscriberName.Notification,
-                null);
+                null, null);
         logger.debug("Found " + eventGeneratedList.size() + " EventGenerateds");
 
         // Sort them in ascending order by id of eventGenerated

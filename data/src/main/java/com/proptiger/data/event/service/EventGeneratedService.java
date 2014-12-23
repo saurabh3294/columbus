@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -268,7 +269,7 @@ public class EventGeneratedService {
      */
     public List<EventGenerated> getLatestVerifiedEventGeneratedsBySubscriber(
             SubscriberName subscriberName,
-            List<String> eventTypeNames) {
+            List<String> eventTypeNames, Pageable pageable) {
 
         List<EventGenerated> listEventGenerateds = new ArrayList<EventGenerated>();
         if (checkAndSetSubscriberLastEventId(subscriberName)) {
@@ -277,7 +278,10 @@ public class EventGeneratedService {
 
         logger.debug("Finding latest event generated for the Subscriber " + subscriberName);
         Integer maxEventCount = subscriberConfigService.getMaxSubscriberEventTypeCount(subscriberName);
-        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, maxEventCount);
+        if(pageable == null){
+        	pageable = new LimitOffsetPageRequest(0, maxEventCount);
+        }
+        
 
         if (eventTypeNames == null) {
             listEventGenerateds = eventGeneratedDao.getLatestEventGeneratedBySubscriber(
@@ -370,8 +374,8 @@ public class EventGeneratedService {
     }
     
     @Transactional
-    public Integer updateEventStatusByEventTypeAndUniqueKey(String eventTypeName, String uniqueKey, EventStatus eventStatus){
-    	return eventGeneratedDao.updateEventStatusByEventTypeAndUniqueKey(eventTypeName, uniqueKey, eventStatus);
+    public Integer updateEventStatusByEventTypeAndUniqueKey(String eventTypeName, int uniqueKey, EventStatus eventStatus){
+    	return eventGeneratedDao.updateEventStatusByEventTypeAndUniqueKey(eventTypeName, uniqueKey + "", eventStatus);
     }
 
 }
