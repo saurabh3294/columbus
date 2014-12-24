@@ -30,4 +30,7 @@ public interface ImageDao extends ImageCustomDao, JpaRepository<Image, Long> {
     public List<Image> getImagesForObjectIdsWithImageType(String objectType, String imageTypeStr, List<Long> objectIds);
 
     public List<Image> getImageOnHashAndObjectType(String originalHash, String objectType);
+    
+    @Query("SELECT I FROM Image I JOIN FETCH I.imageTypeObj IT JOIN FETCH IT.objectType O JOIN FETCH IT.mediaType MT, com.proptiger.core.model.cms.LandMark LM WHERE O.type = ?1 AND LM.id = I.objectId AND I.objectId IN ?2 AND I.active = 1 ORDER BY IT.priority, IT.id, LM.priority, I.priority")
+    public List<Image> getLandMarkImages(String objectType, List<Long> objectIds);
 }

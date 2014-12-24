@@ -397,7 +397,7 @@ public class ImageEnricher {
         
         List<LandMark> amenities = localityAmenityService.getLocalityAmenities(locality.getLocalityId(), null);
         List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
-        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        List<Image> images = imageService.getLandMarkImages(DomainObject.landmark, amenityIds);
         if (images == null || images.isEmpty()) {
             return;
         }
@@ -473,7 +473,7 @@ public class ImageEnricher {
             return new PaginatedResponse<List<Image>>();
         }
         List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
-        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        List<Image> images = imageService.getLandMarkImages(DomainObject.landmark, amenityIds);
         if (images == null || images.isEmpty()) {
             return new PaginatedResponse<List<Image>>();
         }
