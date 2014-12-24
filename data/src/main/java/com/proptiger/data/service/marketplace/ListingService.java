@@ -335,6 +335,13 @@ public class ListingService {
                         .asList(listing));
                 listing.setListingAmenities(listingAmenities);
             }
+
+            if (fields.contains("seller")) {
+                User user = userService.getUserById(listing.getSellerId());
+                if (user != null) {
+                    listing.setSeller(user);
+                }
+            }
         }
         if (fields == null || !fields.contains("property")) {
             // due to explicit join in query it would be fetched so if not asked
