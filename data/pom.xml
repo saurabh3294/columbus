@@ -22,6 +22,7 @@
 		<spring.social.google.version>1.0.0.M3</spring.social.google.version>
 		<quartz.version>2.2.1</quartz.version>
 		<skipTests>true</skipTests>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<profiles>
 		<profile>
