@@ -1028,11 +1028,14 @@ public class UserService {
      */
     @Transactional
     public UserHierarchy getChildHeirarchy(ActiveUser activeUser) {
-        CompanyUser companyUser = companyUserDao.findByUserId(activeUser.getUserIdentifier());
-        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRange(companyUser.getLeft(), companyUser.getRight());
         UserHierarchy root = new UserHierarchy();
         root.setUserId(activeUser.getUserIdentifier());
         root.setUserName(activeUser.getFullName());
+        CompanyUser companyUser = companyUserDao.findByUserId(activeUser.getUserIdentifier());
+        if(companyUser == null){
+            return root;
+        }
+        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRange(companyUser.getLeft(), companyUser.getRight());
         root.setId(companyUser.getId());
         
         Set<Integer> userIds = new HashSet<Integer>();
