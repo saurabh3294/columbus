@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.data.domain.Pageable;
 
-import com.proptiger.data.notification.model.Subscriber.SubscriberName;
+import com.proptiger.core.model.event.subscriber.Subscriber.SubscriberName;
 
 public class EventRequestDto implements Serializable {
 

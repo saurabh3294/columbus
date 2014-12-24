@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.event.model.RawEventTableDetails;
+import com.proptiger.core.model.event.RawEventTableDetails;
 
 /**
  * 

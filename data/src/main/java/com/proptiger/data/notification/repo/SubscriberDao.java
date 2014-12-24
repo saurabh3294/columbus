@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.proptiger.data.notification.model.Subscriber;
+import com.proptiger.core.model.event.subscriber.Subscriber;
 
 public interface SubscriberDao extends PagingAndSortingRepository<Subscriber, Integer> {
     

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.event.model.RawEventTableDetails;
+import com.proptiger.core.model.event.RawEventTableDetails;
 
 public interface RawEventTableDetailsDao extends PagingAndSortingRepository<RawEventTableDetails, Integer> {
     

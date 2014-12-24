@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.event.model.payload.DefaultEventTypePayload;
+import com.proptiger.core.model.event.EventGenerated;
 import com.proptiger.data.event.enums.EventAllAttributeName;
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
 
 @Service

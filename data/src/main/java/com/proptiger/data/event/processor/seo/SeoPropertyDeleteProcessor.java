@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.EntityType;
 import com.proptiger.core.enums.UnitType;
+import com.proptiger.core.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.core.model.cms.Property;
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
+import com.proptiger.core.model.event.EventGenerated;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.service.PropertyService;
 

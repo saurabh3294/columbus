@@ -5,7 +5,7 @@ import java.lang.reflect.Modifier;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.proptiger.data.event.model.payload.EventTypePayload;
+import com.proptiger.core.event.model.payload.EventTypePayload;
 import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.notification.util.MediumDetailsSerializerDeserializer;
 

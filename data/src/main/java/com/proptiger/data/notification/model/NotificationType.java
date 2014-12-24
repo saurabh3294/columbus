@@ -14,7 +14,7 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.annotations.Expose;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.event.model.EventType;
+import com.proptiger.core.model.event.EventType;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 
 @Entity

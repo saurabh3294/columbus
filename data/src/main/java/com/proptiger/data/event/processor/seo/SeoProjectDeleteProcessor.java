@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.ResidentialFlag;
 import com.proptiger.core.enums.Status;
+import com.proptiger.core.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.core.model.cms.Project;
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
+import com.proptiger.core.model.event.EventGenerated;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.service.ProjectService;
 

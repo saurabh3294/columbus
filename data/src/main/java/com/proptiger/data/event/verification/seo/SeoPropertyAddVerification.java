@@ -3,13 +3,13 @@ package com.proptiger.data.event.verification.seo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.enums.event.EventTypeEnum;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.cms.Suburb;
-import com.proptiger.data.event.enums.EventTypeEnum;
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventGenerated.EventStatus;
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.EventGenerated.EventStatus;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.event.verification.DBEventVerification;
 import com.proptiger.data.service.LocalityService;

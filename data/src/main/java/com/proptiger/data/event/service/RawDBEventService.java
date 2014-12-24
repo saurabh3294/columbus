@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.enums.DBOperation;
+import com.proptiger.core.enums.event.DBOperation;
+import com.proptiger.core.model.event.RawDBEvent;
+import com.proptiger.core.model.event.RawEventTableDetails;
+import com.proptiger.core.model.event.generator.model.RawDBEventTableConfig;
 import com.proptiger.data.event.enums.EventAllAttributeName;
-import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
-import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.model.RawEventTableDetails;
 import com.proptiger.data.event.repo.RawDBEventDao;
 import com.proptiger.data.util.Serializer;
 

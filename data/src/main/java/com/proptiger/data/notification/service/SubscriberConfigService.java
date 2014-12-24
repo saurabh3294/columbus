@@ -15,11 +15,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.model.event.subscriber.Subscriber;
+import com.proptiger.core.model.event.subscriber.SubscriberConfig;
+import com.proptiger.core.model.event.subscriber.Subscriber.SubscriberName;
+import com.proptiger.core.model.event.subscriber.SubscriberConfig.ConfigName;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.notification.model.Subscriber;
-import com.proptiger.data.notification.model.Subscriber.SubscriberName;
-import com.proptiger.data.notification.model.SubscriberConfig;
-import com.proptiger.data.notification.model.SubscriberConfig.ConfigName;
 import com.proptiger.data.notification.repo.SubscriberConfigDao;
 import com.proptiger.data.notification.repo.SubscriberDao;
 

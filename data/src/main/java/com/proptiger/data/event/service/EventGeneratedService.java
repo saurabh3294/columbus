@@ -14,20 +14,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.event.model.payload.EventTypePayload;
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.EventType;
+import com.proptiger.core.model.event.RawDBEvent;
+import com.proptiger.core.model.event.RawEventTableDetails;
+import com.proptiger.core.model.event.EventGenerated.EventStatus;
+import com.proptiger.core.model.event.generator.model.RawDBEventAttributeConfig;
+import com.proptiger.core.model.event.generator.model.RawDBEventOperationConfig;
+import com.proptiger.core.model.event.subscriber.Subscriber;
+import com.proptiger.core.model.event.subscriber.Subscriber.SubscriberName;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
-import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventType;
-import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.model.RawEventTableDetails;
-import com.proptiger.data.event.model.EventGenerated.EventStatus;
-import com.proptiger.data.event.model.payload.EventTypePayload;
+import com.proptiger.data.event.model.DefaultEventTypeConfig;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
-import com.proptiger.data.notification.model.Subscriber;
-import com.proptiger.data.notification.model.Subscriber.SubscriberName;
 import com.proptiger.data.notification.service.SubscriberConfigService;
 import com.proptiger.data.util.Serializer;
 
@@ -320,9 +321,11 @@ public class EventGeneratedService {
             List<EventType> eventTypeList,
             String attributeName,
             List<EventGenerated> eventGeneratedList) {
-
+    	
+    	DefaultEventTypeConfig defaultEventTypeConfig = null;
         for (EventType eventType : eventTypeList) {
-            EventTypePayload payload = eventType.getEventTypeConfig().getEventTypePayloadObject();
+        	defaultEventTypeConfig = (DefaultEventTypeConfig)eventType.getEventTypeConfig();
+            EventTypePayload payload = defaultEventTypeConfig.getEventTypePayloadObject();
             payload.setTransactionKeyName(rawDBEvent.getRawEventTableDetails().getTransactionKeyName());
             payload.setTransactionId(rawDBEvent.getTransactionKeyValue());
             payload.setPrimaryKeyName(rawDBEvent.getRawEventTableDetails().getPrimaryKeyName());
@@ -342,11 +345,13 @@ public class EventGeneratedService {
     }
 
     private void populateEventsDataAfterLoad(List<EventGenerated> listEventGenerated) {
+    	DefaultEventTypeConfig defaultEventTypeConfig = null;
         for (EventGenerated eventGenerated : listEventGenerated) {
             setEventTypeOnEventGenerated(eventGenerated);
+            defaultEventTypeConfig = (DefaultEventTypeConfig)eventGenerated.getEventType().getEventTypeConfig();
             eventGenerated.setEventTypePayload((EventTypePayload) Serializer.fromJson(
                     eventGenerated.getData(),
-                    eventGenerated.getEventType().getEventTypeConfig().getDataClassName()));
+                    defaultEventTypeConfig.getDataClassName()));
         }
     }
 

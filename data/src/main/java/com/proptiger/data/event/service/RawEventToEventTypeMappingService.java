@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
-import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
-import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
-import com.proptiger.data.event.model.EventType;
-import com.proptiger.data.event.model.RawEventTableDetails;
-import com.proptiger.data.event.model.RawEventToEventTypeMapping;
+import com.proptiger.core.model.event.EventType;
+import com.proptiger.core.model.event.RawEventTableDetails;
+import com.proptiger.core.model.event.RawEventToEventTypeMapping;
+import com.proptiger.core.model.event.generator.model.RawDBEventAttributeConfig;
+import com.proptiger.core.model.event.generator.model.RawDBEventOperationConfig;
+import com.proptiger.core.model.event.generator.model.RawDBEventTableConfig;
 import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
 import com.proptiger.data.util.Serializer;
