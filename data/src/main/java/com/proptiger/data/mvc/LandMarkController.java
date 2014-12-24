@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
@@ -36,5 +37,17 @@ public class LandMarkController extends BaseController {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         return new APIResponse(localityAmenityService.getLocalityAmenitiesWithSelector(localityId, amenityName, selector));
 
+    }
+    
+    @RequestMapping(value = "landmark/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public Object getLandMarkById(@RequestParam(required = false) String selector, @PathVariable Integer id) {
+        LandMark landMark = localityAmenityService.getLandMark(id);
+        Selector landMarkSelector = new Selector();
+        if (selector != null) {
+            landMarkSelector = super.parseJsonToObject(selector, Selector.class);
+        }
+
+        return new APIResponse(super.filterFields(landMark, landMarkSelector.getFields()));
     }
 }

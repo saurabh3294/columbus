@@ -20,6 +20,7 @@ import com.proptiger.core.model.user.UserPreference;
 /**
  * 
  * @author azi
+ * @author Rajeev Pandey
  * 
  */
 
@@ -31,9 +32,11 @@ public class CustomUser {
     private String                          contactNumber;
     private String                          profileImageUrl;
     private Date                            createdDate;
+    private Integer                         countryId;
     private Set<Integer>                    companyIds = new HashSet<>();
     private List<Dashboard>                 dashboards = new ArrayList<>();
     private Map<Application, UserAppDetail> appDetails = new HashMap<>();
+    private List<String> roles;
 
     public int getId() {
         return id;
@@ -114,6 +117,24 @@ public class CustomUser {
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
+
+    public Integer getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(Integer countryId) {
+        this.countryId = countryId;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+
 
     public static class UserAppDetail {
         private List<UserAppSubscription> subscriptions = new ArrayList<>();

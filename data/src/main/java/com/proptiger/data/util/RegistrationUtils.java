@@ -9,6 +9,7 @@ import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.util.Constants;
 import com.proptiger.data.internal.dto.RegisterUser;
 
 /**
@@ -18,8 +19,6 @@ import com.proptiger.data.internal.dto.RegisterUser;
  * 
  */
 public class RegistrationUtils {
-
-    private static final int REQUIRED_USERNAME_LEN = 2;
 
     /**
      * Validate new user registration data, and encode password
@@ -34,9 +33,9 @@ public class RegistrationUtils {
         if (register.getConfirmPassword() == null) {
             register.setConfirmPassword(register.getPassword());
         }
-        validateName(register.getFullName());
+        register.setFullName(validateName(register.getFullName()));
         if (!validateEmail(register.getEmail())) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_EMAIL);
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.User.INVALID_EMAIL);
         }
         String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
                 register.getPassword(),
@@ -44,7 +43,7 @@ public class RegistrationUtils {
         register.setPassword(encodedPass);
 
         if (register.getCountryId() == null) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_COUNTRY);
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.User.INVALID_COUNTRY);
         }
         validateContactNumber(register.getContactNumbers());
     }
@@ -58,12 +57,12 @@ public class RegistrationUtils {
                 if (contact.getContactNumber() == null || contact.getContactNumber().isEmpty()) {
                     throw new BadRequestException(
                             ResponseCodes.BAD_REQUEST,
-                            ResponseErrorMessages.INVALID_CONTACT_NUMBER);
+                            ResponseErrorMessages.User.INVALID_CONTACT_NUMBER);
                 }
             }
         }
         else {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_CONTACT_NUMBER);
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.User.INVALID_CONTACT_NUMBER);
         }
     }
 
@@ -76,12 +75,24 @@ public class RegistrationUtils {
         }
     }
 
-    private static void validateName(String username) {
-        if (username == null || username.trim().length() < REQUIRED_USERNAME_LEN) {
+    private static String validateName(String username) {
+        if(username == null){
             throw new BadRequestException(
                     ResponseCodes.BAD_REQUEST,
-                    ResponseErrorMessages.INVALID_USERNAME_NAME_LEN + ", required length " + REQUIRED_USERNAME_LEN);
+                    ResponseErrorMessages.User.USERNAME_LEN_TOO_SHORT);
         }
+        username = username.trim();
+        if (username.length() < Constants.User.USERNAME_MIN_LEN) {
+            throw new BadRequestException(
+                    ResponseCodes.BAD_REQUEST,
+                    ResponseErrorMessages.User.USERNAME_LEN_TOO_SHORT);
+        }
+        else if(username.length() > Constants.User.USERNAME_MAX_LEN){
+            throw new BadRequestException(
+                    ResponseCodes.BAD_REQUEST,
+                    ResponseErrorMessages.User.USERNAME_LEN_TOO_LONG);
+        }
+        return username;
     }
 
 }

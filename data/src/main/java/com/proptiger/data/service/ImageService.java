@@ -457,4 +457,9 @@ public class ImageService extends MediaService {
         return info.getProperty("Colorspace");
     }
 
+    @Cacheable(value = Constants.CacheName.CACHE, key = "#objectType.getText()+#objectIds")
+    public List<Image> getLandMarkImages(DomainObject objectType, List<Long> objectIds) {
+        return imageDao.getLandMarkImages(objectType.getText(), objectIds);
+    }
+
 }

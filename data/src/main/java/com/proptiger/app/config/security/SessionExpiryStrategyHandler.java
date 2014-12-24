@@ -27,7 +27,7 @@ public class SessionExpiryStrategyHandler implements RedirectStrategy {
         ResponseErrorWriter.writeErrorToResponse(
                 response,
                 ResponseCodes.SESSION_EXPIRED,
-                ResponseErrorMessages.SESSION_EXPIRED_DUPLICATE_LOGIN,
+                ResponseErrorMessages.User.SESSION_EXPIRED_DUPLICATE_LOGIN,
                 userIpAddress);
     }
 
