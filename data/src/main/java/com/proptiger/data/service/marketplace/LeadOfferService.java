@@ -740,7 +740,7 @@ public class LeadOfferService {
                         listingIds,
                         leadOfferInDB.getId(),
                         leadOfferInDB.getAgentId());
-                String heading = "More properties matching your requirement";
+                String heading = "More properties matching your requirement | PropTiger.com";
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
 
                 if (newListingIds != null && !newListingIds.isEmpty()
