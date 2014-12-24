@@ -62,7 +62,11 @@
               <tr>
             <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
             
-            Hi ${leadOffer.lead.client.fullName.substring(0,1).toUpperCase()}${leadOffer.lead.client.fullName.substring(1)},<br /><br />
+      Hi #if (${leadOffer} && ${leadOffer.lead} && ${leadOffer.lead.client} && ${leadOffer.lead.client.fullName} && ${leadOffer.lead.client.fullName.substring(0,1)})
+            ${leadOffer.lead.client.fullName.substring(0,1).toUpperCase()}#if(${leadOffer.lead.client.fullName.substring(1)})${leadOffer.lead.client.fullName.substring(1)},
+            #end
+         #end,
+            <br /><br />
             As per your requirement, I would like to propose few more properties. Please find the property details below.
             
             </td>
@@ -131,6 +135,8 @@
 #set($powerBackup = 0)
 #set($carParking = 0)
 #set($clubHouse = 0)
+
+#if(${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 #foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 
     #if(${listingAmenity.amenity.amenityMaster.amenityId} == 13)		
@@ -146,7 +152,7 @@
     #end		
 
 #end  
-
+#end
 	    <tr>    
 	    <td style="padding:10px;">Power Backup</td>
 	    <td style="padding:10px;"><strong>#if ($powerBackup == 1) 
@@ -182,7 +188,7 @@
 #if(${listingAmenity.amenity.amenityMaster.amenityId} != 13 && ${listingAmenity.amenity.amenityMaster.amenityId} != 17 && ${listingAmenity.amenity.amenityMaster.amenityId} != 4)    
   #if($otherFlag == 0)
     <tr>
-    <td style="padding:10px;">Other Special Features:</td><td colspan="2">
+    <td style="padding:10px;">Other Special Features:</td><td colspan="3">
     <strong>${listingAmenity.amenity.amenityDisplayName}</strong>
     #set($otherFlag = 1)
   #else
