@@ -43,4 +43,8 @@ public class CompanyService {
         return companyUserDao.findByAgentId(agentIds);
 
     }
+
+    public Company getCompanywithContactNumberFromUserId(int agentId) {
+        return companyUserDao.getCompanywithContactNumberFromUserId(agentId);
+    }
 }

@@ -30,4 +30,7 @@ public interface CompanyUserDao extends JpaRepository<CompanyUser, Integer> {
 
     @Query("select CU from CompanyUser CU join fetch CU.company C where CU.userId = ?1 ")
     public List<CompanyUser> findCompanyUsersByUserId(Integer userId);
+
+    @Query("select C from CompanyUser CU join CU.company C join fetch C.brokerContact BC join fetch BC.contactNumber CN where CN.tableName='broker_contacts' and CU.userId = ?1")
+    public Company getCompanywithContactNumberFromUserId(int agentId);
 }

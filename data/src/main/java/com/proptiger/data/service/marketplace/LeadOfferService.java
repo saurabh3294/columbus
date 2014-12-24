@@ -786,11 +786,25 @@ public class LeadOfferService {
                     listingMap.put(listing.getId(), listing);
                 }
             }
-
+            
+            Company broker = companyService.getCompanywithContactNumberFromUserId(leadOfferInDB.getAgentId());
+            
             leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
-
+            map.put("brokerDetails", broker);
+            
+            
+            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
+            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
+            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
+            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
+            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
+            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
+            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
+            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
+            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
+            
             if (username == null) {
                 username = leadOfferInDB.getAgent().getFullName();
             }
