@@ -19,6 +19,7 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Where;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.CompanyCoverage;
@@ -80,8 +81,20 @@ public class CompanyUser extends BaseModel {
         
     @Transient
     private List<Locality>        localities;
+    
+    @JsonIgnore
+    @Column(name = "parent_id")
+    private Integer parentId;
+    
+    @JsonIgnore
+    @Column(name = "lft")
+    private int left;
+    
+    @JsonIgnore
+    @Column(name = "rgt")
+    private int right;
 
-     public int getId() {
+    public int getId() {
         return id;
     }
 
@@ -183,6 +196,30 @@ public class CompanyUser extends BaseModel {
 
     public void setCompanyCoverages(List<CompanyCoverage> companyCoverages) {
         this.companyCoverages = companyCoverages;
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
+    }
+
+    public int getLeft() {
+        return left;
+    }
+
+    public void setLeft(int left) {
+        this.left = left;
+    }
+
+    public int getRight() {
+        return right;
+    }
+
+    public void setRight(int right) {
+        this.right = right;
     }
     
     

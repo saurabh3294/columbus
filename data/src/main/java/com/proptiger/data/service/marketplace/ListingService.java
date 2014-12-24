@@ -34,6 +34,7 @@ import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.SecurityContextUtils;
@@ -248,17 +249,47 @@ public class ListingService {
      * @return
      */
     public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector) {
+        return getListings(userId, selector, null);
+    }
+
+    public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector, List<Integer> projectIds) {
         selector.applyDefSort("-id");
 
-        List<Long> listingSize = listingDao.findListingsCount(userId, DataVersion.Website, Status.Active);
-
-        List<Listing> listings;
-        if (selector.getStart() > listingSize.get(0)) {
-            return new PaginatedResponse<>(null, listingSize.get(0));
+        long listingSize;
+        if (projectIds == null) {
+            listingSize = listingDao.findCountBySellerIdAndStatus(userId, Status.Active).get(0);
         }
         else {
-            listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, selector);
+            listingSize = listingDao.findCountBySellerIdAndVersionAndStatusAndProjectIdIn(
+                    userId,
+                    DataVersion.Website,
+                    Status.Active,
+                    projectIds).get(0);
         }
+
+        List<Listing> listings = new ArrayList<>();
+        if (listingSize > 0 && selector.getStart() < listingSize) {
+            LimitOffsetPageRequest request = new LimitOffsetPageRequest(selector.getStart(), selector.getRows());
+            if (projectIds == null) {
+                listings = listingDao.findBySellerIdAndVersionAndStatusWithCity(
+                        userId,
+                        DataVersion.Website,
+                        Status.Active,
+                        request);
+            }
+            else {
+                listings = listingDao.findBySellerIdAndVersionAndStatusAndProjectIdInWithCity(
+                        userId,
+                        DataVersion.Website,
+                        Status.Active,
+                        projectIds,
+                        request);
+            }
+        }
+        return new PaginatedResponse<>(setExtraFieldsBasedOnFiql(listings, selector), listingSize);
+    }
+
+    private List<Listing> setExtraFieldsBasedOnFiql(List<Listing> listings, FIQLSelector selector) {
         String fields = selector.getFields();
         if (fields != null) {
             if (fields.contains("listingAmenities")) {
@@ -289,7 +320,7 @@ public class ListingService {
                 l.setProperty(null);
             }
         }
-        return new PaginatedResponse<>(listings, listingSize.get(0));
+        return listings;
     }
 
     public List<Typeahead> getListingTypeaheadForUser(String query, String typeAheadType, int rows) {

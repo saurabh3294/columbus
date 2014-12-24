@@ -322,7 +322,12 @@ public class ImageEnricher {
         String path = projectMainUrl.substring(endpoint.length() + 1, index1 + 1);
         String waterMarkName = projectMainUrl.substring(index1 + 1);
 
-        return imageService.getImage(imageId);
+        Image image = imageService.getImage(imageId);
+        if (image != null) {
+            // setting image sitemap enabled field 0 for random project main image
+            image.getImageTypeObj().setImageSitemapEnabled(0);
+        }
+        return image;
     }
 
     public void setBuilderImages(Builder builder) {
@@ -392,7 +397,7 @@ public class ImageEnricher {
         
         List<LandMark> amenities = localityAmenityService.getLocalityAmenities(locality.getLocalityId(), null);
         List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
-        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        List<Image> images = imageService.getLandMarkImages(DomainObject.landmark, amenityIds);
         if (images == null || images.isEmpty()) {
             return;
         }
@@ -468,7 +473,7 @@ public class ImageEnricher {
             return new PaginatedResponse<List<Image>>();
         }
         List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
-        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        List<Image> images = imageService.getLandMarkImages(DomainObject.landmark, amenityIds);
         if (images == null || images.isEmpty()) {
             return new PaginatedResponse<List<Image>>();
         }

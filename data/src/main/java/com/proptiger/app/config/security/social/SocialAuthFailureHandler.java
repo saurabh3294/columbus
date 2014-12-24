@@ -45,7 +45,7 @@ public class SocialAuthFailureHandler extends SimpleUrlAuthenticationFailureHand
             ResponseErrorWriter.writeErrorToResponse(
                     response,
                     ResponseCodes.BAD_CREDENTIAL,
-                    exception.getMessage() != null ? exception.getMessage() : ResponseErrorMessages.BAD_CREDENTIAL,
+                    exception.getMessage() != null ? exception.getMessage() : ResponseErrorMessages.User.BAD_CREDENTIAL,
                     userIpAddress);
             return;
         }
