@@ -1,6 +1,10 @@
 package com.proptiger.data.internal.dto;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.model.user.UserContactNumber;
 
 
 /**
@@ -18,7 +22,11 @@ public class RegisterUser extends User {
     //TODO Just to make sure register api works for ios app, as they are using userName instead of fullName. Should be removed 
     @Deprecated
     private String userName;
-
+    @Deprecated
+    private boolean           registerMe       = true;
+    @Deprecated
+    private Long              contact;
+    
     //overriding this field as it's marked as JsonIgnore in User class
     private String password;
     
@@ -45,6 +53,28 @@ public class RegisterUser extends User {
     public void setUserName(String userName) {
         this.userName = userName;
         super.setFullName(userName);
+    }
+    
+    public boolean isRegisterMe() {
+        return super.isRegistered();
+    }
+
+    public void setRegisterMe(boolean registerMe) {
+        this.registerMe = registerMe;
+        super.setRegistered(registerMe);
+    }
+
+    public Long getContact() {
+        return contact;
+    }
+
+    public void setContact(Long contact) {
+        this.contact = contact;
+        Set<UserContactNumber> contactNumbers = new HashSet<UserContactNumber>();
+        UserContactNumber contactNumber = new UserContactNumber();
+        contactNumber.setContactNumber(contact.toString());
+        contactNumbers.add(contactNumber);
+        super.setContactNumbers(contactNumbers);
     }
 
     public User createUserObj(){
