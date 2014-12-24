@@ -6,16 +6,16 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.enums.DBOperation;
-import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventType;
-import com.proptiger.data.event.model.EventTypeConfig;
-import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.model.RawEventTableDetails;
-import com.proptiger.data.event.model.EventGenerated.EventStatus;
-import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
-import com.proptiger.data.event.model.payload.EventTypePayload;
+import com.proptiger.core.enums.event.DBOperation;
+import com.proptiger.core.event.model.payload.DefaultEventTypePayload;
+import com.proptiger.core.event.model.payload.EventTypePayload;
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.EventType;
+import com.proptiger.core.model.event.RawDBEvent;
+import com.proptiger.core.model.event.RawEventTableDetails;
+import com.proptiger.core.model.event.EventGenerated.EventStatus;
+import com.proptiger.core.model.event.generator.model.RawDBEventOperationConfig;
+import com.proptiger.data.event.model.DefaultEventTypeConfig;
 
 /**
  * 
@@ -72,7 +72,7 @@ public class EventMockerService {
     }
 
     public EventType getMockEventType() {
-        EventTypeConfig config = new EventTypeConfig();
+        DefaultEventTypeConfig config = new DefaultEventTypeConfig();
         try {
             config.setEventTypePayloadObject(config.getDataClassName().newInstance());
         }

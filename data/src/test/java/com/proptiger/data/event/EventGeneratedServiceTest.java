@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.RawDBEvent;
 import com.proptiger.core.service.AbstractTest;
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.event.service.RawDBEventService;
 import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
