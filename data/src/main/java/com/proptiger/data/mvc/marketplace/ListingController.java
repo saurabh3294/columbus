@@ -47,8 +47,12 @@ public class ListingController extends BaseController {
     @RequestMapping(method = RequestMethod.GET)
     public APIResponse getListings(
             @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) List<Integer> projectId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        PaginatedResponse<List<Listing>> listings = listingService.getListings(userInfo.getUserIdentifier(), selector);
+        PaginatedResponse<List<Listing>> listings = listingService.getListings(
+                userInfo.getUserIdentifier(),
+                selector,
+                projectId);
         return new APIResponse(
                 super.filterFieldsFromSelector(listings.getResults(), selector),
                 listings.getTotalCount());
