@@ -13,6 +13,7 @@ import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.exception.APIException;
 import com.proptiger.core.handler.ResponseErrorWriter;
+import com.proptiger.core.util.IPUtils;
 
 /**
  * Handle authenication failure case.
@@ -29,7 +30,7 @@ public class AuthFailureHandler implements AuthenticationFailureHandler {
         if(exception instanceof APIException){
             code = ((APIException)exception).getResponseCode();
         }
-        String userIpAddress = request.getRemoteAddr();
+        String userIpAddress = IPUtils.getClientIP(request);
         ResponseErrorWriter.writeErrorToResponse(
                 response,
                 code,

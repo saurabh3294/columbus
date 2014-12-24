@@ -19,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.model.NearLocalities;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.CMSDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.NearLocalitiesDao;

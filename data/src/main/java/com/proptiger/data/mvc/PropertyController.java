@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.mvc.BaseController;
@@ -29,7 +30,6 @@ import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageService;
@@ -107,5 +107,11 @@ public class PropertyController extends BaseController {
     public APIResponse userSellYourProperty(@RequestBody PortfolioListing portfolioListing, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         portfolioListing.setUserId(userInfo.getUserIdentifier());
         return new APIResponse(portfolioService.sellYourProperty(portfolioListing));
+    }
+    
+    @RequestMapping(value = "data/v1/entity/property/{id}/deleted", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getProjectIdFromPropertyId(@PathVariable Integer id){
+        return new APIResponse(propertyService.getProjectIdFromDeletedPropertyId(id));
     }
 }

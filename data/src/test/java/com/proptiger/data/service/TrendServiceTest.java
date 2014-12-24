@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.service.trend.TrendService;
 
 public class TrendServiceTest extends AbstractTest {

@@ -1,4 +1,4 @@
-package com.proptiger.data.repo;
+package com.proptiger.data.repo.marketplace;
 
 import java.util.Date;
 import java.util.List;
@@ -21,14 +21,16 @@ public interface LeadTaskDao extends JpaRepository<LeadTask, Integer> {
 
     @Query(
             value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason LTSR LEFT JOIN FETCH LT.offeredListingMappings TOLM LEFT JOIN FETCH TOLM.offeredListing WHERE LO.agentId = ?1 order by LT.scheduledFor desc")
-    public List<LeadTask> getLeadTasksForUser(int userId, Pageable pageable);
+    public List<LeadTask> findByAgentIdWithLeadOfferAndMasterLeadTaskAndMasterLeadTaskStatusAndLeadOfferedListingsOrderByScheduledForDesc(
+            int userId,
+            Pageable pageable);
 
     @Query(
             value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason LTSR LEFT JOIN FETCH LT.offeredListingMappings TOLM LEFT JOIN FETCH TOLM.offeredListing WHERE LT.id = ?1")
-    public LeadTask getLeadTaskDetails(int taskId);
+    public LeadTask findByIdWithLeadOfferAndMasterLeadTaskAndMasterLeadTaskStatusAndLeadOfferedListings(int id);
 
     @Query(value = "SELECT COUNT(LT) FROM LeadTask LT INNER JOIN LT.leadOffer LO WHERE LO.agentId = ?1")
-    public long getLeadTaskCountForUser(int userId);
+    public long getCountByAgentId(int agentId);
 
     @Query(
             value = "SELECT TOLM from LeadTask LT JOIN LT.offeredListingMappings TOLM INNER JOIN FETCH TOLM.offeredListing LOL WHERE TOLM.taskId = ?1 order by TOLM.createdAt desc")
@@ -40,20 +42,22 @@ public interface LeadTaskDao extends JpaRepository<LeadTask, Integer> {
 
     @Query(
             value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.offeredListingMappings TOLM INNER JOIN FETCH TOLM.offeredListing where LT.id IN (?1)")
-    public List<LeadTask> getListingMappedTasksByTaskIds(List<Integer> taskIds);
+    public List<LeadTask> findByIdInWithLeadOfferedListing(List<Integer> ids);
 
     @Query("select LT from LeadTask LT JOIN FETCH LT.taskStatus LTS LEFT JOIN FETCH LTS.resultingStatus INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason WHERE LT.leadOfferId in (?1) order by LT.performedAt desc")
-    public List<LeadTask> findTasksByLeadOfferId(int leadOfferId);
+    public List<LeadTask> findByLeadOfferIdWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(
+            int leadOfferId);
 
     @Query("select LT from LeadTask LT JOIN FETCH LT.taskStatus LTS LEFT JOIN FETCH LTS.resultingStatus INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason WHERE LT.id in (?1) order by LT.performedAt desc")
-    public List<LeadTask> findById(List<Integer> leadTaskIds);
+    public List<LeadTask> findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(
+            List<Integer> ids);
 
     @Query("select LT from LeadTask LT JOIN FETCH LT.leadOffer LO JOIN FETCH LO.lead L WHERE LT.id in (?1)")
-    public List<LeadTask> findByIdUptoLead(List<Integer> leadTaskIds);
+    public List<LeadTask> findByIdInWithLead(List<Integer> ids);
 
     @Query(
             value = "SELECT LT FROM LeadTask LT INNER JOIN LT.statusReason TSR WHERE LT.leadOfferId = ?1 AND TSR.reason = ?2")
-    public List<LeadTask> findByofferIdAndStatusReason(int offerId, String statusReason);
+    public List<LeadTask> findByLeadOfferIdAndStatusReason(int offerId, String statusReason);
 
     @Query(
             value = "SELECT NEW com.proptiger.data.model.marketplace.LeadTask$AgentOverDueTaskCount(LO.agentId, COUNT(*)) from LeadOffer LO JOIN LO.nextTask NT WHERE NT.scheduledFor < ?1 GROUP by LO.agentId HAVING COUNT(*) >= ?2")

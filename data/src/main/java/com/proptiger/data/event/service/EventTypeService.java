@@ -44,8 +44,7 @@ public class EventTypeService {
         if (eventType.getOverwriteConfigName() != null) {
             configName = eventType.getOverwriteConfigName();
         }
-        logger.debug(EventTypeConfig.eventTypeConfigMap.toString());
-        EventTypeConfig savedEventTypeConfig = EventTypeConfig.eventTypeConfigMap.get(configName);
+        EventTypeConfig savedEventTypeConfig = EventTypeConfig.getEventTypeConfig(configName);
         logger.debug("Found eventTypeConfig " + savedEventTypeConfig
                 + " for configName "
                 + configName

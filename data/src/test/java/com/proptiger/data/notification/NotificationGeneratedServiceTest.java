@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.service.AbstractTest;
 import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.MediumDetails;
@@ -29,7 +30,6 @@ import com.proptiger.data.notification.service.NotificationMediumService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.NotificationTypeNotificationMediumMappingService;
 import com.proptiger.data.notification.service.NotificationTypeService;
-import com.proptiger.data.service.AbstractTest;
 
 public class NotificationGeneratedServiceTest extends AbstractTest {
 

@@ -4,8 +4,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.proptiger.core.config.scheduling.QuartzSchedulerConfigurer;
+
 /**
- * Enable sceduling and could be used to enable dynamic scheduling.
+ * Enable scheduling and async capability in project.
  * 
  * @author Rajeev Pandey
  * 
@@ -13,6 +15,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableAsync
 @EnableScheduling
-public class AppSchedulingConfig {
+public class AppSchedulingConfig extends QuartzSchedulerConfigurer{
 
 }

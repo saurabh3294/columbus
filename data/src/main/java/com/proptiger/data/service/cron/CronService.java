@@ -11,9 +11,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.config.scheduling.QuartzScheduledClass;
+import com.proptiger.core.config.scheduling.QuartzScheduledJob;
 import com.proptiger.core.exception.ConstraintViolationException;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
@@ -35,6 +36,7 @@ import com.proptiger.data.service.marketplace.NotificationService;
  */
 
 @Component
+@QuartzScheduledClass
 public class CronService {
     @Autowired
     private LeadService         leadService;
@@ -56,15 +58,17 @@ public class CronService {
 
     private static Logger       logger = LoggerFactory.getLogger(CronService.class);
 
-    @Scheduled(initialDelay = 10000, fixedDelay = 1800000)
+    @QuartzScheduledJob(initialDelay = 10000, fixedDelay = 1800000)
     public void manageLeadAssignmentWithCycle() {
         Date createdSince = new Date(
                 new Date().getTime() - PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_CRON_BUFFER)
                         * 1000);
         List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
         Date expireTime = notificationService.getNoBrokerClaimedCutoffTime();
-                
-        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsWithOfferExpired(expireTime);
+
+        List<Lead> leadsWithLeadOfferExpired = leadDao.getMergedLeadsByOfferCreatedAtLessThanAndOfferStatusId(
+                expireTime,
+                LeadOfferStatus.Offered.getId());
         Set<Integer> leadIds = new HashSet<Integer>();
 
         for (Lead lead : leads) {
@@ -109,7 +113,10 @@ public class CronService {
         if (!leadIds.isEmpty()) {
             notificationService
                     .deleteNotificationsOfLeadOffersExpired(leadIdList, NotificationType.LeadOffered.getId());
-            leadOfferDao.updateLeadOffers(leadIdList);
+            leadOfferDao.updateStatusByLeadIdInAndStatus(
+                    leadIdList,
+                    LeadOfferStatus.Offered.getId(),
+                    LeadOfferStatus.Expired.getId());
         }
 
         for (Integer leadId : leadIdList) {
@@ -128,7 +135,7 @@ public class CronService {
         }
     }
 
-    @Scheduled(
+    @QuartzScheduledJob(
             initialDelayString = "${marketplace.notification.initial.delay}",
             fixedDelayString = "${marketplace.notification.fixed.delay}")
     public void populateNotification() {
@@ -137,13 +144,13 @@ public class CronService {
         leadTaskService.populateTaskOverDueNotification();
     }
 
-    @Scheduled(cron = "0 0 9 * * ?")
+    @QuartzScheduledJob(cron = "0 0 9 * * ?")
     public void sendTaskOverDueNotification() {
         populateNotification();
         notificationService.sendTaskOverDueNotification();
     }
 
-    @Scheduled(cron = "0 0 9,18 * * ?")
+    @QuartzScheduledJob(cron = "0 0 9,18 * * ?")
     public void sendTaskDueNotification() {
         populateNotification();
         notificationService.sendTaskDueNotification();
@@ -169,6 +176,7 @@ public class CronService {
         }
     }
 
+    @QuartzScheduledJob(initialDelay = 50000, fixedDelay = 1800000)
     public void manageLeadOfferedReminder() {
         Date endDate = notificationService.getAuctionOverCutoffTime();
         Date startDate = new Date(
@@ -188,12 +196,12 @@ public class CronService {
         }
     }
 
-    @Scheduled(cron = "0 0 9 * * ?")
+    @QuartzScheduledJob(cron = "0 0 9 * * ?")
     public void sendLimitReachedGCMNotifications() {
         notificationService.sendLimitReachedGCMNotifications();
     }
 
-    @Scheduled(
+    @QuartzScheduledJob(
             initialDelayString = "${marketplace.notification.initial.delay}",
             fixedDelayString = "${marketplace.notification.fixed.delay}")
     public void manageHighTaskOverdueNotificationForRM() {

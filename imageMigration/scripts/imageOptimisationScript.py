@@ -29,6 +29,7 @@ import json
 
 # Configuration =========================================================
 env    = 'develop' # To set develop environment or production environment
+s3url  = "s3://im.proptiger.com/"
 config = dict(  
     #url     =  'hssttp://www.proptiger.com/data/v1/entity/image/',
     url  =  'http://localhost:9080/data/v1/entity/image/',
@@ -174,7 +175,6 @@ class WorkerThread(threading.Thread):
 if __name__ == "__main__":
     logging("Image Optimisation Script")
     logging("===========================")
-    
 
     # Create a pool with three worker threads
     pool = ThreadPool(30) 
@@ -200,6 +200,8 @@ if __name__ == "__main__":
                     quality=str(70)+"%"
             
         newImgName = imageName+hyphon+str(width)+hyphon+str(height)+'-o'+extension
+        if (data[2] == 'original'):
+	    newImgName = imageName+'-o'+extension
         resolutionStr = str(width)+'X'+str(height)
         tmp = ['convert', data[1], '-resize', resolutionStr ,'-strip', '-interlace', 'plane', '-quality', quality,newImgName ]
         logging(json.dumps(tmp))
@@ -223,7 +225,7 @@ if __name__ == "__main__":
     def uploadImg(data, newImgName):      
         try:
             logging("\ninside upload imag\n")
-            s3url = "s3://im.proptiger.com/"
+            #s3url = "s3://im.proptiger.com/"
             path = data[14]
             s3bucket = s3url+path
             s3command = ["s3cmd", "put", newImgName, s3bucket]
@@ -265,7 +267,9 @@ if __name__ == "__main__":
     # prepare a cursor object using cursor() method
     cursor = db.cursor()
 
-    cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.watermark_name), I.watermark_name FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) JOIN RESI_PROJECT RP ON (RP.city_id in (" + sys.argv[1] + ") AND RP.ACTIVE = 1) JOIN RESI_PROJECT_TYPES RPT ON (RP.PROJECT_ID=RPT.PROJECT_ID  AND (I.object_id=RP.PROJECT_ID OR I.object_id=RPT.TYPE_ID)) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID ")
+    #cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.watermark_name), I.watermark_name FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) JOIN RESI_PROJECT RP ON (RP.city_id in (" + sys.argv[1] + ") AND RP.ACTIVE = 1) JOIN RESI_PROJECT_TYPES RPT ON (RP.PROJECT_ID=RPT.PROJECT_ID  AND (I.object_id=RP.PROJECT_ID OR I.object_id=RPT.TYPE_ID)) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID ")
+
+    cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.watermark_name), I.watermark_name, I.width, I.height FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id AND OT.type in ('" + sys.argv[1] +"' )) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID ")
 
     rows = cursor.fetchall()
     cols = []
@@ -292,6 +296,8 @@ if __name__ == "__main__":
         path = cols.pop(0)
         oldImageUrl = cols.pop(0)
         watermark_name = cols.pop(0)
+        imgWidth = cols.pop(0)
+	imgHeight = cols.pop(0)
         length = string.find(watermark_name,".")
         extension = watermark_name[length:]
         logging("path == "+path)
@@ -314,6 +320,14 @@ if __name__ == "__main__":
             logging(" IMAGE URL DOWNLOADED "+imgId)
             uploadStatus = 1
             imageArray.append(imgId)
+            newUrl= 'original'
+            s3lsCommand = ["s3cmd", "ls", s3url + path + str(imId)]
+	    files = subprocess.Popen(s3lsCommand, stdout=subprocess.PIPE).communicate()[0]
+            if files.find(path +str(imId)+"-o"+extension) == -1:
+                logging("Adding task to upload optimized image for => " + str(url) + "-o" + extension)
+	        pool.queueTask(task, (img, imgId, newUrl, objectId, altText, priority, imageType, objectType, title, takenAt,imgWidth,imgHeight,db,cursor,path, hyphon, i, total_resolutions), None)
+            else:
+                logging("Optimized image already uploaded for => " + str(url) + "-o" + extension)
             while(i<total_resolutions):
                 totalImages = totalImages + 1
                 width=resolutions[2*i]
@@ -321,7 +335,12 @@ if __name__ == "__main__":
                 logging("**printing resolutions url ** ")
                 newUrl=str(url)+hyphon+str(width)+hyphon+str(height)+extension
                 logging(str(newUrl))
-                returnVal= pool.queueTask(task, (img, imgId, newUrl, objectId, altText, priority, imageType, objectType, title, takenAt,width,height,db,cursor,path, hyphon, i, total_resolutions), None)
+                if files.find(path +str(imId)+ hyphon+str(width)+hyphon+str(height)+"-o"+extension) == -1:
+                     logging("Adding task to upload optimized image for => " + newUrl)
+                     returnVal= pool.queueTask(task, (img, imgId, newUrl, objectId, altText, priority, imageType, objectType, title, takenAt,width,height,db,cursor,path, hyphon, i, total_resolutions), None)
+                else:
+		     logging("Optimized image already uploaded for => " + newUrl)
+                     returnVal = 1 
                 uploadStatus = uploadStatus&returnVal
                 logging(" \n WIDTH HEIGTH "+str(width)+"-"+str(height)+" printing return value "+ str(returnVal) +" ALL STATUS "+ str(uploadStatus) +" \n")
 

@@ -3,9 +3,10 @@ package com.proptiger.data.notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.config.scheduling.QuartzScheduledClass;
+import com.proptiger.core.config.scheduling.QuartzScheduledJob;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.generator.NotificationMessageGenerator;
@@ -21,6 +22,7 @@ import com.proptiger.data.notification.sender.NotificationSender;
  */
 
 @Component
+@QuartzScheduledClass
 public class NotificationInitiator {
 
     private static Logger                logger = LoggerFactory.getLogger(NotificationInitiator.class);
@@ -43,7 +45,7 @@ public class NotificationInitiator {
     /**
      * Generates the Notification Types from events at regular intervals
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.notification}",
             initialDelayString = "${scheduler.initialdelay.notification.notificationTypeGenerator}")
     public void notificationTypeGenerator() {
@@ -63,7 +65,7 @@ public class NotificationInitiator {
      * Generates the Notification Messages from NotificationTypes at regular
      * intervals
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.notification}",
             initialDelayString = "${scheduler.initialdelay.notification.notificationMessageGenerator}")
     public void notificationMessageGenerator() {
@@ -84,7 +86,7 @@ public class NotificationInitiator {
      * Generates the NotificationGenerated from NotificationMessages at regular
      * intervals
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.notification}",
             initialDelayString = "${scheduler.initialdelay.notification.notificationGenerator}")
     public void notificationGenerator() {
@@ -98,7 +100,7 @@ public class NotificationInitiator {
      * Get all the Notifications with NotificationGenerated status and mark them
      * as Scheduled with appropriate Schedule time
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
             initialDelayString = "${scheduler.initialdelay.notification.notificationSchedular}")
     public void notificationSchedular() {
@@ -111,7 +113,7 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
             initialDelayString = "${scheduler.initialdelay.notification.emailNotificationSender}")
     public void emailNotificationSender() {
@@ -124,7 +126,7 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    @Scheduled(cron = "${scheduler.cron.notification.androidNotificationSender}")
+    @QuartzScheduledJob(cron = "${scheduler.cron.notification.androidNotificationSender}")
     public void androidNotificationSender() {
         logger.info("NotificationSender : Sending Scheduled Generated Notification via Android.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.Android);
@@ -135,7 +137,7 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
             initialDelayString = "${scheduler.initialdelay.notification.smsNotificationSender}")
     public void smsNotificationSender() {
@@ -148,7 +150,7 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    @Scheduled(
+    @QuartzScheduledJob(
             fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
             initialDelayString = "${scheduler.initialdelay.notification.marketplaceAppNotificationSender}")
     public void marketplaceAppNotificationSender() {
@@ -162,7 +164,7 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    @Scheduled(cron = "${scheduler.cron.notification.proptigerAppNotificationSender}")
+    @QuartzScheduledJob(cron = "${scheduler.cron.notification.proptigerAppNotificationSender}")
     public void proptigerAppNotificationSender() {
         logger.info("NotificationSender : Sending Scheduled Generated Notification via ProptigerApp.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.ProptigerApp);

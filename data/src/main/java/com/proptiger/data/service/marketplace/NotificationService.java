@@ -26,13 +26,13 @@ import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.util.DateUtil;
+import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.dto.external.marketplace.GcmMessage;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
-import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -48,10 +48,10 @@ import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
-import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
+import com.proptiger.data.repo.marketplace.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.companyuser.CompanyUserService;
@@ -275,7 +275,7 @@ public class NotificationService {
      * @return
      */
     public void createLeadNotification(Lead lead, int notificationTypeId) {
-        List<LeadOffer> leadOffers = leadOfferDao.getLegitimateLeadOffersForDuplicateLeadNotifications(lead.getId());
+        List<LeadOffer> leadOffers = leadOfferDao.getByLeadIdAndOpenFlagAndClaimedFlag(lead.getId(), true, true);
         if (leadOffers != null && !leadOffers.isEmpty()) {
             List<Integer> leadOfferIds = new ArrayList<>();
             for (LeadOffer leadOffer : leadOffers) {
@@ -314,7 +314,7 @@ public class NotificationService {
     }
 
     private void sendDuplicateLeadNotification(int leadOfferId) {
-        LeadOffer offer = leadOfferDao.findById(leadOfferId);
+        LeadOffer offer = leadOfferDao.getById(leadOfferId);
         User user = userService.getUserById(offer.getLead().getClientId());
         String message = user.getFullName() + ", "
                 + offer.getId()
@@ -331,7 +331,7 @@ public class NotificationService {
 
     public void sendLimitReachedGCMNotifications() {
         List<Notification> notifications = notificationDao
-                .getNotifications(NotificationType.MaxLeadCountForBrokerReached.getId());
+                .findByNotificationTypeId(NotificationType.MaxLeadCountForBrokerReached.getId());
 
         for (Notification notification : notifications) {
             sendLimitReachedGCMNotification(notification.getUserId());
@@ -533,7 +533,8 @@ public class NotificationService {
     }
 
     private List<Integer> getLeadOfferIdsFromTaskIds(List<Integer> taskIds) {
-        List<LeadTask> tasks = taskDao.findById(taskIds);
+        List<LeadTask> tasks = taskDao
+                .findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(taskIds);
         List<Integer> leadOfferIds = new ArrayList<>();
         for (LeadTask leadTask : tasks) {
             leadOfferIds.add(leadTask.getLeadOfferId());
@@ -546,12 +547,12 @@ public class NotificationService {
         for (Notification notification : notifications) {
             taskIds.add(notification.getObjectId());
         }
-        List<LeadTask> tasks = taskDao.findByIdUptoLead(taskIds);
+        List<LeadTask> tasks = taskDao.findByIdInWithLead(taskIds);
         String message = "";
 
         if (tasks.size() == 1) {
             LeadTask task = tasks.get(0);
-            int userId = leadOfferDao.findById(task.getLeadOfferId()).getLead().getClientId();
+            int userId = leadOfferDao.getById(task.getLeadOfferId()).getLead().getClientId();
             User user = userService.getUserById(userId);
             LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusDetail(task.getTaskStatusId());
             message = "Your " + leadTaskStatus.getMasterLeadTask().getSingularDisplayName()
@@ -591,7 +592,7 @@ public class NotificationService {
 
     private String getTaskOverDueNotificationMessage(List<Notification> notifications) {
         List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
-        List<LeadTask> tasks = taskDao.findByIdUptoLead(taskIds);
+        List<LeadTask> tasks = taskDao.findByIdInWithLead(taskIds);
 
         String message = "";
         if (tasks.size() == 1) {
@@ -667,7 +668,7 @@ public class NotificationService {
      */
 
     public Notification createAndSendLeadOfferNotification(int offerId) {
-        LeadOffer offer = leadOfferDao.getLeadOfferWithRequirements(offerId);
+        LeadOffer offer = leadOfferDao.getByIdWithRequirements(offerId);
         for (LeadRequirement leadRequirement : offer.getLead().getRequirements()) {
             leadRequirement.setLead(null);
         }
@@ -872,6 +873,7 @@ public class NotificationService {
             stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.CRM_URL) + PropertyReader
                     .getRequiredPropertyAsString(PropertyKeys.CRM_MOVE_RESALE_LEAD_TO_PRIMARY) + LeadId;
             uri = new URI(stringUrl);
+            logger.debug("CALLING CRM API:" + uri);
             restTemplate.getForObject(uri, Object.class);
         }
         catch (Exception e) {
@@ -941,7 +943,7 @@ public class NotificationService {
     }
 
     public Notification findByUserIdAndNotificationId(int userId, int notificationTypeId, int objectId) {
-        return notificationDao.findByUserIdAndNotificationId(userId, notificationTypeId, objectId);
+        return notificationDao.findByUserIdAndNotificationTypeIdAndObjectId(userId, notificationTypeId, objectId);
     }
 
     public void deleteNotification(int userId, int notificationTypeId) {
