@@ -36,7 +36,7 @@ public class CustomUser {
     private Set<Integer>                    companyIds = new HashSet<>();
     private List<Dashboard>                 dashboards = new ArrayList<>();
     private Map<Application, UserAppDetail> appDetails = new HashMap<>();
-    private List<String> roles;
+    private List<String>                    roles      = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -133,8 +133,6 @@ public class CustomUser {
     public void setRoles(List<String> roles) {
         this.roles = roles;
     }
-
-
 
     public static class UserAppDetail {
         private List<UserAppSubscription> subscriptions = new ArrayList<>();
