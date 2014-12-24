@@ -86,6 +86,7 @@ public class DatabaseSessionOperations {
                 if(userSession != null){
                     Date lastAccessedTime = new Date(session.getLastAccessedTime());
                     if(lastAccessedTime.after(userSession.getLastAccessedTime())){
+                        userSession.setUserId(activeUser.getUserIdentifier());
                         userSession.setLastAccessedTime(lastAccessedTime);
                         userSessionDao.save(userSession);
                     }
