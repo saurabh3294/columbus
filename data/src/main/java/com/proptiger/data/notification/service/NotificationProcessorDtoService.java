@@ -37,7 +37,7 @@ public class NotificationProcessorDtoService {
 
         return nIntraProcessorDtos;
     }
-
+    // Handle if NM not present but NG is present.
     public void buildNonPrimaryKeyDto(NotificationProcessorDto processorDto) {
         List<NotificationMessage> typeMessages, keyMessages;
         List<NotificationGenerated> typeGenerateds, keyGenerateds;
@@ -163,7 +163,6 @@ public class NotificationProcessorDtoService {
             if (nByTypeDto == null) {
                 nByTypeDto = new NotificationByTypeDto();
                 nByTypeDto.setNotificationType(nType);
-                ;
                 typeMap.put(nType.getId(), nByTypeDto);
             }
 
@@ -182,6 +181,7 @@ public class NotificationProcessorDtoService {
     }
 
     @Transactional
+    // IF NM is empty but NG is present.
     public List<NotificationGenerated> PersistProcessesNotifications(NotificationProcessorDto notificationProcessorDto) {
         
         List<NotificationGenerated> savedNotifications = new ArrayList<NotificationGenerated>();

@@ -71,7 +71,7 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
                 child.getDiscardGeneratedMap(),
                 NotificationStatus.InterKeySuppressed);
     }
-
+    // TODO code needed as if notification message not present.
     public void processIntraMerging(NotificationByKeyDto notificationByKey) {
         List<NotificationMessage> nMessages = notificationByKey.getNotificationMessages();
 
@@ -90,7 +90,8 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
         nMessages.add(lastMessage);
 
     }
-
+    
+    // TODO code needed as if NM not present.
     public void processIntraSuppressing(NotificationByKeyDto notificationByKey) {
         List<NotificationMessage> nMessages = notificationByKey.getNotificationMessages();
         List<NotificationGenerated> nGenerateds = notificationByKey.getNotificationGenerateds();
@@ -104,7 +105,6 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
 
         suppressing(nMessages, nGenerateds, discardMessages, discardMap, NotificationStatus.IntrakeySuppressed);
         nMessages.add(lastMessage);
-
     }
 
 }

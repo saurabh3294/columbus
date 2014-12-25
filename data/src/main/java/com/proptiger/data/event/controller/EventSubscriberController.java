@@ -1,20 +1,21 @@
 package com.proptiger.data.event.controller;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.meta.DisableCaching;
+import com.proptiger.core.model.event.dto.EventRequestDto;
 import com.proptiger.core.pojo.response.APIResponse;
-import com.proptiger.data.event.model.dto.EventRequestDto;
 import com.proptiger.data.event.service.EventGeneratedService;
+import com.proptiger.data.util.Serializer;
 
 @RequestMapping("data/v1/events")
 @Controller
+@DisableCaching
 public class EventSubscriberController {
 
 	@Autowired
@@ -23,12 +24,16 @@ public class EventSubscriberController {
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	@ResponseBody
 	public APIResponse getEventGeneratedBySubscriber(
-			@Valid @RequestBody EventRequestDto requestParam) {
+			@RequestParam String requestParam) {
+		
+		EventRequestDto eventRequestDto = Serializer.fromJson(requestParam,
+				EventRequestDto.class);
+
 		return new APIResponse(
 				eventGeneratedService
 						.getLatestVerifiedEventGeneratedsBySubscriber(
-								requestParam.getSubscriberName(),
-								requestParam.getEventTypeList(),
-								requestParam.getPageable()));
+								eventRequestDto.getSubscriberName(),
+								eventRequestDto.getEventTypeList(),
+								eventRequestDto.getPageable()));
 	}
 }

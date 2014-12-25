@@ -20,6 +20,7 @@ public class NotificationProcessor {
     @Autowired
     protected NotificationGeneratedService notificationGeneratedService;
 
+    // TODO to handle the code when NM is null.
     protected void merging(
             List<NotificationMessage> nMessages,
             List<NotificationGenerated> nGenerateds,
@@ -65,6 +66,7 @@ public class NotificationProcessor {
 
     }
 
+    // TODO to handle the code when NM is null
     protected void suppressing(
             List<NotificationMessage> nMessages,
             List<NotificationGenerated> nGenerateds,

@@ -1,5 +1,6 @@
 package com.proptiger.data.mvc;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +12,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.model.solr.DynamicSolrIndex;
+import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.service.DynamicSolrIndexService;
 
 @Controller
 @RequestMapping(value = "data/v1/dynamic-solr-index")
-public class DynamicSolrIndexController {
+public class DynamicSolrIndexController extends BaseController{
 
 	@Autowired
 	private DynamicSolrIndexService dynamicSolrIndexService;
@@ -24,7 +26,8 @@ public class DynamicSolrIndexController {
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	public APIResponse getSolrEventsByEventId(
-			@RequestParam List<Integer> eventGeneratedIds) {
+			@RequestParam Integer eventIds[]) {
+		List<Integer> eventGeneratedIds = Arrays.asList(eventIds);
 		return new APIResponse(
 				dynamicSolrIndexService
 						.getSolrIndexingEventsOnEventId(eventGeneratedIds));

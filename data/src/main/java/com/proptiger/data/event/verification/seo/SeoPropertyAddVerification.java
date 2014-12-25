@@ -1,6 +1,7 @@
 package com.proptiger.data.event.verification.seo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.enums.event.EventTypeEnum;
@@ -17,6 +18,7 @@ import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.SuburbService;
 
+@Service
 public class SeoPropertyAddVerification extends DBEventVerification {
 
 	@Autowired

@@ -67,7 +67,7 @@ public class DefaultEventTypeConfig extends EventTypeConfig{
 		
 		eventTypeConfigMap.put(EventTypeEnum.PropertyGenerateUrl.getName(),
 				new DefaultEventTypeConfig(DefaultEventTypePayload.class,
-						SeoPropertyChangeProcessor.class, SeoPropertyAddVerification.class));
+						SeoPropertyChangeProcessor.class, null));
 		
 		eventTypeConfigMap.put(EventTypeEnum.ProjectDeleteUrl.getName(),
 				new DefaultEventTypeConfig(DefaultEventTypePayload.class,
