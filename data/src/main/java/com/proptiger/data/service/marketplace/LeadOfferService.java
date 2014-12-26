@@ -27,6 +27,7 @@ import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Company;
+import com.proptiger.core.model.cms.ContactNumber;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
@@ -786,25 +787,17 @@ public class LeadOfferService {
                     listingMap.put(listing.getId(), listing);
                 }
             }
-            
+
             Company broker = companyService.getCompanywithContactNumberFromUserId(leadOfferInDB.getAgentId());
-            
+
             leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
-            map.put("brokerDetails", broker);
-            
-            
-            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
-            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
-            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
-            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
-            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
-            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
-            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
-            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
-            System.out.println(broker.getBrokerContact().get(0).getContactNumber().getContactNumber());
-            
+
+            if (broker != null) {
+                map.put("broker", broker);
+            }
+
             if (username == null) {
                 username = leadOfferInDB.getAgent().getFullName();
             }
