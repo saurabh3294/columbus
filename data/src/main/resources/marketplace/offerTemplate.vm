@@ -188,7 +188,7 @@
 #if(${listingAmenity.amenity.amenityMaster.amenityId} != 13 && ${listingAmenity.amenity.amenityMaster.amenityId} != 17 && ${listingAmenity.amenity.amenityMaster.amenityId} != 4)    
   #if($otherFlag == 0)
     <tr>
-    <td style="padding:10px;">Other Special Features:</td><td colspan="3">
+    <td style="padding:10px;">Other Special Features:</td><td colspan="3" style="padding:10px;">
     <strong>${listingAmenity.amenity.amenityDisplayName}</strong>
     #set($otherFlag = 1)
   #else
