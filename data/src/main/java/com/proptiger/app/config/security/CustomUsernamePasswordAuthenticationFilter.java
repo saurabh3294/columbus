@@ -68,7 +68,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
             getFailureHandler().onAuthenticationFailure(
                     request,
                     response,
-                    new AuthenticationExceptionImpl(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.OTP_REQUIRED));
+                    new AuthenticationExceptionImpl(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.User.OTP_REQUIRED));
             return;
         }
         getRememberMeServices().loginSuccess(request, response, authResult);
