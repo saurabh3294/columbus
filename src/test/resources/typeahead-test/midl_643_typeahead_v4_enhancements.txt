@@ -5,7 +5,7 @@
 #===== Word Split Spellchecking ====#
 #jaypee suncourt,Project,1,1,TYPEAHEAD-PROJECT-506148
 #Hillshire,Project,1,1,TYPEAHEAD-PROJECT-644389
-shore line,Builder,1,1,TYPEAHEAD-BUILDER-103855
+shore line,Builder,1,3,TYPEAHEAD-BUILDER-103855
 #===== Spellchecking =====#
 #lotus boule,Project,1,1,TYPEAHEAD-PROJECT-500248
 #lotus boulevar,Project,1,1,TYPEAHEAD-PROJECT-500248
@@ -16,4 +16,4 @@ purvan windermere,Project,1,1,TYPEAHEAD-PROJECT-501266
 #araam,Project,1,1,TYPEAHEAD-
 #nirvana county,Project,1,1,TYPEAHEAD-PROJECT-501423
 #"Vedic Reality" comes on top when we type "vedic r" or "vedic rea" but not when "vedic re" is typed.
-vedic re,Project,1,1,TYPEAHEAD-BUILDER-100427
+vedic re,Project,1,2,TYPEAHEAD-BUILDER-100427
