@@ -1,6 +1,7 @@
 package com.proptiger.data.mvc;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class DynamicSolrIndexController extends BaseController{
 	public APIResponse getSolrEventsByEventId(
 			@RequestParam Integer eventIds[]) {
 		List<Integer> eventGeneratedIds = Arrays.asList(eventIds);
+			
 		return new APIResponse(
 				dynamicSolrIndexService
 						.getSolrIndexingEventsOnEventId(eventGeneratedIds));
