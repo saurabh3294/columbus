@@ -97,13 +97,16 @@
 	#end
 #end
 #end
-#if(${leadOffer} && ${leadOffer.lead} && ${leadOffer.lead.minSize})
-      #if(${leadOffer.lead.minSize} == 0 || ${leadOffer.lead.maxSize} == ${leadOffer.lead.minSize})
-      	${leadOffer.lead.maxSize} sq ft,
-      #elseif(${leadOffer.lead.maxSize} == 0)
-        ${leadOffer.lead.minSize}
-      #else 	
-      	${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq ft, 
+#if(${leadOffer} && ${leadOffer.lead} && (${leadOffer.lead.minSize} || ${leadOffer.lead.maxSize}))      
+      #if((${leadOffer.lead.maxSize} && ${leadOffer.lead.maxSize} ==0) && (${leadOffer.lead.minSize} && ${leadOffer.lead.minSize} ==0))
+      #elseif(${leadOffer.lead.maxSize} && ${leadOffer.lead.minSize} && ${leadOffer.lead.maxSize} == ${leadOffer.lead.minSize})
+        ${leadOffer.lead.maxSize} sq ft
+      #elseif(${leadOffer.lead.maxSize} && ${leadOffer.lead.minSize} && ${leadOffer.lead.maxSize} != ${leadOffer.lead.minSize})
+        ${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq ft,   
+      #elseif((${leadOffer.lead.minSize} && ${leadOffer.lead.minSize} != 0))
+      	${leadOffer.lead.minSize} sq ft,
+      #elseif(${leadOffer.lead.maxSize} && ${leadOffer.lead.maxSize} !=0)
+        ${leadOffer.lead.maxSize} sq ft,
       #end
 #end
     #if(${leadOffer.lead.minBudget})	
@@ -135,19 +138,22 @@
     </td>
   </tr>
   #set($brokerContactNumber = "")
-  #foreach (${contactNumber} in ${broker.brokerContacts.get(0).contactNumbers}) #if(${contactNumber.contactNumber} && ${contactNumber.contactNumber} != "") #set($brokerContactNumber = ${contactNumber.contactNumber}) #break #end #end
+  
+    #if(${broker} && ${broker.brokerContacts} && ${broker.brokerContacts.get(0)} && ${broker.brokerContacts.get(0).contactNumbers})
+        #foreach (${contactNumber} in ${broker.brokerContacts.get(0).contactNumbers}) #if(${contactNumber.contactNumber} && ${contactNumber.contactNumber} != "") #set($brokerContactNumber = ${contactNumber.contactNumber}) #break #end #end
+    #end    
 
-#if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()}))
+#if ((${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()})) || (${broker} && ${broker.name} && $brokerContactNumber != ""))
   <tr>
     <td bgcolor="#f5f5f5" style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
     
     <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
     <tr><td height="5"></td></tr>
              <tr>
-    <td style="font-size:12px;"><b>Suggested by Broker:  ${leadOffer.agent.fullName}, #if(${broker.name}) ${broker.name} #end</b></td>
+    <td style="font-size:12px;"><b>#if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()})) Suggested by Broker:  ${leadOffer.agent.fullName} #end   #if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()}) && ${broker} && ${broker.name}),#end   #if(${broker} && ${broker.name}) ${broker.name} #end</b></td>
   </tr> 
   <tr>
-      <td style="text-align:left;" class="responsive-image" ><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f;"><strong>Phone: +91 ${leadOffer.agent.contactNumbers.iterator().next().contactNumber} #if($brokerContactNumber != ""), $brokerContactNumber #end</strong></div>
+      <td style="text-align:left;" class="responsive-image" ><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f;"><strong>Phone: +91 #if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()})) ${leadOffer.agent.contactNumbers.iterator().next().contactNumber} #end #if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()}) && $brokerContactNumber != ""),#end  #if($brokerContactNumber != "") $brokerContactNumber #end</strong></div>
       </td></tr>                
             </table>            
             <table border="0" cellpadding="0" cellspacing="0" align="right" width="28%">
