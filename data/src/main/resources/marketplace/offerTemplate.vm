@@ -238,7 +238,14 @@ ${leadOffer.agent.fullName} <br />
 Phone: +91 ${leadOffer.agent.contactNumbers.iterator().next().contactNumber} |  
 #end
   ${leadOffer.agent.email}<br />
-  #if(${broker.name}) ${broker.name} <br />#end
+  #if(${broker} && ${broker.name}) ${broker.name} <br />#end
+  #set($brokerContactNumber = "")  
+    #if(${broker} && ${broker.brokerContacts} && ${broker.brokerContacts.get(0)} && ${broker.brokerContacts.get(0).contactNumbers})
+        #foreach (${contactNumber} in ${broker.brokerContacts.get(0).contactNumbers}) #if(${contactNumber.contactNumber} && ${contactNumber.contactNumber} != "") #set($brokerContactNumber = ${contactNumber.contactNumber}) #break #end #end
+    #end    
+#if($brokerContactNumber != "") +91 $brokerContactNumber <br /> #end
+
+
  </td>
   </tr>
   
