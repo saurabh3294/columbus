@@ -7,10 +7,10 @@ import java.util.List;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.proptiger.core.event.model.payload.DefaultEventTypePayload;
+import com.proptiger.core.event.model.payload.EventTypePayload;
+import com.proptiger.core.event.model.payload.NewsEventTypePayload;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
-import com.proptiger.data.event.model.payload.EventTypePayload;
-import com.proptiger.data.event.model.payload.NewsEventTypePayload;
 
 public class NotificationTypePayload extends BaseModel {
 

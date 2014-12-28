@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventGenerated.EventStatus;
-import com.proptiger.data.event.model.payload.dto.EventTypePayloadDataDto;
+import com.proptiger.core.mode.event.payload.dto.EventTypePayloadDataDto;
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.EventGenerated.EventStatus;
 import com.proptiger.data.event.processor.DBEventProcessor;
 
 @Service

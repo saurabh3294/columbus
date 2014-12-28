@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventGenerated.EventStatus;
-import com.proptiger.data.notification.model.Subscriber.SubscriberName;
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.EventGenerated.EventStatus;
+import com.proptiger.core.model.event.subscriber.Subscriber.SubscriberName;
 
 /**
  * 
@@ -63,4 +63,8 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
             EventStatus EventStatus,
             SubscriberName subscriberName,
             Pageable pageable);
+    
+    @Modifying
+    @Query("Update EventGenerated e set status = ?3 WHERE eventTypeUniqueKey = ?2 and e.eventType.name = ?1")
+    public Integer updateEventStatusByEventTypeAndUniqueKey(String eventTypeName, String uniqueKey, EventStatus eventStatus);
 }

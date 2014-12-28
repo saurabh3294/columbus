@@ -11,9 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.model.RawEventTableDetails;
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.RawDBEvent;
+import com.proptiger.core.model.event.RawEventTableDetails;
+import com.proptiger.data.event.model.DefaultEventTypeConfig;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.event.service.RawDBEventService;
@@ -106,9 +107,11 @@ public class DBEventGenerator implements EventGeneratorInterface {
             // Populating event specific data in EventGenerateds. Remove
             // EventGenerated if we are unable to populate event specific data
             Iterator<EventGenerated> it = events.iterator();
+            DefaultEventTypeConfig defaultEventTypeConfig = null;
             while (it.hasNext()) {
                 EventGenerated event = it.next();
-                DBEventProcessor dbEventProcessor = event.getEventType().getEventTypeConfig().getProcessorObject();
+                defaultEventTypeConfig = (DefaultEventTypeConfig)event.getEventType().getEventTypeConfig();
+                DBEventProcessor dbEventProcessor = defaultEventTypeConfig.getProcessorObject();
                 event = dbEventProcessor.populateEventSpecificData(event);
                 if (event == null) {
                     logger.error("Skipping EventGenerated with transactionId " + transactionId);

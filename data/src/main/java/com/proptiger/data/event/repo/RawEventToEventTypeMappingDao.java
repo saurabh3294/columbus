@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.proptiger.data.event.model.RawEventToEventTypeMapping;
+import com.proptiger.core.model.event.RawEventToEventTypeMapping;
 
 public interface RawEventToEventTypeMappingDao extends PagingAndSortingRepository<RawEventToEventTypeMapping, Integer> {
 

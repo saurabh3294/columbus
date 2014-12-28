@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.payload.EventTypePayload;
-import com.proptiger.data.event.model.payload.NewsEventTypePayload;
+import com.proptiger.core.event.model.payload.EventTypePayload;
+import com.proptiger.core.event.model.payload.NewsEventTypePayload;
+import com.proptiger.core.model.event.EventGenerated;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 

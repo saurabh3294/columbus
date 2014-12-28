@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
-import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.model.RawEventTableDetails;
+import com.proptiger.core.model.event.RawDBEvent;
+import com.proptiger.core.model.event.RawEventTableDetails;
+import com.proptiger.core.model.event.generator.model.RawDBEventTableConfig;
 import com.proptiger.data.event.service.RawDBEventService;
 import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
 

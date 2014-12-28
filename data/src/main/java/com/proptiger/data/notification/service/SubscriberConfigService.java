@@ -14,12 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.model.event.subscriber.Subscriber;
+import com.proptiger.core.model.event.subscriber.SubscriberConfig;
+import com.proptiger.core.model.event.subscriber.Subscriber.SubscriberName;
+import com.proptiger.core.model.event.subscriber.SubscriberConfig.ConfigName;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.notification.model.Subscriber;
-import com.proptiger.data.notification.model.Subscriber.SubscriberName;
-import com.proptiger.data.notification.model.SubscriberConfig;
-import com.proptiger.data.notification.model.SubscriberConfig.ConfigName;
 import com.proptiger.data.notification.repo.SubscriberConfigDao;
 import com.proptiger.data.notification.repo.SubscriberDao;
 
@@ -114,7 +115,8 @@ public class SubscriberConfigService {
     public void setLastEventGeneratedIdBySubscriberName(Integer lastEventGeneratedId, SubscriberName subscriberName) {
         setLastEventGeneratedIdBySubscriber(lastEventGeneratedId, getSubscriber(subscriberName));
     }
-
+    
+    @Transactional
     public void setLastEventGeneratedIdBySubscriber(Integer lastEventGeneratedId, Subscriber subscriber) {
         subscriber.setLastEventGeneratedId(lastEventGeneratedId);
         subscriberDao.updateLastEventGeneratedId(subscriber.getId(), lastEventGeneratedId);

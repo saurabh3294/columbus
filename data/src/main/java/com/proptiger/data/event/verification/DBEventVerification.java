@@ -2,7 +2,7 @@ package com.proptiger.data.event.verification;
 
 import org.springframework.stereotype.Component;
 
-import com.proptiger.data.event.model.EventGenerated;
+import com.proptiger.core.model.event.EventGenerated;
 
 @Component
 public class DBEventVerification implements EventVerification {
