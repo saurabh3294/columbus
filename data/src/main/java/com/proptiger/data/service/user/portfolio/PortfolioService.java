@@ -197,6 +197,12 @@ public class PortfolioService {
         return listings;
     }
 
+    public List<PortfolioListing> getAllActivePortfolioListings(Integer userId) {
+        List<ListingStatus> listingStatus = new ArrayList<ListingStatus>();
+        listingStatus.add(ListingStatus.ACTIVE);
+        return getAllPortfolioListings(userId, listingStatus);
+    }
+
     /**
      * Updating derived data in listing objects
      * 

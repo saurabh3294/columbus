@@ -11,6 +11,12 @@ public enum NotificationTypeEnum {
     PortfolioLocalityNews("portfolio_locality_news"),
     PortfolioProjectUpdates("portfolio_project_updates"),
     PortfolioUpdates("portfolio_updates"),
+    
+    PortfolioMonthlyPriceChange("portfolio_monthly_price_change"),
+    PortfolioMonthlyPhotoAdd("portfolio_monthly_photo_add"),
+    PortfolioMonthlyProjectNews("portfolio_monthly_project_news"),
+    PortfolioMonthlyLocalityNews("portfolio_monthly_locality_news"),
+    PortfolioMonthlyUpdates("portfolio_monthly_updates"),
      
     MarketplaceDefault("marketplace_default"),
     

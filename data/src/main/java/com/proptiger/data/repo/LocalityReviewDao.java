@@ -1,5 +1,6 @@
 package com.proptiger.data.repo;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -16,10 +17,16 @@ import com.proptiger.data.model.LocalityReviewComments;
  * 
  */
 @Repository
-public interface LocalityReviewDao extends PagingAndSortingRepository<LocalityReviewComments, Long>, LocalityReviewCustomDao{
+public interface LocalityReviewDao extends PagingAndSortingRepository<LocalityReviewComments, Long>,
+        LocalityReviewCustomDao {
 
     @Query("select R from LocalityReviewComments R where R.status = '1' AND R.localityId = ?1 order by R.commenttime DESC")
     public List<LocalityReviewComments> getReviewCommentsByLocalityId(int localityId, Pageable pageable);
+
+    @Query("select R from LocalityReviewComments R where R.status = '1' AND R.localityId = ?1 AND R.commenttime > ?2 order by R.commenttime DESC")
+    public List<LocalityReviewComments> findReviewsByLocalityIdAndCommentTimeGreaterThanOrderByCommentTimeDesc(
+            int localityId,
+            Date date);
 
     @Query("SELECT R.localityId FROM LocalityReviewComments AS R, Locality AS L WHERE R.localityId = L.localityId AND " + " CASE ?1 WHEN 1 THEN L.suburb.cityId WHEN 2 THEN L.suburbId END = ?2 "
             + " AND L.status = 'Active' AND R.status = '1' "

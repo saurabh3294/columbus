@@ -123,6 +123,7 @@ public class NotificationProcessorDtoService {
                         .add(nGenerated);
             }
             catch (NullPointerException e) {
+                e.printStackTrace();
                 continue;
             }
 

@@ -3,6 +3,8 @@ package com.proptiger.data.service;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +21,7 @@ import net.sf.uadetector.ReadableUserAgent;
 import net.sf.uadetector.UserAgentStringParser;
 import net.sf.uadetector.service.UADetectorServiceFactory;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -282,7 +285,7 @@ public class EnquiryService {
 
     private boolean checkIfServingCity(Enquiry enquiry) {
         City city = cityService.getCityByName(enquiry.getCityName());
-       
+
         return city.getIsServing();
     }
 
@@ -654,5 +657,12 @@ public class EnquiryService {
         }
 
         return savedEnquiry;
+    }
+
+    public List<Enquiry> getEnquiriesForProjectIdInLastMonth(Integer projectId) {
+        Date date = new Date();
+        date = DateUtils.addMonths(date, -1);
+        date = DateUtils.truncate(date, Calendar.MONTH);
+        return enquiryDao.findEnquiryByProjectIdAndCreatedDateGreaterThanOrderByCreatedDateDesc(projectId, date);
     }
 }
