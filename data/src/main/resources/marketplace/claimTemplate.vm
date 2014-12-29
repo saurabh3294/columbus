@@ -182,7 +182,7 @@
   <tr>
     <td style="padding:10px;width:100px;">Configuration:</td>
     <td style="padding:10px;" align="left"><strong>${offeredListing.listing.property.unitName}</strong></td>
-    <td style="padding:10px;width:80px;">Size </td>
+    <td style="padding:10px;width:80px;">Size: </td>
     <td style="padding:10px;" align="left"><strong>${offeredListing.listing.property.size.intValue()}  ${offeredListing.listing.property.measure}</strong></td>    
     
   </tr>
