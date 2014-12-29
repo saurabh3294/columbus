@@ -14,7 +14,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.enums.event.EventTypeEnum;
 import com.proptiger.core.event.model.payload.EventTypePayload;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.model.event.EventGenerated;
 import com.proptiger.core.model.event.EventType;
 import com.proptiger.core.model.event.RawDBEvent;
@@ -382,5 +387,29 @@ public class EventGeneratedService {
     public Integer updateEventStatusByEventTypeAndUniqueKey(String eventTypeName, int uniqueKey, EventStatus eventStatus){
     	return eventGeneratedDao.updateEventStatusByEventTypeAndUniqueKey(eventTypeName, uniqueKey + "", eventStatus);
     }
+    
+    @Transactional
+  	public boolean verifyDomainEvents(Property property) {
+  		Project project = property.getProject();
+  		Locality locality = project.getLocality();
+  		Suburb suburb = locality.getSuburb();
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.ProjectInsertionUrl.getName(),
+  				property.getProjectId(), EventStatus.Verified);
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.LocalityInsertionUrl.getName(),
+  				project.getLocalityId(), EventStatus.Verified);
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.BuilderInsertionUrl.getName(),
+  				project.getBuilderId(), EventStatus.Verified);
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.SuburbInsertionUrl.getName(),
+  				locality.getSuburbId(), EventStatus.Verified);
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.CityInsertionUrl.getName(), suburb.getCityId(),
+  				EventStatus.Verified);
+
+  		return true;
+  	}
 
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.model.event.EventType;
 import com.proptiger.data.event.model.DefaultEventTypeConfig;
 import com.proptiger.data.event.repo.EventTypeDao;
+import com.proptiger.data.event.verification.DBEventVerification;
 
 @Service
 public class EventTypeService {
@@ -70,8 +71,12 @@ public class EventTypeService {
         catch (Exception e) {
             e.printStackTrace();
         }
-
-        eventTypeConfig.setEventVerificationObject(applicationContext.getBean(eventTypeConfig
+        setDBEventVerificationObject(eventTypeConfig);
+        
+    }
+    
+    private void setDBEventVerificationObject(DefaultEventTypeConfig eventTypeConfig){
+    	eventTypeConfig.setEventVerificationObject(applicationContext.getBean(eventTypeConfig
                 .getVerificationClassName()));
     }
 }
