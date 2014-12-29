@@ -14,7 +14,7 @@ import com.proptiger.core.enums.Application;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.repo.user.UserDao;
+import com.proptiger.data.service.user.UserService;
 
 /**
  * Social user details service
@@ -27,12 +27,12 @@ public class SocialUserDetailServiceImpl implements SocialUserDetailsService {
     private static Logger logger = LoggerFactory.getLogger(SocialUserDetailServiceImpl.class);
 
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
 
     @Override
     public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException, DataAccessException {
         SocialUser socialUser = null;
-        User user = userDao.findById(Integer.parseInt(userId));
+        User user = userService.getUserByIdWithRoles(Integer.parseInt(userId));
         if (user != null) {
             String password = user.getPassword() == null ? "" : user.getPassword();
             Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
@@ -45,7 +45,7 @@ public class SocialUserDetailServiceImpl implements SocialUserDetailsService {
                     true,
                     true,
                     true,
-                    SecurityContextUtils.getDefaultAuthority(user.getId()),
+                    SecurityContextUtils.getDefaultAuthority(user),
                     applicationType);
         }
         else {
