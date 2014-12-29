@@ -1,7 +1,6 @@
 package com.proptiger.data.model.trend;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +10,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
@@ -34,7 +32,7 @@ public class TrendReportLog {
     private String  info;
 
     @Column(name = "success")
-    private Boolean success = false;
+    private boolean success = false;
     
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usm_id", referencedColumnName = "id", insertable=false, updatable=false)
@@ -72,11 +70,11 @@ public class TrendReportLog {
         this.info = info;
     }
     
-    public Boolean getSuccess() {
+    public boolean getSuccess() {
         return success;
     }
 
-    public void setSuccess(Boolean success) {
+    public void setSuccess(boolean success) {
         this.success = success;
     }
 }
