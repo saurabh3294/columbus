@@ -430,6 +430,9 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "CITY_PROPERTY_COUNT")
     private Integer           cityPropertyCount;
+    
+    @Field(value = "CITY_IS_SERVING")
+    private boolean           isServing;
 
     @Field(value = "SUBURB_LOCALITY_COUNT")
     private Integer           suburbLocalityCount;
@@ -682,6 +685,11 @@ public class SolrResult extends BaseModel {
         city.setLabel(cityLabel);
     }
 
+    @Field("CITY_IS_SERVING")
+    public void setIsServing(boolean isServing) {
+        city.setIsServing(isServing);
+    }
+    
     @Field("NORTH_EAST_LATITUDE")
     public void setNorthEastLatitude(Double northEastLatitude) {
         city.setNorthEastLatitude(northEastLatitude);

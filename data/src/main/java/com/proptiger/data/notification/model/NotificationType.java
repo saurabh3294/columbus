@@ -20,14 +20,15 @@ import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 @Entity
 @Table(name = "notification.notification_type")
 public class NotificationType extends BaseModel {
-    
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = -1899826990526820074L;
 
     public enum NotificationOperation {
         Merge, Suppress
+    }
+
+    public enum HoldingPeriodType {
+        SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, UPCOMING_MONTHS, INFINITE
     }
 
     @Column(name = "id")
@@ -56,12 +57,15 @@ public class NotificationType extends BaseModel {
     private Integer                          numberOfReschedule;
 
     /**
-     * Minimum time gap in seconds required between two Notifications of same
-     * Notification Type with same primary key for a particular user in a
-     * particular medium
+     * Minimum time gap required between two Notifications of same Notification
+     * Type with same primary key for a particular user in a particular medium
      */
-    @Column(name = "frequency_cycle_in_seconds")
-    private Long                             frequencyCycleInSeconds;
+    @Column(name = "holding_period_type")
+    @Enumerated(EnumType.STRING)
+    private HoldingPeriodType                holdingPeriodType;
+
+    @Column(name = "holding_period_value")
+    private Integer                          holdingPeriodValue;
 
     /**
      * Priority of a Notification type over another type
@@ -147,12 +151,20 @@ public class NotificationType extends BaseModel {
         this.numberOfReschedule = numberOfReschedule;
     }
 
-    public Long getFrequencyCycleInSeconds() {
-        return frequencyCycleInSeconds;
+    public HoldingPeriodType getHoldingPeriodType() {
+        return holdingPeriodType;
     }
 
-    public void setFrequencyCycleInSeconds(Long frequencyCycleInSeconds) {
-        this.frequencyCycleInSeconds = frequencyCycleInSeconds;
+    public void setHoldingPeriodType(HoldingPeriodType holdingPeriodType) {
+        this.holdingPeriodType = holdingPeriodType;
+    }
+
+    public Integer getHoldingPeriodValue() {
+        return holdingPeriodValue;
+    }
+
+    public void setHoldingPeriodValue(Integer holdingPeriodValue) {
+        this.holdingPeriodValue = holdingPeriodValue;
     }
 
     public Integer getPriority() {

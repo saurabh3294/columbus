@@ -3,7 +3,8 @@ package com.proptiger.data.service;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +13,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +21,7 @@ import net.sf.uadetector.ReadableUserAgent;
 import net.sf.uadetector.UserAgentStringParser;
 import net.sf.uadetector.service.UADetectorServiceFactory;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,20 +106,6 @@ public class EnquiryService {
     @Autowired
     private PropertyReader          propertyReader;
 
-    private List<String>                    servingCities ;
-
-    @PostConstruct
-    public void init(){
-        servingCities = new ArrayList<>();
-        @SuppressWarnings("unchecked")
-        List<String> cities = PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENQUIRY_SERVING_CITIES, List.class);
-       if(cities != null){
-           for(String c: cities){
-               servingCities.add(c.trim().toLowerCase());
-           } 
-       }
-    }
-    
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
 
@@ -274,9 +261,11 @@ public class EnquiryService {
         if ((enquiry.getPageName() != null) && !enquiry.getPageName().equals("CONTACT US")) {
             dataForTemplate = generateDataToMail(enquiry);
             emailReceiver = enquiry.getEmail();
-            if (!enquiry.getCityName().isEmpty() && !servingCities.contains(enquiry.getCityName().trim().toLowerCase())) {
+
+            if (!enquiry.getCityName().isEmpty() && !checkIfServingCity(enquiry)) {
                 dataForTemplate.setLeadMailFlag("non_serving_cities");
             }
+
             mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LEAD_GENERATION, dataForTemplate);
             mailDetails = new MailDetails(mailBody).setMailTo(emailReceiver);
             mailSender.sendMailUsingAws(mailDetails);
@@ -292,6 +281,12 @@ public class EnquiryService {
             mailDetails = new MailDetails(mailBody).setMailTo(emailReceiver);
             mailSender.sendMailUsingAws(mailDetails);
         }
+    }
+
+    private boolean checkIfServingCity(Enquiry enquiry) {
+        City city = cityService.getCityByName(enquiry.getCityName());
+
+        return city.getIsServing();
     }
 
     private LeadSubmitMail generateDataToMail(Enquiry enquiry) {
@@ -662,5 +657,12 @@ public class EnquiryService {
         }
 
         return savedEnquiry;
+    }
+
+    public List<Enquiry> getEnquiriesForProjectIdInLastMonth(Integer projectId) {
+        Date date = new Date();
+        date = DateUtils.addMonths(date, -1);
+        date = DateUtils.truncate(date, Calendar.MONTH);
+        return enquiryDao.findEnquiryByProjectIdAndCreatedDateGreaterThanOrderByCreatedDateDesc(projectId, date);
     }
 }

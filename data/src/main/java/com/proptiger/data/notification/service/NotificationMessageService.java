@@ -157,6 +157,7 @@ public class NotificationMessageService {
         NotificationMessagePayload nMessagePayload = new NotificationMessagePayload();
         NotificationTypePayload nTypePayload = notiType.getNotificationTypeConfig().getNotificationTypePayloadObject();
         nMessagePayload.setNotificationTypePayload(nTypePayload);
+        nMessagePayload.setNotificationTypeName(notiType.getName());
         nTypePayload.setPrimaryKeyValue(primaryKeyId);
         nMessage.setNotificationMessagePayload(nMessagePayload);
 
@@ -182,6 +183,7 @@ public class NotificationMessageService {
         List<NotificationMessage> notificationMessages = new ArrayList<NotificationMessage>();
         for (Integer userId : userDataList.keySet()) {
             NotificationMessagePayload payload = userDataList.get(userId);
+            payload.setNotificationTypeName(ntGenerated.getNotificationType().getName());
             NotificationMessage nMessage = createNewNotificationMessageObject(ntGenerated.getNotificationType(), userId);
             nMessage.setNotificationTypeGeneratedId(ntGenerated.getId());
             nMessage.setNotificationMessagePayload(payload);
