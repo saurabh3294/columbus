@@ -149,13 +149,13 @@ public class TrendReportService {
         if (getRemainingDownloadsDaily(user, usmList) <= 0) {
             throw new ProAPIException(
                     ResponseCodes.DAILY_DOWNLOAD_LIMIT_EXPIRED,
-                    ResponseErrorMessages.DAILY_DOWNLOAD_LIMIT_EXPIRED);
+                    ResponseErrorMessages.User.DAILY_DOWNLOAD_LIMIT_EXPIRED);
         }
 
         if (getRemainingDownloadsMonthly(user, usmList) <= 0) {
             throw new ProAPIException(
                     ResponseCodes.MONTHLY_DOWNLOAD_LIMIT_EXPIRED,
-                    ResponseErrorMessages.MONTHLY_DOWNLOAD_LIMIT_EXPIRED);
+                    ResponseErrorMessages.User.MONTHLY_DOWNLOAD_LIMIT_EXPIRED);
         }
 
         /** Generate a sorted list of months given in FIQL Selector **/
