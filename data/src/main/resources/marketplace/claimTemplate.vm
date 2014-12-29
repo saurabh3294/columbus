@@ -77,9 +77,7 @@
     <br /><br />
     Greetings from Proptiger.com and thank you for using Proptiger services.<br />
     
-    #if(${leadOffer} && ${leadOffer.agent} && ${leadOffer.agent.fullName})
-    ${leadOffer.agent.fullName}, 
-    #end
+    #if(${broker} && ${broker.name}) ${broker.name} #end
     our trusted broker has suggested properties as per your property requirements of  <b>
 
 #if(${leadOffer} && ${leadOffer.lead} && ${leadOffer.lead.requirements})
@@ -150,7 +148,7 @@
     <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
     <tr><td height="5"></td></tr>
              <tr>
-    <td style="font-size:12px;"><b>#if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()})) Suggested by Broker:  ${leadOffer.agent.fullName} #end   #if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()}) && ${broker} && ${broker.name}),#end   #if(${broker} && ${broker.name}) ${broker.name} #end</b></td>
+    <td style="font-size:13px;"><b>#if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()})) Suggested by Broker:  ${leadOffer.agent.fullName} #end   #if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()}) && ${broker} && ${broker.name}),#end   #if(${broker} && ${broker.name}) ${broker.name} #end</b></td>
   </tr> 
   <tr>
       <td style="text-align:left;" class="responsive-image" ><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f;"><strong>Phone: +91 #if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()})) ${leadOffer.agent.contactNumbers.iterator().next().contactNumber} #end #if (${leadOffer.agent.contactNumbers} && (!${leadOffer.agent.contactNumbers.isEmpty()}) && $brokerContactNumber != ""),#end  #if($brokerContactNumber != "") $brokerContactNumber #end</strong></div>
@@ -212,7 +210,7 @@
 		
 	#end
    			     #if(${offeredListing.listing.floor}) 	
-    <td style="padding:10px;width:100px;">Floor </td>
+    <td style="padding:10px;width:100px;">Floor:</td>
     <td style="padding:10px;" align="left"><strong>${offeredListing.listing.floor}</strong></td>
     #end
   </tr>
@@ -241,7 +239,7 @@
 #end
 
 	    <tr>    
-	    <td style="padding:10px;width:100px;">Power Backup</td>
+	    <td style="padding:10px;width:100px;">Power Backup:</td>
 	    <td style="padding:10px;" align="left"><strong>#if ($powerBackup == 1) 
 					Available 
 				      #else
@@ -249,7 +247,7 @@
 				      #end	
             </strong>
  </td>
-	    <td style="padding:10px;width:80px;">Parking</td>
+	    <td style="padding:10px;width:80px;">Parking:</td>
 	    <td style="padding:10px;" align="left"><strong>#if ($carParking == 1) 
 					Available 
 				      #else
@@ -258,7 +256,7 @@
 	    </tr>
 
 	    <tr>    
-	    <td style="padding:10px;width:100px;">Club Membership</td>
+	    <td style="padding:10px;width:100px;">Club Membership:</td>
 	    <td style="padding:10px;" align="left"><strong>#if ($clubHouse == 1) 
 					Available 
 				      #else
@@ -266,33 +264,22 @@
 				      #end	
             </strong>
  </td>
-	    
+#if(${jsonDumpMap} && ${jsonDumpMap.get(${offeredListing.listing.id})} && ${jsonDumpMap.get(${offeredListing.listing.id}).tower})	    
+      <td style="padding:10px;width:100px;">Tower:</td>
+      <td style="padding:10px;" align="left"><strong>${jsonDumpMap.get(${offeredListing.listing.id}).tower}</strong>
+      </td>
+#end      
 	    </tr>	
 
-#set($otherFlag = 0)
-#if(${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
-#foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
-
-#if(${listingAmenity.amenity.amenityMaster.amenityId} != 13 && ${listingAmenity.amenity.amenityMaster.amenityId} != 17 && ${listingAmenity.amenity.amenityMaster.amenityId} != 4)    
-  #if($otherFlag == 0)
+#if(${jsonDumpMap} && ${jsonDumpMap.get(${offeredListing.listing.id})} && ${jsonDumpMap.get(${offeredListing.listing.id}).comment})
     <tr>
     <td style="padding:10px;width:100px;">Other Special Features:</td><td colspan="3" align="left" style="padding:10px;">
-    <strong>${listingAmenity.amenity.amenityDisplayName}</strong>
-    #set($otherFlag = 1)
-  #else
-    <strong>,${listingAmenity.amenity.amenityDisplayName}</strong>
-  #end
-#end
-#end
-#end
-#if($otherFlag == 1)
-  </td></tr>
+    <strong>${jsonDumpMap.get(${offeredListing.listing.id}).comment}</strong>
+    </td></tr>
 #end
 
 </table>
 
-  
-  
 </td>
   </tr>
   
@@ -309,7 +296,7 @@
 </tr>
 <tr>
   <td align="center">
-    <span style="background-color:#f6921e;padding:10px;color:white;">OFFER: Buy a property through PropTiger and get Rs 5000 on homeloan</span>
+    <span style="background-color:#f6921e;padding:10px;color:white;font-size:17px;">OFFER: Buy a property through PropTiger and get Rs 5000 on homeloan</span>
 <br />
 <br />
 

@@ -18,6 +18,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.ListingComparator;
 import com.proptiger.core.enums.ResourceType;
@@ -27,7 +29,6 @@ import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Company;
-import com.proptiger.core.model.cms.ContactNumber;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
@@ -43,6 +44,7 @@ import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.enums.TaskStatus;
+import com.proptiger.data.external.dto.JsonDump;
 import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -782,9 +784,14 @@ public class LeadOfferService {
             fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster,amenityId,jsonDump");
             List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
             Map<Integer, Listing> listingMap = new HashMap<>();
+            Map<Integer, JsonDump> jsonDumpMap = new HashMap<>();
+
             for (Listing listing : listings) {
                 if (newListingIds.contains(listing.getId())) {
                     listingMap.put(listing.getId(), listing);
+                    Gson gson = new GsonBuilder().create();
+                    JsonDump jsonDump = gson.fromJson(listing.getJsonDump(), JsonDump.class);
+                    jsonDumpMap.put(listing.getId(), jsonDump);
                 }
             }
 
@@ -793,6 +800,7 @@ public class LeadOfferService {
             leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
+            map.put("jsonDumpMap", jsonDumpMap);
 
             if (broker != null) {
                 map.put("broker", broker);
