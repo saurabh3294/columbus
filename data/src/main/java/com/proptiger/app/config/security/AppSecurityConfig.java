@@ -42,6 +42,7 @@ import org.springframework.security.web.authentication.session.CompositeSessionA
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.session.ExpiringSession;
@@ -96,11 +97,13 @@ public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityCon
         http.csrf().disable();
 
         http.authorizeRequests()
-                .regexMatchers(Constants.Security.USER_DETAIL_API_REGEX).access("hasRole('" + UserRole.ADMIN_BACKEND.name() + "')")
+                .regexMatchers(Constants.Security.USER_DETAIL_API_REGEX).access("hasRole('" + UserRole.Admin.name() + "')")
                 .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.USER.name() + "')")
-                .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.ADMIN_BACKEND.name() + "')")
+                .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.Admin.name() + "')")
                 .regexMatchers(Constants.Security.OTP_VALIDATE_API_REGEX)
-                .access("hasRole('" + UserRole.PRE_AUTH_USER.name() + "')").anyRequest().permitAll();
+                .access("hasRole('" + UserRole.PRE_AUTH_USER.name() + "')")
+                .regexMatchers(Constants.Security.SUDO_USER_API_REGEX).access("hasRole('" + UserRole.Admin.name() + "')")
+                .anyRequest().permitAll();
 
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
         http.addFilter(createUserNamePasswordLoginFilter());
@@ -112,6 +115,19 @@ public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityCon
         http.addFilter(createConcurrentSessionFilter());
         http.exceptionHandling().accessDeniedHandler(createAccessDeniedHandler());
         http.addFilterBefore(createIPBasedAPIAccessFilter(), CustomUsernamePasswordAuthenticationFilter.class);
+        http.addFilter(createSwichUserFilter());
+    }
+
+    @Bean
+    public Filter createSwichUserFilter() {
+        SwitchUserFilter switchUserFilter = new CustomSwitchUserFilter();  
+        switchUserFilter.setUsernameParameter(Constants.Security.SWITCH_USER_PARAMETER_NAME);
+        switchUserFilter.setSwitchUserUrl(Constants.Security.SUDO_USER_URL);
+        switchUserFilter.setExitUserUrl(Constants.Security.EXIT_SUDO_USER_URL);
+        switchUserFilter.setUserDetailsService(userService);
+        switchUserFilter.setSuccessHandler(createAuthSuccessHandler());
+        switchUserFilter.setFailureHandler(createAuthFailureHandler());
+        return switchUserFilter;
     }
 
     /**

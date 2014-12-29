@@ -47,6 +47,7 @@ import com.proptiger.core.model.user.User.WhoAmIDetail;
 import com.proptiger.core.model.user.UserAttribute;
 import com.proptiger.core.model.user.UserAuthProviderDetail;
 import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.model.user.UserHierarchy;
 import com.proptiger.core.model.user.UserPreference;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Selector;
@@ -70,19 +71,21 @@ import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.ProjectDiscussionSubscription;
+import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.repo.CompanyDao;
 import com.proptiger.data.repo.EnquiryDao;
-import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
+import com.proptiger.data.repo.companyuser.CompanyUserDao;
 import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.repo.user.UserAttributeDao;
 import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
+import com.proptiger.data.repo.user.UserRolesDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
@@ -168,9 +171,6 @@ public class UserService {
     private MailSender                       mailSender;
 
     @Autowired
-    private ForumUserTokenDao                forumUserTokenDao;
-
-    @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
     @Autowired
@@ -181,6 +181,15 @@ public class UserService {
 
     @Autowired
     private CompanyDao companyDao;
+    
+    @Autowired
+    private UserRolesDao userRolesDao;
+    
+    @Autowired
+    private CompanyUserDao companyUserDao;
+    
+    @Autowired
+    private UserTokenService userTokenService;
     
     @PostConstruct
     private void initialize() {
@@ -205,7 +214,7 @@ public class UserService {
      */
     @Transactional
     public CustomUser getUserDetails(Integer userId, Application application, boolean needDashboards) {
-        User user = userDao.findById(userId);
+        User user = userDao.findByUserIdWithContactAndAuthProviderDetails(userId);
         CustomUser customUser = createCustomUserObj(user, application, needDashboards);
         return customUser;
     }
@@ -215,6 +224,7 @@ public class UserService {
         customUser.setId(user.getId());
         customUser.setEmail(user.getEmail());
         customUser.setFirstName(user.getFullName());
+        customUser.setCountryId(user.getCountryId());
         UserContactNumber priorityContact = getTopPriorityContact(user.getId());
         if(priorityContact != null){
             customUser.setContactNumber(priorityContact.getContactNumber());
@@ -230,7 +240,11 @@ public class UserService {
         }
 
         if (application.equals(Application.B2B)) {
-            setAppDetails(customUser, user);
+            updateAppDetails(customUser, user);
+        }
+        List<String> roles = userRolesDao.getUserRolesName(user.getId());
+        if(!roles.isEmpty()){
+            customUser.setRoles(roles);
         }
         return customUser;
     }
@@ -249,14 +263,15 @@ public class UserService {
                 }
             }
         }
-        return null;
+        //return default avatar image url
+        return (cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
     }
 
     @Transactional
     public CustomUser getUserDetailsByEmail(String email) {
         User user = userDao.findByEmail(email);
         if (user == null) {
-            throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, ResponseErrorMessages.EMAIL_NOT_REGISTERED);
+            throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, ResponseErrorMessages.User.EMAIL_NOT_REGISTERED);
         }
         CustomUser customUser = createCustomUserObj(user, Application.DEFAULT, false);
         return customUser;
@@ -268,7 +283,7 @@ public class UserService {
      * @param user
      * @return {@link CustomUser}
      */
-    private CustomUser setAppDetails(CustomUser customUser, User user) {
+    private void updateAppDetails(CustomUser customUser, User user) {
         HashMap<Application, UserAppDetail> appDetailsMap = new HashMap<>();
 
         for (UserPreference preference : preferenceService.getUserPreferences(user.getId())) {
@@ -305,7 +320,6 @@ public class UserService {
         }
         appDetailsMap.get(Application.B2B).setSubscriptions(subscriptions);
         customUser.setAppDetails(appDetailsMap);
-        return customUser;
     }
 
     /**
@@ -407,7 +421,7 @@ public class UserService {
      * @return
      */
     public AlreadyEnquiredDetails hasEnquired(Integer projectId, Integer userId) {
-        String email = userDao.findById(userId).getEmail();
+        String email = userDao.findByUserIdWithContactAndAuthProviderDetails(userId).getEmail();
         Enquiry enquiry = null;
         AlreadyEnquiredDetails alreadyEnquiredDetails = new AlreadyEnquiredDetails(null, false, enquiredWithinDays);
         if (projectId != null) {
@@ -482,7 +496,7 @@ public class UserService {
         if (activeUser == null) {
             throw new UnauthorizedException();
         }
-        User user = userDao.findById(activeUser.getUserIdentifier());
+        User user = userDao.findByUserIdWithContactAndAuthProviderDetails(activeUser.getUserIdentifier());
         WhoAmIDetail whoAmIDetail = new WhoAmIDetail(user.getId(), user.getFullName(), getUserProfileImageUrl(user.getId()));;
         if (whoAmIDetail.getImageUrl() == null || whoAmIDetail.getImageUrl().isEmpty()) {
             whoAmIDetail.setImageUrl(cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
@@ -504,11 +518,11 @@ public class UserService {
                     .getOldPassword()));
         }
         catch (AuthenticationException e) {
-            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.BAD_CREDENTIAL);
+            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.User.BAD_CREDENTIAL);
         }
         PasswordUtils.validateChangePasword(changePassword);
         logger.debug("Changing password for user {}", activeUser.getUsername());
-        User user = userDao.findOne(activeUser.getUserIdentifier());
+        User user = userDao.findByIdWithRoles(activeUser.getUserIdentifier());
         user.setPassword(changePassword.getNewPassword());
         user = userDao.save(user);
         SecurityContextUtils.autoLogin(user);
@@ -531,7 +545,7 @@ public class UserService {
             user = userDao.saveAndFlush(toCreate);
         }
         else if (user.isRegistered()) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.User.EMAIL_ALREADY_REGISTERED);
         }
         else if (!user.isRegistered()) {
             user.setRegistered(true);
@@ -587,64 +601,49 @@ public class UserService {
     }
 
     /**
+     * Process reset password request and send an eamil containing the instructions to reset password
+     * @param email
+     * @return
+     */
+    public String processResetPasswordRequest(String email){
+        User user = userDao.findByEmail(email);
+        if (user == null || !user.isRegistered()) {
+            throw new BadRequestException(ResponseErrorMessages.User.EMAIL_NOT_REGISTERED);
+        }
+        ForumUserToken forumUserToken = userTokenService.createTokenForUser(user.getId());
+        StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append(
+                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_RESET_PASSWORD_PAGE)).append(
+                "?token=" + forumUserToken.getToken());
+        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
+                user.getFullName(),
+                retrivePasswordLink.toString());
+        MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
+        MailDetails details = new MailDetails(mailBody).setMailTo(email);
+        mailSender.sendMailUsingAws(details);
+        return ResponseErrorMessages.User.PASSWORD_RECOVERY_MAIL_SENT;
+    
+    }
+    
+    /**
      * This method verifies the user by email from database, if registered then
      * send a password recovery mail
      * 
-     * @param email
      * @param changePassword 
      * @param token 
      * @return
      */
-    public Object resetPassword(String email, String token, ChangePassword changePassword) {
-        if (email != null && !email.isEmpty()) {
-            User user = userDao.findByEmail(email);
-            if (user == null || !user.isRegistered()) {
-                throw new BadRequestException(ResponseErrorMessages.EMAIL_NOT_REGISTERED);
-            }
-            ForumUserToken forumUserToken = createForumUserToken(user.getId());
-            StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append("/").append(
-                    PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_RESET_PASSWORD_PAGE)).append(
-                    "?token=" + forumUserToken.getToken());
-            ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
-                    user.getFullName(),
-                    retrivePasswordLink.toString());
-            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
-            MailDetails details = new MailDetails(mailBody).setMailTo(email);
-            mailSender.sendMailUsingAws(details);
-            return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
-        }
-        else if (token != null && !token.isEmpty()) {
-            ForumUserToken forumUserToken = forumUserTokenDao.findByToken(token);
-            if (forumUserToken == null || changePassword == null) {
-                throw new BadRequestException("Invalid token "+token);
-            }
-            String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
-                    changePassword.getNewPassword(),
-                    changePassword.getConfirmNewPassword());
-            User user = userDao.findOne(forumUserToken.getUserId());
-            user.setPassword(encodedPass);
-            user = userDao.save(user);
-            SecurityContextUtils.autoLogin(user);
-            forumUserTokenDao.delete(forumUserToken);
-            return getUserDetails(user.getId(), Application.DEFAULT, false);
-        }
-        else{
-            throw new BadRequestException("Invalid input");
-        }
-    }
-
-    private ForumUserToken createForumUserToken(Integer userId) {
-        // token valid for 1 month
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, 1);
-        String token = PasswordUtils.generateTokenBase64Encoded();
-        token = PasswordUtils.encode(token);
-        ForumUserToken forumUserToken = new ForumUserToken();
-        forumUserToken.setUserId(userId);
-        forumUserToken.setToken(token);
-        forumUserToken.setExpirationDate(calendar.getTime());
-        forumUserToken = forumUserTokenDao.save(forumUserToken);
-        return forumUserToken;
+    public Object resetPasswordUsingToken(String token, ChangePassword changePassword) {
+        ForumUserToken forumUserToken = userTokenService.getTokenDetailsAfterValidation(token);
+        String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
+                changePassword.getNewPassword(),
+                changePassword.getConfirmNewPassword());
+        User user = userDao.findOne(forumUserToken.getUserId());
+        user.setPassword(encodedPass);
+        userDao.save(user);
+        user = userDao.findByIdWithRoles(forumUserToken.getUserId());
+        SecurityContextUtils.autoLogin(user);
+        userTokenService.deleteTokenAsync(forumUserToken);
+        return getUserDetails(user.getId(), Application.DEFAULT, false);
     }
 
     /**
@@ -837,16 +836,21 @@ public class UserService {
     }
 
     /**
-     * 
      * @param email
-     * @param contactNumber
-     *            get user on the basis of email or contact_numbers
      * @return
      */
-    public User getUser(String email) {
+    public User getUserByEmail(String email) {
         return userDao.findByEmail(email);
     }
 
+    public User getUserByEmailWithRoles(String email){
+        return userDao.findByEmailWithRoles(email);
+    }
+    
+    public User getUserByIdWithRoles(int userId){
+        return userDao.findByIdWithRoles(userId);
+    }
+    
     public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(Set<Integer> clientIds) {
         List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
         Map<Integer, Set<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
@@ -861,7 +865,7 @@ public class UserService {
     }
 
     public User getUserWithContactNumberById(int Id) {
-        return userDao.findById(Id);
+        return userDao.findByUserIdWithContactAndAuthProviderDetails(Id);
     }
 
     public User getUserById(int userId) {
@@ -912,15 +916,8 @@ public class UserService {
      * @param token
      */
     public void validateUserCommunicationDetails(UserCommunicationType type, String token) {
-        ForumUserToken userToken = forumUserTokenDao.findByToken(token);
-        Calendar cal = Calendar.getInstance();
-        if (userToken == null) {
-            throw new BadRequestException("Invalid token");
-        }
-        if (userToken.getExpirationDate().before(cal.getTime())) {
-            throw new BadRequestException("Token expired");
-        }
-        User user = userDao.findById(userToken.getUserId());
+        ForumUserToken userToken = userTokenService.getTokenDetailsAfterValidation(token);
+        User user = userDao.findByUserIdWithContactAndAuthProviderDetails(userToken.getUserId());
         switch (type) {
             case email:
                 user.setVerified(true);
@@ -935,7 +932,7 @@ public class UserService {
         // set verified as true
         userDao.save(user);
         // delete the token
-        forumUserTokenDao.delete(userToken);
+        userTokenService.deleteTokenAsync(userToken);
     }
 
     public static class UserRegisterMailTemplate {
@@ -951,6 +948,7 @@ public class UserService {
 
         public String getFullName() {
             return fullName;
+            
         }
 
         public String getEmail() {
@@ -962,6 +960,12 @@ public class UserService {
         }
     }
 
+    /**
+     * Updates user detail
+     * @param user
+     * @param activeUser
+     * @return
+     */
     public User updateUserDetails(UserDetails user, ActiveUser activeUser) {
 
         user.setId(activeUser.getUserIdentifier());
@@ -991,4 +995,61 @@ public class UserService {
         originalUser = userDao.saveAndFlush(originalUser);
         return originalUser;
     }
+
+    /**
+     * Get all child of active user and create create a tree data structure
+     * @param activeUser
+     * @return
+     */
+    @Transactional
+    public UserHierarchy getChildHeirarchy(ActiveUser activeUser) {
+        UserHierarchy root = new UserHierarchy();
+        root.setUserId(activeUser.getUserIdentifier());
+        root.setUserName(activeUser.getFullName());
+        CompanyUser companyUser = companyUserDao.findByUserId(activeUser.getUserIdentifier());
+        if(companyUser == null){
+            return root;
+        }
+        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRange(companyUser.getLeft(), companyUser.getRight());
+        root.setId(companyUser.getId());
+        
+        Set<Integer> userIds = new HashSet<Integer>();
+        for(CompanyUser u: companyUsers){
+            userIds.add(u.getUserId());
+        }
+        Map<Integer, User> userDetailsMap = getUsers(userIds);
+        
+        Map<Integer, List<UserHierarchy>> parentIdToUserMap = new HashMap<Integer, List<UserHierarchy>>();
+        for(CompanyUser u: companyUsers){
+            if(parentIdToUserMap.get(u.getParentId()) == null){
+                parentIdToUserMap.put(u.getParentId(), new ArrayList<UserHierarchy>());
+            }
+            UserHierarchy hierarchy = new UserHierarchy();
+            hierarchy.setId(u.getId());
+            hierarchy.setUserId(u.getUserId());
+            //user id should be found in users database, in any scenario if not found set user name as NA.
+            hierarchy.setUserName(userDetailsMap.get(u.getUserId()) != null ? userDetailsMap.get(u.getUserId()).getFullName() :"NA");
+            parentIdToUserMap.get(u.getParentId()).add(hierarchy);
+        }
+        updateChild(root, parentIdToUserMap);
+        return root;
+    }
+
+    /**
+     * Recursive call to update list of children in root and so on using
+     * inverted map of data of parent id to list of children
+     * 
+     * @param root
+     * @param parentIdToUserMap
+     */
+    private void updateChild(UserHierarchy root, Map<Integer, List<UserHierarchy>> parentIdToUserMap) {
+        if(root == null || parentIdToUserMap.get(root.getId()) == null){
+            return;
+        }
+        root.setChild(parentIdToUserMap.get(root.getId()));
+        for(UserHierarchy u: root.getChild()){
+            updateChild(u, parentIdToUserMap);
+        }
+    }
+    
 }

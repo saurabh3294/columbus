@@ -38,7 +38,7 @@ public class UserPreferenceService {
             throw new ResourceAlreadyExistException("Preference Already Created For the app " + preference.getApp());
         }
         if (!UserPreferenceProcessor.isValidPreference(preference.getPreference())) {
-            throw new BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
+            throw new BadRequestException(ResponseErrorMessages.User.INVALID_USER_PREFERENCE);
         }
 
         preference.setCreatedAt(new Date());
@@ -57,7 +57,7 @@ public class UserPreferenceService {
         }
         if (!UserPreferenceProcessor.isValidPreference(preference.getPreference()) || !pastPreference.getApp().equals(
                 preference.getApp())) {
-            throw new BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
+            throw new BadRequestException(ResponseErrorMessages.User.INVALID_USER_PREFERENCE);
         }
 
         ExclusionAwareBeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();

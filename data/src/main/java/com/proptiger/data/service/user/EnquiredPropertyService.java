@@ -31,7 +31,7 @@ public class EnquiredPropertyService {
      * @return
      */
     public List<EnquiryCustomDetails> getEnquiries(Integer userId) {
-        List<EnquiryCustomDetails> list = enquiryDao.findEnquiriesByEmail(userDao.findById(userId).getEmail());
+        List<EnquiryCustomDetails> list = enquiryDao.findEnquiriesByEmail(userDao.findByUserIdWithContactAndAuthProviderDetails(userId).getEmail());
         return list;
     }
 }
