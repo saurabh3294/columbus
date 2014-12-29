@@ -484,7 +484,7 @@ public class LeadService {
      * @return
      */
     public boolean exists(String email, int cityId) {
-        User user = userService.getUser(email);
+        User user = userService.getUserByEmail(email);
         return (user != null) && (getExistingLead(user.getId(), cityId) != null);
     }
 
