@@ -31,6 +31,10 @@
  
  
 </head>
+
+#set($powerBackupAmenityMasterId = 13)
+#set($carParkingAmenityMasterId = 17)
+#set($clubHouseAmenityMasterId = 4)
  
 <body>
  
@@ -52,7 +56,7 @@
               
               <tr><td>&nbsp;</td></tr>
                   <tr>
-                    <td style="text-align:center;" ><div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif;  color:#f16d20; line-height:30px;"> Get the mobile app <img src="http://cdn.proptiger.com/images/appple_app.gif"  width="36" height="37" border="0" align="absmiddle" />&nbsp; <img src="http://cdn.proptiger.com/images/andriod_app.gif" width="36" height="37" border="0" align="absmiddle" /></div>
+                    <td style="text-align:center;" ><div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif;  color:#f16d20; line-height:30px;"> Get the mobile app <a href="https://itunes.apple.com/in/app/proptiger-real-estate-property/id935244607?ls=1&mt=8"><img src="http://cdn.proptiger.com/images/appple_app.gif"  width="36" height="37" border="0" align="absmiddle" /></a>&nbsp; <a href="https://play.google.com/store/apps/details?id=com.proptiger"><img src="http://cdn.proptiger.com/images/andriod_app.gif" width="36" height="37" border="0" align="absmiddle" /></a></div>
                       
                       
                     </td></tr></table>
@@ -62,7 +66,10 @@
               <tr>
             <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
             
-            Hi ${leadOffer.lead.client.fullName.substring(0,1).toUpperCase()}${leadOffer.lead.client.fullName.substring(1)},<br /><br />
+      Hi #if (${leadOffer} && ${leadOffer.lead} && ${leadOffer.lead.client} && ${leadOffer.lead.client.fullName})
+            ${leadOffer.lead.client.fullName},
+         #end,
+            <br /><br />
             As per your requirement, I would like to propose few more properties. Please find the property details below.
             
             </td>
@@ -84,20 +91,20 @@
     <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><span href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name} ${offeredListing.listing.property.project.name}</span></td>
     </tr>
   <tr>
-    <td width="173" style="padding:10px;"><strong>Locality:</strong> </td>
-    <td colspan="3" style="padding:10px;">${offeredListing.listing.property.project.locality.label}, ${offeredListing.listing.property.project.locality.suburb.label}, ${offeredListing.listing.property.project.locality.suburb.city.label}</td>
+    <td style="padding:10px;width:100px;">Locality: </td>
+    <td colspan="3" style="padding:10px;"><strong>${offeredListing.listing.property.project.locality.label}, ${offeredListing.listing.property.project.locality.suburb.city.label}</strong></td>
     </tr>
   <tr>
-    <td style="padding:10px;"><strong>Configuration: </strong></td>
-    <td width="156" style="padding:10px;">${offeredListing.listing.property.unitName}</td>
-    <td width="91" style="padding:10px;"><strong>Size</strong> </td>
-    <td style="padding:10px;">${offeredListing.listing.property.size.intValue()}  ${offeredListing.listing.property.measure}</td>    
+    <td style="padding:10px;width:100px;">Configuration:</td>
+    <td style="padding:10px;"><strong>${offeredListing.listing.property.unitName}</strong></td>
+    <td style="padding:10px;width:80px;">Size:</td>
+    <td style="padding:10px;"><strong>${offeredListing.listing.property.size.intValue()}  ${offeredListing.listing.property.measure}</strong></td>    
     
   </tr>
   <tr>
 	#if (${offeredListing.listing.currentListingPrice.price}) 
-    <td width="91" style="padding:10px;"><strong>Asking Price:</strong> </td>
-    <td style="padding:10px;">
+    <td width="91" style="padding:10px;width:80px;">Asking Price:</td>
+    <td style="padding:10px;"><strong>
 
 			#if (${offeredListing.listing.currentListingPrice.price} != 0)	
 			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000.0)			      
@@ -113,17 +120,14 @@
 				#set($priceInCrores = $priceInLacs/100.0)
 				$velocityUtility.roundToTwoDecimal($priceInCrores) Cr.					
 			      	#else		
-				$velocityUtility.roundToTwoDecimal($priceInLacs) Lacs </td>
+				$velocityUtility.roundToTwoDecimal($priceInLacs) Lacs </strong></td>
 		  	      	#end
 		
 	#end
    			     #if(${offeredListing.listing.floor}) 	
-    <td width="91" style="padding:10px;"><strong>Floor</strong> </td>
-    <td style="padding:10px;">${offeredListing.listing.floor}</td>#end
+    <td width="91" style="padding:10px;width:100px;">Floor:</td>
+    <td style="padding:10px;"><strong>${offeredListing.listing.floor}</strong></td>#end
   </tr>
-
-
-
 
 
 
@@ -131,48 +135,70 @@
 #set($powerBackup = 0)
 #set($carParking = 0)
 #set($clubHouse = 0)
+
+#if(${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 #foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 
-    #if(${listingAmenity.amenity.amenityMaster.amenityId} == 13)		
+    #if(${listingAmenity.amenity.amenityMaster.amenityId} == $powerBackupAmenityMasterId)		
     	#set($powerBackup = 1)
     #end		
 
-    #if(${listingAmenity.amenity.amenityMaster.amenityId} == 17)		
+    #if(${listingAmenity.amenity.amenityMaster.amenityId} == $carParkingAmenityMasterId)		
     	#set($carParking = 1)
     #end
 
-    #if(${listingAmenity.amenity.amenityMaster.amenityId} == 4)		
+    #if(${listingAmenity.amenity.amenityMaster.amenityId} == $clubHouseAmenityMasterId)		
     	#set($clubHouse = 1)
     #end		
 
 #end  
-
+#end
 	    <tr>    
-	    <td style="padding:10px;"><strong>Power Backup</strong></td>
-	    <td style="padding:10px;">#if ($powerBackup == 1) 
+	    <td style="padding:10px;width:100px;">Power Backup:</td>
+	    <td style="padding:10px;"><strong>#if ($powerBackup == 1) 
 					Available 
 				      #else
 					Not Available
 				      #end	
+            </strong>
  </td>
-	    <td style="padding:10px;"><strong>Parking</strong></td>
-	    <td style="padding:10px;">#if ($carParking == 1) 
+	    <td style="padding:10px;width:80px;">Parking:</td>
+	    <td style="padding:10px;"><strong>#if ($carParking == 1) 
 					Available 
 				      #else
 					Not Available
-				      #end</td>
+				      #end</strong></td>
 	    </tr>
 
 	    <tr>    
-	    <td style="padding:10px;"><strong>Club Membership</strong></td>
-	    <td style="padding:10px;">#if ($clubHouse == 1) 
+	    <td style="padding:10px;width:100px;">Club Membership:</td>
+	    <td style="padding:10px;"><strong>#if ($clubHouse == 1) 
 					Available 
 				      #else
 					Not Available
 				      #end	
+            </strong>
  </td>
-	    
-	    </tr>	
+
+#set($jsonDumpFlag = 0)
+#if(${jsonDumpMap} && ${jsonDumpMap.get(${offeredListing.listing.id})})
+    #set($jsonDumpFlag = 1)
+#end
+
+#if($jsonDumpFlag == 1 && ${jsonDumpMap.get(${offeredListing.listing.id}).tower})     
+      <td style="padding:10px;width:100px;">Tower:</td>
+      <td style="padding:10px;" align="left"><strong>${jsonDumpMap.get(${offeredListing.listing.id}).tower}</strong>
+      </td>
+#end      
+      </tr> 
+
+#if($jsonDumpFlag == 1 && ${jsonDumpMap.get(${offeredListing.listing.id}).comment})
+    <tr>
+    <td style="padding:10px;width:100px;">Other Special Features:</td><td colspan="3" align="left" style="padding:10px;">
+    <strong>${jsonDumpMap.get(${offeredListing.listing.id}).comment}</strong>
+    </td></tr>
+#end
+
 
 </table>
 
@@ -188,6 +214,20 @@
 #end
    <tr>
   <td style="padding:10px; line-height:20px;">Let me know if you need any more details for this project.<br /><br />
+  </td>
+</tr>
+<tr>
+  <td align="center">
+    <span style="background-color:#f6921e;padding:10px;color:white;font-size:17px;">OFFER: Buy a property through PropTiger and get Rs 5000 on homeloan</span>
+<br />
+<br />
+
+</td>
+</tr>
+<tr>
+  <td>
+
+
  
 Best Regards, <br /><br />
  
@@ -197,7 +237,14 @@ ${leadOffer.agent.fullName} <br />
 Phone: +91 ${leadOffer.agent.contactNumbers.iterator().next().contactNumber} |  
 #end
   ${leadOffer.agent.email}<br />
- 
+  #if(${broker} && ${broker.name}) ${broker.name} <br />#end
+  #set($brokerContactNumber = "")  
+    #if(${broker} && ${broker.brokerContacts} && ${broker.brokerContacts.get(0)} && ${broker.brokerContacts.get(0).contactNumbers})
+        #foreach (${contactNumber} in ${broker.brokerContacts.get(0).contactNumbers}) #if(${contactNumber.contactNumber} && ${contactNumber.contactNumber} != "") #set($brokerContactNumber = ${contactNumber.contactNumber}) #break #end #end
+    #end    
+#if($brokerContactNumber != "") +91 $brokerContactNumber <br /> #end
+
+
  </td>
   </tr>
   
