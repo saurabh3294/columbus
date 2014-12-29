@@ -122,7 +122,7 @@ public class EnquiryService {
             LeadGACookiesHandler gaCookies = new LeadGACookiesHandler();
 
             enrichLeadQuery(enquiry);
-            HashMap<String, String> cookieMap = cookies.setCookies(enquiry, request);
+            Map<String, String> cookieMap = cookies.setCookies(enquiry, request);
             gaCookies.setGACookies(enquiry, cookieMap);
 
             if (enquiry.getMultipleProjectIds() != null && !enquiry.getMultipleProjectIds().isEmpty()) {

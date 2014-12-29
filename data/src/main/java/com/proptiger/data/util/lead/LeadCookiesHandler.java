@@ -1,39 +1,45 @@
 package com.proptiger.data.util.lead;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+
 import net.sf.uadetector.ReadableUserAgent;
 import net.sf.uadetector.UserAgentStringParser;
 import net.sf.uadetector.service.UADetectorServiceFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.util.IPUtils;
 
 public class LeadCookiesHandler {
 
-    public HashMap<String, String> setCookies(Enquiry enquiry, HttpServletRequest request) {
+    private static Logger logger = LoggerFactory.getLogger(LeadCookiesHandler.class);
 
-        HashMap<String, String> cookieMap = new HashMap<String, String>();
+    public Map<String, String> setCookies(Enquiry enquiry, HttpServletRequest request) {
+
+        Map<String, String> cookieMap = new HashMap<String, String>();
         Cookie[] requestCookies = request.getCookies();
 
-        if (request.getHeader("Referer") != null) {
-            enquiry.setHttpReferer(request.getHeader("Referer"));
+        if (request.getHeader(CookieConstants.REFERER) != null) {
+            enquiry.setHttpReferer(request.getHeader(CookieConstants.REFERER));
         }
-        else {
-            enquiry.setHttpReferer("");
-        }
+
         if (enquiry.getResaleAndLaunchFlag() == null) {
-            enquiry.setResaleAndLaunchFlag(request.getParameter("resaleNlaunchFlg"));
+            enquiry.setResaleAndLaunchFlag(request.getParameter(CookieConstants.RESALENLAUNCHFLAG));
         }
 
         // Set application source of lead
         if (enquiry.getApplicationType() == null) {
             UserAgentStringParser parser = UADetectorServiceFactory.getResourceModuleParser();
-            ReadableUserAgent agent = parser.parse(request.getHeader("User-Agent"));
+            ReadableUserAgent agent = parser.parse(request.getHeader(CookieConstants.USER_AGENT));
             String applicationSource = agent.getDeviceCategory().getName();
 
             if (!applicationSource.isEmpty() && (applicationSource.toLowerCase().equals("pda") || applicationSource
@@ -52,38 +58,56 @@ public class LeadCookiesHandler {
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
                 try {
-                    cookieMap.put(c.getName(), URLDecoder.decode(c.getValue(), "UTF-8"));
-                    c.setValue(URLDecoder.decode(c.getValue(), "UTF-8"));
+                    cookieMap.put(c.getName(), URLDecoder.decode(c.getValue(), CookieConstants.UTF_8));
+                    c.setValue(URLDecoder.decode(c.getValue(), CookieConstants.UTF_8));
                 }
-                catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                catch (Exception exception) {
+                    logger.error("Not able to decode Cookie", exception);
                 }
+                switch (c.getName()) {
 
-                if (c.getName().equals("LANDING_PAGE")) {
-                    enquiry.setLandingPage(c.getValue());
-                }
-                else if (c.getName().equals("USER_CAMPAIGN")) {
-                    enquiry.setCampaign(c.getValue());
-                }
-                else if (c.getName().equals("USER_ADGROUP")) {
-                    enquiry.setAdGrp(c.getValue());
-                }
-                else if (c.getName().equals("USER_KEYWORD")) {
-                    enquiry.setKeywords(c.getValue());
-                }
-                else if (c.getName().equals("USER_FROM")) {
-                    enquiry.setSource(c.getValue());
-                }
-                else if (c.getName().equals("USER_ID")) {
-                    enquiry.setUser(c.getValue());
-                }
-                else if (c.getName().equals("USER_MEDIUM")) {
-                    enquiry.setUserMedium(c.getValue());
+                    case CookieConstants.LANDING_PAGE:
+                        if (c.getValue() != null) {
+                            enquiry.setLandingPage(c.getValue());
+                        }
+                        break;
+                    case CookieConstants.USER_CAMPAIGN:
+                        if (c.getValue() != null) {
+                            enquiry.setCampaign(c.getValue());
+                        }
+                        break;
+                    case CookieConstants.USER_ADGROUP:
+                        if (c.getValue() != null) {
+                            enquiry.setAdGrp(c.getValue());
+                        }
+                        break;
+                    case CookieConstants.USER_KEYWORD:
+                        if (c.getValue() != null) {
+                            enquiry.setKeywords(c.getValue());
+                        }
+                        break;
+                    case CookieConstants.USER_FROM:
+                        if (c.getValue() != null) {
+                            enquiry.setSource(c.getValue());
+                        }
+                        break;
+                    case CookieConstants.USER_ID:
+                        if (c.getValue() != null) {
+                            enquiry.setUser(c.getValue());
+                        }
+                        break;
+                    case CookieConstants.USER_MEDIUM:
+                        if (c.getValue() != null) {
+                            enquiry.setUserMedium(c.getValue());
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }
 
-        if (request.getHeader("IP") == null) {
+        if (request.getHeader(CookieConstants.IP) == null) {
             String cookies = request.getHeader("Cookie");
             Pattern urlPattern = Pattern.compile("__utmz=(.*?);");
             Matcher m = urlPattern.matcher(cookies);
@@ -91,44 +115,20 @@ public class LeadCookiesHandler {
             if (m.find()) {
                 utmzCookie = m.group(1);
                 try {
-                    cookieMap.put("__utmz", java.net.URLDecoder.decode(utmzCookie, "UTF-8"));
+                    cookieMap.put(CookieConstants.UTMZ, java.net.URLDecoder.decode(utmzCookie, CookieConstants.UTF_8));
                 }
-                catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                catch (Exception exception) {
+                    logger.error("Not able to decode Cookie", exception);
                 }
             }
         }
 
-        if (request.getHeader("IP") != null) {
-            enquiry.setIp(request.getHeader("IP"));
+        // IP header sent in case of enquiry via lead.php
+        if (request.getHeader(CookieConstants.IP) != null) {
+            enquiry.setIp(request.getHeader(CookieConstants.IP));
         }
         else if (IPUtils.getClientIP(request) != null) {
             enquiry.setIp(IPUtils.getClientIP(request));
-        }
-        else {
-            enquiry.setIp("");
-        }
-
-        if (enquiry.getUserMedium() == null) {
-            enquiry.setUserMedium("");
-        }
-        if (enquiry.getUser() == null) {
-            enquiry.setUser("");
-        }
-        if (enquiry.getSource() == null) {
-            enquiry.setSource("");
-        }
-        if (enquiry.getKeywords() == null) {
-            enquiry.setKeywords("");
-        }
-        if (enquiry.getAdGrp() == null) {
-            enquiry.setAdGrp("");
-        }
-        if (enquiry.getLandingPage() == null) {
-            enquiry.setLandingPage("");
-        }
-        if (enquiry.getCampaign() == null) {
-            enquiry.setCampaign("");
         }
 
         return cookieMap;
