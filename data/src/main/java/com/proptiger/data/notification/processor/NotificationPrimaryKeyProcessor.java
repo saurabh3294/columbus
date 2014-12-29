@@ -55,7 +55,7 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
                     notificationByKeyDto.getDiscardedMessage(),
                     notificationByKeyDto.getDiscardGeneratedMap(),
                     NotificationStatus.InterKeyMerged,
-                    notificationMessage);
+                    notificationMessage, null);
         }
     }
 
@@ -74,9 +74,18 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
     // TODO code needed as if notification message not present.
     public void processIntraMerging(NotificationByKeyDto notificationByKey) {
         List<NotificationMessage> nMessages = notificationByKey.getNotificationMessages();
-
-        NotificationMessage lastMessage = nMessages.get(nMessages.size() - 1);
-        nMessages.remove(lastMessage);
+        List<NotificationGenerated> nGenerateds = notificationByKey.getNotificationGenerateds();
+        
+        NotificationMessage lastMessage = null;
+        NotificationGenerated lastNGenerated = null;
+        if(nMessages != null && !nMessages.isEmpty()){
+        	lastMessage = nMessages.get(nMessages.size() - 1);
+        	nMessages.remove(lastMessage);
+        }
+        else {
+        	lastNGenerated = nGenerateds.get(nGenerateds.size() - 1);
+        	nGenerateds.remove(lastNGenerated);
+        }
 
         merging(
                 notificationByKey.getNotificationMessages(),
@@ -84,10 +93,17 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
                 notificationByKey.getDiscardedMessage(),
                 notificationByKey.getDiscardGeneratedMap(),
                 NotificationStatus.IntraKeyMerged,
-                lastMessage);
+                lastMessage,
+                lastNGenerated);
 
         // As last message is being processed. Hence, inserting it in the list.
-        nMessages.add(lastMessage);
+        if(lastMessage != null){
+        	nMessages.add(lastMessage);
+        }
+        else {
+        	nGenerateds.add(lastNGenerated);
+        }
+        
 
     }
     
@@ -99,12 +115,27 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
         List<NotificationMessage> discardMessages = notificationByKey.getDiscardedMessage();
         // discarding all the current Notification Generated .
         Map<NotificationStatus, List<NotificationGenerated>> discardMap = notificationByKey.getDiscardGeneratedMap();
-
-        NotificationMessage lastMessage = nMessages.get(nMessages.size() - 1);
-        nMessages.remove(lastMessage);
+        
+        NotificationGenerated lastNGenerated = null;
+        NotificationMessage lastMessage = null;
+        if( nMessages != null && !nMessages.isEmpty() ){
+        	lastMessage = nMessages.get(nMessages.size() - 1);
+            nMessages.remove(lastMessage);
+        }
+        else {
+        	lastNGenerated = nGenerateds.get(nGenerateds.size() - 1);
+        	nGenerateds.remove(lastNGenerated);
+        }
 
         suppressing(nMessages, nGenerateds, discardMessages, discardMap, NotificationStatus.IntrakeySuppressed);
-        nMessages.add(lastMessage);
+        
+        // As last message is being processed. Hence, inserting it in the list.
+        if(lastMessage != null){
+        	nMessages.add(lastMessage);
+        }
+        else {
+        	nGenerateds.add(lastNGenerated);
+        }
     }
 
 }
