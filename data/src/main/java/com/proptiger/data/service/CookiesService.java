@@ -18,7 +18,7 @@ import com.proptiger.data.util.lead.CookieConstants;
 @Service
 public class CookiesService {
 
-    int cookieExpiryPeriod;
+    private int cookieExpiryPeriod;
 
     @PostConstruct
     public void init() {
