@@ -154,7 +154,7 @@
 #end  
 #end
 	    <tr>    
-	    <td style="padding:10px;width:100px;">Power Backup</td>
+	    <td style="padding:10px;width:100px;">Power Backup:</td>
 	    <td style="padding:10px;"><strong>#if ($powerBackup == 1) 
 					Available 
 				      #else
@@ -162,7 +162,7 @@
 				      #end	
             </strong>
  </td>
-	    <td style="padding:10px;width:80px;">Parking</td>
+	    <td style="padding:10px;width:80px;">Parking:</td>
 	    <td style="padding:10px;"><strong>#if ($carParking == 1) 
 					Available 
 				      #else
@@ -171,7 +171,7 @@
 	    </tr>
 
 	    <tr>    
-	    <td style="padding:10px;width:100px;">Club Membership</td>
+	    <td style="padding:10px;width:100px;">Club Membership:</td>
 	    <td style="padding:10px;"><strong>#if ($clubHouse == 1) 
 					Available 
 				      #else
@@ -179,27 +179,20 @@
 				      #end	
             </strong>
  </td>
-	    
+
+#if(${jsonDumpMap} && ${jsonDumpMap.get(${offeredListing.listing.id})} && ${jsonDumpMap.get(${offeredListing.listing.id}).tower})      
+      <td style="padding:10px;width:100px;">Tower:</td>
+      <td style="padding:10px;" align="left"><strong>${jsonDumpMap.get(${offeredListing.listing.id}).tower}</strong>
+      </td>
+#end      
 	    </tr>	
 
-#set($otherFlag = 0)
-#foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
-
-#if(${listingAmenity.amenity.amenityMaster.amenityId} != 13 && ${listingAmenity.amenity.amenityMaster.amenityId} != 17 && ${listingAmenity.amenity.amenityMaster.amenityId} != 4)    
-  #if($otherFlag == 0)
+#if(${jsonDumpMap} && ${jsonDumpMap.get(${offeredListing.listing.id})} && ${jsonDumpMap.get(${offeredListing.listing.id}).comment})
     <tr>
-    <td style="padding:10px;">Other Special Features:</td><td colspan="3" style="padding:10px;">
-    <strong>${listingAmenity.amenity.amenityDisplayName}</strong>
-    #set($otherFlag = 1)
-  #else
-    <strong>,${listingAmenity.amenity.amenityDisplayName}</strong>
-  #end
+    <td style="padding:10px;width:100px;">Other Special Features:</td><td colspan="3" align="left" style="padding:10px;">
+    <strong>${jsonDumpMap.get(${offeredListing.listing.id}).comment}</strong>
+    </td></tr>
 #end
-#end
-#if($otherFlag == 1)
-  </td></tr>
-#end
-
 
 </table>
 
@@ -219,7 +212,7 @@
 </tr>
 <tr>
   <td align="center">
-    <span style="background-color:#f6921e;padding:10px;color:white;">OFFER: Buy a property through PropTiger and get Rs 5000 on homeloan</span>
+    <span style="background-color:#f6921e;padding:10px;color:white;font-size:17px;">OFFER: Buy a property through PropTiger and get Rs 5000 on homeloan</span>
 <br />
 <br />
 
