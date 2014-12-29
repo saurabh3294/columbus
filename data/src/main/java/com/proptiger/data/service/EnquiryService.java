@@ -194,7 +194,7 @@ public class EnquiryService {
 
     private void updateUserDetails(Enquiry enquiry) {
 
-        User user = userService.getUser(enquiry.getEmail());
+        User user = userService.getUserByEmail(enquiry.getEmail());
 
         if ((user != null && user.getUserAuthProviderDetails() != null) && !user.getUserAuthProviderDetails().isEmpty()) {
             User newUser = new User();

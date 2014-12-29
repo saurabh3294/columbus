@@ -52,9 +52,14 @@ public class AmazonMailSender {
         emailServiceClient = new AmazonSimpleEmailServiceClient(credentials);
         from = propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY);
     }
+
     @Async
-    public void sendMail(MailDetails mailDetails)
-            throws MailException {
+    public void sendMail(MailDetails mailDetails) throws MailException {
+        sendSyncMail(mailDetails);
+    }
+
+    public SendEmailResult sendSyncMail(MailDetails mailDetails) throws MailException {
+
         // Construct an object to contain the recipient address.
         validateFromAndToAddress(mailDetails.getMailTo());
         validateSubject(mailDetails.getSubject());
@@ -74,24 +79,27 @@ public class AmazonMailSender {
 
         // Assemble the email.
         SendEmailRequest request = new SendEmailRequest()
-                .withSource((mailDetails.getFrom() != null && !mailDetails.getFrom().isEmpty())  ? mailDetails.getFrom() : from).withDestination(destination)
-                .withMessage(message);
-        if(mailDetails.getReplyTo() != null && !mailDetails.getReplyTo().isEmpty()){
+                .withSource(
+                        (mailDetails.getFrom() != null && !mailDetails.getFrom().isEmpty())
+                                ? mailDetails.getFrom()
+                                : from).withDestination(destination).withMessage(message);
+        if (mailDetails.getReplyTo() != null && !mailDetails.getReplyTo().isEmpty()) {
             request.withReplyToAddresses(mailDetails.getReplyTo());
         }
         logger.debug("Sending mails to {}", Arrays.toString(mailDetails.getMailTo()));
         SendEmailResult result = emailServiceClient.sendEmail(request);
         logger.debug("Mail sent id {}", result.getMessageId());
+        return result;
     }
 
-	private void validateSubject(String subject) {
-		if (subject == null || subject.isEmpty()) {
+    private void validateSubject(String subject) {
+        if (subject == null || subject.isEmpty()) {
             throw new ProAPIException("Subject is empty");
         }
-	}
+    }
 
-	private void validateFromAndToAddress(String[] mailTo) {
-		if (from == null || from.isEmpty()) {
+    private void validateFromAndToAddress(String[] mailTo) {
+        if (from == null || from.isEmpty()) {
             logger.debug("from email-Id is null or Empty");
             throw new ProAPIException("from email-Id is null or Empty");
         }
@@ -99,5 +107,5 @@ public class AmazonMailSender {
             logger.debug("To email-Id is null or Empty");
             throw new ProAPIException("from email-Id is null or Empty");
         }
-	}
+    }
 }

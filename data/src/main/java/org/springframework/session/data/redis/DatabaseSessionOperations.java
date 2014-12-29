@@ -86,6 +86,7 @@ public class DatabaseSessionOperations {
                 if(userSession != null){
                     Date lastAccessedTime = new Date(session.getLastAccessedTime());
                     if(lastAccessedTime.after(userSession.getLastAccessedTime())){
+                        userSession.setUserId(activeUser.getUserIdentifier());
                         userSession.setLastAccessedTime(lastAccessedTime);
                         userSessionDao.save(userSession);
                     }
@@ -143,7 +144,7 @@ public class DatabaseSessionOperations {
                 loaded.setCreationTime(userSession.getCreationTime().getTime());
                 loaded.setLastAccessedTime(userSession.getLastAccessedTime().getTime());
                 loaded.setMaxInactiveInterval(maxInactiveInterval);
-                User user = userService.getUserById(userSession.getUserId());
+                User user = userService.getUserByIdWithRoles(userSession.getUserId());
                 Authentication auth = SecurityContextUtils.createNewAuthentication(user);
                 ActiveUser principle = (ActiveUser) auth.getPrincipal();
                 loaded.setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, principle);
