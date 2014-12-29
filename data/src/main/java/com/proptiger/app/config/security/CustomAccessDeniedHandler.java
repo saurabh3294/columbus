@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.handler.ResponseErrorWriter;
 import com.proptiger.core.util.IPUtils;
 
@@ -30,7 +31,9 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             ResponseErrorWriter.writeErrorToResponse(
                     response,
                     ResponseCodes.FORBIDDEN,
-                    accessDeniedException.getMessage(),
+                    accessDeniedException.getMessage() == null || accessDeniedException.getMessage().isEmpty()
+                            ? ResponseErrorMessages.User.ACCESS_DENIED
+                            : accessDeniedException.getMessage(),
                     userIpAddress);
         }
 
