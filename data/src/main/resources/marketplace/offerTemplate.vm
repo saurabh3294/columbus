@@ -31,6 +31,10 @@
  
  
 </head>
+
+#set($powerBackupAmenityMasterId = 13)
+#set($carParkingAmenityMasterId = 17)
+#set($clubHouseAmenityMasterId = 4)
  
 <body>
  
@@ -62,9 +66,8 @@
               <tr>
             <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
             
-      Hi #if (${leadOffer} && ${leadOffer.lead} && ${leadOffer.lead.client} && ${leadOffer.lead.client.fullName} && ${leadOffer.lead.client.fullName.substring(0,1)})
-            ${leadOffer.lead.client.fullName.substring(0,1).toUpperCase()}#if(${leadOffer.lead.client.fullName.substring(1)})${leadOffer.lead.client.fullName.substring(1)},
-            #end
+      Hi #if (${leadOffer} && ${leadOffer.lead} && ${leadOffer.lead.client} && ${leadOffer.lead.client.fullName})
+            ${leadOffer.lead.client.fullName},
          #end,
             <br /><br />
             As per your requirement, I would like to propose few more properties. Please find the property details below.
@@ -128,9 +131,6 @@
 
 
 
-
-
-
 #set($a = 1)
 #set($powerBackup = 0)
 #set($carParking = 0)
@@ -139,15 +139,15 @@
 #if(${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 #foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 
-    #if(${listingAmenity.amenity.amenityMaster.amenityId} == 13)		
+    #if(${listingAmenity.amenity.amenityMaster.amenityId} == $powerBackupAmenityMasterId)		
     	#set($powerBackup = 1)
     #end		
 
-    #if(${listingAmenity.amenity.amenityMaster.amenityId} == 17)		
+    #if(${listingAmenity.amenity.amenityMaster.amenityId} == $carParkingAmenityMasterId)		
     	#set($carParking = 1)
     #end
 
-    #if(${listingAmenity.amenity.amenityMaster.amenityId} == 4)		
+    #if(${listingAmenity.amenity.amenityMaster.amenityId} == $clubHouseAmenityMasterId)		
     	#set($clubHouse = 1)
     #end		
 
@@ -180,19 +180,25 @@
             </strong>
  </td>
 
-#if(${jsonDumpMap} && ${jsonDumpMap.get(${offeredListing.listing.id})} && ${jsonDumpMap.get(${offeredListing.listing.id}).tower})      
+#set($jsonDumpFlag = 0)
+#if(${jsonDumpMap} && ${jsonDumpMap.get(${offeredListing.listing.id})})
+    #set($jsonDumpFlag = 1)
+#end
+
+#if($jsonDumpFlag == 1 && ${jsonDumpMap.get(${offeredListing.listing.id}).tower})     
       <td style="padding:10px;width:100px;">Tower:</td>
       <td style="padding:10px;" align="left"><strong>${jsonDumpMap.get(${offeredListing.listing.id}).tower}</strong>
       </td>
 #end      
-	    </tr>	
+      </tr> 
 
-#if(${jsonDumpMap} && ${jsonDumpMap.get(${offeredListing.listing.id})} && ${jsonDumpMap.get(${offeredListing.listing.id}).comment})
+#if($jsonDumpFlag == 1 && ${jsonDumpMap.get(${offeredListing.listing.id}).comment})
     <tr>
     <td style="padding:10px;width:100px;">Other Special Features:</td><td colspan="3" align="left" style="padding:10px;">
     <strong>${jsonDumpMap.get(${offeredListing.listing.id}).comment}</strong>
     </td></tr>
 #end
+
 
 </table>
 

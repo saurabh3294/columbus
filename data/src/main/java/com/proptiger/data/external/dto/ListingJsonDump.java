@@ -1,6 +1,6 @@
 package com.proptiger.data.external.dto;
 
-public class JsonDump {    
+public class ListingJsonDump {    
     private String comment;
     private String tower;
     
