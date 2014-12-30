@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.service.CookiesService;
 
 @Controller
@@ -21,8 +22,9 @@ public class CookieController extends BaseController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public void setCookie(HttpServletRequest request, HttpServletResponse response) {
+    public Object setCookie(HttpServletRequest request, HttpServletResponse response) {
 
         setCookiesService.setCookies(request, response);
+        return new APIResponse();
     }
 }
