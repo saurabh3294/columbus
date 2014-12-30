@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.model.user.MasterRoles;
 import com.proptiger.core.model.user.UserRoles;
+import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.repo.user.MasterRolesDao;
+import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserRolesDao;
 
 /**
@@ -26,6 +28,9 @@ public class UserRolesService {
     
     @Autowired
     private MasterRolesDao masterRolesDao;
+    
+    @Autowired
+    private UserDao userDao;
 
     /**
      * Update userRole of userId by admin
@@ -79,6 +84,28 @@ public class UserRolesService {
 
     public List<String> getUserRolesName(int userId){
         return userRolesDao.getUserRolesName(userId);
+    }
+
+    @Transactional
+    public void deleteRoles(UserDetails userDetails, int adminUserId) {
+        if(userDetails.getId() <= 0){
+            throw new BadRequestException("Invalid user id specified");
+        }
+        if(userDetails.getId() == adminUserId){
+            throw new BadRequestException("Sorry, you can not change your role");
+        }
+        if(userDetails.getRoles() != null && !userDetails.getRoles().isEmpty()){
+            List<MasterRoles> masterRoles = masterRolesDao.findMasterRolesByNameIn(userDetails.getRoles());
+            List<Integer> masterRolesIds = new ArrayList<Integer>();
+            for(MasterRoles m: masterRoles){
+                masterRolesIds.add(m.getId());
+            }
+            if(!masterRolesIds.isEmpty()){
+                userRolesDao.deleteRolesOfUserId(userDetails.getId(), masterRolesIds);
+            }
+           
+        }
+        
     }
     
 }
