@@ -186,25 +186,28 @@ public class NotificationGeneratedService {
                 allNGenerateds = allNotificationGenMap.get(nGenerated.getNotificationMessage().getId());
                 // Removing the first one as it was already present in the
                 // distinct Notification Generated.
-                allNGenerateds.remove(0);
-                /**
-                 * Iterating on rest of the notification Generated Group by
-                 * Notification Message Id. Replacing the rest Notification
-                 * Generated payload and status with distinct Notification
-                 * Generated.
-                 */
-                for (NotificationGenerated finalGenerated : allNGenerateds) {
 
-                    finalGenerated.setNotificationMessagePayload(nGenerated.getNotificationMessagePayload());
-                    // getting their old status.
-                    oldNotificationStatus = finalGenerated.getNotificationStatus();
-                    // setting the new status.
-                    finalGenerated.setNotificationStatus(nGenerated.getNotificationStatus());
-                    notificationGeneratedDao.updateByNotificationStatusOnOldNotificationStatus(
-                            finalGenerated.getId(),
-                            finalGenerated.getNotificationStatus(),
-                            oldNotificationStatus);
+                if (allNGenerateds != null) {
+                    allNGenerateds.remove(0);
+                    /**
+                     * Iterating on rest of the notification Generated Group by
+                     * Notification Message Id. Replacing the rest Notification
+                     * Generated payload and status with distinct Notification
+                     * Generated.
+                     */
+                    for (NotificationGenerated finalGenerated : allNGenerateds) {
 
+                        finalGenerated.setNotificationMessagePayload(nGenerated.getNotificationMessagePayload());
+                        // getting their old status.
+                        oldNotificationStatus = finalGenerated.getNotificationStatus();
+                        // setting the new status.
+                        finalGenerated.setNotificationStatus(nGenerated.getNotificationStatus());
+                        notificationGeneratedDao.updateByNotificationStatusOnOldNotificationStatus(
+                                finalGenerated.getId(),
+                                finalGenerated.getNotificationStatus(),
+                                oldNotificationStatus);
+
+                    }
                 }
                 // Updating the Distinct Notification Generated with their new
                 // status.

@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.model.EventType;
-import com.proptiger.data.event.model.EventTypeConfig;
+import com.proptiger.core.model.event.EventType;
+import com.proptiger.data.event.model.DefaultEventTypeConfig;
 import com.proptiger.data.event.repo.EventTypeDao;
+import com.proptiger.data.event.verification.DBEventVerification;
 
 @Service
 public class EventTypeService {
@@ -44,7 +45,7 @@ public class EventTypeService {
         if (eventType.getOverwriteConfigName() != null) {
             configName = eventType.getOverwriteConfigName();
         }
-        EventTypeConfig savedEventTypeConfig = EventTypeConfig.getEventTypeConfig(configName);
+        DefaultEventTypeConfig savedEventTypeConfig = DefaultEventTypeConfig.getEventTypeConfig(configName);
         logger.debug("Found eventTypeConfig " + savedEventTypeConfig
                 + " for configName "
                 + configName
@@ -55,14 +56,14 @@ public class EventTypeService {
         if (savedEventTypeConfig == null) {
             logger.debug("EventType " + eventType.getName()
                     + " do not have mapping of Event Type Config. Using Defaults.");
-            savedEventTypeConfig = new EventTypeConfig();
+            savedEventTypeConfig = new DefaultEventTypeConfig();
         }
         setEventTypeConfigObjectAttributes(savedEventTypeConfig);
         eventType.setEventTypeConfig(savedEventTypeConfig);
         return eventType;
     }
 
-    private void setEventTypeConfigObjectAttributes(EventTypeConfig eventTypeConfig) {
+    private void setEventTypeConfigObjectAttributes(DefaultEventTypeConfig eventTypeConfig) {
         eventTypeConfig.setProcessorObject(applicationContext.getBean(eventTypeConfig.getProcessorClassName()));
         try {
             eventTypeConfig.setEventTypePayloadObject(eventTypeConfig.getDataClassName().newInstance());
@@ -70,8 +71,12 @@ public class EventTypeService {
         catch (Exception e) {
             e.printStackTrace();
         }
-
-        eventTypeConfig.setEventVerificationObject(applicationContext.getBean(eventTypeConfig
+        setDBEventVerificationObject(eventTypeConfig);
+        
+    }
+    
+    private void setDBEventVerificationObject(DefaultEventTypeConfig eventTypeConfig){
+    	eventTypeConfig.setEventVerificationObject(applicationContext.getBean(eventTypeConfig
                 .getVerificationClassName()));
     }
 }

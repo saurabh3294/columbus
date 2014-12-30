@@ -6,8 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -20,8 +18,6 @@ import com.proptiger.data.notification.repo.NotificationTypeDao;
 
 @Service
 public class NotificationTypeService {
-
-    private static Logger       logger                    = LoggerFactory.getLogger(NotificationTypeService.class);
 
     private static final String DEFAULT_NOTIFICATION_TYPE = "default";
 
@@ -50,8 +46,6 @@ public class NotificationTypeService {
         // Use defaults if no config is found.
         NotificationTypeConfig savedNTConfig = NotificationTypeConfig.getNotificationTypeConfigMap().get(configName);
         if (savedNTConfig == null) {
-            logger.debug("NotificationType ID " + notificationType.getId()
-                    + " do not have mapping of Notification Type Config. Using Defaults.");
             savedNTConfig = new NotificationTypeConfig();
         }
 
@@ -79,6 +73,8 @@ public class NotificationTypeService {
                 .getNotificationTypeProcessorClassName()));
         notificationTypeConfig.setNotificationMessageProcessorObject(applicationContext.getBean(notificationTypeConfig
                 .getNotificationMessageProcessorClassName()));
+        notificationTypeConfig.setTemplateDataFetcherObject(applicationContext.getBean(notificationTypeConfig
+                .getTemplateDataFetcherClassName()));
 
         return notificationTypeConfig;
     }

@@ -1,6 +1,8 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +50,9 @@ public class LocalityReviewService {
 
     @Autowired
     private LocalityService       localityService;
-    
+
     @Autowired
-    private UserService userService;
+    private UserService           userService;
 
     private static Logger         logger = LoggerFactory.getLogger(LocalityReviewService.class);
 
@@ -103,23 +106,21 @@ public class LocalityReviewService {
      * @return
      */
     public List<LocalityReviewCustomDetail> getLocalityReviewCustomDetails(int localityId, Pageable pageable) {
-        List<LocalityReviewComments> reviewComments = localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
+        List<LocalityReviewComments> reviewComments = localityReviewDao.getReviewCommentsByLocalityId(
+                localityId,
+                pageable);
         List<LocalityReviewCustomDetail> customDetails = new ArrayList<>();
         Set<Integer> userIds = new HashSet<Integer>();
-        for(LocalityReviewComments comments: reviewComments){
-            if(comments.getUserId() != null){
+        for (LocalityReviewComments comments : reviewComments) {
+            if (comments.getUserId() != null) {
                 userIds.add(comments.getUserId());
             }
         }
         Map<Integer, User> usersMap = userService.getUsers(userIds);
         for (LocalityReviewComments c : reviewComments) {
             User user = usersMap.get(c.getUserId());
-            customDetails.add(new LocalityReviewCustomDetail(
-                    c.getReview(),
-                    c.getReviewLabel(),
-                    user != null ? user.getFullName() : null,
-                    c.getCommenttime(),
-                    c.getUserName()));
+            customDetails.add(new LocalityReviewCustomDetail(c.getReview(), c.getReviewLabel(), user != null ? user
+                    .getFullName() : null, c.getCommenttime(), c.getUserName()));
         }
         return customDetails;
     }
@@ -254,14 +255,15 @@ public class LocalityReviewService {
     }
 
     private void enrichReviewComments(List<LocalityReviewComments> results) {
-        if(results != null && !results.isEmpty()){
+        if (results != null && !results.isEmpty()) {
             Set<Integer> userIds = new HashSet<Integer>();
-            for(LocalityReviewComments l: results){
+            for (LocalityReviewComments l : results) {
                 userIds.add(l.getUserId());
             }
             Map<Integer, User> usersMap = userService.getUsers(userIds);
-            for(LocalityReviewComments l: results){
-                l.setForumUser(usersMap.get(l.getUserId()).toForumUser());;
+            for (LocalityReviewComments l : results) {
+                l.setForumUser(usersMap.get(l.getUserId()).toForumUser());
+                ;
             }
         }
     }
@@ -281,5 +283,13 @@ public class LocalityReviewService {
                 reviewRatingDetails.setTotalUsersByRating(newTotalUsersByRatings);
             }
         }
+    }
+
+    public List<LocalityReviewComments> getCommentsForLocalityIdInLastMonth(Integer localityId) {
+        Date date = new Date();
+        date = DateUtils.addMonths(date, -1);
+        date = DateUtils.truncate(date, Calendar.MONTH);
+        return localityReviewDao
+                .findReviewsByLocalityIdAndCommentTimeGreaterThanOrderByCommentTimeDesc(localityId, date);
     }
 }
