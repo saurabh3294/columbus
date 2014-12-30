@@ -11,7 +11,7 @@ public interface RawEventToEventTypeMappingDao extends PagingAndSortingRepositor
 
     public List<RawEventToEventTypeMapping> findByEventTypeId(Integer eventTypeId);
     
-    @Query("SELECT M FROM RawEventToEventTypeMapping M LEFT JOIN FETCH M.eventType LEFT JOIN FETCH M.rawEventTableDetails")
+    @Query("SELECT M FROM RawEventToEventTypeMapping M LEFT JOIN FETCH M.eventType LEFT JOIN FETCH M.rawEventTableDetails RETD WHERE RETD.isEnabled = 1")
     public List<RawEventToEventTypeMapping> findAllMapping();
 
 }
