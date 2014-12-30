@@ -13,7 +13,7 @@ import com.proptiger.core.mvc.BaseController;
 import com.proptiger.data.service.CookiesService;
 
 @Controller
-@RequestMapping(value = "app/v1/set-cookie")
+@RequestMapping(value = "app/v1/cookies")
 public class CookieController extends BaseController {
     
     @Autowired

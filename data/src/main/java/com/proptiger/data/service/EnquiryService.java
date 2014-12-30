@@ -73,6 +73,10 @@ public class EnquiryService {
 
     @Autowired
     SecurityUtilService             securityUtilService;
+    
+    @Autowired
+    CookiesService					cookieService;
+   
 
     @Autowired
     EnquiryDao                      enquiryDao;
@@ -98,6 +102,7 @@ public class EnquiryService {
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
 
+    	cookieService.setCookies(request, response);
         HashMap<String, String> leadInvalidations = new HashMap<String, String>();
 
         if (enquiry.getCountryId() != null) {
