@@ -107,18 +107,23 @@ public class LeadCookiesHandler {
             }
         }
 
-        if (request.getHeader(CookieConstants.IP) == null) {
+        // utmz cookie parsed from header in case of enquiry via lead.php
+        if (request.getHeader(CookieConstants.IP) != null) {
             String cookies = request.getHeader("Cookie");
-            Pattern urlPattern = Pattern.compile("__utmz=(.*?);");
-            Matcher m = urlPattern.matcher(cookies);
-            String utmzCookie = null;
-            if (m.find()) {
-                utmzCookie = m.group(1);
-                try {
-                    cookieMap.put(CookieConstants.UTMZ, java.net.URLDecoder.decode(utmzCookie, CookieConstants.UTF_8));
-                }
-                catch (Exception exception) {
-                    logger.error("Not able to decode Cookie", exception);
+            if (cookies != null) {
+                Pattern urlPattern = Pattern.compile("__utmz=(.*?);");
+                Matcher m = urlPattern.matcher(cookies);
+                String utmzCookie = null;
+                if (m.find()) {
+                    utmzCookie = m.group(1);
+                    try {
+                        cookieMap.put(
+                                CookieConstants.UTMZ,
+                                java.net.URLDecoder.decode(utmzCookie, CookieConstants.UTF_8));
+                    }
+                    catch (Exception exception) {
+                        logger.error("Not able to decode Cookie", exception);
+                    }
                 }
             }
         }

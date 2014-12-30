@@ -458,6 +458,9 @@ public class SolrResult extends BaseModel {
     @Field(value = "NEWS_TAG")
     private String            newsTag;
 
+    @Field(value = "ENCODED_POLYGON")
+    private String            encodedPolygon;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -1428,5 +1431,10 @@ public class SolrResult extends BaseModel {
     public void setNewsTag(String newsTag) {
         project.setNewsTag(newsTag);
         locality.setNewsTag(newsTag);
+    }
+    
+    @Field("ENCODED_POLYGON")
+    public void setEncodedPolygon(String encodedPolygon) {
+        locality.setEncodedPolygon(encodedPolygon);
     }
 }

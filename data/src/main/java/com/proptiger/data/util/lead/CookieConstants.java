@@ -1,10 +1,12 @@
 package com.proptiger.data.util.lead;
 
+import com.google.common.net.HttpHeaders;
+
 public class CookieConstants {
 
     public static final String UTMZ              = "__utmz";
     public static final String UTMA              = "__utma";
-    public static final String REFERER           = "Referer";
+    public static final String REFERER           = HttpHeaders.REFERER;
     public static final String RESALENLAUNCHFLAG = "resaleNlaunchFlg";
     public static final String USER_AGENT        = "User-Agent";
     public static final String UTF_8             = "UTF-8";
