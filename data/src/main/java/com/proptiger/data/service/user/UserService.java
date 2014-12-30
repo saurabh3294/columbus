@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,11 @@ import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.Application;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.security.UserRole;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.Locality;
@@ -50,7 +55,6 @@ import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.model.user.UserHierarchy;
 import com.proptiger.core.model.user.UserPreference;
 import com.proptiger.core.pojo.FIQLSelector;
-import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.DateUtil;
@@ -76,7 +80,6 @@ import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.repo.CompanyDao;
 import com.proptiger.data.repo.EnquiryDao;
-import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
@@ -87,7 +90,6 @@ import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
-import com.proptiger.data.repo.user.UserRolesDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
@@ -173,9 +175,6 @@ public class UserService {
     private MailSender                       mailSender;
 
     @Autowired
-    private ForumUserTokenDao                forumUserTokenDao;
-
-    @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
     @Autowired
@@ -188,10 +187,13 @@ public class UserService {
     private CompanyDao companyDao;
     
     @Autowired
-    private UserRolesDao userRolesDao;
+    private UserRolesService userRolesService;
     
     @Autowired
     private CompanyUserDao companyUserDao;
+    
+    @Autowired
+    private UserTokenService userTokenService;
     
     @PostConstruct
     private void initialize() {
@@ -216,7 +218,7 @@ public class UserService {
      */
     @Transactional
     public CustomUser getUserDetails(Integer userId, Application application, boolean needDashboards) {
-        User user = userDao.findById(userId);
+        User user = userDao.findByUserIdWithContactAndAuthProviderDetails(userId);
         CustomUser customUser = createCustomUserObj(user, application, needDashboards);
         return customUser;
     }
@@ -242,9 +244,9 @@ public class UserService {
         }
 
         if (application.equals(Application.B2B)) {
-            setAppDetails(customUser, user);
+            updateAppDetails(customUser, user);
         }
-        List<String> roles = userRolesDao.getUserRolesName(user.getId());
+        List<String> roles = userRolesService.getUserRolesName(user.getId());
         if(!roles.isEmpty()){
             customUser.setRoles(roles);
         }
@@ -285,7 +287,7 @@ public class UserService {
      * @param user
      * @return {@link CustomUser}
      */
-    private CustomUser setAppDetails(CustomUser customUser, User user) {
+    private void updateAppDetails(CustomUser customUser, User user) {
         HashMap<Application, UserAppDetail> appDetailsMap = new HashMap<>();
 
         for (UserPreference preference : preferenceService.getUserPreferences(user.getId())) {
@@ -322,7 +324,6 @@ public class UserService {
         }
         appDetailsMap.get(Application.B2B).setSubscriptions(subscriptions);
         customUser.setAppDetails(appDetailsMap);
-        return customUser;
     }
 
     /**
@@ -424,7 +425,7 @@ public class UserService {
      * @return
      */
     public AlreadyEnquiredDetails hasEnquired(Integer projectId, Integer userId) {
-        String email = userDao.findById(userId).getEmail();
+        String email = userDao.findByUserIdWithContactAndAuthProviderDetails(userId).getEmail();
         Enquiry enquiry = null;
         AlreadyEnquiredDetails alreadyEnquiredDetails = new AlreadyEnquiredDetails(null, false, enquiredWithinDays);
         if (projectId != null) {
@@ -499,7 +500,7 @@ public class UserService {
         if (activeUser == null) {
             throw new UnauthorizedException();
         }
-        User user = userDao.findById(activeUser.getUserIdentifier());
+        User user = userDao.findByUserIdWithContactAndAuthProviderDetails(activeUser.getUserIdentifier());
         WhoAmIDetail whoAmIDetail = new WhoAmIDetail(user.getId(), user.getFullName(), getUserProfileImageUrl(user.getId()));;
         if (whoAmIDetail.getImageUrl() == null || whoAmIDetail.getImageUrl().isEmpty()) {
             whoAmIDetail.setImageUrl(cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
@@ -525,7 +526,7 @@ public class UserService {
         }
         PasswordUtils.validateChangePasword(changePassword);
         logger.debug("Changing password for user {}", activeUser.getUsername());
-        User user = userDao.findOne(activeUser.getUserIdentifier());
+        User user = userDao.findByIdWithRoles(activeUser.getUserIdentifier());
         user.setPassword(changePassword.getNewPassword());
         user = userDao.save(user);
         SecurityContextUtils.autoLogin(user);
@@ -613,7 +614,7 @@ public class UserService {
         if (user == null || !user.isRegistered()) {
             throw new BadRequestException(ResponseErrorMessages.User.EMAIL_NOT_REGISTERED);
         }
-        ForumUserToken forumUserToken = createForumUserToken(user.getId());
+        ForumUserToken forumUserToken = userTokenService.createTokenForUser(user.getId());
         StringBuilder retrivePasswordLink = new StringBuilder(proptigerUrl).append(
                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_RESET_PASSWORD_PAGE)).append(
                 "?token=" + forumUserToken.getToken());
@@ -636,40 +637,17 @@ public class UserService {
      * @return
      */
     public Object resetPasswordUsingToken(String token, ChangePassword changePassword) {
-        ForumUserToken forumUserToken = forumUserTokenDao.findByToken(token);
-        validateForumUserToken(forumUserToken);
+        ForumUserToken forumUserToken = userTokenService.getTokenDetailsAfterValidation(token);
         String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
                 changePassword.getNewPassword(),
                 changePassword.getConfirmNewPassword());
         User user = userDao.findOne(forumUserToken.getUserId());
         user.setPassword(encodedPass);
-        user = userDao.save(user);
+        userDao.save(user);
+        user = userDao.findByIdWithRoles(forumUserToken.getUserId());
         SecurityContextUtils.autoLogin(user);
-        forumUserTokenDao.delete(forumUserToken);
+        userTokenService.deleteTokenAsync(forumUserToken);
         return getUserDetails(user.getId(), Application.DEFAULT, false);
-    }
-
-    private ForumUserToken createForumUserToken(Integer userId) {
-        List<ForumUserToken> existingTokenList = forumUserTokenDao.findLatestTokenByUserId(userId, new LimitOffsetPageRequest(
-                0,
-                1));
-        // token valid for 1 month
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, 1);
-        if (existingTokenList.isEmpty()) {
-            String token = PasswordUtils.generateTokenBase64Encoded();
-            token = PasswordUtils.encode(token);
-            ForumUserToken forumUserToken = new ForumUserToken();
-            forumUserToken.setUserId(userId);
-            forumUserToken.setToken(token);
-            forumUserToken.setExpirationDate(calendar.getTime());
-            forumUserToken = forumUserTokenDao.save(forumUserToken);
-            return forumUserToken;
-        }
-        ForumUserToken existingToken = existingTokenList.get(0);
-        existingToken.setExpirationDate(calendar.getTime());
-        existingToken = forumUserTokenDao.save(existingToken);
-        return existingToken;
     }
 
     /**
@@ -862,16 +840,21 @@ public class UserService {
     }
 
     /**
-     * 
      * @param email
-     * @param contactNumber
-     *            get user on the basis of email or contact_numbers
      * @return
      */
-    public User getUser(String email) {
+    public User getUserByEmail(String email) {
         return userDao.findByEmail(email);
     }
 
+    public User getUserByEmailWithRoles(String email){
+        return userDao.findByEmailWithRoles(email);
+    }
+    
+    public User getUserByIdWithRoles(int userId){
+        return userDao.findByIdWithRoles(userId);
+    }
+    
     public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(Set<Integer> clientIds) {
         List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
         Map<Integer, Set<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
@@ -886,7 +869,7 @@ public class UserService {
     }
 
     public User getUserWithContactNumberById(int Id) {
-        return userDao.findById(Id);
+        return userDao.findByUserIdWithContactAndAuthProviderDetails(Id);
     }
 
     public User getUserById(int userId) {
@@ -937,9 +920,8 @@ public class UserService {
      * @param token
      */
     public void validateUserCommunicationDetails(UserCommunicationType type, String token) {
-        ForumUserToken userToken = forumUserTokenDao.findByToken(token);
-        validateForumUserToken(userToken);
-        User user = userDao.findById(userToken.getUserId());
+        ForumUserToken userToken = userTokenService.getTokenDetailsAfterValidation(token);
+        User user = userDao.findByUserIdWithContactAndAuthProviderDetails(userToken.getUserId());
         switch (type) {
             case email:
                 user.setVerified(true);
@@ -954,17 +936,7 @@ public class UserService {
         // set verified as true
         userDao.save(user);
         // delete the token
-        forumUserTokenDao.delete(userToken);
-    }
-
-    private void validateForumUserToken(ForumUserToken userToken) {
-        Calendar cal = Calendar.getInstance();
-        if (userToken == null) {
-            throw new BadRequestException("Invalid token");
-        }
-        if (userToken.getExpirationDate().before(cal.getTime())) {
-            throw new BadRequestException("Token expired");
-        }
+        userTokenService.deleteTokenAsync(userToken);
     }
 
     public static class UserRegisterMailTemplate {
@@ -980,6 +952,7 @@ public class UserService {
 
         public String getFullName() {
             return fullName;
+            
         }
 
         public String getEmail() {
@@ -991,16 +964,39 @@ public class UserService {
         }
     }
 
+    /**
+     * Updates user detail
+     * @param user
+     * @param activeUser
+     * @return
+     */
+    @Transactional
     public User updateUserDetails(UserDetails user, ActiveUser activeUser) {
-
-        user.setId(activeUser.getUserIdentifier());
+        boolean isAdmin = isAdmin(activeUser);
+        if(isAdmin){
+            //admin is trying to update details of a user whose user id must be defined in UserDetails object
+            if(user.getId() < 0){
+                throw new BadRequestException("Invalid user id specified");
+            }
+            else if(user.getId() == 0){
+                //user trying to update his data
+                user.setId(activeUser.getUserIdentifier());
+            }
+        }
+        else{
+            //normal user is trying to update his details
+            user.setId(activeUser.getUserIdentifier()); 
+        }
+        
         User originalUser = getUserById(user.getId());
-
+        if(originalUser == null){
+            throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.UPDATE);
+        }
+        
         if (user.getFullName() != null) {
             originalUser.setFullName(user.getFullName());
         }
         if (user.getOldPassword() != null && user.getPassword() != null && user.getConfirmPassword() != null) {
-
             ChangePassword changePassword = new ChangePassword();
             changePassword.setOldPassword(user.getOldPassword());
             changePassword.setNewPassword(user.getPassword());
@@ -1016,9 +1012,34 @@ public class UserService {
         if (user.getContactNumbers() != null && !user.getContactNumbers().isEmpty()) {
             updateContactNumbers(user);
         }
-
         originalUser = userDao.saveAndFlush(originalUser);
+        if(isAdmin){
+            if((user.getParentId() != null && !(user.getParentId() <= 0))){
+                
+            }
+            if(user.getRoles() != null && !user.getRoles().isEmpty()){
+                userRolesService.updateRolesOfUser(user.getRoles(), originalUser.getId(), activeUser.getUserIdentifier());
+            }
+        }
         return originalUser;
+    }
+
+    /**
+     * Check if currently logged in user is admin or not
+     * @param activeUser
+     * @return
+     */
+    private boolean isAdmin(ActiveUser activeUser) {
+        if(activeUser != null){
+            if(activeUser.getAuthorities() != null){
+                for(GrantedAuthority authority: activeUser.getAuthorities()){
+                    if(authority.getAuthority().equals(UserRole.Admin.name())){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -1035,9 +1056,12 @@ public class UserService {
         if(companyUser == null){
             return root;
         }
-        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRange(companyUser.getLeft(), companyUser.getRight());
+        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRangeInCompany(
+                companyUser.getLeft(),
+                companyUser.getRight(),
+                companyUser.getCompanyId());
         root.setId(companyUser.getId());
-        
+
         Set<Integer> userIds = new HashSet<Integer>();
         for(CompanyUser u: companyUsers){
             userIds.add(u.getUserId());
@@ -1052,6 +1076,7 @@ public class UserService {
             UserHierarchy hierarchy = new UserHierarchy();
             hierarchy.setId(u.getId());
             hierarchy.setUserId(u.getUserId());
+            //user id should be found in users database, in any scenario if not found set user name as NA.
             hierarchy.setUserName(userDetailsMap.get(u.getUserId()) != null ? userDetailsMap.get(u.getUserId()).getFullName() :"NA");
             parentIdToUserMap.get(u.getParentId()).add(hierarchy);
         }

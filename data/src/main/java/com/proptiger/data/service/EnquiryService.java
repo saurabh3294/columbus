@@ -57,7 +57,8 @@ import com.proptiger.data.repo.ProjectDaoNew;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.lead.GACookies;
+import com.proptiger.data.util.lead.LeadCookiesHandler;
+import com.proptiger.data.util.lead.LeadGACookiesHandler;
 import com.proptiger.data.util.lead.LeadValidator;
 
 @Service
@@ -84,6 +85,10 @@ public class EnquiryService {
 
     @Autowired
     SecurityUtilService             securityUtilService;
+    
+    @Autowired
+    CookiesService					cookieService;
+   
 
     @Autowired
     EnquiryDao                      enquiryDao;
@@ -109,6 +114,7 @@ public class EnquiryService {
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
 
+    	cookieService.setCookies(request, response);
         HashMap<String, String> leadInvalidations = new HashMap<String, String>();
 
         if (enquiry.getCountryId() != null) {
@@ -127,11 +133,13 @@ public class EnquiryService {
         }
         else {
             List<String> projectNames = new ArrayList<String>();
-            GACookies gaCookies = new GACookies();
             List<Long> enquiryIds = new ArrayList<Long>();
 
+            LeadCookiesHandler cookies = new LeadCookiesHandler();
+            LeadGACookiesHandler gaCookies = new LeadGACookiesHandler();
+
             enrichLeadQuery(enquiry);
-            HashMap<String, String> cookieMap = setCookieInLead(enquiry, request);
+            Map<String, String> cookieMap = cookies.setCookies(enquiry, request);
             gaCookies.setGACookies(enquiry, cookieMap);
 
             if (enquiry.getMultipleProjectIds() != null && !enquiry.getMultipleProjectIds().isEmpty()) {
@@ -285,7 +293,7 @@ public class EnquiryService {
 
     private boolean checkIfServingCity(Enquiry enquiry) {
         City city = cityService.getCityByName(enquiry.getCityName());
-
+       
         return city.getIsServing();
     }
 

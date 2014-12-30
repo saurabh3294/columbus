@@ -104,6 +104,7 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
                 providerUserId,
                 profileImageUrl);
         if (user != null) {
+            user = userService.getUserByEmailWithRoles(email);
             Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
 
             SocialUser socialUser = new ActiveUser(
@@ -115,7 +116,7 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
                     true,
                     true,
                     true,
-                    SecurityContextUtils.getDefaultAuthority(user.getId()),
+                    SecurityContextUtils.getDefaultAuthority(user),
                     applicationType);
 
             return new UsernamePasswordAuthenticationToken(socialUser, null, socialUser.getAuthorities());
