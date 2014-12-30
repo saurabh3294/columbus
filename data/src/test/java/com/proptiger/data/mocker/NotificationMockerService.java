@@ -20,8 +20,8 @@ import com.proptiger.data.notification.model.NotificationTypeConfig;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
-import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
-import com.proptiger.data.notification.processor.DefaultNotificationTypeProcessor;
+import com.proptiger.data.notification.processor.message.DefaultNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.type.DefaultNotificationTypeProcessor;
 
 /**
  * 

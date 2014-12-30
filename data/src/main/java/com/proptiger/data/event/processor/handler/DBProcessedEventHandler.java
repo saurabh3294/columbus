@@ -8,8 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventType;
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.EventType;
+import com.proptiger.core.model.event.EventTypeConfig;
+import com.proptiger.data.event.model.DefaultEventTypeConfig;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.service.EventGeneratedService;
 
@@ -32,9 +34,11 @@ public class DBProcessedEventHandler extends DBEventProcessorHandler {
         Map<String, List<EventGenerated>> EventsGroupedByEventType = groupEventsByEventType(eventsGenerated);
 
         // TODO to make the loop as multi threaded or Async
+        DefaultEventTypeConfig defaultEventTypeConfig = null;
         for (Map.Entry<String, List<EventGenerated>> entry : EventsGroupedByEventType.entrySet()) {
             EventType eventType = entry.getValue().get(0).getEventType();
-            DBEventProcessor processor = eventType.getEventTypeConfig().getProcessorObject();
+            defaultEventTypeConfig = (DefaultEventTypeConfig)eventType.getEventTypeConfig();
+            DBEventProcessor processor = defaultEventTypeConfig.getProcessorObject();
             logger.debug("Processing Processed events whose holding period has expired for eventType: " + entry
                     .getKey() + " using processor: " + processor.getClass().getName());
             processor.processProcessedEvents(eventType.getId(), entry.getValue());

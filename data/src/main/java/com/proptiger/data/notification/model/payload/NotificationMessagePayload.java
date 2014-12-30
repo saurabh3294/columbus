@@ -8,10 +8,9 @@ import com.proptiger.data.internal.dto.mail.MediumDetails;
 
 public class NotificationMessagePayload extends BaseModel {
 
-    /**
-     * 
-     */
     private static final long                      serialVersionUID                   = -2452873800997415163L;
+
+    private String                                 notificationTypeName;
 
     private NotificationTypePayload                notificationTypePayload;
 
@@ -35,6 +34,7 @@ public class NotificationMessagePayload extends BaseModel {
     }
 
     public NotificationMessagePayload(NotificationMessagePayload payload) {
+        this.notificationTypeName = payload.getNotificationTypeName();
         this.notificationTypePayload = payload.getNotificationTypePayload();
         this.notificationMessagePayloads = payload.getNotificationMessagePayloads();
         this.notificationMessageUpdateHistories = payload.getNotificationMessageUpdateHistories();
@@ -106,6 +106,14 @@ public class NotificationMessagePayload extends BaseModel {
 
     public void setMediumDetails(MediumDetails mediumDetails) {
         this.mediumDetails = mediumDetails;
+    }
+
+    public String getNotificationTypeName() {
+        return notificationTypeName;
+    }
+
+    public void setNotificationTypeName(String notificationTypeName) {
+        this.notificationTypeName = notificationTypeName;
     }
 
 }
