@@ -28,7 +28,6 @@ public class CookiesService {
     // /every cookie should be set to empty if not present
     public void setCookies(HttpServletRequest request, HttpServletResponse response) {
 
-        String refUrl = null;
         String landingPage = null;
         String utmz = null;
         String httpReferer = null;
@@ -51,14 +50,9 @@ public class CookiesService {
                     originalPPC = "TRUE".equalsIgnoreCase(c.getValue());
                     ppc = originalPPC;
                 }
-
-                else if (c.getName().equals(CookieConstants.REF_URL)) {
-                    refUrl = c.getValue();
-                }
                 else if (c.getName().equals(CookieConstants.LANDING_PAGE)) {
                     landingPage = c.getValue();
                 }
-
                 else if (c.getName().equals(CookieConstants.UTMZ)) {
                     utmz = c.getValue();
                 }
