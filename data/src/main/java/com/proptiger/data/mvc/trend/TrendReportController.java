@@ -33,7 +33,7 @@ public class TrendReportController extends BaseController {
 
     @Autowired
     TrendReportAggregator trendReportDao;
-
+    
     @RequestMapping("app/v1/report/download")
     @ResponseBody
     public void downloadTrendReport(HttpServletResponse response, String key) throws Exception {
@@ -47,7 +47,8 @@ public class TrendReportController extends BaseController {
     @ResponseBody
     public APIResponse getTrendReport(FIQLSelector selector) throws Exception {
 
-        String filekey = trendReportService.getTrendReport(selector);
+        ActiveUser user = SecurityContextUtils.getActiveUser();
+        String filekey = trendReportService.getTrendReport(selector, user);
         return new APIResponse(filekey);
     }
 
@@ -80,4 +81,5 @@ public class TrendReportController extends BaseController {
             throw new ProAPIException("IOError writing file to output stream");
         }
     }
+
 }

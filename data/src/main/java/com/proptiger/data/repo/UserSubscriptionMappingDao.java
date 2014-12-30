@@ -12,4 +12,6 @@ public interface UserSubscriptionMappingDao extends JpaRepository<UserSubscripti
    
    public List<UserSubscriptionMapping> findAllByUserId(int userId);
    
+   public UserSubscriptionMapping findById(int id);
+   
 }
