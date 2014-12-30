@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.Application;
 import com.proptiger.core.meta.DisableCaching;
+import com.proptiger.core.model.user.User;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.service.ApplicationNameService;
@@ -152,9 +153,12 @@ public class UserController extends BaseController {
     @RequestMapping(value = "app/v1/entity/user/details", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateUserDetails(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
             @RequestBody UserDetails user) throws IOException {
-        return new APIResponse(userService.updateUserDetails(user, userInfo));
+        User u = userService.updateUserDetails(user, activeUser); 
+        return new APIResponse(userService.getUserDetails(
+                u.getId(),
+                activeUser.getApplicationType(), false));
     }
     
     @RequestMapping(value = "app/v1/entity/user/child", method = RequestMethod.GET)

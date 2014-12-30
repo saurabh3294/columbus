@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,11 @@ import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.Application;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.security.UserRole;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.Locality;
@@ -85,7 +90,6 @@ import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
-import com.proptiger.data.repo.user.UserRolesDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
@@ -183,7 +187,7 @@ public class UserService {
     private CompanyDao companyDao;
     
     @Autowired
-    private UserRolesDao userRolesDao;
+    private UserRolesService userRolesService;
     
     @Autowired
     private CompanyUserDao companyUserDao;
@@ -242,7 +246,7 @@ public class UserService {
         if (application.equals(Application.B2B)) {
             updateAppDetails(customUser, user);
         }
-        List<String> roles = userRolesDao.getUserRolesName(user.getId());
+        List<String> roles = userRolesService.getUserRolesName(user.getId());
         if(!roles.isEmpty()){
             customUser.setRoles(roles);
         }
@@ -966,16 +970,33 @@ public class UserService {
      * @param activeUser
      * @return
      */
+    @Transactional
     public User updateUserDetails(UserDetails user, ActiveUser activeUser) {
-
-        user.setId(activeUser.getUserIdentifier());
+        boolean isAdmin = isAdmin(activeUser);
+        if(isAdmin){
+            //admin is trying to update details of a user whose user id must be defined in UserDetails object
+            if(user.getId() < 0){
+                throw new BadRequestException("Invalid user id specified");
+            }
+            else if(user.getId() == 0){
+                //user trying to update his data
+                user.setId(activeUser.getUserIdentifier());
+            }
+        }
+        else{
+            //normal user is trying to update his details
+            user.setId(activeUser.getUserIdentifier()); 
+        }
+        
         User originalUser = getUserById(user.getId());
-
+        if(originalUser == null){
+            throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.UPDATE);
+        }
+        
         if (user.getFullName() != null) {
             originalUser.setFullName(user.getFullName());
         }
         if (user.getOldPassword() != null && user.getPassword() != null && user.getConfirmPassword() != null) {
-
             ChangePassword changePassword = new ChangePassword();
             changePassword.setOldPassword(user.getOldPassword());
             changePassword.setNewPassword(user.getPassword());
@@ -991,9 +1012,34 @@ public class UserService {
         if (user.getContactNumbers() != null && !user.getContactNumbers().isEmpty()) {
             updateContactNumbers(user);
         }
-
         originalUser = userDao.saveAndFlush(originalUser);
+        if(isAdmin){
+            if((user.getParentId() != null && !(user.getParentId() <= 0))){
+                
+            }
+            if(user.getRoles() != null && !user.getRoles().isEmpty()){
+                userRolesService.updateRolesOfUser(user.getRoles(), originalUser.getId(), activeUser.getUserIdentifier());
+            }
+        }
         return originalUser;
+    }
+
+    /**
+     * Check if currently logged in user is admin or not
+     * @param activeUser
+     * @return
+     */
+    private boolean isAdmin(ActiveUser activeUser) {
+        if(activeUser != null){
+            if(activeUser.getAuthorities() != null){
+                for(GrantedAuthority authority: activeUser.getAuthorities()){
+                    if(authority.getAuthority().equals(UserRole.Admin.name())){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -1010,9 +1056,12 @@ public class UserService {
         if(companyUser == null){
             return root;
         }
-        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRange(companyUser.getLeft(), companyUser.getRight());
+        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRangeInCompany(
+                companyUser.getLeft(),
+                companyUser.getRight(),
+                companyUser.getCompanyId());
         root.setId(companyUser.getId());
-        
+
         Set<Integer> userIds = new HashSet<Integer>();
         for(CompanyUser u: companyUsers){
             userIds.add(u.getUserId());
