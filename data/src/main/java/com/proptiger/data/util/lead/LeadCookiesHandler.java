@@ -1,12 +1,10 @@
 package com.proptiger.data.util.lead;
 
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.uadetector.ReadableUserAgent;
@@ -23,10 +21,12 @@ public class LeadCookiesHandler {
 
     private static Logger logger = LoggerFactory.getLogger(LeadCookiesHandler.class);
 
-    public Map<String, String> setCookies(Enquiry enquiry, HttpServletRequest request) {
+    public Map<String, String> setCookies(
+            Enquiry enquiry,
+            HttpServletRequest request,
+            Map<String, String> requestCookiesMap) {
 
         Map<String, String> cookieMap = new HashMap<String, String>();
-        Cookie[] requestCookies = request.getCookies();
 
         if (request.getHeader(CookieConstants.REFERER) != null) {
             enquiry.setHttpReferer(request.getHeader(CookieConstants.REFERER));
@@ -55,55 +55,28 @@ public class LeadCookiesHandler {
             }
         }
 
-        if (requestCookies != null) {
-            for (Cookie c : requestCookies) {
-                try {
-                    cookieMap.put(c.getName(), URLDecoder.decode(c.getValue(), CookieConstants.UTF_8));
-                    c.setValue(URLDecoder.decode(c.getValue(), CookieConstants.UTF_8));
-                }
-                catch (Exception exception) {
-                    logger.error("Not able to decode Cookie", exception);
-                }
-                switch (c.getName()) {
-
-                    case CookieConstants.LANDING_PAGE:
-                        if (c.getValue() != null) {
-                            enquiry.setLandingPage(c.getValue());
-                        }
-                        break;
-                    case CookieConstants.USER_CAMPAIGN:
-                        if (c.getValue() != null) {
-                            enquiry.setCampaign(c.getValue());
-                        }
-                        break;
-                    case CookieConstants.USER_ADGROUP:
-                        if (c.getValue() != null) {
-                            enquiry.setAdGrp(c.getValue());
-                        }
-                        break;
-                    case CookieConstants.USER_KEYWORD:
-                        if (c.getValue() != null) {
-                            enquiry.setKeywords(c.getValue());
-                        }
-                        break;
-                    case CookieConstants.USER_FROM:
-                        if (c.getValue() != null) {
-                            enquiry.setSource(c.getValue());
-                        }
-                        break;
-                    case CookieConstants.USER_ID:
-                        if (c.getValue() != null) {
-                            enquiry.setUser(c.getValue());
-                        }
-                        break;
-                    case CookieConstants.USER_MEDIUM:
-                        if (c.getValue() != null) {
-                            enquiry.setUserMedium(c.getValue());
-                        }
-                        break;
-                    default:
-                        break;
-                }
+        for (String key : requestCookiesMap.keySet()) {
+            switch (key) {
+                case CookieConstants.LANDING_PAGE:
+                    enquiry.setLandingPage(requestCookiesMap.get(key));
+                    break;
+                case CookieConstants.USER_CAMPAIGN:
+                    enquiry.setCampaign(requestCookiesMap.get(key));
+                    break;
+                case CookieConstants.USER_ADGROUP:
+                    enquiry.setAdGrp(requestCookiesMap.get(key));
+                    break;
+                case CookieConstants.USER_KEYWORD:
+                    enquiry.setKeywords(requestCookiesMap.get(key));
+                    break;
+                case CookieConstants.USER_MEDIUM:
+                    enquiry.setUserMedium(requestCookiesMap.get(key));
+                    break;
+                case CookieConstants.USER_FROM:
+                    enquiry.setSource(requestCookiesMap.get(key));
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -117,6 +90,8 @@ public class LeadCookiesHandler {
                 if (m.find()) {
                     utmzCookie = m.group(1);
                     try {
+
+                        // to be done
                         cookieMap.put(
                                 CookieConstants.UTMZ,
                                 java.net.URLDecoder.decode(utmzCookie, CookieConstants.UTF_8));
@@ -138,5 +113,4 @@ public class LeadCookiesHandler {
 
         return cookieMap;
     }
-
 }
