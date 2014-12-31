@@ -48,7 +48,6 @@ public class CookiesService {
 
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
-
                 if (c.getName().equals(CookieConstants.USER_FROM_PPC)) {
                     originalPPC = "TRUE".equalsIgnoreCase(c.getValue());
                     ppc = originalPPC;
@@ -96,7 +95,7 @@ public class CookiesService {
             }
 
             // ppc set to true if utm_source is 'adwords' or 'adword'
-            if (utmSourceFromRequest.equalsIgnoreCase("adwords") || utmSourceFromRequest.equalsIgnoreCase("adword")) {
+            else if (utmSourceFromRequest.equalsIgnoreCase("adwords") || utmSourceFromRequest.equalsIgnoreCase("adword")) {
                 ppc = true;
             }
 
