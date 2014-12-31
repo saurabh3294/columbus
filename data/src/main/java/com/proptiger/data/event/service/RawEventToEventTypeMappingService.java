@@ -38,7 +38,7 @@ public class RawEventToEventTypeMappingService {
 
     public static List<RawDBEventTableConfig> rawDBEventTableConfigs;
 
-    //@PostConstruct
+    @PostConstruct
     public void constructDbConfig() {
         logger.debug("Constructing RawEventToEventTypeMapping Config.");
         Iterable<RawEventToEventTypeMapping> listEventTypeMapping = getAllMappingOfRawEventsToEventType();
