@@ -92,6 +92,7 @@ import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.service.companyuser.CompanyUserService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.PasswordUtils;
@@ -194,6 +195,9 @@ public class UserService {
     
     @Autowired
     private UserTokenService userTokenService;
+    
+    @Autowired
+    private CompanyUserService companyUserService;
     
     @PostConstruct
     private void initialize() {
@@ -1014,15 +1018,12 @@ public class UserService {
         }
         originalUser = userDao.saveAndFlush(originalUser);
         if(isAdmin){
-            if((user.getParentId() != null && !(user.getParentId() <= 0))){
-                
-            }
-            if(user.getRoles() != null && !user.getRoles().isEmpty()){
-                userRolesService.updateRolesOfUser(user.getRoles(), originalUser.getId(), activeUser.getUserIdentifier());
-            }
+            companyUserService.updateParentDetail(user);
+            userRolesService.updateRolesOfUser(user.getRoles(), originalUser.getId(), activeUser.getUserIdentifier());
         }
         return originalUser;
     }
+
 
     /**
      * Check if currently logged in user is admin or not
@@ -1074,7 +1075,7 @@ public class UserService {
                 parentIdToUserMap.put(u.getParentId(), new ArrayList<UserHierarchy>());
             }
             UserHierarchy hierarchy = new UserHierarchy();
-            hierarchy.setId(u.getId());
+            hierarchy.setId(u.getParentId());
             hierarchy.setUserId(u.getUserId());
             //user id should be found in users database, in any scenario if not found set user name as NA.
             hierarchy.setUserName(userDetailsMap.get(u.getUserId()) != null ? userDetailsMap.get(u.getUserId()).getFullName() :"NA");
@@ -1092,10 +1093,10 @@ public class UserService {
      * @param parentIdToUserMap
      */
     private void updateChild(UserHierarchy root, Map<Integer, List<UserHierarchy>> parentIdToUserMap) {
-        if(root == null || parentIdToUserMap.get(root.getId()) == null){
+        if(root == null || parentIdToUserMap.get(root.getUserId()) == null){
             return;
         }
-        root.setChild(parentIdToUserMap.get(root.getId()));
+        root.setChild(parentIdToUserMap.get(root.getUserId()));
         for(UserHierarchy u: root.getChild()){
             updateChild(u, parentIdToUserMap);
         }

@@ -13,11 +13,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
-import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
-import com.proptiger.data.event.generator.model.RawDBEventTableConfig;
-import com.proptiger.data.event.model.EventType;
-import com.proptiger.data.event.model.RawEventToEventTypeMapping;
+import com.proptiger.core.model.event.EventType;
+import com.proptiger.core.model.event.RawEventTableDetails;
+import com.proptiger.core.model.event.RawEventToEventTypeMapping;
+import com.proptiger.core.model.event.generator.model.RawDBEventAttributeConfig;
+import com.proptiger.core.model.event.generator.model.RawDBEventOperationConfig;
+import com.proptiger.core.model.event.generator.model.RawDBEventTableConfig;
+import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
 import com.proptiger.data.util.Serializer;
 
@@ -31,9 +33,12 @@ public class RawEventToEventTypeMappingService {
     @Autowired
     private EventTypeService                  eventTypeService;
 
+    @Autowired
+    private RawEventTableDetailsDao           rawEventTableDetailsDao;
+
     public static List<RawDBEventTableConfig> rawDBEventTableConfigs;
 
-    @PostConstruct
+    //@PostConstruct
     public void constructDbConfig() {
         logger.debug("Constructing RawEventToEventTypeMapping Config.");
         Iterable<RawEventToEventTypeMapping> listEventTypeMapping = getAllMappingOfRawEventsToEventType();
@@ -197,4 +202,20 @@ public class RawEventToEventTypeMappingService {
     public void setDbRawEventTableConfigs(List<RawDBEventTableConfig> rawDBEventTableConfigs) {
         RawEventToEventTypeMappingService.rawDBEventTableConfigs = rawDBEventTableConfigs;
     }
+
+    /**
+     * Update the last accessed transaction Id in RawEventTableDetails and
+     * persist the change in DB
+     * 
+     * @param rawEventTableDetails
+     * @param transactionId
+     * @return
+     */
+    public RawEventTableDetails updateLastAccessedTransactionId(
+            RawEventTableDetails rawEventTableDetails,
+            Long transactionId) {
+        rawEventTableDetails.setLastTransactionKeyValue(transactionId);
+        return rawEventTableDetailsDao.save(rawEventTableDetails);
+    }
+
 }

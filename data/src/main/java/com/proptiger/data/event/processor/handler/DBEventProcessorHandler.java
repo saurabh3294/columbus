@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.proptiger.data.event.model.EventGenerated;
+import com.proptiger.core.model.event.EventGenerated;
 
 /**
- * @author mandeep
+ * @author Mukand
  * 
  *         This handles merging/suppression of events
  */

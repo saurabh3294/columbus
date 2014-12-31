@@ -11,14 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.event.model.EventGenerated;
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.subscriber.Subscriber.SubscriberName;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypeUpdateHistory;
-import com.proptiger.data.notification.processor.NotificationTypeProcessor;
+import com.proptiger.data.notification.processor.type.NotificationTypeProcessor;
 import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
 import com.proptiger.data.util.Serializer;
 
@@ -136,7 +137,9 @@ public class NotificationTypeGeneratedService {
     @Transactional
     public void persistNotificationTypes(EventGenerated eventGenerated, List<NotificationTypeGenerated> ntGeneratedList) {
         saveOrUpdateTypes(ntGeneratedList);
-        subscriberConfigService.setLastEventDateReadByNotification(eventGenerated.getUpdatedAt());
+        subscriberConfigService.setLastEventGeneratedIdBySubscriberName(
+                eventGenerated.getId(),
+                SubscriberName.Notification);
     }
 
     private Iterable<NotificationTypeGenerated> saveOrUpdateTypes(Iterable<NotificationTypeGenerated> notificationTypes) {

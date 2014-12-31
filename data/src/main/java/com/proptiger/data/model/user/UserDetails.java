@@ -13,6 +13,7 @@ public class UserDetails extends RegisterUser {
     private static final long serialVersionUID = 255485230112121756L;
     
     private String            oldPassword;
+    //this is supposed to be user id of users table
     private Integer parentId;
     private List<String> roles;
 

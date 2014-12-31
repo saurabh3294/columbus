@@ -7,10 +7,10 @@ import java.util.List;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.proptiger.core.event.model.payload.DefaultEventTypePayload;
+import com.proptiger.core.event.model.payload.EventTypePayload;
+import com.proptiger.core.event.model.payload.NewsEventTypePayload;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
-import com.proptiger.data.event.model.payload.EventTypePayload;
-import com.proptiger.data.event.model.payload.NewsEventTypePayload;
 
 public class NotificationTypePayload extends BaseModel {
 
@@ -30,6 +30,7 @@ public class NotificationTypePayload extends BaseModel {
     private Object                              oldValue;
     private Object                              newValue;
 
+    private List<NotificationTypePayload>       childNotificationTypePayloads;
     private List<NotificationTypeUpdateHistory> notificationTypeUpdateHistories = new ArrayList<NotificationTypeUpdateHistory>();
 
     public static NotificationTypePayload newInstance(NotificationTypePayload payload) {
@@ -43,6 +44,14 @@ public class NotificationTypePayload extends BaseModel {
         newPayload.setOldValue(payload.getOldValue());
         newPayload.setNewValue(payload.getNewValue());
         newPayload.setNotificationTypeUpdateHistories(payload.getNotificationTypeUpdateHistories());
+
+        if (payload.getChildNotificationTypePayloads() != null) {
+            List<NotificationTypePayload> childPayloads = new ArrayList<NotificationTypePayload>();
+            for (NotificationTypePayload childPayload : payload.getChildNotificationTypePayloads()) {
+                childPayloads.add(newInstance(childPayload));
+            }
+            newPayload.setChildNotificationTypePayloads(childPayloads);
+        }
         return newPayload;
     }
 
@@ -140,6 +149,14 @@ public class NotificationTypePayload extends BaseModel {
 
     public void setNewValue(Object newValue) {
         this.newValue = newValue;
+    }
+
+    public List<NotificationTypePayload> getChildNotificationTypePayloads() {
+        return childNotificationTypePayloads;
+    }
+
+    public void setChildNotificationTypePayloads(List<NotificationTypePayload> childNotificationTypePayloads) {
+        this.childNotificationTypePayloads = childNotificationTypePayloads;
     }
 
 }

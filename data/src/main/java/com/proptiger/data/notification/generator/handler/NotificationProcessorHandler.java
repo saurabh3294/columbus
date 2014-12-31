@@ -328,6 +328,7 @@ public class NotificationProcessorHandler {
             nPrimaryKeyProcessor = parentNotificationByTypeDto.getNotificationType().getNotificationTypeConfig()
                     .getPrimaryKeyProcessorObject();
             for (Map.Entry<Object, List<NotificationByKeyDto>> entry : groupNotificationByKey.entrySet()) {
+                logger.debug(" Inter Primary Key for Object Id : "+entry.getKey());
                 parentNotificationByKeyDto = parentNotificationByKeyMap.get(entry.getKey());
                 if (parentNotificationByKeyDto == null) {
                     parentNotificationByKeyDto = new NotificationByKeyDto();
@@ -335,9 +336,11 @@ public class NotificationProcessorHandler {
                     notificationMessage = nMessageService.createNotificationMessage(parentChildentry.getKey(), userId, entry.getKey());
                     parentNotificationByKeyDto.getNotificationMessages().add(notificationMessage);
                     parentNotificationByKeyMap.put(entry.getKey(), parentNotificationByKeyDto);
+                    logger.debug("Created Parent Notification Message: "+Serializer.toJson(notificationMessage));
                 }
-
+                
                 nPrimaryKeyProcessor.processInterMerging(parentNotificationByKeyDto, entry.getValue());
+                logger.debug(" Created Parent Object "+Serializer.toJson(parentNotificationByKeyDto));
             }
 
         }

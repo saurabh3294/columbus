@@ -28,6 +28,7 @@ import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.model.user.UserDetails;
+import com.proptiger.data.service.companyuser.CompanyUserService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
 import com.proptiger.data.service.user.UserService.UserCommunicationType;
@@ -48,6 +49,9 @@ public class UserController extends BaseController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private CompanyUserService companyUserService;
 
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/enquired")
     @ResponseBody
@@ -155,7 +159,8 @@ public class UserController extends BaseController {
     public APIResponse updateUserDetails(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
             @RequestBody UserDetails user) throws IOException {
-        User u = userService.updateUserDetails(user, activeUser); 
+        User u = userService.updateUserDetails(user, activeUser);
+        companyUserService.updateLeftRightOfInCompany(user);
         return new APIResponse(userService.getUserDetails(
                 u.getId(),
                 activeUser.getApplicationType(), false));

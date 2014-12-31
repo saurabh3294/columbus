@@ -255,4 +255,14 @@ public class BuilderService {
         }
         return builder;
     }
+    
+    public List<Builder> getBuilders(Selector selector){
+        List<Builder> builders = builderDao.getBuilders(selector);
+        
+        if(builders == null){
+            builders = new ArrayList<Builder>();
+        }
+        
+        return builders;
+    }
 }
