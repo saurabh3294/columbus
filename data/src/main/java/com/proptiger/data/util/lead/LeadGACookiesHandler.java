@@ -1,6 +1,5 @@
 package com.proptiger.data.util.lead;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -14,7 +13,7 @@ public class LeadGACookiesHandler {
     @Autowired
     CookiesService cookiesService;
 
-    public void setGACookies(Enquiry enquiry, Map<String, String> cookieMap) {
+    public void setGACookies(Enquiry enquiry, Map<String, String> cookiesMap) {
         String campaignSource = null;
         String campaignName = null;
         String campaignMedium = null;
@@ -23,56 +22,43 @@ public class LeadGACookiesHandler {
         String gaPpcActiveDBEnum = "1";
         String gaPpcInactiveDBEnum = "0";
 
-        if (cookieMap.containsKey(CookieConstants.UTMA) && cookieMap.containsKey(CookieConstants.UTMZ)) {
+        campaignSource = cookiesMap.get(CookieConstants.USER_FROM);
+        campaignName = cookiesMap.get(CookieConstants.USER_CAMPAIGN);
+        campaignMedium = cookiesMap.get(CookieConstants.USER_MEDIUM);
+        campaignTerm = cookiesMap.get(CookieConstants.USER_KEYWORD);
 
-            // Parse __utmz cookie
-            Map<String, String> utmzCookieMap = new HashMap<String, String>();
-            cookiesService.getUTMZCookieParams(cookieMap.get(CookieConstants.UTMZ), utmzCookieMap);
-
-            campaignSource = utmzCookieMap.get(CookieConstants.UTM_CSR);
-            campaignName = utmzCookieMap.get(CookieConstants.UTM_CCN);
-            campaignMedium = utmzCookieMap.get(CookieConstants.UTM_CMD);
-            campaignTerm = utmzCookieMap.get(CookieConstants.UTM_CTR);
-
-            if (utmzCookieMap.containsKey(CookieConstants.UTM_GCLID)) {
-                campaignSource = "google";
-                campaignMedium = "cpc";
-            }
-
-            // Parse the __utma Cookie
-            String[] utmaCookies = cookieMap.get(CookieConstants.UTMA).split("\\.");
+        // Parse the __utma Cookie
+        if (cookiesMap.get(CookieConstants.UTMA) != null) {
+            String[] utmaCookies = cookiesMap.get(CookieConstants.UTMA).split("\\.");
             randomId = utmaCookies[1];
-
             long currentTime = System.currentTimeMillis() / 1000l;
             long timeSpent = (currentTime - Long.parseLong(utmaCookies[4])) * 1000;
             String dateString = DurationFormatUtils.formatDuration(timeSpent, "'0-0-'d' 'H':'m':'s");
             enquiry.setGaTimespent(dateString);
         }
 
-        if (cookieMap.get(CookieConstants.USER_NETWORK) != null) {
-            enquiry.setGaNetwork(cookieMap.get(CookieConstants.USER_NETWORK).toLowerCase().trim());
+        if (campaignMedium != null) {
+            enquiry.setGaMedium(campaignMedium);
         }
-
+        if (randomId != null) {
+            enquiry.setGaUserId(randomId);
+        }
         if (campaignSource != null) {
             enquiry.setGaSource(campaignSource);
         }
-        else {
-            enquiry.setGaSource(enquiry.getSource());
-        }
-        
-        enquiry.setGaMedium(campaignMedium);
-        enquiry.setGaUserId(randomId);
-
         if (campaignTerm != null) {
             enquiry.setGaKeywords(campaignTerm);
         }
-
         if (campaignName != null) {
             enquiry.setGaCampaign(campaignName);
         }
 
-        if (enquiry.getGaMedium() != null && (enquiry.getGaMedium().toLowerCase().trim().equals(CookieConstants.PPC) || enquiry
-                .getGaMedium().toLowerCase().trim().equals(CookieConstants.CPC))) {
+        if (cookiesMap.get(CookieConstants.USER_NETWORK) != null) {
+            enquiry.setGaNetwork(cookiesMap.get(CookieConstants.USER_NETWORK).trim());
+        }
+
+        if (enquiry.getGaMedium() != null && (enquiry.getGaMedium().trim().equals(CookieConstants.PPC) || enquiry
+                .getGaMedium().trim().equals(CookieConstants.CPC))) {
             enquiry.setPpc(true);
             enquiry.setGaPpc(gaPpcActiveDBEnum);
         }
@@ -80,9 +66,5 @@ public class LeadGACookiesHandler {
             enquiry.setPpc(false);
             enquiry.setGaPpc(gaPpcInactiveDBEnum);
         }
-        if(campaignMedium == null) {
-            enquiry.setGaMedium(enquiry.getUserMedium());
-        }
-
     }
 }
