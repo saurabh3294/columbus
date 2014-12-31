@@ -111,7 +111,8 @@ public class SubscriberConfigService {
         }
         return configs.get(0).getConfigValue();
     }
-
+	
+	@Transactional
     public void setLastEventGeneratedIdBySubscriberName(Integer lastEventGeneratedId, SubscriberName subscriberName) {
         setLastEventGeneratedIdBySubscriber(lastEventGeneratedId, getSubscriber(subscriberName));
     }
