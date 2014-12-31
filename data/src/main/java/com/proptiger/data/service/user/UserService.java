@@ -976,7 +976,7 @@ public class UserService {
      */
     @Transactional
     public User updateUserDetails(UserDetails user, ActiveUser activeUser) {
-        boolean isAdmin = isAdmin(activeUser);
+        boolean isAdmin = SecurityContextUtils.isAdmin(activeUser);
         if(isAdmin){
             //admin is trying to update details of a user whose user id must be defined in UserDetails object
             if(user.getId() < 0){
@@ -1024,24 +1024,6 @@ public class UserService {
         return originalUser;
     }
 
-
-    /**
-     * Check if currently logged in user is admin or not
-     * @param activeUser
-     * @return
-     */
-    private boolean isAdmin(ActiveUser activeUser) {
-        if(activeUser != null){
-            if(activeUser.getAuthorities() != null){
-                for(GrantedAuthority authority: activeUser.getAuthorities()){
-                    if(authority.getAuthority().equals(UserRole.Admin.name())){
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
 
     /**
      * Get all child of active user and create create a tree data structure
