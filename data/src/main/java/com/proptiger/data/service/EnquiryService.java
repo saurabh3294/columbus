@@ -1,7 +1,5 @@
 package com.proptiger.data.service;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -10,16 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.uadetector.ReadableUserAgent;
-import net.sf.uadetector.UserAgentStringParser;
-import net.sf.uadetector.service.UADetectorServiceFactory;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +33,6 @@ import com.proptiger.core.model.proptiger.Enquiry.LeadEnquiryResponse;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.service.security.SecurityUtilService;
-import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
@@ -57,6 +48,7 @@ import com.proptiger.data.repo.ProjectDaoNew;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.util.lead.CookieConstants;
 import com.proptiger.data.util.lead.LeadCookiesHandler;
 import com.proptiger.data.util.lead.LeadGACookiesHandler;
 import com.proptiger.data.util.lead.LeadValidator;
@@ -85,10 +77,9 @@ public class EnquiryService {
 
     @Autowired
     SecurityUtilService             securityUtilService;
-    
+
     @Autowired
-    CookiesService					cookieService;
-   
+    CookiesService                  cookieService;
 
     @Autowired
     EnquiryDao                      enquiryDao;
@@ -114,7 +105,7 @@ public class EnquiryService {
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
 
-    	cookieService.setCookies(request, response);
+        Map<String, String> requestCookiesMap = cookieService.setCookies(request, response);
         HashMap<String, String> leadInvalidations = new HashMap<String, String>();
 
         if (enquiry.getCountryId() != null) {
@@ -139,8 +130,8 @@ public class EnquiryService {
             LeadGACookiesHandler gaCookies = new LeadGACookiesHandler();
 
             enrichLeadQuery(enquiry);
-            Map<String, String> cookieMap = cookies.setCookies(enquiry, request);
-            gaCookies.setGACookies(enquiry, cookieMap);
+            cookies.setCookies(enquiry, request, requestCookiesMap);
+            gaCookies.setGACookies(enquiry, requestCookiesMap);
 
             if (enquiry.getMultipleProjectIds() != null && !enquiry.getMultipleProjectIds().isEmpty()) {
 
@@ -158,7 +149,8 @@ public class EnquiryService {
                 updateUserDetails(enquiry);
             }
 
-            if (enquiry.getUserMedium().equals("ppc") || enquiry.getUserMedium().equals("cpc")) {
+            if (enquiry.getUserMedium().equals(CookieConstants.PPC) || enquiry.getUserMedium().equals(
+                    CookieConstants.CPC)) {
                 enquiry.setTrackingFlag(true);
             }
 
@@ -293,7 +285,7 @@ public class EnquiryService {
 
     private boolean checkIfServingCity(Enquiry enquiry) {
         City city = cityService.getCityByName(enquiry.getCityName());
-       
+
         return city.getIsServing();
     }
 
@@ -386,125 +378,6 @@ public class EnquiryService {
         }
 
         enquiry.setQuery(leadQuery.toString());
-    }
-
-    public HashMap<String, String> setCookieInLead(Enquiry enquiry, HttpServletRequest request) {
-
-        HashMap<String, String> cookieMap = new HashMap<String, String>();
-        Cookie[] requestCookies = request.getCookies();
-
-        if (request.getHeader("Referer") != null) {
-            enquiry.setHttpReferer(request.getHeader("Referer"));
-        }
-        else {
-            enquiry.setHttpReferer("");
-        }
-        if (enquiry.getResaleAndLaunchFlag() == null) {
-            enquiry.setResaleAndLaunchFlag(request.getParameter("resaleNlaunchFlg"));
-        }
-
-        // Set application source of lead
-        if (enquiry.getApplicationType() == null) {
-            UserAgentStringParser parser = UADetectorServiceFactory.getResourceModuleParser();
-            ReadableUserAgent agent = parser.parse(request.getHeader("User-Agent"));
-            String applicationSource = agent.getDeviceCategory().getName();
-
-            if (!applicationSource.isEmpty() && (applicationSource.toLowerCase().equals("pda") || applicationSource
-                    .toLowerCase().equals("smartphone"))) {
-                enquiry.setApplicationType("Mobile Site");
-            }
-
-            else if (!applicationSource.isEmpty() && applicationSource.toLowerCase().equals("tablet")) {
-                enquiry.setApplicationType("Tablet Site");
-            }
-            else {
-                enquiry.setApplicationType("Desktop Site");
-            }
-        }
-
-        if (requestCookies != null) {
-            for (Cookie c : requestCookies) {
-                try {
-                    cookieMap.put(c.getName(), URLDecoder.decode(c.getValue(), "UTF-8"));
-                    c.setValue(URLDecoder.decode(c.getValue(), "UTF-8"));
-                }
-                catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-
-                if (c.getName().equals("LANDING_PAGE")) {
-                    enquiry.setLandingPage(c.getValue());
-                }
-                else if (c.getName().equals("USER_CAMPAIGN")) {
-                    enquiry.setCampaign(c.getValue());
-                }
-                else if (c.getName().equals("USER_ADGROUP")) {
-                    enquiry.setAdGrp(c.getValue());
-                }
-                else if (c.getName().equals("USER_KEYWORD")) {
-                    enquiry.setKeywords(c.getValue());
-                }
-                else if (c.getName().equals("USER_FROM")) {
-                    enquiry.setSource(c.getValue());
-                }
-                else if (c.getName().equals("USER_ID")) {
-                    enquiry.setUser(c.getValue());
-                }
-                else if (c.getName().equals("USER_MEDIUM")) {
-                    enquiry.setUserMedium(c.getValue());
-                }
-            }
-        }
-
-        if (request.getHeader("IP") == null) {
-            String cookies = request.getHeader("Cookie");
-            Pattern urlPattern = Pattern.compile("__utmz=(.*?);");
-            Matcher m = urlPattern.matcher(cookies);
-            String utmzCookie = null;
-            if (m.find()) {
-                utmzCookie = m.group(1);
-                try {
-                    cookieMap.put("__utmz", java.net.URLDecoder.decode(utmzCookie, "UTF-8"));
-                }
-                catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        if (request.getHeader("IP") != null) {
-            enquiry.setIp(request.getHeader("IP"));
-        }
-        else if (IPUtils.getClientIP(request) != null) {
-            enquiry.setIp(IPUtils.getClientIP(request));
-        }
-        else {
-            enquiry.setIp("");
-        }
-
-        if (enquiry.getUserMedium() == null) {
-            enquiry.setUserMedium("");
-        }
-        if (enquiry.getUser() == null) {
-            enquiry.setUser("");
-        }
-        if (enquiry.getSource() == null) {
-            enquiry.setSource("");
-        }
-        if (enquiry.getKeywords() == null) {
-            enquiry.setKeywords("");
-        }
-        if (enquiry.getAdGrp() == null) {
-            enquiry.setAdGrp("");
-        }
-        if (enquiry.getLandingPage() == null) {
-            enquiry.setLandingPage("");
-        }
-        if (enquiry.getCampaign() == null) {
-            enquiry.setCampaign("");
-        }
-
-        return cookieMap;
     }
 
     private void generateLeadData(Enquiry enquiry) {
