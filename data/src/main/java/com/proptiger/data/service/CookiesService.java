@@ -90,8 +90,8 @@ public class CookiesService {
             setLandingPage(request, landingPage, response, cookiesMap);
 
             // ppc set to true if utm_medium is 'ppc' or 'cpc'
-            if (cookiesMap.get(CookieConstants.USER_MEDIUM) != null && (cookiesMap.get(CookieConstants.USER_MEDIUM) != CookieConstants.CPC || cookiesMap
-                    .get(CookieConstants.USER_MEDIUM) != CookieConstants.PPC)) {
+            if (CookieConstants.CPC.equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_MEDIUM)) || CookieConstants.PPC
+                    .equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_MEDIUM))) {
                 ppc = true;
             }
 
@@ -194,7 +194,7 @@ public class CookiesService {
         // Overriding utmsource and utmmedium if utmgclid present
         if (utmGclid != null) {
             utmSource = "google";
-            utmMedium = "cpc";
+            utmMedium = CookieConstants.CPC;
         }
 
         if (utmSource != null) {
