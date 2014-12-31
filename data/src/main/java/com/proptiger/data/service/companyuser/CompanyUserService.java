@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.exception.BadRequestException;
@@ -16,6 +17,7 @@ import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.CompanyCoverage;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.repo.companyuser.CompanyUserDao;
@@ -81,8 +83,8 @@ public class CompanyUserService {
         return companyUser;
     }
     
-    public void updateLeftRightOfInCompany(UserDetails user){
-        if(user.getParentId() != null && !(user.getParentId() <= 0)){
+    public void updateLeftRightOfInCompany(UserDetails user, ActiveUser activeUser){
+        if(user.getParentId() != null && !(user.getParentId() <= 0) && SecurityContextUtils.isAdmin(activeUser)){
             CompanyUser companyUser = companyUserDao.findByUserId(user.getId());
             if(companyUser == null){
                 throw new BadRequestException("User id is not in hierarchy");
@@ -90,8 +92,8 @@ public class CompanyUserService {
             int companyId = companyUser.getCompanyId();
             List<CompanyUser> rootCompanyUsers = companyUserDao.findByParentIdAndCompanyId(0, companyId);
             List<CompanyUser> toUpdate = new ArrayList<CompanyUser>();
-            int[] left = {1};
             for(CompanyUser cu: rootCompanyUsers){
+                int[] left = {1};
                 updateChildren(cu, left, toUpdate);
             }
             companyUserDao.save(toUpdate);
@@ -125,7 +127,7 @@ public class CompanyUserService {
             if(companyUsers.isEmpty() || companyUsers.size() != 2){
                 throw new BadRequestException("User id and parent id are not in hierarchy");
             }
-            else if(companyUsers.get(0).getCompanyId() != companyUsers.get(0).getCompanyId()){
+            else if(companyUsers.get(0).getCompanyId() != companyUsers.get(1).getCompanyId()){
                 throw new BadRequestException("User and parent are not in same company");
             }
             CompanyUser companyUserToUpdate = null;
