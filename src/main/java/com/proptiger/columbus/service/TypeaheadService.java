@@ -35,6 +35,10 @@ public class TypeaheadService {
     @Autowired
     private NLPSuggestionHandler    nlpSuggestionHandler;
 
+    public static float             CityBoostMinScore = 8.0f;
+
+    public static float             CityBoost         = 10.0f;
+
     /**
      * This method will return the list of typeahead results based on the
      * params.
@@ -44,7 +48,7 @@ public class TypeaheadService {
      * @param filterQueries
      * @return List<Typeahead>
      */
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries) {
         List<Typeahead> typeaheads = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
         if (typeaheads != null) {
@@ -55,19 +59,18 @@ public class TypeaheadService {
         return typeaheads;
     }
 
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
         return typeaheadDao.getExactTypeaheads(query, rows, filterQueries);
     }
 
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
         return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
     }
 
-
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String city) {
 
         /* If any filters were passed in URL, return only normal results */
@@ -92,7 +95,7 @@ public class TypeaheadService {
         return consolidatedResults;
     }
 
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV4(String query, int rows, List<String> filterQueries, String city) {
 
         /* If any filters were passed in URL, return only normal results */
@@ -108,6 +111,9 @@ public class TypeaheadService {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
         List<Typeahead> results = typeaheadDao.getTypeaheadsV4(query, rows, filterQueries);
 
+        /* Boost results where city is same as user's selected city */
+        boostByCityContext(results, city);
+
         /* Get recommendations type results */
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
 
@@ -115,6 +121,23 @@ public class TypeaheadService {
         List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);
 
         return consolidatedResults;
+    }
+
+    /* Boost results where city is same a user's selected city */
+    private void boostByCityContext(List<Typeahead> results, String city) {
+        for (Typeahead t : results) {
+            if (t.getCity().equalsIgnoreCase(city)) {
+                t.setScore(getCityBoostedScore(t.getScore()));
+            }
+        }
+    }
+
+    private float getCityBoostedScore(float oldScore) {
+        /* Don't boost irrelevant documents */
+        if (oldScore <= CityBoostMinScore) {
+            return oldScore;
+        }
+        return oldScore + CityBoost;
     }
 
     /* Consolidate results fetched using different methods. */
