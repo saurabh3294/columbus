@@ -38,7 +38,7 @@ public class NotificationCreatorServiceRequest extends BaseModel {
         user.setId(userId);
         this.users.add(user);
         this.mediumDetails.add(mediumDetails);
-        this.notificationType = NotificationTypeEnum.Default.name();
+        this.notificationType = NotificationTypeEnum.Default.getName();
     }
 
     public NotificationCreatorServiceRequest(
@@ -53,7 +53,7 @@ public class NotificationCreatorServiceRequest extends BaseModel {
         user.setId(userId);
         this.users.add(user);
         this.mediumDetails.add(mediumDetails);
-        this.notificationType = notificationType.name();
+        this.notificationType = notificationType.getName();
     }
 
     public NotificationCreatorServiceRequest(
@@ -65,7 +65,7 @@ public class NotificationCreatorServiceRequest extends BaseModel {
         if (notificationType == null) {
             notificationType = NotificationTypeEnum.Default;
         }
-        this.notificationType = notificationType.name();
+        this.notificationType = notificationType.getName();
 
         User user = new User();
         user.setId(userId);

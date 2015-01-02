@@ -43,7 +43,7 @@ public class EventSubscriberController {
 								eventRequestDto.getPageable()));
 	}
 
-	@RequestMapping(value = "/data/v1/subscriber/{subscriberName}/update-last-event", method = RequestMethod.POST)
+	@RequestMapping(value = "data/v1/subscriber/{subscriberName}/update-last-event", method = RequestMethod.POST)
 	@ResponseBody
 	public APIResponse setLastEventGeneratedIdBySubscriber(
 			@PathVariable SubscriberName subscriberName,

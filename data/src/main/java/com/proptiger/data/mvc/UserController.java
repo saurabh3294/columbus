@@ -160,7 +160,7 @@ public class UserController extends BaseController {
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
             @RequestBody UserDetails user) throws IOException {
         User u = userService.updateUserDetails(user, activeUser);
-        companyUserService.updateLeftRightOfInCompany(user);
+        companyUserService.updateLeftRightOfInCompany(user, activeUser);
         return new APIResponse(userService.getUserDetails(
                 u.getId(),
                 activeUser.getApplicationType(), false));

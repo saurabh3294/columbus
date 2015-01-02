@@ -31,7 +31,7 @@ public class CookieConstants {
     public static final String UTM_CAMPAIGN      = "utm_campaign";
     public static final String UTM_TERM          = "utm_term";
     public static final String UTM_MEDIUM        = "utm_medium";
-    public static final String NETWORK           = "network";
+    public static final String NETWORK           = "Network";
     public static final String UTM_CCN           = "utmccn";
     public static final String UTM_CTR           = "utmctr";
     public static final String UTM_CMD           = "utmcmd";

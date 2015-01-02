@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.exception.BadRequestException;
@@ -16,6 +17,7 @@ import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.CompanyCoverage;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.repo.companyuser.CompanyUserDao;
@@ -80,24 +82,24 @@ public class CompanyUserService {
         List<CompanyUser> companyUser = companyUserDao.findCompanyUsersByUserId(userId);
         return companyUser;
     }
-    
-    public void updateLeftRightOfInCompany(UserDetails user){
-        if(user.getParentId() != null && !(user.getParentId() <= 0)){
+
+    public void updateLeftRightOfInCompany(UserDetails user, ActiveUser activeUser) {
+        if (user.getParentId() != null && !(user.getParentId() <= 0) && SecurityContextUtils.isAdmin(activeUser)) {
             CompanyUser companyUser = companyUserDao.findByUserId(user.getId());
-            if(companyUser == null){
+            if (companyUser == null) {
                 throw new BadRequestException("User id is not in hierarchy");
             }
             int companyId = companyUser.getCompanyId();
             List<CompanyUser> rootCompanyUsers = companyUserDao.findByParentIdAndCompanyId(0, companyId);
             List<CompanyUser> toUpdate = new ArrayList<CompanyUser>();
-            int[] left = {1};
-            for(CompanyUser cu: rootCompanyUsers){
+            for (CompanyUser cu : rootCompanyUsers) {
+                int[] left = { 1 };
                 updateChildren(cu, left, toUpdate);
             }
             companyUserDao.save(toUpdate);
         }
     }
-    
+
     private void updateChildren(CompanyUser root, int[] left, List<CompanyUser> toUpdate) {
         int val = left[0];
         root.setLeft(val);
@@ -105,7 +107,7 @@ public class CompanyUserService {
         List<CompanyUser> companyUsers = companyUserDao.findByParentIdAndCompanyId(
                 root.getUserId(),
                 root.getCompanyId());
-        
+
         if (!companyUsers.isEmpty()) {
             for (CompanyUser c : companyUsers) {
                 left[0] = left[0] + 1;
@@ -116,28 +118,39 @@ public class CompanyUserService {
         val = left[0];
         root.setRight(val);
     }
-    
+
     @Transactional
-    public void updateParentDetail(UserDetails userDetails){
-        if((userDetails.getParentId() != null && !(userDetails.getParentId() <= 0))){
-            List<Integer> userIds =  Arrays.asList(userDetails.getId(), userDetails.getParentId());
+    public void updateParentDetail(UserDetails userDetails) {
+        if ((userDetails.getParentId() != null && !(userDetails.getParentId() <= 0))) {
+            List<Integer> userIds = Arrays.asList(userDetails.getId(), userDetails.getParentId());
             List<CompanyUser> companyUsers = companyUserDao.findByUserIdIn(userIds);
-            if(companyUsers.isEmpty() || companyUsers.size() != 2){
+            if (companyUsers.isEmpty() || companyUsers.size() != 2) {
                 throw new BadRequestException("User id and parent id are not in hierarchy");
             }
-            else if(companyUsers.get(0).getCompanyId() != companyUsers.get(0).getCompanyId()){
+            else if (companyUsers.get(0).getCompanyId() != companyUsers.get(1).getCompanyId()) {
                 throw new BadRequestException("User and parent are not in same company");
             }
             CompanyUser companyUserToUpdate = null;
-            if(companyUsers.get(0).getUserId() == userDetails.getId()){
+            CompanyUser parentCompanyUser = null;
+            if (companyUsers.get(0).getUserId() == userDetails.getId()) {
                 companyUserToUpdate = companyUsers.get(0);
+                parentCompanyUser = companyUsers.get(1);
             }
-            else{
+            else {
                 companyUserToUpdate = companyUsers.get(1);
+                parentCompanyUser = companyUsers.get(0);
             }
-            companyUserToUpdate.setParentId(userDetails.getParentId());
-            companyUserDao.save(companyUserToUpdate);
+            if (parentCompanyUser.getLeft() > companyUserToUpdate.getLeft() && parentCompanyUser.getRight() < companyUserToUpdate
+                    .getRight()) {
+                parentCompanyUser.setParentId(0);
+                companyUserToUpdate.setParentId(parentCompanyUser.getUserId());
+            }
+            else {
+                // these nodes were as seperate nodes so just update
+                companyUserToUpdate.setParentId(userDetails.getParentId());
+            }
+            companyUserDao.save(companyUsers);
         }
-    
+
     }
 }
