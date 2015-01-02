@@ -32,7 +32,6 @@ public class CookiesService {
         Map<String, String> cookiesMap = new HashMap<String, String>();
 
         String landingPage = null;
-        String utmz = null;
         String httpReferer = null;
         String network = null;
         String utmSourceFromRequest = null;
@@ -43,11 +42,16 @@ public class CookiesService {
         // Current ppc cookie of user
         boolean originalPPC = false;
 
+        utmSourceFromRequest = request.getParameter(CookieConstants.UTM_SOURCE);
+
         // Reading request Cookies
         Cookie[] requestCookies = request.getCookies();
 
+        Map<String, String> requestCookiesMap = new HashMap<String, String>();
+
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
+                requestCookiesMap.put(c.getName(), c.getValue());
                 if (c.getName().equals(CookieConstants.USER_FROM_PPC)) {
                     originalPPC = "TRUE".equalsIgnoreCase(c.getValue());
                     ppc = originalPPC;
@@ -55,64 +59,68 @@ public class CookiesService {
                 else if (c.getName().equals(CookieConstants.LANDING_PAGE)) {
                     landingPage = c.getValue();
                 }
-                else if (c.getName().equals(CookieConstants.UTMZ)) {
-                    utmz = c.getValue();
-                    cookiesMap.put(CookieConstants.UTMZ, utmz);
-                }
                 else if (c.getName().equals(CookieConstants.UTMA)) {
                     cookiesMap.put(CookieConstants.UTMA, c.getValue());
                 }
             }
         }
 
-        // utmsource from request parameter
-        utmSourceFromRequest = request.getParameter(CookieConstants.UTM_SOURCE);
+        // Setting user_network cookie
+        network = setCookieWithDueOrder(
+                CookieConstants.NETWORK,
+                CookieConstants.USER_NETWORK,
+                request,
+                requestCookiesMap);
+        if (network != null) {
+            setCookie(CookieConstants.USER_NETWORK, network.toLowerCase(), response, cookiesMap);
+        }
 
-        if (utmSourceFromRequest != null && !utmSourceFromRequest.isEmpty()) {
+        // Setting utm cookies
+        setUTMCookies(request, response, requestCookiesMap, cookiesMap);
 
-            // setting USER_NETWORK cookie
-            network = request.getParameter(CookieConstants.NETWORK);
-            if (network != null) {
-                setCookie(CookieConstants.USER_NETWORK, network.toLowerCase(), response, cookiesMap);
-            }
+        // setting REF_URL cookie
+        httpReferer = request.getHeader(CookieConstants.REFERER);
+        if (httpReferer != null && !httpReferer.isEmpty()) {
+            setCookie(CookieConstants.REF_URL, httpReferer, response, cookiesMap);
+        }
+        else if (requestCookiesMap.get(CookieConstants.REF_URL) != null) {
+            setCookie(CookieConstants.REF_URL, requestCookiesMap.get(CookieConstants.REF_URL), response, cookiesMap);
+        }
 
-            // Setting utm cookies
-            setUTMCookies(utmz, request, response, cookiesMap);
+        setUserIp(request, response, cookiesMap);
+        setLandingPage(request, landingPage, response, cookiesMap);
 
-            // setting REF_URL cookie
-            httpReferer = request.getHeader(CookieConstants.REFERER);
-            if (httpReferer != null && !httpReferer.isEmpty()) {
-                setCookie(CookieConstants.REF_URL, httpReferer, response, cookiesMap);
-            }
+        // ppc set to true if utm_medium is 'ppc' or 'cpc'
+        if (CookieConstants.CPC.equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_MEDIUM)) || CookieConstants.PPC
+                .equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_MEDIUM))) {
+            ppc = true;
+        }
 
-            setUserIp(request, response, cookiesMap);
-            setLandingPage(request, landingPage, response, cookiesMap);
+        // ppc set to true if utm_source is 'adwords' or 'adword'
+        else if (utmSourceFromRequest != null && (utmSourceFromRequest.equalsIgnoreCase("adwords") || utmSourceFromRequest.equalsIgnoreCase("adword"))) {
+            ppc = true;
+        }
 
-            // ppc set to true if utm_medium is 'ppc' or 'cpc'
-            if (CookieConstants.CPC.equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_MEDIUM)) || CookieConstants.PPC
-                    .equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_MEDIUM))) {
+        // ppc evaluated for Non-Paid Traffic
+        else {
+            if (httpReferer != null && httpReferer.contains(CookieConstants.UTM_GCLID)) {
                 ppc = true;
             }
-
-            // ppc set to true if utm_source is 'adwords' or 'adword'
-            else if (utmSourceFromRequest.equalsIgnoreCase("adwords") || utmSourceFromRequest.equalsIgnoreCase("adword")) {
-                ppc = true;
-            }
-
-            // ppc evaluated for Non-Paid Traffic
             else {
-                if (httpReferer != null && httpReferer.contains(CookieConstants.UTM_GCLID)) {
-                    ppc = true;
-                }
-                else {
-                    ppc = false;
-                }
+                ppc = false;
             }
         }
 
         // Override ppc cookie of user only if it was not true
         if (!originalPPC) {
             setCookie(CookieConstants.USER_FROM_PPC, String.valueOf(ppc).toUpperCase(), response, cookiesMap);
+        }
+        else {
+            setCookie(
+                    CookieConstants.USER_FROM_PPC,
+                    requestCookiesMap.get(CookieConstants.USER_FROM_PPC),
+                    response,
+                    cookiesMap);
         }
         return cookiesMap;
     }
@@ -139,12 +147,12 @@ public class CookiesService {
         setCookie(CookieConstants.LANDING_PAGE, requestURL.toString(), response, cookiesMap);
     }
 
-    // First extract utm cookies from request parameters, if not present,
-    // extract them from utmz cookie
+    // First extract utm cookies from request parameters, then original cookies
+    // and then extract them from utmz cookie
     private void setUTMCookies(
-            String utmz,
             HttpServletRequest request,
             HttpServletResponse response,
+            Map<String, String> requestCookiesMap,
             Map<String, String> cookiesMap) {
 
         String utmAdgroup = null;
@@ -153,16 +161,36 @@ public class CookiesService {
         String utmMedium = null;
         String utmSource = null;
         String utmGclid = null;
+        String utmz = requestCookiesMap.get(CookieConstants.UTMZ);
 
         Map<String, String> utmzCookieMap = new HashMap<String, String>();
 
-        // get utm parameters from request parameters
-        utmAdgroup = request.getParameter(CookieConstants.UTM_ADGROUP);
-        utmCampaign = request.getParameter(CookieConstants.UTM_CAMPAIGN);
-        utmKeyword = request.getParameter(CookieConstants.UTM_TERM);
-        utmMedium = request.getParameter(CookieConstants.UTM_MEDIUM);
-        utmSource = request.getParameter(CookieConstants.UTM_SOURCE);
-        utmGclid = request.getParameter(CookieConstants.UTM_GCLID);
+        utmAdgroup = setCookieWithDueOrder(
+                CookieConstants.UTM_ADGROUP,
+                CookieConstants.USER_ADGROUP,
+                request,
+                requestCookiesMap);
+        utmCampaign = setCookieWithDueOrder(
+                CookieConstants.UTM_CAMPAIGN,
+                CookieConstants.USER_CAMPAIGN,
+                request,
+                requestCookiesMap);
+        utmKeyword = setCookieWithDueOrder(
+                CookieConstants.UTM_TERM,
+                CookieConstants.USER_KEYWORD,
+                request,
+                requestCookiesMap);
+        utmMedium = setCookieWithDueOrder(
+                CookieConstants.UTM_MEDIUM,
+                CookieConstants.USER_MEDIUM,
+                request,
+                requestCookiesMap);
+        utmSource = setCookieWithDueOrder(
+                CookieConstants.UTM_SOURCE,
+                CookieConstants.USER_FROM,
+                request,
+                requestCookiesMap);
+        utmGclid = setCookieWithDueOrder(CookieConstants.UTM_GCLID, null, request, requestCookiesMap);
 
         // Fallback of utmAdgroup, utmCampaign, utmKeyword, utmMedium on
         // utmz cookie
@@ -234,6 +262,21 @@ public class CookiesService {
             utmzCookieMap.put(CookieConstants.UTM_GCLID, utmParams.get(CookieConstants.UTM_GCLID));
         }
         return utmzCookieMap;
+    }
+
+    public String setCookieWithDueOrder(
+            String parameterName,
+            String cookieName,
+            HttpServletRequest request,
+            Map<String, String> requestCookiesMap) {
+        String cookieValue = null;
+        if (request.getParameter(cookieName) != null) {
+            cookieValue = request.getParameter(cookieName);
+        }
+        else if (requestCookiesMap.get(cookieName) != null) {
+            cookieValue = requestCookiesMap.get(cookieName);
+        }
+        return cookieValue;
     }
 
     public void setCookie(
