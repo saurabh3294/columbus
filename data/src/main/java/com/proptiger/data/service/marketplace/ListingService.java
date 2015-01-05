@@ -148,20 +148,18 @@ public class ListingService {
             listingInDB.setJsonDump(listing.getJsonDump());
         }
 
-        
         ListingPrice currentListingPrice = listing.getCurrentListingPrice();
         ListingPrice currentListingPriceInDB = listingInDB.getCurrentListingPrice();
         listing.setCurrentListingPrice(null);
         if (currentListingPrice != null) {
             listing.setUpdatedBy(userIdentifier);
-            currentListingPrice.setId(currentListingPriceInDB.getId());            
+            currentListingPrice.setId(currentListingPriceInDB.getId());
             currentListingPrice.setCreatedAt(currentListingPriceInDB.getCreatedAt());
             currentListingPrice.setEffectiveDate(currentListingPriceInDB.getEffectiveDate());
-            ListingPrice listingPriceCreated = listingPriceService.createListingPrice(currentListingPrice, listing);            
-            listingInDB.setCurrentPriceId(listingPriceCreated.getId());            
+            ListingPrice listingPriceCreated = listingPriceService.createListingPrice(currentListingPrice, listing);
+            listingInDB.setCurrentPriceId(listingPriceCreated.getId());
         }
-        
-        
+
         List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(Collections
                 .singletonList(listingId));
 
