@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.Application;
 import com.proptiger.core.meta.DisableCaching;
+import com.proptiger.core.model.user.User;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.service.ApplicationNameService;
@@ -27,6 +28,7 @@ import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.model.user.UserDetails;
+import com.proptiger.data.service.companyuser.CompanyUserService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
 import com.proptiger.data.service.user.UserService.UserCommunicationType;
@@ -47,6 +49,9 @@ public class UserController extends BaseController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private CompanyUserService companyUserService;
 
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/enquired")
     @ResponseBody
@@ -152,9 +157,13 @@ public class UserController extends BaseController {
     @RequestMapping(value = "app/v1/entity/user/details", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateUserDetails(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
             @RequestBody UserDetails user) throws IOException {
-        return new APIResponse(userService.updateUserDetails(user, userInfo));
+        User u = userService.updateUserDetails(user, activeUser);
+        companyUserService.updateLeftRightOfInCompany(user, activeUser);
+        return new APIResponse(userService.getUserDetails(
+                u.getId(),
+                activeUser.getApplicationType(), false));
     }
     
     @RequestMapping(value = "app/v1/entity/user/child", method = RequestMethod.GET)

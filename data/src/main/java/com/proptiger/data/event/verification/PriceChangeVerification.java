@@ -1,10 +1,10 @@
 package com.proptiger.data.event.verification;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.model.EventGenerated;
+import com.proptiger.core.model.event.EventGenerated;
 
-@Component
+@Service
 public class PriceChangeVerification extends DBEventVerification {
 
     @Override

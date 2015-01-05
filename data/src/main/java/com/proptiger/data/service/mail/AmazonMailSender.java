@@ -59,15 +59,17 @@ public class AmazonMailSender {
     }
 
     public SendEmailResult sendSyncMail(MailDetails mailDetails) throws MailException {
-
+    	String fromMailId = (mailDetails.getFrom() != null && !mailDetails.getFrom().isEmpty()) ? mailDetails.getFrom(): from;
+        mailDetails.setFrom(fromMailId);
         // Construct an object to contain the recipient address.
-        validateFromAndToAddress(mailDetails.getMailTo());
+        validateFromAndToAddress(mailDetails);
         validateSubject(mailDetails.getSubject());
         Destination destination = new Destination().withToAddresses(mailDetails.getMailTo());
         if (mailDetails.getMailCC() != null && mailDetails.getMailCC().length > 0)
             destination.withCcAddresses(mailDetails.getMailCC());
         if (mailDetails.getMailBCC() != null && mailDetails.getMailBCC().length > 0)
             destination.withBccAddresses(mailDetails.getMailBCC());
+        
 
         // Create the subject and body of the message.
         Content mailSubject = new Content().withData(mailDetails.getSubject());
@@ -79,10 +81,8 @@ public class AmazonMailSender {
 
         // Assemble the email.
         SendEmailRequest request = new SendEmailRequest()
-                .withSource(
-                        (mailDetails.getFrom() != null && !mailDetails.getFrom().isEmpty())
-                                ? mailDetails.getFrom()
-                                : from).withDestination(destination).withMessage(message);
+                .withSource(fromMailId).withDestination(destination).withMessage(message);
+
         if (mailDetails.getReplyTo() != null && !mailDetails.getReplyTo().isEmpty()) {
             request.withReplyToAddresses(mailDetails.getReplyTo());
         }
@@ -98,12 +98,12 @@ public class AmazonMailSender {
         }
     }
 
-    private void validateFromAndToAddress(String[] mailTo) {
-        if (from == null || from.isEmpty()) {
+    private void validateFromAndToAddress(MailDetails mailDetails) {
+        if (mailDetails.getFrom() == null || mailDetails.getFrom().isEmpty()) {
             logger.debug("from email-Id is null or Empty");
             throw new ProAPIException("from email-Id is null or Empty");
         }
-        if (mailTo == null || mailTo.length == 0) {
+        if (mailDetails.getMailTo() == null || mailDetails.getMailTo().length == 0) {
             logger.debug("To email-Id is null or Empty");
             throw new ProAPIException("from email-Id is null or Empty");
         }

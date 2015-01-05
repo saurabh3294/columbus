@@ -117,6 +117,7 @@ public class NotificationInitiator {
             fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
             initialDelayString = "${scheduler.initialdelay.notification.emailNotificationSender}")
     public void emailNotificationSender() {
+        Thread.currentThread().setName("EmailSender");
         logger.info("NotificationSender : Sending Scheduled Generated Notification via Email.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.Email);
         logger.info("NotificationSender: Sent " + numberOfSentNtGenerated + " Generated Notifications via Email");
@@ -128,6 +129,7 @@ public class NotificationInitiator {
      */
     @QuartzScheduledJob(cron = "${scheduler.cron.notification.androidNotificationSender}")
     public void androidNotificationSender() {
+        Thread.currentThread().setName("AndroidSender");
         logger.info("NotificationSender : Sending Scheduled Generated Notification via Android.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.Android);
         logger.info("NotificationSender: Sent " + numberOfSentNtGenerated + " Generated Notifications via Android");
@@ -141,6 +143,7 @@ public class NotificationInitiator {
             fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
             initialDelayString = "${scheduler.initialdelay.notification.smsNotificationSender}")
     public void smsNotificationSender() {
+        Thread.currentThread().setName("SmsSender");
         logger.info("NotificationSender : Sending Scheduled Generated Notification via SMS.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.Sms);
         logger.info("NotificationSender: Sent " + numberOfSentNtGenerated + " Generated Notifications via SMS");
@@ -154,6 +157,7 @@ public class NotificationInitiator {
             fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
             initialDelayString = "${scheduler.initialdelay.notification.marketplaceAppNotificationSender}")
     public void marketplaceAppNotificationSender() {
+        Thread.currentThread().setName("MarketPlaceAppSender");
         logger.info("NotificationSender : Sending Scheduled Generated Notification via MarketplaceApp.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.MarketplaceApp);
         logger.info("NotificationSender: Sent " + numberOfSentNtGenerated
@@ -166,6 +170,7 @@ public class NotificationInitiator {
      */
     @QuartzScheduledJob(cron = "${scheduler.cron.notification.proptigerAppNotificationSender}")
     public void proptigerAppNotificationSender() {
+        Thread.currentThread().setName("ProptigerAppSender");
         logger.info("NotificationSender : Sending Scheduled Generated Notification via ProptigerApp.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.ProptigerApp);
         logger.info("NotificationSender: Sent " + numberOfSentNtGenerated + " Generated Notifications via ProptigerApp");

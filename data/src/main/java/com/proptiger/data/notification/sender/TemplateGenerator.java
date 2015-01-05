@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineFactory;
 
 import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
+import com.proptiger.data.notification.sender.data.TemplateDataFetcher;
 import com.proptiger.data.notification.service.NotificationTypeNotificationMediumMappingService;
 
 @Service
@@ -44,11 +44,13 @@ public class TemplateGenerator {
     }
 
     public String generatePopulatedTemplate(NotificationGenerated nGenerated) {
-        NotificationMessagePayload payload = nGenerated.getNotificationMessagePayload();
         String template = ntNmMappingService.getTemplateByNotificationTypeIdAndNotificationMediumId(nGenerated
                 .getNotificationType().getId(), nGenerated.getNotificationMedium().getId());
         logger.debug("Template: " + template);
-        Map<String, Object> payloadDataMap = payload.getExtraAttributes();
+
+        TemplateDataFetcher templateDataFetcher = nGenerated.getNotificationType().getNotificationTypeConfig()
+                .getTemplateDataFetcherObject();
+        Map<String, Object> payloadDataMap = templateDataFetcher.fetchTemplateData(nGenerated);
         logger.debug("PayloadDataMap: " + payloadDataMap.toString());
 
         if (template == null || template.isEmpty()) {
