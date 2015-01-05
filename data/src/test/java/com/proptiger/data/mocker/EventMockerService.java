@@ -10,10 +10,10 @@ import com.proptiger.core.enums.event.DBOperation;
 import com.proptiger.core.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.core.event.model.payload.EventTypePayload;
 import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.EventGenerated.EventStatus;
 import com.proptiger.core.model.event.EventType;
 import com.proptiger.core.model.event.RawDBEvent;
 import com.proptiger.core.model.event.RawEventTableDetails;
-import com.proptiger.core.model.event.EventGenerated.EventStatus;
 import com.proptiger.core.model.event.generator.model.RawDBEventOperationConfig;
 import com.proptiger.data.event.model.DefaultEventTypeConfig;
 

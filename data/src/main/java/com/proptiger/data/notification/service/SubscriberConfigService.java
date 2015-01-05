@@ -1,6 +1,5 @@
 package com.proptiger.data.notification.service;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.model.event.subscriber.Subscriber;
-import com.proptiger.core.model.event.subscriber.SubscriberConfig;
 import com.proptiger.core.model.event.subscriber.Subscriber.SubscriberName;
+import com.proptiger.core.model.event.subscriber.SubscriberConfig;
 import com.proptiger.core.model.event.subscriber.SubscriberConfig.ConfigName;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.notification.repo.SubscriberConfigDao;
