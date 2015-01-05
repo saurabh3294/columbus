@@ -131,7 +131,7 @@ public class ListingService {
 
     public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) {
         listing.setId(listingId);
-        Listing listingInDB = listingDao.findById(listingId);
+        Listing listingInDB = listingDao.findListingWithPriceById(listingId);
 
         if (!listingInDB.getSellerId().equals(userIdentifier)) {
             throw new BadRequestException("you can change only your listings");
@@ -148,6 +148,20 @@ public class ListingService {
             listingInDB.setJsonDump(listing.getJsonDump());
         }
 
+        
+        ListingPrice currentListingPrice = listing.getCurrentListingPrice();
+        ListingPrice currentListingPriceInDB = listingInDB.getCurrentListingPrice();
+        listing.setCurrentListingPrice(null);
+        if (currentListingPrice != null) {
+            listing.setUpdatedBy(userIdentifier);
+            currentListingPrice.setId(currentListingPriceInDB.getId());            
+            currentListingPrice.setCreatedAt(currentListingPriceInDB.getCreatedAt());
+            currentListingPrice.setEffectiveDate(currentListingPriceInDB.getEffectiveDate());
+            ListingPrice listingPriceCreated = listingPriceService.createListingPrice(currentListingPrice, listing);            
+            listingInDB.setCurrentPriceId(listingPriceCreated.getId());            
+        }
+        
+        
         List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(Collections
                 .singletonList(listingId));
 
