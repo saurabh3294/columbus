@@ -1,5 +1,6 @@
 package com.proptiger.data.repo.user;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
@@ -13,13 +14,19 @@ public interface ProjectDiscussionsDao extends PagingAndSortingRepository<Projec
 
     @Query("SELECT pd FROM ProjectDiscussion pd WHERE pd.projectId = ?1 AND pd.status = '1' ORDER BY pd.createdDate DESC")
     public List<ProjectDiscussion> getDiscussionsByProjectIdOrderByCreatedDateDesc(int projectId);
-    
+
     @Query("SELECT pd " + "FROM ProjectDiscussion pd  "
             + "WHERE pd.projectId = ?1 "
             + "AND pd.status = '1' "
             + "ORDER BY pd.id DESC")
     public List<ProjectDiscussion> getProjectDiscussionsOrderByDiscussionIdDesc(int projectId);
-    
+
     @Query("SELECT pd FROM ProjectDiscussion pd WHERE pd.parentId = ?1")
     public List<ProjectDiscussion> getChildrenProjectDiscussions(Long commentId);
+
+    @Query("SELECT pd FROM ProjectDiscussion pd WHERE pd.projectId = ?1 AND pd.status = '1' AND pd.createdDate > ?2 ORDER BY pd.createdDate DESC")
+    public List<ProjectDiscussion> findDiscussionByProjectIdAndCreatedDateGreaterThanOrderByCreatedDateDesc(
+            int projectId,
+            Date date);
+
 }

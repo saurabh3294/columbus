@@ -10,8 +10,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.model.event.EventType;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.notification.model.EventTypeToNotificationTypeMapping;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.repo.EventTypeToNotificationTypeMappingDao;

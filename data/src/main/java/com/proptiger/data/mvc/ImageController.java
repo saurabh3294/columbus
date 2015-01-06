@@ -21,8 +21,8 @@ import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
-import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
+import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.service.ImageService;
 
 /**

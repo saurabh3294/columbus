@@ -24,8 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DataVersion;
+import com.proptiger.core.enums.EntityType;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
@@ -93,13 +95,25 @@ public class PropertyService {
      * @return
      */
     public List<Property> getProperties(Selector propertyFilter) {
-        List<Property> properties = propertyDao.getProperties(propertyFilter);
+        List<Property> properties = getPropertiesFromSolr(propertyFilter);
         imageEnricher.setPropertiesImages(properties);
 
         Set<String> fields = propertyFilter.getFields();
         if (fields != null && fields.contains("couponCatalogue")) {
             setCouponCatalogueForProperties(properties);
         }
+
+        return properties;
+    }
+
+    /**
+     * Returns properties given a selector
+     * 
+     * @param propertyFilter
+     * @return
+     */
+    public List<Property> getPropertiesFromSolr(Selector propertyFilter) {
+        List<Property> properties = propertyDao.getProperties(propertyFilter);
 
         return properties;
     }
@@ -197,14 +211,14 @@ public class PropertyService {
         return properties;
     }
 
-    public List<Property> getPropertyIdsByProjectId(Integer projectId) {
+    public List<Property> getPropertiesByProjectId(Integer projectId) {
         FIQLSelector selector = new FIQLSelector();
         selector.addField("propertyId");
         selector.addAndConditionToFilter("projectId==" + projectId);
         return getProperties(selector).getResults();
     }
 
-    public List<Property> getPropertyIdsByLocalityId(Integer localityId) {
+    public List<Property> getPropertiesByLocalityId(Integer localityId) {
         FIQLSelector selector = new FIQLSelector();
         selector.addField("propertyId");
         selector.addAndConditionToFilter("localityId==" + localityId);
@@ -461,8 +475,39 @@ public class PropertyService {
 
         return couponCatalogueService;
     }
-    
-    public Integer getProjectIdFromDeletedPropertyId(Integer propertyId){
+
+    /**
+     * Get Active Properties from DB. ********* NO CACHING *********
+     * 
+     * @param propertyId
+     * @return
+     */
+    public Property getActivePropertyByIdFromDB(int propertyId) {
+        FIQLSelector fiqlSelector = new FIQLSelector();
+        fiqlSelector.addAndConditionToFilter("optionCategory==" + EntityType.Actual
+                + ";(unitType=="
+                + UnitType.Apartment
+                + ",unitType=="
+                + UnitType.Villa
+                + ",unitType=="
+                + UnitType.Plot
+                + ")"
+                + ";propertyId=="
+                + propertyId);
+        PaginatedResponse<List<Property>> properties = getPropertiesFromDB(fiqlSelector);
+
+        if (properties == null || properties.getResults() == null || properties.getResults().isEmpty())
+            return null;
+
+        return properties.getResults().get(0);
+    }
+
+    public Integer getProjectIdFromDeletedPropertyId(Integer propertyId) {
         return projectService.getProjectIdForPropertyId(propertyId);
+    }
+
+    public Integer getProjectIdFromPropertyId(Integer propertyId) {
+        Property property = getPropertyFromSolr(propertyId);
+        return property.getProjectId();
     }
 }

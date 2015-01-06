@@ -37,7 +37,7 @@ public class UserDetailManagerService implements UserDetailsService {
         User user = null;
         if (username != null && !username.isEmpty()) {
             try {
-                user = userDao.findByEmail(username);
+                user = userDao.findByEmailWithRoles(username);
                 if (user != null) {
                     Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
                     String password = user.getPassword() == null ? "" : user.getPassword();
@@ -50,7 +50,7 @@ public class UserDetailManagerService implements UserDetailsService {
                             true,
                             true,
                             true,
-                           SecurityContextUtils.getDefaultAuthority(user.getId()), applicationType);
+                           SecurityContextUtils.getDefaultAuthority(user), applicationType);
                 }
                 else {
                     logger.error("User not found with email {}", username);

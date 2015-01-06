@@ -5,6 +5,7 @@
 package com.proptiger.data.repo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,4 +29,9 @@ public interface EnquiryDao extends JpaRepository<Enquiry, Serializable> {
 
     @Query("SELECT E FROM Enquiry E JOIN FETCH E.project as P WHERE P.version = 'Website' AND E.email = ?1 AND E.projectId = ?2 ORDER BY E.createdDate DESC")
     public List<Enquiry> findEnquiryByEmailAndProjectIdOrderByCreatedDateDesc(String email, Integer projectId);
+
+    @Query("SELECT E FROM Enquiry E JOIN FETCH E.project as P WHERE P.version = 'Website' AND E.projectId = ?1 AND E.createdDate > ?2 ORDER BY E.createdDate DESC")
+    public List<Enquiry> findEnquiryByProjectIdAndCreatedDateGreaterThanOrderByCreatedDateDesc(
+            Integer projectId,
+            Date date);
 }

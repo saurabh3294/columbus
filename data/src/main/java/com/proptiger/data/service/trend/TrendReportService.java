@@ -32,59 +32,70 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.exception.APIServerException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Trend;
+import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.model.Catchment;
 import com.proptiger.data.model.trend.CatchmentTrendReportElement;
+import com.proptiger.data.model.trend.TrendReportLog;
+import com.proptiger.data.repo.trend.TrendReportLogDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.user.CatchmentService;
+import com.proptiger.data.service.user.UserSubscriptionService;
 import com.proptiger.data.util.FIQLUtils;
 import com.proptiger.data.util.MSExcelUtils;
 
 @Service
 public class TrendReportService {
 
-    private static Logger       logger                  = LoggerFactory.getLogger(TrendReportService.class);
+    private static Logger           logger                  = LoggerFactory.getLogger(TrendReportService.class);
 
     @Autowired
-    private B2BAttributeService b2bAttributeService;
+    private B2BAttributeService     b2bAttributeService;
 
     @Value("${b2b.price-inventory.max.month.dblabel}")
-    private String              currentMonthDbLabel;
+    private String                  currentMonthDbLabel;
 
     @Value("${b2b.trend-report.max.projects.allowed}")
-    private String              trendReportMaxProjectsAllowed;
+    private String                  trendReportMaxProjectsAllowed;
 
-    public static int           Limit_MaxProjectAllowed = 0;
+    public static int               Limit_MaxProjectAllowed = 0;
 
-    private Date                b2bCurrentMonth;
-
-    @Autowired
-    TrendReportAggregator       trendReportAggregator;
+    private Date                    b2bCurrentMonth;
 
     @Autowired
-    private CatchmentService    catchmentService;
+    TrendReportAggregator           trendReportAggregator;
 
     @Autowired
-    private TrendService        trendService;
+    private CatchmentService        catchmentService;
 
     @Autowired
-    MSExcelUtils                msExcelUtils;
+    private TrendService            trendService;
 
-    String                      workSheetName           = "sheet1";
+    @Autowired
+    private UserSubscriptionService userSubscriptionService;
 
-    int                         RandomPrefixLength      = 1000000;
+    @Autowired
+    TrendReportLogDao               trendReportLogDao;
 
-    private static final String dlimDate                = ".";
+    @Autowired
+    MSExcelUtils                    msExcelUtils;
+
+    String                          workSheetName           = "sheet1";
+
+    int                             RandomPrefixLength      = 1000000;
+
+    private static final String     dlimDate                = ".";
 
     @Value("${path.temp.trend.report}")
-    private String              trendReportDirPath;
+    private String                  trendReportDirPath;
 
     @PostConstruct
     private void init() {
@@ -117,22 +128,35 @@ public class TrendReportService {
         return newFile;
     }
 
-    public String getTrendReportByCatchmentId(Integer catchmentId, FIQLSelector selector, ActiveUser userInfo) {
-        updateFIQLSelectorBasedOnCatchmentId(catchmentId, selector, userInfo);
-        File reportFile = getTrendReportAsMsExcelFile(selector);
+    public String getTrendReportByCatchmentId(Integer catchmentId, FIQLSelector selector, ActiveUser user) {
+        updateFIQLSelectorBasedOnCatchmentId(catchmentId, selector, user);
+        File reportFile = getTrendReportAsMsExcelFile(selector, user);
         String fileKey = getFileKeyAndRenameFile(reportFile);
         return (fileKey);
     }
 
-    public String getTrendReport(FIQLSelector selector) {
-        File reportFile = getTrendReportAsMsExcelFile(selector);
+    public String getTrendReport(FIQLSelector selector, ActiveUser user) {
+        File reportFile = getTrendReportAsMsExcelFile(selector, user);
         String fileKey = getFileKeyAndRenameFile(reportFile);
         return (fileKey);
     }
 
-    private File getTrendReportAsMsExcelFile(FIQLSelector selector) {
+    private File getTrendReportAsMsExcelFile(FIQLSelector selector, ActiveUser user) {
 
         logger.debug("PnA_Report: Download request recieved : FIQLSelector = " + selector);
+
+        List<UserSubscriptionMapping> usmList = userSubscriptionService.getUserSubscriptionMappingList(user.getUserIdentifier());
+        if (getRemainingDownloadsDaily(user, usmList) <= 0) {
+            throw new ProAPIException(
+                    ResponseCodes.DAILY_DOWNLOAD_LIMIT_EXPIRED,
+                    ResponseErrorMessages.User.DAILY_DOWNLOAD_LIMIT_EXPIRED);
+        }
+
+        if (getRemainingDownloadsMonthly(user, usmList) <= 0) {
+            throw new ProAPIException(
+                    ResponseCodes.MONTHLY_DOWNLOAD_LIMIT_EXPIRED,
+                    ResponseErrorMessages.User.MONTHLY_DOWNLOAD_LIMIT_EXPIRED);
+        }
 
         /** Generate a sorted list of months given in FIQL Selector **/
         List<Date> sortedMonthList = getMonthList(selector);
@@ -140,6 +164,8 @@ public class TrendReportService {
                 ResponseCodes.EMPTY_REPORT_GENERATED,
                 TrendReportConstants.ErrMsg_NoProjectsFound));
 
+        int transactionId = saveDownloadTransaction(user, usmList, selector.getStringFIQL());
+        
         String tempObjStorageFileName = getTemporaryFileName();
         File tempObjStoragefile = new File(tempObjStorageFileName);
         FileOutputStream fos = null;
@@ -164,12 +190,13 @@ public class TrendReportService {
         try {
             excelFile = convertFileToExcelFile(tempObjStoragefile, sortedMonthList);
             logger.debug("PnA_Report: Download request completed");
-            return excelFile;
         }
         catch (IOException ioEx) {
             throw new ProAPIException(ioEx);
         }
-
+        
+        markDownloadAsSuccess(transactionId);
+        return excelFile;
     }
 
     private void generateTrendReportByFIQLSelector(
@@ -456,4 +483,36 @@ public class TrendReportService {
         return digest;
     }
 
+    private int saveDownloadTransaction(ActiveUser user, List<UserSubscriptionMapping> usmList, String info) {
+        int usmId = usmList.get(0).getId();
+        TrendReportLog trendReportLog = new TrendReportLog();
+        trendReportLog.setUsmId(usmId);
+        trendReportLog.setDownloadDate(new Date());
+        trendReportLog.setInfo(info);
+        trendReportLog = trendReportLogDao.save(trendReportLog);
+        return trendReportLog.getId();
+    }
+
+    private void markDownloadAsSuccess(int reportId) {
+        TrendReportLog trendReportLog = trendReportLogDao.getById(reportId);
+        trendReportLog.setSuccess(true);
+        trendReportLogDao.save(trendReportLog);
+    }
+
+    private int getRemainingDownloadsDaily(ActiveUser user, List<UserSubscriptionMapping> usmList) {
+        UserSubscriptionMapping activeUsm = usmList.get(0);
+        int limit = activeUsm.getSubscription().getReportDownloadLimitDay();
+        Date startDate = DateUtil.getSameDayStartTime(new Date());
+        int usage = (int)trendReportLogDao.getCompanyDownloadCountBetweenDates(activeUsm.getId(), startDate, new Date());
+        return (limit - usage);
+    }
+
+    private int getRemainingDownloadsMonthly(ActiveUser user, List<UserSubscriptionMapping> usmList) {
+        UserSubscriptionMapping activeUsm = usmList.get(0);
+        int limit = activeUsm.getSubscription().getReportDownloadLimitMonth();
+        Date todayDate = DateUtil.getSameDayStartTime(new Date());
+        Date monthStartDate = DateUtil.getFirstDayOfCurrentMonth(todayDate);
+        int usage = (int)trendReportLogDao.getCompanyDownloadCountBetweenDates(activeUsm.getId(), monthStartDate, todayDate);
+        return (limit - usage);
+    }
 }

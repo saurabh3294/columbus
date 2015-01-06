@@ -10,4 +10,5 @@ public interface LandMarkCustomDao {
     public List<LandMark> getLocalityAmenitiesOnSelector(Selector selector);
     public Map<String, Integer> getAmenitiesTypeCount(Selector selector);
     public List<LandMark> getAmenityListByGroupSelector(Selector selector);
+    public LandMark getLandMark(Integer landMarkId);
 }

@@ -80,6 +80,20 @@ public class DatabaseSessionOperations {
                     putSessionIdInRedis(session.getId(), true);
                 }
             }
+            else{
+                //update session last accessed time in database
+                UserSession userSession = userSessionDao.getUserSessionBySessionId(session.getId());
+                if(userSession != null){
+                    Date lastAccessedTime = new Date(session.getLastAccessedTime());
+                    if(lastAccessedTime.after(userSession.getLastAccessedTime())){
+                        userSession.setUserId(activeUser.getUserIdentifier());
+                        userSession.setLastAccessedTime(lastAccessedTime);
+                        userSessionDao.save(userSession);
+                    }
+                   
+                }
+               
+            }
         }
     }
 
@@ -130,7 +144,7 @@ public class DatabaseSessionOperations {
                 loaded.setCreationTime(userSession.getCreationTime().getTime());
                 loaded.setLastAccessedTime(userSession.getLastAccessedTime().getTime());
                 loaded.setMaxInactiveInterval(maxInactiveInterval);
-                User user = userService.getUserById(userSession.getUserId());
+                User user = userService.getUserByIdWithRoles(userSession.getUserId());
                 Authentication auth = SecurityContextUtils.createNewAuthentication(user);
                 ActiveUser principle = (ActiveUser) auth.getPrincipal();
                 loaded.setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, principle);
@@ -154,7 +168,7 @@ public class DatabaseSessionOperations {
 
     @Async
     public void delete(String id) {
-        logger.error("delete session id {}",id);
+        logger.debug("delete session id {}",id);
         userSessionDao.deleteBySessionId(id);
         removeSessionIdFromRedis(id);
     }

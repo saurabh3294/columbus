@@ -23,10 +23,13 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ResidentialFlag;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.SortOrder;
+import com.proptiger.core.enums.Status;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.CouponCatalogue;
@@ -128,15 +131,28 @@ public class ProjectService {
 
     /**
      * This method will return the list of projects and total projects found
-     * based on the selector.
+     * based on the selector along with their images.
      * 
      * @param projectFilter
      * @return SolrServiceResponse<List<Project>> it will contain the list of
      *         localities and total projects found.
      */
     public PaginatedResponse<List<Project>> getProjects(Selector projectFilter) {
-        PaginatedResponse<List<Project>> projects = projectDao.getProjects(projectFilter);
+        PaginatedResponse<List<Project>> projects = getProjectsFromSolr(projectFilter);
         imageEnricher.setImagesOfProjects(projects.getResults());
+        return projects;
+    }
+
+    /**
+     * This method will return the list of projects and total projects found
+     * based on the selector.
+     * 
+     * @param projectFilter
+     * @return SolrServiceResponse<List<Project>> it will contain the list of
+     *         localities and total projects found.
+     */
+    public PaginatedResponse<List<Project>> getProjectsFromSolr(Selector projectFilter) {
+        PaginatedResponse<List<Project>> projects = projectDao.getProjects(projectFilter);
         return projects;
     }
 
@@ -711,6 +727,31 @@ public class ProjectService {
         return projectDao.findActiveOrInactiveProjectById(projectId);
     }
 
+    /**
+     * This method get the active project from the database on the project Id.
+     * ******************** DO NOT APPLY CACHING ON IT **********************
+     * 
+     * @param projectId
+     * @return
+     */
+    public Project getActiveProjectByIdFromDB(Integer projectId) {
+        FIQLSelector fiqlSelector = new FIQLSelector();
+        fiqlSelector.addAndConditionToFilter("projectId==" + projectId
+                + ";version=="
+                + DataVersion.Website
+                + ";activeStatus=="
+                + Status.Active
+                + ";residentialFlag=="
+                + ResidentialFlag.Residential);
+
+        PaginatedResponse<List<Project>> projects = getProjects(fiqlSelector);
+        if (projects == null || projects.getResults() == null || projects.getResults().isEmpty()) {
+            return null;
+        }
+
+        return projects.getResults().get(0);
+    }
+
     // This method will divide the Safety and Livability scores by 2 for
     // backward compatibility
     // of API's, as all these scores now will be based on 10 and earlier it was
@@ -864,6 +905,17 @@ public class ProjectService {
 
         }
 
+    }
+
+    public List<Integer> getProjectIdsFromLocalityId(Integer localityId) {
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId
+                + "}}]}}", Selector.class);
+        List<Project> projects = projectDao.getProjects(selector).getResults();
+        List<Integer> projectIds = new ArrayList<Integer>();
+        for (Project project : projects) {
+            projectIds.add(project.getProjectId());
+        }
+        return projectIds;
     }
 
 }
