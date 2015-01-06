@@ -33,7 +33,7 @@ public class NLPSuggestionHandler {
 
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
-        QueryResponse response = typeaheadDao.getResponseV4(query, rows, queryFilters);
+        QueryResponse response = typeaheadDao.getResponseV3(query, rows, queryFilters);
         List<Typeahead> templateHits = response.getBeans(Typeahead.class);
 
         List<Typeahead> results = new ArrayList<Typeahead>();
