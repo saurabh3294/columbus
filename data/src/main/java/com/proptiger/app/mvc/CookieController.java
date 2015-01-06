@@ -16,7 +16,7 @@ import com.proptiger.data.service.CookiesService;
 @Controller
 @RequestMapping(value = "app/v1/cookies")
 public class CookieController extends BaseController {
-    
+
     @Autowired
     private CookiesService setCookiesService;
 
