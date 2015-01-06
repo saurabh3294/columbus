@@ -1,8 +1,7 @@
-package com.proptiger.data.service.user;
+package com.proptiger.userservice.mvc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +39,6 @@ import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.proptiger.CompanySubscription;
 import com.proptiger.core.model.proptiger.Dashboard;
-import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.model.proptiger.Permission;
 import com.proptiger.core.model.proptiger.SubscriptionPermission;
 import com.proptiger.core.model.proptiger.SubscriptionSection;
@@ -77,7 +75,6 @@ import com.proptiger.data.model.ProjectDiscussionSubscription;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.repo.CompanyDao;
-import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
@@ -93,6 +90,8 @@ import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.companyuser.CompanyUserService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.data.service.user.DashboardService;
+import com.proptiger.data.service.user.UserPreferenceService;
 import com.proptiger.data.util.PasswordUtils;
 import com.proptiger.data.util.RegistrationUtils;
 
@@ -104,13 +103,9 @@ import com.proptiger.data.util.RegistrationUtils;
  */
 @Service
 public class UserService {
-    private static final String TYPE = "type";
-
     public enum UserCommunicationType {
         email, contact
     };
-
-    private static final Object              TOKEN  = "token";
 
     private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
@@ -122,14 +117,8 @@ public class UserService {
 
     private String                           currentMonth;
 
-    @Value("${enquired.within.days}")
-    private Integer                          enquiredWithinDays;
-
     @Value("${proptiger.url}")
     private String                           proptigerUrl;
-
-    @Autowired
-    private EnquiryDao                       enquiryDao;
 
     @Autowired
     private UserDao                          userDao;
@@ -420,77 +409,6 @@ public class UserService {
     }
 
     /**
-     * Get if user have already enquired a entity
-     * 
-     * @param projectId
-     * @param userId
-     * @return
-     */
-    public AlreadyEnquiredDetails hasEnquired(Integer projectId, Integer userId) {
-        String email = userDao.findByUserIdWithContactAndAuthProviderDetails(userId).getEmail();
-        Enquiry enquiry = null;
-        AlreadyEnquiredDetails alreadyEnquiredDetails = new AlreadyEnquiredDetails(null, false, enquiredWithinDays);
-        if (projectId != null) {
-            List<Enquiry> enquiries = enquiryDao.findEnquiryByEmailAndProjectIdOrderByCreatedDateDesc(email, projectId);
-            if (enquiries != null && !enquiries.isEmpty()) {
-                enquiry = enquiries.get(0);
-            }
-
-            if (enquiry != null) {
-                alreadyEnquiredDetails.setLastEnquiryDate(enquiry.getCreatedDate());
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.DATE, -enquiredWithinDays);
-                Date date = cal.getTime();
-                if (enquiry.getCreatedDate().compareTo(date) >= 0) {
-                    alreadyEnquiredDetails.setHasValidEnquiry(true);
-                }
-            }
-        }
-        return alreadyEnquiredDetails;
-    }
-
-    public static class AlreadyEnquiredDetails {
-        // last enquiry date
-        private Date    lastEnquiryDate;
-        // true if user enquired with last {enquiredWithinDays} number of days
-        private boolean hasValidEnquiry = false;
-        // number of days within which enquiry is done
-        private int     enquiryValidityPeriod;
-
-        public AlreadyEnquiredDetails(Date lastEnquiredOn, boolean enquiredWithinTimeLimit, int enquiredWithinDays) {
-            super();
-            this.lastEnquiryDate = lastEnquiredOn;
-            this.hasValidEnquiry = enquiredWithinTimeLimit;
-            this.enquiryValidityPeriod = enquiredWithinDays;
-        }
-
-        public Date getLastEnquiryDate() {
-            return lastEnquiryDate;
-        }
-
-        public void setLastEnquiryDate(Date lastEnquiryDate) {
-            this.lastEnquiryDate = lastEnquiryDate;
-        }
-
-        public boolean isHasValidEnquiry() {
-            return hasValidEnquiry;
-        }
-
-        public void setHasValidEnquiry(boolean hasValidEnquiry) {
-            this.hasValidEnquiry = hasValidEnquiry;
-        }
-
-        public int getEnquiryValidityPeriod() {
-            return enquiryValidityPeriod;
-        }
-
-        public void setEnquiryValidityPeriod(int enquiryValidityPeriod) {
-            this.enquiryValidityPeriod = enquiryValidityPeriod;
-        }
-
-    }
-
-    /**
      * Get minimal details needed for active user as whoami. In case user is not
      * logged in then throws UnauthorizedException
      * 
@@ -600,8 +518,8 @@ public class UserService {
 
     private String getEmailValidationLink(ForumUserToken userToken) {
         StringBuilder emailValidationLink = new StringBuilder(proptigerUrl)
-                .append(Constants.Security.USER_VALIDATE_API).append("?").append(TOKEN).append("=")
-                .append(userToken.getToken()).append("&").append(TYPE).append("=")
+                .append(Constants.Security.USER_VALIDATE_API).append("?").append(Constants.TOKEN).append("=")
+                .append(userToken.getToken()).append("&").append(Constants.TYPE).append("=")
                 .append(UserCommunicationType.email.name());
         return emailValidationLink.toString();
     }

@@ -47,11 +47,11 @@ import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDaoNew;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.lead.CookieConstants;
 import com.proptiger.data.util.lead.LeadCookiesHandler;
 import com.proptiger.data.util.lead.LeadGACookiesHandler;
 import com.proptiger.data.util.lead.LeadValidator;
+import com.proptiger.userservice.mvc.UserService;
 
 @Service
 public class EnquiryService {

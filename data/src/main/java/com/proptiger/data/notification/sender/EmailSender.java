@@ -17,7 +17,7 @@ import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.service.mail.AmazonMailSender;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.userservice.mvc.UserService;
 
 @Service
 public class EmailSender implements MediumSender {

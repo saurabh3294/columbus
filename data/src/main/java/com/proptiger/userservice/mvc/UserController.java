@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc;
+package com.proptiger.userservice.mvc;
 
 import java.io.IOException;
 
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,9 +28,7 @@ import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.RegisterUser;
 import com.proptiger.data.model.user.UserDetails;
 import com.proptiger.data.service.companyuser.CompanyUserService;
-import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
-import com.proptiger.data.service.user.UserService.UserCommunicationType;
+import com.proptiger.userservice.mvc.UserService.UserCommunicationType;
 
 /**
  * User APIs to get/register/update/delete a user entity
@@ -52,28 +49,6 @@ public class UserController extends BaseController {
     
     @Autowired
     private CompanyUserService companyUserService;
-
-    @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/enquired")
-    @ResponseBody
-    @Deprecated
-    public APIResponse hasEnquired(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
-            @RequestParam(value = "projectId") Integer projectId) {
-        return hasEnquiredByUser(userInfo, projectId);
-    }
-
-    private APIResponse hasEnquiredByUser(ActiveUser userInfo, Integer projectId) {
-        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(projectId, userInfo.getUserIdentifier());
-        return new APIResponse(enquiredDetails);
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/project/{projectId}/enquired")
-    @ResponseBody
-    public APIResponse hasEnquired_(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
-            @PathVariable Integer projectId) {
-        return hasEnquiredByUser(userInfo, projectId);
-    }
 
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/registered")
     @ResponseBody

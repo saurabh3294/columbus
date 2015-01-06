@@ -16,6 +16,7 @@ import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.userservice.mvc.UserService;
 
 @Service
 public class UnmatchedProjectRequestService {

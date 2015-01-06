@@ -1,4 +1,4 @@
-package com.proptiger.data.service.user;
+package com.proptiger.userservice.mvc;
 
 import java.util.Calendar;
 import java.util.List;

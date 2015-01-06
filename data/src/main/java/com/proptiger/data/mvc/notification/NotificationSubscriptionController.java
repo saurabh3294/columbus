@@ -24,7 +24,7 @@ import com.proptiger.data.notification.enums.SubscriptionType;
 import com.proptiger.data.notification.model.UserNotificationTypeSubscription;
 import com.proptiger.data.notification.model.external.NotificationSubscriptionRequest;
 import com.proptiger.data.notification.service.UserNotificationTypeSubscriptionService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.userservice.mvc.UserService;
 
 /**
  * @author Sahil Garg

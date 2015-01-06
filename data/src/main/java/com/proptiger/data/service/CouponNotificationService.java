@@ -25,7 +25,7 @@ import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.userservice.mvc.UserService;
 
 @Service
 public class CouponNotificationService {

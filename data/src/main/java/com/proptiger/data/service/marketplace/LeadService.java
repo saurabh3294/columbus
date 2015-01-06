@@ -32,7 +32,7 @@ import com.proptiger.data.service.CityService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.companyuser.CompanyService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.userservice.mvc.UserService;
 
 /**
  * @author Anubhav

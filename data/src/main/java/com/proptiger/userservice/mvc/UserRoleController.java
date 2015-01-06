@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc;
+package com.proptiger.userservice.mvc;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,8 +14,6 @@ import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.model.user.UserDetails;
-import com.proptiger.data.service.user.UserRolesService;
-import com.proptiger.data.service.user.UserService;
 
 /**
  * @author Rajeev Pandey

@@ -56,8 +56,8 @@ import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.companyuser.CompanyUserService;
 import com.proptiger.data.service.mail.MailSender;
-import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.SerializationUtils;
+import com.proptiger.userservice.mvc.UserService;
 import com.rits.cloning.Cloner;
 
 /**

@@ -25,7 +25,7 @@ import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.model.user.UserSession;
 import com.proptiger.data.repo.user.UserSessionDao;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.userservice.mvc.UserService;
 
 /**
  * @author Rajeev Pandey

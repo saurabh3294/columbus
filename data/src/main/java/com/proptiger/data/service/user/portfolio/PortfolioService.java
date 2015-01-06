@@ -77,8 +77,8 @@ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.user.LeadGenerationService;
 import com.proptiger.data.service.user.SubscriptionService;
-import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.portfolio.PortfolioUtil;
+import com.proptiger.userservice.mvc.UserService;
 
 /**
  * This class provides CRUD operations over a property listing that is a

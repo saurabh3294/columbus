@@ -38,6 +38,7 @@ import com.proptiger.data.repo.user.portfolio.ProjectCommentLikesDao;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.userservice.mvc.UserService;
 
 @Service
 public class ProjectDiscussionsService {

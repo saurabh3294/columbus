@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc;
+package com.proptiger.data.mvc.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

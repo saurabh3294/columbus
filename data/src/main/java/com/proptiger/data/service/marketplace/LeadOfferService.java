@@ -61,7 +61,7 @@ import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.userservice.mvc.UserService;
 
 /**
  * 
