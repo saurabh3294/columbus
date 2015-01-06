@@ -29,7 +29,7 @@ public class BookingStatus extends BaseModel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "name")
-    private com.proptiger.data.enums.BookingStatus bookingStatus;
+    private com.proptiger.core.enums.BookingStatus bookingStatus;
 
     @Column(name = "display_name")
     private String                                       displayName;
@@ -42,11 +42,11 @@ public class BookingStatus extends BaseModel {
         this.id = id;
     }
 
-    public com.proptiger.data.enums.BookingStatus getBookingStatus() {
+    public com.proptiger.core.enums.BookingStatus getBookingStatus() {
         return bookingStatus;
     }
 
-    public void setBookingStatus(com.proptiger.data.enums.BookingStatus bookingStatus) {
+    public void setBookingStatus(com.proptiger.core.enums.BookingStatus bookingStatus) {
         this.bookingStatus = bookingStatus;
     }
 

@@ -14,6 +14,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.enums.LeadOfferStatus;
+import com.proptiger.core.enums.NotificationType;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Company;
@@ -21,8 +23,6 @@ import com.proptiger.core.model.user.User;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.UtilityClass;
-import com.proptiger.data.enums.LeadOfferStatus;
-import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
@@ -31,8 +31,7 @@ import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.CityService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
-import com.proptiger.data.service.companyuser.CompanyService;
-import com.proptiger.userservice.mvc.UserService;
+import com.proptiger.userservice.mvc.CompanyService;
 
 /**
  * @author Anubhav

@@ -51,7 +51,6 @@ import com.proptiger.data.util.lead.CookieConstants;
 import com.proptiger.data.util.lead.LeadCookiesHandler;
 import com.proptiger.data.util.lead.LeadGACookiesHandler;
 import com.proptiger.data.util.lead.LeadValidator;
-import com.proptiger.userservice.mvc.UserService;
 
 @Service
 public class EnquiryService {

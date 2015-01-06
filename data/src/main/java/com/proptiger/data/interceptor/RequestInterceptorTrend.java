@@ -15,7 +15,7 @@ import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.service.user.UserSubscriptionService;
+import com.proptiger.userservice.mvc.UserSubscriptionService;
 
 /**
  * This class appends the subscription permissions for logged in user to the

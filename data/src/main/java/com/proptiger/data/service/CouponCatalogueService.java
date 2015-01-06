@@ -25,7 +25,6 @@ import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.CouponCatalogueDao;
 import com.proptiger.data.service.transaction.TransactionService;
-import com.proptiger.userservice.mvc.UserService;
 
 @Service
 public class CouponCatalogueService {

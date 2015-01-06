@@ -52,7 +52,6 @@ import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
 import com.proptiger.data.service.CitrusPayPGTransactionService;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.CouponNotificationService;
-import com.proptiger.userservice.mvc.UserService;
 
 /**
  * @author mandeep

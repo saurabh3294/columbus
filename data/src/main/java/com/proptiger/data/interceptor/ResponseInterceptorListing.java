@@ -18,7 +18,7 @@ import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.service.user.UserSubscriptionService;
+import com.proptiger.userservice.mvc.UserSubscriptionService;
 
 /**
  * This class is used for authentication based filtering of APIResponse.

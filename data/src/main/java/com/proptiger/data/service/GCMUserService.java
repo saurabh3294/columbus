@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.enums.AndroidApplication;
+import com.proptiger.core.enums.AndroidApplication;
 import com.proptiger.data.model.GCMUser;
 import com.proptiger.data.notification.exception.MultipleGCMRegistrationIdFoundException;
 import com.proptiger.data.repo.GCMUserDao;

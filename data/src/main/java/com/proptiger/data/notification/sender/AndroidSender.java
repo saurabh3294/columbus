@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
-import com.proptiger.data.enums.AndroidApplication;
+import com.proptiger.core.enums.AndroidApplication;
 import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.model.GCMUser;

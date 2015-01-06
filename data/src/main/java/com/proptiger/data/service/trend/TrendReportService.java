@@ -48,9 +48,9 @@ import com.proptiger.data.model.trend.TrendReportLog;
 import com.proptiger.data.repo.trend.TrendReportLogDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.user.CatchmentService;
-import com.proptiger.data.service.user.UserSubscriptionService;
 import com.proptiger.data.util.FIQLUtils;
 import com.proptiger.data.util.MSExcelUtils;
+import com.proptiger.userservice.mvc.UserSubscriptionService;
 
 @Service
 public class TrendReportService {

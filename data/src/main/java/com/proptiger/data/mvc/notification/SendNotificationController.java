@@ -18,7 +18,6 @@ import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
-import com.proptiger.userservice.mvc.UserService;
 
 /**
  * @author Sahil Garg

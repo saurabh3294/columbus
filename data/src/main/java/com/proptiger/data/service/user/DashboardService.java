@@ -25,9 +25,9 @@ import com.proptiger.core.model.proptiger.Dashboard;
 import com.proptiger.core.model.proptiger.Dashboard.DashboardType;
 import com.proptiger.core.model.proptiger.DashboardWidgetMapping;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.repo.DashboardDao;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.internal.dto.DashboardDto;
-import com.proptiger.data.repo.user.DashboardDao;
 import com.proptiger.data.repo.user.DashboardWidgetMappingDao;
 import com.proptiger.data.repo.user.WidgetDao;
 

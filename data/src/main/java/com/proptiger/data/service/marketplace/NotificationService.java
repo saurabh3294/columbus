@@ -21,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.proptiger.core.enums.LeadOfferStatus;
+import com.proptiger.core.enums.LeadTaskName;
+import com.proptiger.core.enums.NotificationType;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.UnauthorizedException;
@@ -30,9 +33,6 @@ import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.dto.external.marketplace.GcmMessage;
-import com.proptiger.data.enums.LeadOfferStatus;
-import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -54,10 +54,8 @@ import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
-import com.proptiger.data.service.companyuser.CompanyUserService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.util.SerializationUtils;
-import com.proptiger.userservice.mvc.UserService;
 import com.rits.cloning.Cloner;
 
 /**
@@ -475,7 +473,7 @@ public class NotificationService {
      * method to send task overdue notification to user
      */
     public void sendTaskOverDueNotification() {
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskOverDue.getId();
         List<Notification> notifications = notificationDao.findByNotificationTypeId(notificationTypeId);
         Map<Integer, List<Notification>> map = groupNotificationsByUser(notifications);
         for (Integer userId : map.keySet()) {
@@ -502,7 +500,7 @@ public class NotificationService {
      * method to send task overdue notification to user
      */
     public void sendTaskDueNotification() {
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
         List<Notification> notifications = notificationDao.findByNotificationTypeIdAndMasterTaskIdIn(
                 notificationTypeId,
                 allMasterTaskIdsButCall);
@@ -519,7 +517,7 @@ public class NotificationService {
             String message = getTaskDueNotificationMessage(userNotifications);
 
             GcmMessage gcmMessage = new GcmMessage();
-            gcmMessage.setNotificationTypeId(com.proptiger.data.enums.NotificationType.TaskDue.getId());
+            gcmMessage.setNotificationTypeId(com.proptiger.core.enums.NotificationType.TaskDue.getId());
             gcmMessage.setMessage(message);
             gcmMessage.setData(getLeadOfferIdsFromTaskIds(getObjectIdsFromNotifications(userNotifications)));
             if (size == 1) {

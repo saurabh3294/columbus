@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.model.proptiger.Enquiry.EnquiryCustomDetails;
 import com.proptiger.data.repo.EnquiryDao;
-import com.proptiger.userservice.mvc.UserService;
 
 /**
  * Enquiry service class to provide enquiry details done by user

@@ -27,7 +27,6 @@ import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.user.ProjectDiscussionsService;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
-import com.proptiger.userservice.mvc.UserService;
 
 @Service
 public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {

@@ -30,7 +30,7 @@ public class MarketplaceNotificationType extends BaseModel {
 
     @Column(name = "notification_type")
     @Enumerated(EnumType.STRING)
-    private com.proptiger.data.enums.NotificationType notificationType;
+    private com.proptiger.core.enums.NotificationType notificationType;
 
     @Column(name = "is_ignorable")
     private boolean                                   ignorable;
@@ -81,11 +81,11 @@ public class MarketplaceNotificationType extends BaseModel {
         this.id = id;
     }
 
-    public com.proptiger.data.enums.NotificationType getNotificationType() {
+    public com.proptiger.core.enums.NotificationType getNotificationType() {
         return notificationType;
     }
 
-    public void setNotificationType(com.proptiger.data.enums.NotificationType notificationType) {
+    public void setNotificationType(com.proptiger.core.enums.NotificationType notificationType) {
         this.notificationType = notificationType;
     }
 

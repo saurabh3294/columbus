@@ -14,7 +14,6 @@ import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.userservice.mvc.UserService;
 
 @Service
 public class SmsSender implements MediumSender {

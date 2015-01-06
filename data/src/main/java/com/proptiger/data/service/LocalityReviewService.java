@@ -32,7 +32,6 @@ import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetail;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.repo.LocalityReviewDao;
-import com.proptiger.userservice.mvc.UserService;
 
 /**
  * Service class to handle CRUD operations for locality review details.
