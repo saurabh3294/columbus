@@ -10,21 +10,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.enums.event.EventTypeEnum;
+import com.proptiger.core.event.model.payload.EventTypePayload;
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.cms.Suburb;
+import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.event.EventGenerated.EventStatus;
+import com.proptiger.core.model.event.EventType;
+import com.proptiger.core.model.event.RawDBEvent;
+import com.proptiger.core.model.event.RawEventTableDetails;
+import com.proptiger.core.model.event.generator.model.RawDBEventAttributeConfig;
+import com.proptiger.core.model.event.generator.model.RawDBEventOperationConfig;
+import com.proptiger.core.model.event.subscriber.Subscriber;
+import com.proptiger.core.model.event.subscriber.Subscriber.SubscriberName;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.event.generator.model.RawDBEventAttributeConfig;
-import com.proptiger.data.event.generator.model.RawDBEventOperationConfig;
-import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventGenerated.EventStatus;
-import com.proptiger.data.event.model.EventType;
-import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.model.RawEventTableDetails;
-import com.proptiger.data.event.model.payload.EventTypePayload;
+import com.proptiger.data.event.model.DefaultEventTypeConfig;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.event.repo.RawEventTableDetailsDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
+import com.proptiger.data.notification.service.SubscriberConfigService;
 import com.proptiger.data.util.Serializer;
 
 @Service
@@ -50,6 +60,9 @@ public class EventGeneratedService {
     @Autowired
     private ApplicationContext                applicationContext;
 
+    @Autowired
+    private SubscriberConfigService           subscriberConfigService;
+
     /**
      * Persisting EventGenerateds in DB and updating the last read transaction
      * in RawEventTableDetails
@@ -58,12 +71,16 @@ public class EventGeneratedService {
      * @param rawEventTableDetails
      */
     @Transactional
-    public void persistEvents(List<EventGenerated> eventGenerateds, RawEventTableDetails rawEventTableDetails) {
+    public void persistEvents(
+            List<EventGenerated> eventGenerateds,
+            RawEventTableDetails rawEventTableDetails,
+            Long transactionId) {
+
         applicationContext.getBean(this.getClass()).saveOrUpdateEvents(eventGenerateds);
-        rawEventTableDetailsDao.updateLastTransactionKeyValueById(
-                rawEventTableDetails.getId(),
-                rawEventTableDetails.getLastTransactionKeyValue());
-        logger.info("Updated the Last Transaction Value " + rawEventTableDetails.getLastTransactionKeyValue()
+
+        eventTypeMappingService.updateLastAccessedTransactionId(rawEventTableDetails, transactionId);
+
+        logger.info(" Updated the Last Transaction Value " + transactionId
                 + " for table Config "
                 + rawEventTableDetails.getId());
     }
@@ -97,22 +114,6 @@ public class EventGeneratedService {
     }
 
     /**
-     * Get EventGenerateds from DB which are in Verified state and where last
-     * updated after the specified date
-     * 
-     * @param fromDate
-     * @return
-     */
-    public List<EventGenerated> getVerifiedEventsFromDate(Date fromDate) {
-        List<EventGenerated> listEventGenerateds = eventGeneratedDao
-                .findByEventStatusAndUpdatedAtGreaterThanOrderByUpdatedAtAsc(
-                        EventGenerated.EventStatus.Verified,
-                        fromDate);
-        populateEventsDataAfterLoad(listEventGenerateds);
-        return listEventGenerateds;
-    }
-
-    /**
      * Get EventGenerateds of a particular event type from DB which are in
      * Processed state and are still in Holding period
      * 
@@ -138,23 +139,6 @@ public class EventGeneratedService {
     }
 
     /**
-     * Find the last recent event that was generated in the DB
-     * 
-     * @return
-     */
-    public EventGenerated getLatestEventGenerated() {
-        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
-        List<EventGenerated> listEventGenerateds = eventGeneratedDao.getLatestEventGenerated(pageable);
-        logger.info("Latest Event generated: " + listEventGenerateds);
-
-        if (listEventGenerateds == null || listEventGenerateds.isEmpty()) {
-            return null;
-        }
-        populateEventsDataAfterLoad(listEventGenerateds);
-        return listEventGenerateds.get(0);
-    }
-
-    /**
      * Updating the status of EventGenerateds to a new status if the current
      * status matches the provided status
      * 
@@ -165,10 +149,19 @@ public class EventGeneratedService {
         Integer numberOfRowsAffected;
         for (Map.Entry<EventStatus, List<EventGenerated>> entry : updateEventGeneratedByOldValue.entrySet()) {
             for (EventGenerated eventGenerated : entry.getValue()) {
-                numberOfRowsAffected = eventGeneratedDao.updateEventStatusByIdAndOldStatus(
-                        eventGenerated.getEventStatus(),
-                        entry.getKey(),
-                        eventGenerated.getId());
+                if (eventGenerated.getMergedEventId() != null) {
+                    numberOfRowsAffected = eventGeneratedDao.updateEventStatusAndMergeIdByIdAndOldStatus(
+                            eventGenerated.getEventStatus(),
+                            entry.getKey(),
+                            eventGenerated.getId(),
+                            eventGenerated.getMergedEventId());
+                }
+                else {
+                    numberOfRowsAffected = eventGeneratedDao.updateEventStatusByIdAndOldStatus(
+                            eventGenerated.getEventStatus(),
+                            entry.getKey(),
+                            eventGenerated.getId());
+                }
                 logger.debug("Event with Id" + eventGenerated.getId()
                         + " was being updated from Old Status : "
                         + entry.getKey()
@@ -266,8 +259,66 @@ public class EventGeneratedService {
             }
         }
 
-        logger.debug("Number of Events Generated are: " + eventGeneratedList.size());
+        logger.info(" Number of Events Generated are: " + eventGeneratedList.size());
+
         return eventGeneratedList;
+    }
+
+    /**
+     * Get specified latest verified EventGenerateds for a given Subscriber. If
+     * eventTypeNames are not specified then all latest verified EventGenerateds
+     * will be returned
+     * 
+     * @param subscriberName
+     * @param eventTypeNames
+     * @return
+     */
+    public List<EventGenerated> getLatestVerifiedEventGeneratedsBySubscriber(
+            SubscriberName subscriberName,
+            List<String> eventTypeNames, Pageable pageable) {
+
+        List<EventGenerated> listEventGenerateds = new ArrayList<EventGenerated>();
+        if (checkAndSetSubscriberLastEventId(subscriberName)) {
+            return listEventGenerateds;
+        }
+
+        logger.debug("Finding latest event generated for the Subscriber " + subscriberName);
+        Integer maxEventCount = subscriberConfigService.getMaxSubscriberEventTypeCount(subscriberName);
+        if(pageable == null){
+        	pageable = new LimitOffsetPageRequest(0, maxEventCount);
+        }
+        
+
+        if (eventTypeNames == null) {
+            listEventGenerateds = eventGeneratedDao.getLatestEventGeneratedBySubscriber(
+                    EventStatus.Verified,
+                    subscriberName,
+                    pageable);
+        }
+        else {
+            listEventGenerateds = eventGeneratedDao.getLatestEventGeneratedBySubscriber(
+                    EventStatus.Verified,
+                    subscriberName,
+                    eventTypeNames,
+                    pageable);
+        }
+
+        logger.debug("Number of Event Generated being picked up: " + listEventGenerateds.size());
+        populateEventsDataAfterLoad(listEventGenerateds);
+
+        return listEventGenerateds;
+    }
+
+    private boolean checkAndSetSubscriberLastEventId(SubscriberName subscriberName) {
+        Subscriber subscriber = subscriberConfigService.getSubscriber(subscriberName);
+        if (subscriber.getLastEventGeneratedId() == null) {
+            EventGenerated lastEventGenerated = getLastVerifiedEventGenerated();
+            if (lastEventGenerated != null) {
+                subscriberConfigService.setLastEventGeneratedIdBySubscriber(lastEventGenerated.getId(), subscriber);
+            }
+            return true;
+        }
+        return false;
     }
 
     private List<EventGenerated> generateEvents(
@@ -275,9 +326,11 @@ public class EventGeneratedService {
             List<EventType> eventTypeList,
             String attributeName,
             List<EventGenerated> eventGeneratedList) {
-
+    	
+    	DefaultEventTypeConfig defaultEventTypeConfig = null;
         for (EventType eventType : eventTypeList) {
-            EventTypePayload payload = eventType.getEventTypeConfig().getEventTypePayloadObject();
+        	defaultEventTypeConfig = (DefaultEventTypeConfig)eventType.getEventTypeConfig();
+            EventTypePayload payload = defaultEventTypeConfig.getEventTypePayloadObject();
             payload.setTransactionKeyName(rawDBEvent.getRawEventTableDetails().getTransactionKeyName());
             payload.setTransactionId(rawDBEvent.getTransactionKeyValue());
             payload.setPrimaryKeyName(rawDBEvent.getRawEventTableDetails().getPrimaryKeyName());
@@ -297,11 +350,13 @@ public class EventGeneratedService {
     }
 
     private void populateEventsDataAfterLoad(List<EventGenerated> listEventGenerated) {
+    	DefaultEventTypeConfig defaultEventTypeConfig = null;
         for (EventGenerated eventGenerated : listEventGenerated) {
             setEventTypeOnEventGenerated(eventGenerated);
+            defaultEventTypeConfig = (DefaultEventTypeConfig)eventGenerated.getEventType().getEventTypeConfig();
             eventGenerated.setEventTypePayload((EventTypePayload) Serializer.fromJson(
                     eventGenerated.getData(),
-                    eventGenerated.getEventType().getEventTypeConfig().getDataClassName()));
+                    defaultEventTypeConfig.getDataClassName()));
         }
     }
 
@@ -313,5 +368,48 @@ public class EventGeneratedService {
     private void populateEventsDataBeforeSave(EventGenerated eventGenerated) {
         eventGenerated.setData(Serializer.toJson(eventGenerated.getEventTypePayload()));
     }
+
+    private EventGenerated getLastVerifiedEventGenerated() {
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao.findByEventStatusOrderByUpdatedAtDesc(
+                EventStatus.Verified,
+                pageable);
+        logger.info("Latest Event generated: " + listEventGenerateds);
+
+        if (listEventGenerateds == null || listEventGenerateds.isEmpty()) {
+            return null;
+        }
+        populateEventsDataAfterLoad(listEventGenerateds);
+        return listEventGenerateds.get(0);
+    }
+    
+    @Transactional
+    public Integer updateEventStatusByEventTypeAndUniqueKey(String eventTypeName, int uniqueKey, EventStatus eventStatus){
+    	return eventGeneratedDao.updateEventStatusByEventTypeAndUniqueKey(eventTypeName, uniqueKey + "", eventStatus);
+    }
+    
+    @Transactional
+  	public boolean verifyDomainEvents(Property property) {
+  		Project project = property.getProject();
+  		Locality locality = project.getLocality();
+  		Suburb suburb = locality.getSuburb();
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.ProjectInsertionUrl.getName(),
+  				property.getProjectId(), EventStatus.Verified);
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.LocalityInsertionUrl.getName(),
+  				project.getLocalityId(), EventStatus.Verified);
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.BuilderInsertionUrl.getName(),
+  				project.getBuilderId(), EventStatus.Verified);
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.SuburbInsertionUrl.getName(),
+  				locality.getSuburbId(), EventStatus.Verified);
+  		updateEventStatusByEventTypeAndUniqueKey(
+  				EventTypeEnum.CityInsertionUrl.getName(), suburb.getCityId(),
+  				EventStatus.Verified);
+
+  		return true;
+  	}
 
 }

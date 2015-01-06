@@ -1,6 +1,7 @@
 package com.proptiger.data.notification.scheduler;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +70,40 @@ public class NotificationScheduler {
             }
 
             List<Date> dateList = new ArrayList<Date>();
-            dateList.add(DateUtil.addSeconds(lastScheduledNTDate, notificationType.getFrequencyCycleInSeconds()
-                    .intValue()));
+            Date expiryDate = new Date();
+            Integer holdingPeriodValue = notificationType.getHoldingPeriodValue();
+            
+            switch (notificationType.getHoldingPeriodType()) {
+                case SECONDS:
+                    expiryDate = DateUtils.addSeconds(lastScheduledNTDate, holdingPeriodValue);
+                    break;
+                case MINUTES:
+                    expiryDate = DateUtils.addMinutes(lastScheduledNTDate, holdingPeriodValue);
+                    break;
+                case HOURS:
+                    expiryDate = DateUtils.addHours(lastScheduledNTDate, holdingPeriodValue);
+                    break;
+                case DAYS:
+                    expiryDate = DateUtils.addDays(lastScheduledNTDate, holdingPeriodValue);
+                    break;
+                case WEEKS:
+                    expiryDate = DateUtils.addWeeks(lastScheduledNTDate, holdingPeriodValue);
+                    break;
+                case MONTHS:
+                    expiryDate = DateUtils.addMonths(lastScheduledNTDate, holdingPeriodValue);
+                    break;
+                case UPCOMING_MONTHS:
+                    expiryDate = DateUtils.addMonths(lastScheduledNTDate, holdingPeriodValue);
+                    expiryDate = DateUtils.truncate(expiryDate, Calendar.MONTH);
+                    break;
+                case INFINITE:
+                    expiryDate = DateUtils.addYears(lastScheduledNTDate, 50);
+                    expiryDate = DateUtils.truncate(expiryDate, Calendar.YEAR);
+                    break;
+                default:
+                    break;
+            }            
+            dateList.add(expiryDate);
             dateList.add(DateUtil.addSeconds(lastScheduledInMediumDate, nGenerated.getNotificationMedium()
                     .getFrequencyCycleInSeconds().intValue()));
             

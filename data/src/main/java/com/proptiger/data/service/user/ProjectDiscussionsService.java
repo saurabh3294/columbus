@@ -1,6 +1,8 @@
 package com.proptiger.data.service.user;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,6 +14,7 @@ import java.util.Set;
 
 import javax.persistence.Table;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -62,12 +65,12 @@ public class ProjectDiscussionsService {
 
     @Autowired
     private Caching                 caching;
-    
+
     @Autowired
-    private ProjectDBDao         projectDBDao;
-    
+    private ProjectDBDao            projectDBDao;
+
     @Autowired
-    private UserService userService;
+    private UserService             userService;
 
     public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, ActiveUser activeUser) {
 
@@ -169,7 +172,7 @@ public class ProjectDiscussionsService {
 
         List<ProjectDiscussion> allComments = projectDiscussionDao
                 .getDiscussionsByProjectIdOrderByCreatedDateDesc(projectId);
-        if (allComments.size() < 1){
+        if (allComments.size() < 1) {
             return new PaginatedResponse<>();
         }
 
@@ -222,20 +225,20 @@ public class ProjectDiscussionsService {
     }
 
     private void populateUserDetails(List<ProjectDiscussion> discussions) {
-        if(discussions != null && !discussions.isEmpty()){
-            Set<Integer> usersIds = new HashSet<>();   
-            for(ProjectDiscussion pd: discussions){
+        if (discussions != null && !discussions.isEmpty()) {
+            Set<Integer> usersIds = new HashSet<>();
+            for (ProjectDiscussion pd : discussions) {
                 usersIds.add(pd.getUserId());
             }
             Map<Integer, User> userMap = userService.getUsers(usersIds);
             Iterator<ProjectDiscussion> it = discussions.iterator();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 ProjectDiscussion pd = it.next();
                 User u = userMap.get(pd.getUserId());
-                if(u != null){
+                if (u != null) {
                     pd.setUser(u.toForumUser());
                 }
-                else{
+                else {
                     it.remove();
                 }
             }
@@ -243,8 +246,10 @@ public class ProjectDiscussionsService {
     }
 
     /**
-     * Paging is being applied on the number of root comments to return in the response. Each root comments
-     * can have infinite hierarchal structure of comments.
+     * Paging is being applied on the number of root comments to return in the
+     * response. Each root comments can have infinite hierarchal structure of
+     * comments.
+     * 
      * @param comments
      * @param paging
      * @return
@@ -258,14 +263,14 @@ public class ProjectDiscussionsService {
         if (paging.getStart() > totalRootComments) {
             return new ArrayList<ProjectDiscussion>();
         }
-        
+
         // End Index of the subList.
         int pagingRows = paging.getRows() + paging.getStart();
         pagingRows = pagingRows > totalRootComments ? totalRootComments : pagingRows;
 
         return new ArrayList<ProjectDiscussion>(comments.subList(paging.getStart(), pagingRows));
     }
-    
+
     /**
      * Returns all discussions for a project
      * 
@@ -290,6 +295,14 @@ public class ProjectDiscussionsService {
 
         return discussions;
     }
-    
+
+    public List<ProjectDiscussion> getCommentsForProjectIdInLastMonth(Integer projectId) {
+        Date date = new Date();
+        date = DateUtils.addMonths(date, -1);
+        date = DateUtils.truncate(date, Calendar.MONTH);
+        return projectDiscussionDao.findDiscussionByProjectIdAndCreatedDateGreaterThanOrderByCreatedDateDesc(
+                projectId,
+                date);
+    }
 
 }

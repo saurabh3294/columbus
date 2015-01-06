@@ -24,7 +24,8 @@ public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
         }
 
     }
-
+    
+    // Handle If NM not present.
     public void processIntraMerging(NotificationByTypeDto notificationByType) {
         List<NotificationMessage> nMessages = notificationByType.getNotificationMessages();
 
@@ -44,7 +45,8 @@ public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
         
         nMessages.add(lastMessage);
     }
-
+    
+    // TODO to handle IF NM not present.
     public void processIntraSuppressing(NotificationByTypeDto notificationByType) {
         List<NotificationMessage> nMessages = notificationByType.getNotificationMessages();
 

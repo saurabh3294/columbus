@@ -5,6 +5,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.service.AbstractTest;
@@ -23,11 +25,12 @@ import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
-import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.message.DefaultNotificationMessageProcessor;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.NotificationTypeService;
 import com.proptiger.data.notification.service.UserNotificationTypeSubscriptionService;
+import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
 
 /**
@@ -52,8 +55,8 @@ public class NotificationMessageServiceTest extends AbstractTest {
 
     @Test
     public void testCreateNotificationMessageForTemplateMap() {
-        NotificationTypeEnum typeName = NotificationTypeEnum.Default;
-        NotificationType notificationType = notificationMockerService.getMockNotificationType(typeName.getName());
+        String typeName = NotificationTypeEnum.Default.getName();
+        NotificationType notificationType = notificationMockerService.getMockNotificationType(typeName);
         Integer userId = 5435;
 
         final String MOCK_KEY = "mock-key";
@@ -63,7 +66,7 @@ public class NotificationMessageServiceTest extends AbstractTest {
         templateMap.put(MOCK_KEY, MOCK_VALUE);
 
         NotificationTypeService notificationTypeService = mock(NotificationTypeService.class);
-        when(notificationTypeService.findByName(typeName.getName())).thenReturn(notificationType);
+        when(notificationTypeService.findByName(typeName)).thenReturn(notificationType);
         nMessageService.setNotiTypeService(notificationTypeService);
 
         NotificationMessage message = nMessageService.createNotificationMessage(typeName, userId, templateMap);
@@ -72,7 +75,7 @@ public class NotificationMessageServiceTest extends AbstractTest {
         Assert.assertEquals(message.getUserId(), userId);
         Assert.assertNotNull(message.getNotificationType());
         Assert.assertNotNull(message.getNotificationType().getName());
-        Assert.assertEquals(message.getNotificationType().getName(), typeName.getName());
+        Assert.assertEquals(message.getNotificationType().getName(), typeName);
 
         NotificationMessagePayload payload = message.getNotificationMessagePayload();
         Assert.assertNotNull(payload);
@@ -98,9 +101,20 @@ public class NotificationMessageServiceTest extends AbstractTest {
                         .getId())).thenReturn(userList);
         nMessageService.setUserNTSubscriptionService(userNTSubscriptionService);
 
+        Property property = new Property();
+        property.setPropertyId(propertyId);
+
+        List<Property> properties = new ArrayList<Property>();
+        properties.add(property);
+
         PortfolioService portfolioService = mock(PortfolioService.class);
-        when(portfolioService.getActivePortfolioListingsByPropertyId(propertyId)).thenReturn(portfolioListings);
+        when(portfolioService.getActivePortfolioListingsByPropertiesAndUsers(properties, userList, Boolean.FALSE))
+                .thenReturn(portfolioListings);
         nMessageProcessor.setPortfolioService(portfolioService);
+
+        PropertyService propertyService = mock(PropertyService.class);
+        when(propertyService.getProperty(propertyId)).thenReturn(property);
+        nMessageProcessor.setPropertyService(propertyService);
 
         List<NotificationMessage> notificationMessageList = nMessageService
                 .getNotificationMessagesForNotificationTypeGenerated(ntGenerated);

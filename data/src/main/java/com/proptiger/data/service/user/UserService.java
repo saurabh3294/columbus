@@ -31,7 +31,10 @@ import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.Application;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.Locality;
@@ -85,9 +88,9 @@ import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
-import com.proptiger.data.repo.user.UserRolesDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.service.companyuser.CompanyUserService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.PasswordUtils;
@@ -183,13 +186,16 @@ public class UserService {
     private CompanyDao companyDao;
     
     @Autowired
-    private UserRolesDao userRolesDao;
+    private UserRolesService userRolesService;
     
     @Autowired
     private CompanyUserDao companyUserDao;
     
     @Autowired
     private UserTokenService userTokenService;
+    
+    @Autowired
+    private CompanyUserService companyUserService;
     
     @PostConstruct
     private void initialize() {
@@ -242,7 +248,7 @@ public class UserService {
         if (application.equals(Application.B2B)) {
             updateAppDetails(customUser, user);
         }
-        List<String> roles = userRolesDao.getUserRolesName(user.getId());
+        List<String> roles = userRolesService.getUserRolesName(user.getId());
         if(!roles.isEmpty()){
             customUser.setRoles(roles);
         }
@@ -966,16 +972,33 @@ public class UserService {
      * @param activeUser
      * @return
      */
+    @Transactional
     public User updateUserDetails(UserDetails user, ActiveUser activeUser) {
-
-        user.setId(activeUser.getUserIdentifier());
+        boolean isAdmin = SecurityContextUtils.isAdmin(activeUser);
+        if(isAdmin){
+            //admin is trying to update details of a user whose user id must be defined in UserDetails object
+            if(user.getId() < 0){
+                throw new BadRequestException("Invalid user id specified");
+            }
+            else if(user.getId() == 0){
+                //user trying to update his data
+                user.setId(activeUser.getUserIdentifier());
+            }
+        }
+        else{
+            //normal user is trying to update his details
+            user.setId(activeUser.getUserIdentifier()); 
+        }
+        
         User originalUser = getUserById(user.getId());
-
+        if(originalUser == null){
+            throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.UPDATE);
+        }
+        
         if (user.getFullName() != null) {
             originalUser.setFullName(user.getFullName());
         }
         if (user.getOldPassword() != null && user.getPassword() != null && user.getConfirmPassword() != null) {
-
             ChangePassword changePassword = new ChangePassword();
             changePassword.setOldPassword(user.getOldPassword());
             changePassword.setNewPassword(user.getPassword());
@@ -991,10 +1014,14 @@ public class UserService {
         if (user.getContactNumbers() != null && !user.getContactNumbers().isEmpty()) {
             updateContactNumbers(user);
         }
-
         originalUser = userDao.saveAndFlush(originalUser);
+        if(isAdmin){
+            companyUserService.updateParentDetail(user);
+            userRolesService.updateRolesOfUser(user.getRoles(), originalUser.getId(), activeUser.getUserIdentifier());
+        }
         return originalUser;
     }
+
 
     /**
      * Get all child of active user and create create a tree data structure
@@ -1010,9 +1037,12 @@ public class UserService {
         if(companyUser == null){
             return root;
         }
-        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRange(companyUser.getLeft(), companyUser.getRight());
+        List<CompanyUser> companyUsers = companyUserDao.getCompanyUsersInLeftRightRangeInCompany(
+                companyUser.getLeft(),
+                companyUser.getRight(),
+                companyUser.getCompanyId());
         root.setId(companyUser.getId());
-        
+
         Set<Integer> userIds = new HashSet<Integer>();
         for(CompanyUser u: companyUsers){
             userIds.add(u.getUserId());
@@ -1025,7 +1055,7 @@ public class UserService {
                 parentIdToUserMap.put(u.getParentId(), new ArrayList<UserHierarchy>());
             }
             UserHierarchy hierarchy = new UserHierarchy();
-            hierarchy.setId(u.getId());
+            hierarchy.setId(u.getParentId());
             hierarchy.setUserId(u.getUserId());
             //user id should be found in users database, in any scenario if not found set user name as NA.
             hierarchy.setUserName(userDetailsMap.get(u.getUserId()) != null ? userDetailsMap.get(u.getUserId()).getFullName() :"NA");
@@ -1043,10 +1073,10 @@ public class UserService {
      * @param parentIdToUserMap
      */
     private void updateChild(UserHierarchy root, Map<Integer, List<UserHierarchy>> parentIdToUserMap) {
-        if(root == null || parentIdToUserMap.get(root.getId()) == null){
+        if(root == null || parentIdToUserMap.get(root.getUserId()) == null){
             return;
         }
-        root.setChild(parentIdToUserMap.get(root.getId()));
+        root.setChild(parentIdToUserMap.get(root.getUserId()));
         for(UserHierarchy u: root.getChild()){
             updateChild(u, parentIdToUserMap);
         }
