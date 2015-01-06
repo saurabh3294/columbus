@@ -116,19 +116,6 @@ public class Lead extends BaseModel {
     @Column(name = "flexible_budget_flag")
     private boolean               flexibleBudget    = false;
 
-    @Column(name = "property_type")
-    @Enumerated(EnumType.STRING)
-    private UnitType           propertyType;
-    
-    
-    public UnitType getPropertyType() {
-        return propertyType;
-    }
-
-    public void setPropertyType(UnitType propertyType) {
-        this.propertyType = propertyType;
-    }
-
     public int getSourceId() {
         return sourceId;
     }

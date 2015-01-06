@@ -2,6 +2,8 @@ package com.proptiger.data.model.marketplace;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,6 +16,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
@@ -57,6 +60,18 @@ public class LeadRequirement extends BaseModel {
     @JoinColumn(name="lead_id" ,insertable=false, updatable=false)
     private Lead lead;
 
+    @Column(name = "property_type")
+    @Enumerated(EnumType.STRING)
+    private UnitType           propertyType;
+        
+    public UnitType getPropertyType() {
+        return propertyType;
+    }
+
+    public void setPropertyType(UnitType propertyType) {
+        this.propertyType = propertyType;
+    }
+        
     public Lead getLead() {
         return lead;
     }

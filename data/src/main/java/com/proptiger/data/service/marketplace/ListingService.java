@@ -150,7 +150,6 @@ public class ListingService {
 
         ListingPrice currentListingPrice = listing.getCurrentListingPrice();
         ListingPrice currentListingPriceInDB = listingInDB.getCurrentListingPrice();
-        listing.setCurrentListingPrice(null);
         if (currentListingPrice != null) {             
             currentListingPriceInDB.setPrice(currentListingPrice.getPrice());
             currentListingPriceInDB.setPricePerUnitArea(currentListingPrice.getPricePerUnitArea());
