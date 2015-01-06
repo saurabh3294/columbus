@@ -115,7 +115,7 @@ public class ListingService {
             throw new ResourceAlreadyExistException("Listing could not be created");
         }
         if (currentListingPrice != null) {
-            ListingPrice listingPriceCreated = listingPriceService.createListingPrice(currentListingPrice, listing);
+            ListingPrice listingPriceCreated = listingPriceService.createOrUpdateListingPrice(currentListingPrice, listing);
 
             // save listing again with current listing price id
             listing.setCurrentPriceId(listingPriceCreated.getId());
@@ -131,7 +131,7 @@ public class ListingService {
 
     public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) {
         listing.setId(listingId);
-        Listing listingInDB = listingDao.findListingWithPriceById(listingId);
+        Listing listingInDB = listingDao.findListingWithPriceAndPropertyById(listingId);
 
         if (!listingInDB.getSellerId().equals(userIdentifier)) {
             throw new BadRequestException("you can change only your listings");
@@ -151,13 +151,12 @@ public class ListingService {
         ListingPrice currentListingPrice = listing.getCurrentListingPrice();
         ListingPrice currentListingPriceInDB = listingInDB.getCurrentListingPrice();
         listing.setCurrentListingPrice(null);
-        if (currentListingPrice != null) {
-            listing.setUpdatedBy(userIdentifier);
-            currentListingPrice.setId(currentListingPriceInDB.getId());
-            currentListingPrice.setCreatedAt(currentListingPriceInDB.getCreatedAt());
-            currentListingPrice.setEffectiveDate(currentListingPriceInDB.getEffectiveDate());
-            ListingPrice listingPriceCreated = listingPriceService.createListingPrice(currentListingPrice, listing);
-            listingInDB.setCurrentPriceId(listingPriceCreated.getId());
+        if (currentListingPrice != null) {             
+            currentListingPriceInDB.setPrice(currentListingPrice.getPrice());
+            currentListingPriceInDB.setPricePerUnitArea(currentListingPrice.getPricePerUnitArea());
+            currentListingPriceInDB.setOtherCharges(currentListingPrice.getOtherCharges());
+            ListingPrice listingPriceUpdated = listingPriceService.createOrUpdateListingPrice(currentListingPriceInDB, listingInDB);
+            listingInDB.setCurrentPriceId(listingPriceUpdated.getId());
         }
 
         List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(Collections

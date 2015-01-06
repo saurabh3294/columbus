@@ -59,5 +59,5 @@ public interface ListingDao extends JpaRepository<Listing, Integer>, ListingCust
             Pageable pageable);
 
     @Query("select l from Listing l join fetch l.currentListingPrice join fetch l.property where l.id = ?1")
-    Listing findListingWithPriceById(Integer listingId);
+    Listing findListingWithPriceAndPropertyById(Integer listingId);
 }
