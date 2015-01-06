@@ -24,6 +24,7 @@ import com.proptiger.core.enums.Application;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.model.proptiger.CompanySubscription;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
+import com.proptiger.core.model.user.UserAttribute;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.repo.APIAccessLogDao;
 import com.proptiger.core.util.IPUtils;
@@ -36,6 +37,7 @@ import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.CompanyIP;
 import com.proptiger.data.model.user.UserOTP;
 import com.proptiger.data.repo.CompanyIPDao;
+import com.proptiger.data.repo.user.UserAttributeDao;
 import com.proptiger.data.repo.user.UserOTPDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
@@ -49,6 +51,9 @@ import com.proptiger.data.service.user.UserSubscriptionService;
  */
 public class OTPService {
 
+    public static final String     OTP_ATTRIBUTE_NAME  = "OTP_DISABLE";
+    public static final String     OTP_ATTRIBUTE_VALUE = "TRUE";
+
     @Autowired
     private APIAccessLogDao         accessLogDao;
 
@@ -58,7 +63,7 @@ public class OTPService {
     @Autowired
     private UserOTPDao              userOTPDao;
 
-    private OTPGenerator            generator = new OTPGenerator();
+    private OTPGenerator            generator           = new OTPGenerator();
 
     @Autowired
     private AuthSuccessHandler      authSuccessHandler;
@@ -68,23 +73,32 @@ public class OTPService {
 
     @Autowired
     private CompanyIPDao            companyIPDao;
-    
+
     @Autowired
-    private TemplateToHtmlGenerator   mailBodyGenerator;
+    private UserAttributeDao        userAttributeDao;
+
+    @Autowired
+    private TemplateToHtmlGenerator mailBodyGenerator;
 
     public boolean isOTPRequired(Authentication auth, HttpServletRequest request) {
         boolean required = false;
-        if(!PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_OTP, Boolean.class)){
+        if (!PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_OTP, Boolean.class)) {
             return required;
         }
         ActiveUser activeUser = (ActiveUser) auth.getPrincipal();
-        if (activeUser.getApplicationType().equals(Application.B2B)) {
+        UserAttribute userAttribute = userAttributeDao.findByUserIdAndAttributeNameAndAttributeValue(
+                activeUser.getUserIdentifier(),
+                OTP_ATTRIBUTE_NAME,
+                OTP_ATTRIBUTE_VALUE);
+        if (userAttribute != null) {
+            required = false;
+        }
+        else if (activeUser.getApplicationType().equals(Application.B2B)) {
             required = true;
             String userIP = IPUtils.getClientIP(request);
-            if(isUserCompanyIPWhitelisted(userIP, activeUser)){
+            if (isUserCompanyIPWhitelisted(userIP, activeUser)) {
                 /*
-                 * if user company ip is whitelisted then no need of
-                 * otp
+                 * if user company ip is whitelisted then no need of otp
                  */
                 required = false;
             }
@@ -122,7 +136,7 @@ public class OTPService {
         userOTP.setOtp(otp);
         userOTP.setUserId(activeUser.getUserIdentifier());
         userOTPDao.save(userOTP);
-        
+
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.OTP,
                 new OtpMail(activeUser.getFullName(), otp, UserOTP.EXPIRES_IN_MINUTES));
@@ -167,22 +181,26 @@ public class OTPService {
         userOTPDao.deleteByUserId(activeUser.getUserIdentifier());
     }
 
-    public static class OtpMail{
-        private String userName;
+    public static class OtpMail {
+        private String  userName;
         private Integer otp;
         private Integer validity;
+
         public OtpMail(String userName, Integer otp, Integer validity) {
             super();
             this.userName = userName;
             this.otp = otp;
             this.validity = validity;
         }
+
         public String getUserName() {
             return userName;
         }
+
         public Integer getOtp() {
             return otp;
         }
+
         public Integer getValidity() {
             return validity;
         }
