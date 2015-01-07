@@ -62,9 +62,11 @@ public class LeadOfferController extends BaseController {
     public APIResponse getMatchingListings(
             @PathVariable int leadOfferId,
             @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) List<Integer> projectId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
         PaginatedResponse<List<Listing>> matchingListings = leadOfferService.getSortedMatchingListings(
                 leadOfferId,
+                projectId,
                 activeUser.getUserIdentifier());
         return new APIResponse(
                 super.filterFieldsFromSelector(matchingListings.getResults(), selector),

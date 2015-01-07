@@ -556,40 +556,40 @@ public class LeadTaskService {
 
         // offer id should be same
         if (leadTask.getLeadOfferId() != leadTask.getLeadOfferId()) {
-            logger.info("OFFER ID PASSED IS NOT CONSISTENT");
+            logger.debug("OFFER ID PASSED IS NOT CONSISTENT");
             result = false;
         }
         // complete tasks should not be editable
         else if (oldStatus.getMasterLeadTaskStatus().isComplete()) {
-            logger.info("COMPLATE TASK CANT BE EDITED");
+            logger.debug("COMPLATE TASK CANT BE EDITED");
             result = false;
         }
         // task status should not be the one for the new tasks
         else if (newStatus.getMasterLeadTaskStatus().isBeginning()) {
-            logger.info("NOT A VALID STATUS FOR TASK BEING UPDATED");
+            logger.debug("NOT A VALID STATUS FOR TASK BEING UPDATED");
             result = false;
         }
         // validating status reason
         else if (!isValidStatusReason(leadTask)) {
-            logger.info("NOT A VALID STATUS REASON");
+            logger.debug("NOT A VALID STATUS REASON");
             result = false;
         }
         else if (oldStatus.getId() != newStatus.getId()) {
             // task type is not editable
             if (oldStatus.getMasterTaskId() != newStatus.getMasterTaskId()) {
-                logger.info("TASK TYPE CANT BE CHANGED");
+                logger.debug("TASK TYPE CANT BE CHANGED");
                 result = false;
             }
             // cases where performed at is mandatory
             if ((newStatus.getMasterLeadTaskStatus().isComplete() && !newStatus.getMasterLeadTaskStatus().getStatus()
                     .equals(TaskStatus.Cancelled)) && leadTask.getPerformedAt() == null) {
-                logger.info("COMPLETE TASKS SHOULD HAVE PERFORMED AT");
+                logger.debug("COMPLETE TASKS SHOULD HAVE PERFORMED AT");
                 result = false;
             }
             // cases where next task is mandatory
             else if (newStatus.getMasterLeadTaskStatus().isNextTaskRequired()) {
                 if (leadTask.getNextTask() == null) {
-                    logger.info("NEXT TASK IS MENDATORY");
+                    logger.debug("NEXT TASK IS MENDATORY");
                     result = false;
                 }
                 else if (!isValidNextTask(leadTask)) {
@@ -598,7 +598,7 @@ public class LeadTaskService {
             }
             // next task is not required but is provided
             else if (!newStatus.getMasterLeadTaskStatus().isNextTaskRequired() && leadTask.getNextTask() != null) {
-                logger.info("NEXT TASK IS NOT NEEDED");
+                logger.debug("NEXT TASK IS NOT NEEDED");
                 result = false;
             }
         }

@@ -775,9 +775,9 @@ public class LeadOfferService {
             fields.add("requirements");
             enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields, userId);
             Map<String, Object> map = new HashMap<>();
-            User client = leadOfferInDB.getLead().getClient();            
+            User client = leadOfferInDB.getLead().getClient();
             client.setFullName(StringUtils.capitalize(client.getFullName()));
-            
+
             for (LeadOfferedListing leadOfferedListing : leadOfferInDB.getOfferedListings()) {
                 if (!newListingIds.contains(leadOfferedListing.getListingId())) {
                     leadOfferedListing.setListing(null);
@@ -803,14 +803,14 @@ public class LeadOfferService {
             Company broker = companyService.getCompanywithContactNumberFromUserId(leadOfferInDB.getAgentId());
 
             leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
-            
+
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
-                        
+
             if (jsonDumpMap != null) {
                 map.put("jsonDumpMap", jsonDumpMap);
             }
-            
+
             if (broker != null) {
                 map.put("broker", broker);
             }
@@ -911,12 +911,24 @@ public class LeadOfferService {
     }
 
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
+        return getUnsortedMatchingListings(leadOfferId, null, userId);
+    }
 
+    private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(
+            int leadOfferId,
+            List<Integer> projectIds,
+            Integer userId) {
         LeadOffer leadOfferInDB = leadOfferDao.getById(leadOfferId);
         if (leadOfferInDB.getAgentId() != userId) {
             throw new BadRequestException("you can only view listings offered by you for lead offers assigned to you");
         }
-        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId, userId);
+        List<Listing> matchingListings = new ArrayList<>();
+        if (projectIds == null || projectIds.isEmpty()) {
+            matchingListings = leadOfferDao.getMatchingListings(leadOfferId);
+        }
+        else {
+            matchingListings = leadOfferDao.getMatchingListingsInProject(leadOfferId, projectIds);
+        }
         populateOfferedFlag(leadOfferId, matchingListings, userId);
         return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
     }
@@ -936,11 +948,18 @@ public class LeadOfferService {
         }
     }
 
-    public PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId, Integer userId) {
-        PaginatedResponse<List<Listing>> listings = getUnsortedMatchingListings(leadOfferId, userId);
+    public PaginatedResponse<List<Listing>> getSortedMatchingListings(
+            int leadOfferId,
+            List<Integer> projectIds,
+            Integer userId) {
+        PaginatedResponse<List<Listing>> listings = getUnsortedMatchingListings(leadOfferId, projectIds, userId);
         List<LeadRequirement> leadRequirements = leadRequirementsService.getRequirements(leadOfferId);
         listings.setResults(sortMatchingListings(listings.getResults(), leadRequirements));
         return listings;
+    }
+
+    private PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId, Integer userId) {
+        return getSortedMatchingListings(leadOfferId, null, userId);
     }
 
     public List<Typeahead> getMatchingListingsTypeAhead(int leadOfferId, String query, String typeAheadType, int rows) {
