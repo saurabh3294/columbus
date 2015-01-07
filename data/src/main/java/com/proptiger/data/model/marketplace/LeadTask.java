@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.proptiger.core.annotations.ExcludeFromBeanCopy;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.MasterLeadTask;
 import com.proptiger.data.model.MasterLeadTaskStatus;
 
