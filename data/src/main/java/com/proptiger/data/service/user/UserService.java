@@ -530,7 +530,7 @@ public class UserService {
         logger.debug("Changing password for user {}", activeUser.getUsername());
         User user = userDao.findByIdWithRoles(activeUser.getUserIdentifier());
         user.setPassword(changePassword.getNewPassword());
-        user = userDao.save(user);
+        userDao.save(user);
         SecurityContextUtils.autoLogin(user);
     }
 
