@@ -7,6 +7,8 @@ package com.proptiger.columbus.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,8 @@ public class TypeaheadService {
     @Autowired
     private NLPSuggestionHandler    nlpSuggestionHandler;
 
+    private static Logger           logger = LoggerFactory.getLogger(TypeaheadService.class);
+
     /**
      * This method will return the list of typeahead results based on the
      * params.
@@ -44,7 +48,7 @@ public class TypeaheadService {
      * @param filterQueries
      * @return List<Typeahead>
      */
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries) {
         List<Typeahead> typeaheads = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
         if (typeaheads != null) {
@@ -55,61 +59,50 @@ public class TypeaheadService {
         return typeaheads;
     }
 
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
         return typeaheadDao.getExactTypeaheads(query, rows, filterQueries);
     }
 
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
         return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
     }
 
-
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String city) {
-
-        /* If any filters were passed in URL, return only normal results */
-        if (!filterQueries.isEmpty()) {
-            return (typeaheadDao.getTypeaheadsV2(query, rows, filterQueries));
-        }
-
-        /* Get NLP based results */
-        List<Typeahead> nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, city, rows);
-
-        /* Get Normal Results matching the query String */
-        filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
-        filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
-        List<Typeahead> results = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
-
-        /* Get recommendations type results */
-        List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
-
-        /* Consolidate results */
-        List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);
-
-        return consolidatedResults;
-    }
-
-    @Cacheable(value=Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadsV4(String query, int rows, List<String> filterQueries, String city) {
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
+    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
 
         /* If any filters were passed in URL, return only normal results */
         if (!filterQueries.isEmpty()) {
-            return (typeaheadDao.getTypeaheadsV4(query, rows, filterQueries));
+            return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity));
         }
 
         /* Get NLP based results */
-        List<Typeahead> nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, city, rows);
+        List<Typeahead> nlpResults = new ArrayList<Typeahead>();
+        try {
+            nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, usercity, rows);
+        }
+        catch (Exception ex) {
+            logger.error("Error while fetching templates.", ex);
+        }
 
-        /* Get Normal Results matching the query String */
+        /*
+         * Get Normal Results matching the query String. filterQueries if we
+         * reach here.
+         */
         filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
-        List<Typeahead> results = typeaheadDao.getTypeaheadsV4(query, rows, filterQueries);
+        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity);
 
         /* Get recommendations type results */
-        List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
+        List<Typeahead> suggestions = new ArrayList<Typeahead>();
+        try {
+            suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
+        }
+        catch (Exception ex) {
+            logger.error("Error while fetching suggestions.", ex);
+        }
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);

@@ -56,8 +56,13 @@ public class TaTestExecuter {
 
         ExecutorService executerService = Executors.newFixedThreadPool(20);
         List<Future<TaTestCase>> futureList = new ArrayList<Future<TaTestCase>>();
+        String testCaseUrl;
         for (TaTestCase ttc : testListLimited) {
-            ttc.setTestUrl(TYPEAHEAD_API_URL + "?query=" + ttc.getQuery());
+            testCaseUrl = TYPEAHEAD_API_URL + "?query=" + ttc.getQuery();
+            if(ttc.getUsercity() != null){
+                testCaseUrl += ("&usercity=" + ttc.getUsercity());
+            }
+            ttc.setTestUrl(testCaseUrl);
             futureList.add(executerService.submit(new CustomCallable(ttc)));
         }
 
