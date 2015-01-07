@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.model.event.EventGenerated;
 import com.proptiger.core.model.event.EventType;
-import com.proptiger.core.model.event.EventTypeConfig;
 import com.proptiger.data.event.model.DefaultEventTypeConfig;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.service.EventGeneratedService;

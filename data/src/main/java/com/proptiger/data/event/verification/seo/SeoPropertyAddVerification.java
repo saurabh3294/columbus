@@ -3,7 +3,6 @@ package com.proptiger.data.event.verification.seo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.core.enums.event.EventTypeEnum;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;

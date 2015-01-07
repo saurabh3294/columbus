@@ -424,7 +424,7 @@
 		<dependency>
 		  <groupId>org.springframework.session</groupId>
 		  <artifactId>spring-session-data-redis</artifactId>
-		  <version>1.0.0.BUILD-SNAPSHOT</version>
+		  <version>1.0.0.RC1</version>
 		  <exclusions>
                 <exclusion>
                 	<groupId>org.apache.commons</groupId>
@@ -468,13 +468,21 @@
 			<id>proptiger-maven-repo</id>
 			<name>S3 Release Repository</name>
 			<url>s3://proptiger-maven-repo/release</url>
-      <snapshots>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
+			<snapshots>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
 		</repository>
 		<repository>
-		    <id>spring-milestones</id>
-		    <url>http://repo.springsource.org/libs-milestone/</url>
-		  </repository>
+			<id>spring-milestones</id>
+			<url>http://repo.springsource.org/libs-milestone/</url>
+		</repository>
+		<repository>
+			<id>spring-milestones-rc</id>
+			<name>Spring Milestones</name>
+			<url>http://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 </project>
