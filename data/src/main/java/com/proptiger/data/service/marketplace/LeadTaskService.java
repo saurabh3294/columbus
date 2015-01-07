@@ -1,4 +1,4 @@
-package com.proptiger.data.service;
+package com.proptiger.data.service.marketplace;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -52,10 +52,6 @@ import com.proptiger.data.repo.marketplace.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
-import com.proptiger.data.service.marketplace.LeadOfferService;
-import com.proptiger.data.service.marketplace.ListingService;
-import com.proptiger.data.service.marketplace.MasterLeadOfferStatusService;
-import com.proptiger.data.service.marketplace.NotificationService;
 import com.proptiger.data.util.SerializationUtils;
 
 /**

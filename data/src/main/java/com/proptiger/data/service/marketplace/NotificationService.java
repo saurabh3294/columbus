@@ -57,7 +57,6 @@ import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
-import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyUserService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.user.UserService;

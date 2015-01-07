@@ -64,7 +64,6 @@ import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
-import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.TypeAheadService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.mail.MailSender;
