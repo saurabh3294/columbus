@@ -12,8 +12,6 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,9 +27,6 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.core.enums.EntityType;
-import com.proptiger.core.enums.ResiProjectTypeEnum;
-import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.core.model.user.User;
 
@@ -114,7 +109,7 @@ public class Lead extends BaseModel {
     private List<LeadRequirement> requirements;
 
     @Column(name = "flexible_budget_flag")
-    private boolean               flexibleBudget    = false;
+    private boolean               flexibleBudget        = false;
 
     public int getSourceId() {
         return sourceId;
@@ -311,5 +306,5 @@ public class Lead extends BaseModel {
     public void setFlexibleBudget(boolean flexibleBudgetFlag) {
         this.flexibleBudget = flexibleBudgetFlag;
     }
-    
+
 }
