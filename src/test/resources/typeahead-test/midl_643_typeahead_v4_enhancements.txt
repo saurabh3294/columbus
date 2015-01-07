@@ -6,8 +6,8 @@
 #kolte patil raga,Project,1,1,TYPEAHEAD-PROJECT-504527
 
 #===== Word Split Spellchecking ====#
-jaypee suncourt,Project,1,3,TYPEAHEAD-PROJECT-506148
-jaypee suncourt,Project,1,3,TYPEAHEAD-PROJECT-512233
+#jaypee suncourt,Project,1,3,TYPEAHEAD-PROJECT-506148
+#jaypee suncourt,Project,1,3,TYPEAHEAD-PROJECT-512233
 #Hillshire,Project,1,1,TYPEAHEAD-PROJECT-644389
 shore line,Builder,1,3,TYPEAHEAD-BUILDER-103855
 
