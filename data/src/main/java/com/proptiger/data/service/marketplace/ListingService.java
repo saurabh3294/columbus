@@ -140,14 +140,9 @@ public class ListingService {
         Property property = listingInDB.getProperty();
         listing.setProperty(null);
 
-        if (listing.getFloor() != null) {
-            listingInDB.setFloor(listing.getFloor());
-        }
-
-        if (listing.getJsonDump() != null) {
-            listingInDB.setJsonDump(listing.getJsonDump());
-        }
-
+        listingInDB.setFloor(listing.getFloor());
+        listingInDB.setJsonDump(listing.getJsonDump());
+        
         ListingPrice currentListingPrice = listing.getCurrentListingPrice();
         ListingPrice currentListingPriceInDB = listingInDB.getCurrentListingPrice();
         if (currentListingPrice != null) {             
