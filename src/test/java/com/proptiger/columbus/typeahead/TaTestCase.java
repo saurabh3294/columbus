@@ -7,13 +7,14 @@ import com.proptiger.columbus.model.Typeahead;
 public class TaTestCase {
 
     protected String         query;
+    protected String         usercity;
     protected TaTestCaseType type;
     protected int            minRank;
     protected int            maxRank;
     protected String         expectedTypeaheadId;
     protected String         testUrl;
     private List<Typeahead>  results;
-    
+
     public TaTestCase(String query, TaTestCaseType type, int minRank, int maxRank, String expectedTypeaheadId) {
         super();
         this.query = query;
@@ -29,6 +30,14 @@ public class TaTestCase {
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    public String getUsercity() {
+        return usercity;
+    }
+
+    public void setUsercity(String usercity) {
+        this.usercity = usercity;
     }
 
     public TaTestCaseType getType() {
@@ -70,7 +79,7 @@ public class TaTestCase {
     public void setTestUrl(String testUrl) {
         this.testUrl = testUrl;
     }
-    
+
     public List<Typeahead> getResults() {
         return results;
     }
@@ -80,7 +89,14 @@ public class TaTestCase {
     }
 
     public String getLogString() {
-        String logString = this.query + "," + "(" + this.minRank + "-" + this.maxRank + ")" + "," + this.expectedTypeaheadId;
+        String logString = this.query + ","
+                + "("
+                + this.minRank
+                + "-"
+                + this.maxRank
+                + ")"
+                + ","
+                + this.expectedTypeaheadId;
         return logString;
     }
 }
