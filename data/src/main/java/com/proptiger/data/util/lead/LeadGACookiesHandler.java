@@ -52,7 +52,6 @@ public class LeadGACookiesHandler {
         if (campaignName != null) {
             enquiry.setGaCampaign(campaignName);
         }
-
         if (cookiesMap.get(CookieConstants.USER_NETWORK) != null) {
             enquiry.setGaNetwork(cookiesMap.get(CookieConstants.USER_NETWORK).trim());
         }

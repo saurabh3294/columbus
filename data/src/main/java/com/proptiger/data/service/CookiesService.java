@@ -56,6 +56,9 @@ public class CookiesService {
                     originalPPC = CookieConstants.PPC_TRUE.equalsIgnoreCase(cookie.getValue());
                     ppc = originalPPC;
                 }
+                else if (cookie.getName().equals(CookieConstants.UTMA)) {
+                    cookiesMap.put(CookieConstants.UTMA, cookie.getValue());
+                }
                 else if (cookie.getName().equals(CookieConstants.LANDING_PAGE)) {
                     landingPage = cookie.getValue();
                 }

@@ -25,7 +25,6 @@ public class CookieConstants {
     public static final String PPC               = "ppc";
     public static final String USER_FROM_PPC     = "USER_FROM_PPC";
     public static final String PPC_TRUE          = "TRUE";
-
     public static final String REF_URL           = "REF_URL";
     public static final String UTM_SOURCE        = "utm_source";
     public static final String UTM_ADGROUP       = "utm_adgroup";

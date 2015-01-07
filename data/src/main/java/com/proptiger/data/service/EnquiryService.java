@@ -527,7 +527,6 @@ public class EnquiryService {
                 enquiryAttributes.setTypeId(typeId);
                 enquiryAttributesDao.saveAndFlush(enquiryAttributes);
             }
-
             savedEnquiry = enquiryDao.saveAndFlush(savedEnquiry);
 
             if (savedEnquiry.getProjectId() != 0) {
