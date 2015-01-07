@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.mvc.BaseController;
@@ -31,13 +32,9 @@ import com.proptiger.core.pojo.response.APIResponse;
  */
 @Controller
 public class TypeaheadController extends BaseController {
+
     @Autowired
     private TypeaheadService typeaheadService;
-
-    private final String     defaultCityName     = "Noida";
-
-    private String           cityCookieLabel     = "HOME_CITY";
-    private String           cityCookieSeparater = "%2C";
 
     @Intercepted.TypeaheadListing
     @RequestMapping(value = "app/v1/typeahead")
@@ -102,18 +99,22 @@ public class TypeaheadController extends BaseController {
         HttpServletRequest httpRequest = ((HttpServletRequest) request);
         Cookie[] cookies = httpRequest.getCookies();
         if (cookies == null) {
-            return defaultCityName;
+            return null;
         }
 
         for (Cookie c : cookies) {
-            if (c.getName().equals(cityCookieLabel)) {
-                city = StringUtils.substringAfter(c.getValue(), cityCookieSeparater);
-                break;
+            if (c.getName().equals(TypeaheadConstants.cityCookieLabel)) {
+                city = StringUtils.substringAfter(c.getValue(), TypeaheadConstants.cityCookieSeparater);
+                if(city == null || city.isEmpty()){
+                    break;
+                }
+                return city;
             }
         }
 
-        /* fall back to default configured city */
-        return ((city == null || city.isEmpty()) ? defaultCityName : city);
+        /* return null here (because now null means no-city-boosting)
+         * defaultConfiguredCity is used only by templates and will be set there.*/
+        return null;
     }
 
     @Intercepted.TypeaheadListing

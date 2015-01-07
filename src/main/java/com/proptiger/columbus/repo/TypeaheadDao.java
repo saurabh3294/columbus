@@ -12,9 +12,11 @@ import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+
 //import com.google.common.base.Joiner;
 //import com.proptiger.core.model.cms.City;
 import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.UtilityClass;
 
@@ -30,12 +32,6 @@ public class TypeaheadDao {
 
     @Autowired
     private SolrDao      solrDao;
-
-    private float        boostStart        = 10f;
-    private float        boostMultiplier   = 0.3f;
-
-    private static float CityBoostMinScore = 8.0f;
-    private static float CityBoost         = 1.25f;
 
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         SolrQuery solrQuery = this.getSolrQueryV2(query, rows, filterQueries);
@@ -67,11 +63,11 @@ public class TypeaheadDao {
             return boostQuery;
         }
 
-        float boost = boostStart;
+        float boost = TypeaheadConstants.QueryTimeBoostStart;
         /* Boost all-but-last query strings as core-texts */
         for (int i = 0; i < count - 1; i++) {
             boostQuery += "Core_text:" + st.nextToken() + "^" + Math.max(1, boost) + " ";
-            boost *= boostMultiplier;
+            boost *= TypeaheadConstants.QueryTimeBoostMultiplier;
         }
 
         /* Boost last query string as an edgeNGram */
@@ -174,8 +170,10 @@ public class TypeaheadDao {
             resultsOriginal.addAll(resultsSuggested);
         }
 
-        /* Boost results where city is same as user's selected city */
-        boostByCityContext(resultsOriginal, usercity);
+        /* Boost results where city is same as user's selected city if usercity is given*/
+        if(usercity != null && !usercity.isEmpty()){
+            boostByCityContext(resultsOriginal, usercity);
+        }
 
         /* Sort and remove duplicates */
         Collections.sort(resultsOriginal, new Comparator<Typeahead>() {
@@ -210,10 +208,10 @@ public class TypeaheadDao {
 
     private float getCityBoostedScore(float oldScore) {
         /* Don't boost irrelevant documents */
-        if (oldScore <= CityBoostMinScore) {
+        if (oldScore <= TypeaheadConstants.CityBoostMinScore) {
             return oldScore;
         }
-        return oldScore * CityBoost;
+        return oldScore * TypeaheadConstants.CityBoost;
     }
 
     // ******* Exact Typeaheads ********

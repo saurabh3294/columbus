@@ -144,6 +144,7 @@ public class TypeaheadTest extends AbstractTest {
         List<TaTestCase> testList;
         for (Entry<String, List<TaTestCase>> entry : mapTestCases.entrySet()) {
             testList = entry.getValue();
+            logger.debug("Runnig custom test cases from file : " + entry.getKey());
             runTests(testList, defaultTestExecutionLimit, testMode);
         }
     }

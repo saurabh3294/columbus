@@ -10,13 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.columbus.model.TypeaheadConstants;
 
 @Component
 public class EntitySuggestionHandler {
 
     private Logger              logger                   = LoggerFactory.getLogger(EntitySuggestionHandler.class);
-
-    private float               suggestionScoreThreshold = 20.0f;
 
     @Autowired
     private CitySuggestions     citySuggestions;
@@ -41,7 +40,7 @@ public class EntitySuggestionHandler {
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
         /* If top-result is not relevant enough then don't give suggestions. */
-        if (results == null || results.isEmpty() || results.get(0).getScore() < suggestionScoreThreshold) {
+        if (results == null || results.isEmpty() || results.get(0).getScore() < TypeaheadConstants.SuggestionScoreThreshold) {
             return suggestions;
         }
 
