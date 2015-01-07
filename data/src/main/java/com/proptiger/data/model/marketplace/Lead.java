@@ -109,7 +109,7 @@ public class Lead extends BaseModel {
     private List<LeadRequirement> requirements;
 
     @Column(name = "flexible_budget_flag")
-    private boolean               flexibleBudget    = false;
+    private boolean               flexibleBudget        = false;
 
     public int getSourceId() {
         return sourceId;
@@ -306,5 +306,5 @@ public class Lead extends BaseModel {
     public void setFlexibleBudget(boolean flexibleBudgetFlag) {
         this.flexibleBudget = flexibleBudgetFlag;
     }
-    
+
 }

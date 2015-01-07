@@ -115,7 +115,7 @@ public class ListingService {
             throw new ResourceAlreadyExistException("Listing could not be created");
         }
         if (currentListingPrice != null) {
-            ListingPrice listingPriceCreated = listingPriceService.createListingPrice(currentListingPrice, listing);
+            ListingPrice listingPriceCreated = listingPriceService.createOrUpdateListingPrice(currentListingPrice, listing);
 
             // save listing again with current listing price id
             listing.setCurrentPriceId(listingPriceCreated.getId());
@@ -131,7 +131,7 @@ public class ListingService {
 
     public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) {
         listing.setId(listingId);
-        Listing listingInDB = listingDao.findById(listingId);
+        Listing listingInDB = listingDao.findListingWithPriceAndPropertyById(listingId);
 
         if (!listingInDB.getSellerId().equals(userIdentifier)) {
             throw new BadRequestException("you can change only your listings");
@@ -146,6 +146,16 @@ public class ListingService {
 
         if (listing.getJsonDump() != null) {
             listingInDB.setJsonDump(listing.getJsonDump());
+        }
+
+        ListingPrice currentListingPrice = listing.getCurrentListingPrice();
+        ListingPrice currentListingPriceInDB = listingInDB.getCurrentListingPrice();
+        if (currentListingPrice != null) {             
+            currentListingPriceInDB.setPrice(currentListingPrice.getPrice());
+            currentListingPriceInDB.setPricePerUnitArea(currentListingPrice.getPricePerUnitArea());
+            currentListingPriceInDB.setOtherCharges(currentListingPrice.getOtherCharges());
+            ListingPrice listingPriceUpdated = listingPriceService.createOrUpdateListingPrice(currentListingPriceInDB, listingInDB);
+            listingInDB.setCurrentPriceId(listingPriceUpdated.getId());
         }
 
         List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(Collections

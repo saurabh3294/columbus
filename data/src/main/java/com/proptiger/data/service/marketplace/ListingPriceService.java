@@ -24,7 +24,7 @@ public class ListingPriceService {
     @Autowired
     private ListingPriceDao listingPriceDao;
 
-    public ListingPrice createListingPrice(ListingPrice listingPrice, Listing listing) {
+    public ListingPrice createOrUpdateListingPrice(ListingPrice listingPrice, Listing listing) {
         preCreateValidation(listingPrice, listing);
         ListingPrice created = listingPriceDao.saveAndFlush(listingPrice);
         return created;
