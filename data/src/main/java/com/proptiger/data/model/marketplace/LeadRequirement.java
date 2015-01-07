@@ -60,18 +60,17 @@ public class LeadRequirement extends BaseModel {
     @JoinColumn(name="lead_id" ,insertable=false, updatable=false)
     private Lead lead;
 
-    @Column(name = "property_type")
-    @Enumerated(EnumType.STRING)
-    private UnitType           propertyType;
-        
-    public UnitType getPropertyType() {
-        return propertyType;
+    @Column(name = "property_type_id")
+    private Integer  propertyTypeId;
+
+    public Integer getPropertyTypeId() {
+        return propertyTypeId;
     }
 
-    public void setPropertyType(UnitType propertyType) {
-        this.propertyType = propertyType;
+    public void setPropertyTypeId(Integer propertyTypeId) {
+        this.propertyTypeId = propertyTypeId;
     }
-        
+
     public Lead getLead() {
         return lead;
     }
