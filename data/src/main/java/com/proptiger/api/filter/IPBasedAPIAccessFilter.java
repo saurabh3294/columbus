@@ -72,7 +72,7 @@ public class IPBasedAPIAccessFilter implements Filter {
         
         if (!secureAccess) {
             accessDeniedHandler.handle(httpRequest, (HttpServletResponse) response, new AccessDeniedException(
-                    ResponseErrorMessages.ACCESS_DENIED));
+                    ResponseErrorMessages.User.ACCESS_DENIED));
             return;
         }
         chain.doFilter(httpRequest, response);

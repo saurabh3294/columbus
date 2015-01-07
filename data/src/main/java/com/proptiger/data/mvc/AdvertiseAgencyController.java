@@ -22,12 +22,12 @@ public class AdvertiseAgencyController {
     private static enum AdvertiseAgency {
         MIXPANEL("MIXPANEL", true),
         GOOGLE_CAMPAIGN("GOOGLE_CAMPAIGN", true),
-        OMG("OMG", true),
+        OMG("OMG", false),
         TYROO("TYROO", false),
-        _79MOBI("79MOBI", true),
-        VSERVE("VSERVE", true),
-        INMOBI("INMOBI", true),
-        GMOBI("GMOBI", true);
+        _79MOBI("79MOBI", false),
+        VSERVE("VSERVE", false),
+        INMOBI("INMOBI", false),
+        GMOBI("GMOBI", false);
 
         private boolean enabled;
         private String label;

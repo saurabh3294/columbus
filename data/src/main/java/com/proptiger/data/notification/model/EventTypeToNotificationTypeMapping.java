@@ -9,7 +9,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.event.model.EventType;
+import com.proptiger.core.model.event.EventType;
 
 @Entity
 @Table(name = "notification.event_type_to_notification_type_mapping")

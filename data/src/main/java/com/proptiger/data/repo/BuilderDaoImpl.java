@@ -92,5 +92,13 @@ public class BuilderDaoImpl {
                         "{\"sort\":[{\"field\":\"priority\",\"sortOrder\":\"ASC\"},{\"field\":\"name\",\"sortOrder\":\"ASC\"}]}",
                         Selector.class).getSort();
     }
+    
+    public List<Builder> getBuilders(Selector selector){
+        SolrQuery solrQuery = createSolrQuery(selector);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<Builder> builders = queryResponse.getBeans(Builder.class);
+        
+        return builders;
+    }
 
 }

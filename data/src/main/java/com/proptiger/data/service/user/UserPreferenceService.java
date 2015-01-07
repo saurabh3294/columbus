@@ -12,8 +12,8 @@ import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceAlreadyExistException;
 import com.proptiger.core.exception.UnauthorizedException;
-import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.model.user.UserPreference;
+import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.repo.user.DashboardDao;
 import com.proptiger.data.repo.user.UserPreferenceDao;
 import com.proptiger.data.util.UserPreferenceProcessor;
@@ -38,7 +38,7 @@ public class UserPreferenceService {
             throw new ResourceAlreadyExistException("Preference Already Created For the app " + preference.getApp());
         }
         if (!UserPreferenceProcessor.isValidPreference(preference.getPreference())) {
-            throw new BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
+            throw new BadRequestException(ResponseErrorMessages.User.INVALID_USER_PREFERENCE);
         }
 
         preference.setCreatedAt(new Date());
@@ -57,7 +57,7 @@ public class UserPreferenceService {
         }
         if (!UserPreferenceProcessor.isValidPreference(preference.getPreference()) || !pastPreference.getApp().equals(
                 preference.getApp())) {
-            throw new BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
+            throw new BadRequestException(ResponseErrorMessages.User.INVALID_USER_PREFERENCE);
         }
 
         ExclusionAwareBeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();

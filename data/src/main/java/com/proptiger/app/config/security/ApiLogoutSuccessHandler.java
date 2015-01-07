@@ -22,7 +22,7 @@ public class ApiLogoutSuccessHandler implements LogoutSuccessHandler {
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
         if(authentication != null){
-            logger.error("User {} logged out",authentication.getPrincipal());    
+            logger.debug("User {} logged out",authentication.getPrincipal());    
         }
         response.setStatus(HttpServletResponse.SC_OK);
     }

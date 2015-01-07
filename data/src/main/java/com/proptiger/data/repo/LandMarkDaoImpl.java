@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.gson.Gson;
 import com.proptiger.core.enums.DocumentType;
 import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.model.cms.LandMark;
@@ -124,5 +125,15 @@ public class LandMarkDaoImpl {
 
     private List<LandMarkResult> convertLandMarkResult(SolrDocumentList result) {
         return new DocumentObjectBinder().getBeans(LandMarkResult.class, result);
+    }
+    
+    public LandMark getLandMark(Integer landMarkId) {
+        String jsonSelector = "{\"filters\":{\"and\":[{\"equal\":{\"id\":" + landMarkId + "}}]}}";
+        Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
+        List<LandMark> landMarks = getLocalityAmenitiesOnSelector(selector);
+        if (landMarks == null || landMarks.isEmpty())
+            return null;
+
+        return landMarks.get(0);
     }
 }

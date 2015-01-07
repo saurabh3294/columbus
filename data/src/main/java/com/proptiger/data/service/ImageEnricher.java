@@ -22,7 +22,6 @@ import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.proptiger.Bank;
 import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.core.pojo.response.PaginatedResponse;
-import com.proptiger.core.util.UtilityClass;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.MediaUtil;
 
@@ -397,7 +396,7 @@ public class ImageEnricher {
         
         List<LandMark> amenities = localityAmenityService.getLocalityAmenities(locality.getLocalityId(), null);
         List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
-        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        List<Image> images = imageService.getLandMarkImages(DomainObject.landmark, amenityIds);
         if (images == null || images.isEmpty()) {
             return;
         }
@@ -473,7 +472,7 @@ public class ImageEnricher {
             return new PaginatedResponse<List<Image>>();
         }
         List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
-        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        List<Image> images = imageService.getLandMarkImages(DomainObject.landmark, amenityIds);
         if (images == null || images.isEmpty()) {
             return new PaginatedResponse<List<Image>>();
         }

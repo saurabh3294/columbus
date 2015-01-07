@@ -36,7 +36,7 @@ public class CityDao {
 
         SolrQueryBuilder<City> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, City.class);
         solrQueryBuilder.buildQuery(selector, null);
-
+        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 

@@ -430,6 +430,9 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "CITY_PROPERTY_COUNT")
     private Integer           cityPropertyCount;
+    
+    @Field(value = "CITY_IS_SERVING")
+    private boolean           isServing;
 
     @Field(value = "SUBURB_LOCALITY_COUNT")
     private Integer           suburbLocalityCount;
@@ -455,6 +458,9 @@ public class SolrResult extends BaseModel {
     @Field(value = "NEWS_TAG")
     private String            newsTag;
 
+    @Field(value = "ENCODED_POLYGON")
+    private String            encodedPolygon;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -682,6 +688,11 @@ public class SolrResult extends BaseModel {
         city.setLabel(cityLabel);
     }
 
+    @Field("CITY_IS_SERVING")
+    public void setIsServing(boolean isServing) {
+        city.setIsServing(isServing);
+    }
+    
     @Field("NORTH_EAST_LATITUDE")
     public void setNorthEastLatitude(Double northEastLatitude) {
         city.setNorthEastLatitude(northEastLatitude);
@@ -1420,5 +1431,10 @@ public class SolrResult extends BaseModel {
     public void setNewsTag(String newsTag) {
         project.setNewsTag(newsTag);
         locality.setNewsTag(newsTag);
+    }
+    
+    @Field("ENCODED_POLYGON")
+    public void setEncodedPolygon(String encodedPolygon) {
+        locality.setEncodedPolygon(encodedPolygon);
     }
 }

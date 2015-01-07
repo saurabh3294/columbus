@@ -245,4 +245,8 @@ public class LandMarkService {
     public List<LandMark> getAmenityListByGroupSelector(Selector selector) {
         return localityAmenityDao.getAmenityListByGroupSelector(selector);
     }
+
+    public LandMark getLandMark(Integer landMarkId) {
+        return localityAmenityDao.getLandMark(landMarkId);
+    }
 }
