@@ -31,12 +31,12 @@ import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.JsonUtil;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.util.JsonUtil;
 
 /**
  * @author Rajeev Pandey

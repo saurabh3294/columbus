@@ -19,10 +19,9 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.SessionRepository;
 
 import com.proptiger.api.filter.IPBasedAPIAccessFilter;
+import com.proptiger.core.config.CustomAccessDeniedHandler;
 import com.proptiger.core.enums.security.UserRole;
 import com.proptiger.core.util.Constants;
 
@@ -37,18 +36,13 @@ import com.proptiger.core.util.Constants;
 @EnableWebSecurity
 @ComponentScan(basePackages = { "com.proptiger" })
 @Order
-public class AppSecurityConfig<S extends ExpiringSession> extends WebSecurityConfigurerAdapter {
+public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private DataSource               dataSource;
 
     @Autowired
-    private SessionRepository<S>     sessionRepository;
-
-    @Autowired
     private RedisSerializer<?>       jdkSerializer;
-
-    private final int                REDIS_DB_INDEX_SESSION = 1;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
