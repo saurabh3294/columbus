@@ -57,8 +57,7 @@ public class LeadGACookiesHandler {
             enquiry.setGaNetwork(cookiesMap.get(CookieConstants.USER_NETWORK).trim());
         }
 
-        if (enquiry.getGaMedium() != null && (enquiry.getGaMedium().trim().equals(CookieConstants.PPC) || enquiry
-                .getGaMedium().trim().equals(CookieConstants.CPC))) {
+        if (CookieConstants.PPC_TRUE.equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_FROM_PPC))) {
             enquiry.setPpc(true);
             enquiry.setGaPpc(gaPpcActiveDBEnum);
         }
