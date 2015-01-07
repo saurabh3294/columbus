@@ -395,9 +395,6 @@ public class ImageEnricher {
         }
         
         List<LandMark> amenities = localityAmenityService.getLocalityAmenities(locality.getLocalityId(), null);
-        if (amenities == null || amenities.isEmpty()) {
-            return;
-        }
         List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
         List<Image> images = imageService.getLandMarkImages(DomainObject.landmark, amenityIds);
         if (images == null || images.isEmpty()) {
