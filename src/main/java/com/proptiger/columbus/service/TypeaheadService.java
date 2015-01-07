@@ -7,6 +7,8 @@ package com.proptiger.columbus.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,9 @@ public class TypeaheadService {
     @Autowired
     private NLPSuggestionHandler    nlpSuggestionHandler;
 
-   /**
+    private static Logger           logger = LoggerFactory.getLogger(TypeaheadService.class);
+
+    /**
      * This method will return the list of typeahead results based on the
      * params.
      * 
@@ -75,7 +79,13 @@ public class TypeaheadService {
         }
 
         /* Get NLP based results */
-        List<Typeahead> nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, usercity, rows);
+        List<Typeahead> nlpResults = new ArrayList<Typeahead>();
+        try {
+            nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, usercity, rows);
+        }
+        catch (Exception ex) {
+            logger.error("Error while fetching templates.", ex);
+        }
 
         /*
          * Get Normal Results matching the query String. filterQueries if we
@@ -86,7 +96,13 @@ public class TypeaheadService {
         List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity);
 
         /* Get recommendations type results */
-        List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
+        List<Typeahead> suggestions = new ArrayList<Typeahead>();
+        try {
+            suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
+        }
+        catch (Exception ex) {
+            logger.error("Error while fetching suggestions.", ex);
+        }
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);

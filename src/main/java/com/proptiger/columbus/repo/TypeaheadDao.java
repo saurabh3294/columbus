@@ -145,6 +145,10 @@ public class TypeaheadDao {
             List<String> filterQueries,
             String usercity) {
 
+        
+        /* Fetching more results due to city-context boosting */
+        rows = (int)(rows * TypeaheadConstants.DocumentFetchMultiplier);
+        
         /* Fetch results for entered query first */
         SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
         List<Typeahead> resultsOriginal = new ArrayList<Typeahead>();
