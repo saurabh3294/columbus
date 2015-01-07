@@ -98,7 +98,7 @@ public class TypeaheadService {
         /* Get recommendations type results */
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
         try {
-            entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
+            suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
         }
         catch (Exception ex) {
             logger.error("Error while fetching suggestions.", ex);
