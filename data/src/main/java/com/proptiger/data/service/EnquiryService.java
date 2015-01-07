@@ -149,8 +149,7 @@ public class EnquiryService {
                 updateUserDetails(enquiry);
             }
 
-            if (enquiry.getUserMedium().equals(CookieConstants.PPC) || enquiry.getUserMedium().equals(
-                    CookieConstants.CPC)) {
+            if (enquiry.getPpc()) {
                 enquiry.setTrackingFlag(true);
             }
 
