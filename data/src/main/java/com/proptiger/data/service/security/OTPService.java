@@ -27,6 +27,7 @@ import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
 import com.proptiger.core.model.user.UserAttribute;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.repo.APIAccessLogDao;
+import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
@@ -50,9 +51,6 @@ import com.proptiger.data.service.user.UserSubscriptionService;
  *
  */
 public class OTPService {
-
-    public static final String     OTP_ATTRIBUTE_NAME  = "OTP_DISABLE";
-    public static final String     OTP_ATTRIBUTE_VALUE = "TRUE";
 
     @Autowired
     private APIAccessLogDao         accessLogDao;
@@ -88,8 +86,8 @@ public class OTPService {
         ActiveUser activeUser = (ActiveUser) auth.getPrincipal();
         UserAttribute userAttribute = userAttributeDao.findByUserIdAndAttributeNameAndAttributeValue(
                 activeUser.getUserIdentifier(),
-                OTP_ATTRIBUTE_NAME,
-                OTP_ATTRIBUTE_VALUE);
+                Constants.User.OTP_ATTRIBUTE_NAME,
+                Constants.User.OTP_ATTRIBUTE_VALUE_TRUE);
         if (userAttribute != null) {
             required = false;
         }
@@ -130,7 +128,7 @@ public class OTPService {
     }
 
     @Transactional
-    public void respondWithOTP(ActiveUser activeUser) {
+    public String respondWithOTP(ActiveUser activeUser) {
         int otp = generator.getRandomInt();
         UserOTP userOTP = new UserOTP();
         userOTP.setOtp(otp);
@@ -144,6 +142,7 @@ public class OTPService {
                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.MAIL_OTP_BCC));
         mailSender.sendMailUsingAws(mailDetails);
 
+        return ("New OTP has been sent to your registered email");
     }
 
     @Transactional

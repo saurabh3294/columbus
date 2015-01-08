@@ -13,6 +13,7 @@ import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.user.UserAttribute;
+import com.proptiger.data.enums.user.UserAttributeTypes;
 import com.proptiger.data.repo.user.UserAttributeDao;
 
 /**
@@ -28,13 +29,14 @@ public class UserAttributeService {
     @Autowired
     private MetaUserAttributesService metaUserAttributeService;
 
-    public Object createAttribute(ActiveUser activeUser, UserAttribute userAttribute) {
+    public UserAttribute createAttribute(ActiveUser activeUser, UserAttribute userAttribute) {
 
         // List of saved attribute names, used for verification of attribute to
         // be created
         Map<String, Boolean> metaUserAttributes = metaUserAttributeService.getAllMetaAttributes();
 
         if (metaUserAttributes.get(userAttribute.getAttributeName())) {
+            UserAttributeTypes.validate(userAttribute.getAttributeName(), userAttribute.getAttributeValue());
             userAttribute.setUserId(activeUser.getUserIdentifier());
             return userAttributeDao.saveAndFlush(userAttribute);
         }
@@ -44,12 +46,12 @@ public class UserAttributeService {
     }
 
     public UserAttribute updateAttribute(ActiveUser activeUser, Integer attributeId, String attributeValue) {
-
         UserAttribute savedUserAttribute = userAttributeDao.findOne(attributeId);
         if (savedUserAttribute == null) {
             throw new ResourceNotAvailableException(ResourceType.USER_ATTRIBUTE, ResourceTypeAction.UPDATE);
         }
         else {
+            UserAttributeTypes.validate(savedUserAttribute.getAttributeName(), attributeValue);
             savedUserAttribute.setAttributeValue(attributeValue);
             return userAttributeDao.saveAndFlush(savedUserAttribute);
         }
