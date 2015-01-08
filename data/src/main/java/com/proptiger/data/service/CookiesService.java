@@ -127,7 +127,11 @@ public class CookiesService {
 
     private void setUserIp(HttpServletRequest request, HttpServletResponse response, Map<String, String> cookiesMap) {
         String userIP = null;
-        if (IPUtils.getClientIP(request) != null) {
+
+        if (request.getHeader("IP") != null) {
+            userIP = request.getHeader("IP");
+        }
+        else if (IPUtils.getClientIP(request) != null) {
             userIP = IPUtils.getClientIP(request);
         }
         setCookie(CookieConstants.USER_IP, userIP, response, cookiesMap);
