@@ -13,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.enums.notification.MediumType;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
-import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
