@@ -270,8 +270,8 @@ public class CookiesService {
             HttpServletRequest request,
             Map<String, String> requestCookiesMap) {
         String cookieValue = null;
-        if (request.getParameter(cookieName) != null) {
-            cookieValue = request.getParameter(cookieName);
+        if (request.getParameter(parameterName) != null) {
+            cookieValue = request.getParameter(parameterName);
         }
         else if (requestCookiesMap.get(cookieName) != null) {
             cookieValue = requestCookiesMap.get(cookieName);

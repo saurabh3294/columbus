@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +33,6 @@ import com.proptiger.core.enums.Application;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
-import com.proptiger.core.enums.security.UserRole;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.exception.UnauthorizedException;
@@ -532,7 +530,7 @@ public class UserService {
         logger.debug("Changing password for user {}", activeUser.getUsername());
         User user = userDao.findByIdWithRoles(activeUser.getUserIdentifier());
         user.setPassword(changePassword.getNewPassword());
-        user = userDao.save(user);
+        userDao.save(user);
         SecurityContextUtils.autoLogin(user);
     }
 
