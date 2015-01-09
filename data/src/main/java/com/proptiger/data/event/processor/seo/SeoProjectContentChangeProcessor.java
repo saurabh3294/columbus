@@ -24,7 +24,7 @@ public class SeoProjectContentChangeProcessor extends DBEventProcessor {
             Map<EventStatus, List<EventGenerated>> updateEventsByOldStatusMap) {
 
         EventGenerated lastEvent = mergeEvents(entry.getValue());
-        List<EventTypePayloadDataDto> allPayloadDataDtos = (List<EventTypePayloadDataDto>) lastEvent
+        Map<String, EventTypePayloadDataDto> allPayloadDataDtos = (Map<String, EventTypePayloadDataDto>) lastEvent
                 .getEventTypePayload().getPayloadValues();
 
         // All old processed Events to be merged.
@@ -33,7 +33,7 @@ public class SeoProjectContentChangeProcessor extends DBEventProcessor {
             for (EventGenerated eventGenerated : processedEventsByEventStatus) {
                 eventGenerated.setEventStatus(EventStatus.Merged);
                 eventGenerated.setMergedEventId(lastEvent.getId());
-                allPayloadDataDtos.addAll((List<EventTypePayloadDataDto>) eventGenerated.getEventTypePayload()
+                allPayloadDataDtos.putAll((Map<String, EventTypePayloadDataDto>) eventGenerated.getEventTypePayload()
                         .getPayloadValues());
             }
             updateEventsByOldStatusMap.get(EventStatus.Processed).addAll(processedEventsByEventStatus);
@@ -54,15 +54,13 @@ public class SeoProjectContentChangeProcessor extends DBEventProcessor {
 
         // Merging payloads of all the mergable events in the payload of the
         // latest event
-        List<EventTypePayloadDataDto> allPayloadDataDtos = (List<EventTypePayloadDataDto>) lastEvent
+        Map<String, EventTypePayloadDataDto> allPayloadDataDtos = (Map<String, EventTypePayloadDataDto>) lastEvent
                 .getEventTypePayload().getPayloadValues();
         for (EventGenerated eventGenerated : events) {
-            if (lastEvent.getId() != eventGenerated.getId()) {
-                allPayloadDataDtos.addAll((List<EventTypePayloadDataDto>) eventGenerated.getEventTypePayload()
+                allPayloadDataDtos.putAll((Map<String, EventTypePayloadDataDto>) eventGenerated.getEventTypePayload()
                         .getPayloadValues());
                 eventGenerated.setEventStatus(EventStatus.Merged);
                 eventGenerated.setMergedEventId(lastEvent.getId());
-            }
         }
 
         return lastEvent;
