@@ -50,19 +50,18 @@ public class CookiesService {
         Map<String, String> requestCookiesMap = new HashMap<String, String>();
 
         if (requestCookies != null) {
-            for (Cookie c : requestCookies) {
-                requestCookiesMap.put(c.getName(), c.getValue());
-                if (c.getName().equals(CookieConstants.USER_FROM_PPC)) {
-                    originalPPC = "TRUE".equalsIgnoreCase(c.getValue());
+            for (Cookie cookie : requestCookies) {
+                requestCookiesMap.put(cookie.getName(), cookie.getValue());
+                if (cookie.getName().equals(CookieConstants.USER_FROM_PPC)) {
+                    originalPPC = CookieConstants.PPC_TRUE.equalsIgnoreCase(cookie.getValue());
                     ppc = originalPPC;
                 }
- 				else if (c.getName().equals(CookieConstants.UTMA)) {
-                    cookiesMap.put(CookieConstants.UTMA, c.getValue());
+                else if (cookie.getName().equals(CookieConstants.UTMA)) {
+                    cookiesMap.put(CookieConstants.UTMA, cookie.getValue());
                 }
-                else if (c.getName().equals(CookieConstants.LANDING_PAGE)) {
-                    landingPage = c.getValue();
+                else if (cookie.getName().equals(CookieConstants.LANDING_PAGE)) {
+                    landingPage = cookie.getValue();
                 }
-               
             }
         }
 
@@ -112,7 +111,7 @@ public class CookiesService {
 
             setCookie(CookieConstants.USER_FROM_PPC, String.valueOf(ppc).toUpperCase(), response, cookiesMap);
         }
-            
+
         // else just add the request cookies to cookies map
         else {
 
