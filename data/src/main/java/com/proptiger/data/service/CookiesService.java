@@ -109,6 +109,7 @@ public class CookiesService {
                     ppc = false;
                 }
             }
+
             setCookie(CookieConstants.USER_FROM_PPC, String.valueOf(ppc).toUpperCase(), response, cookiesMap);
         }
             
