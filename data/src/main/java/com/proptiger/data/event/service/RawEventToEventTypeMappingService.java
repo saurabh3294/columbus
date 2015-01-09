@@ -153,6 +153,9 @@ public class RawEventToEventTypeMappingService {
 
                 }
                 else {
+                    if (operationConfig.getListEventTypes() == null) {
+                        operationConfig.setListEventTypes(new ArrayList<EventType>());
+                    }
                     operationConfig.getListEventTypes().add(eventTypeMapping.getEventType());
                 }
                 dbEventTypemap.put(eventTypeKey, eventTypeMapping.getEventType());

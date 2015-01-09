@@ -461,6 +461,9 @@ public class SolrResult extends BaseModel {
     @Field(value = "ENCODED_POLYGON")
     private String            encodedPolygon;
     
+    @Field(value = "CARPET_AREA")
+    private Double            carpetArea;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -1436,5 +1439,10 @@ public class SolrResult extends BaseModel {
     @Field("ENCODED_POLYGON")
     public void setEncodedPolygon(String encodedPolygon) {
         locality.setEncodedPolygon(encodedPolygon);
+    }
+
+    @Field(value = "CARPET_AREA")
+    public void setCarpetArea(Double carpetArea) {
+        property.setCarpetArea(carpetArea);
     }
 }
