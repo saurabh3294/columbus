@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.notification.enums.MediumType;
+import com.proptiger.core.enums.notification.MediumType;
 import com.proptiger.data.notification.exception.NotificationMediumNotFoundException;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.repo.NotificationMediumDao;
