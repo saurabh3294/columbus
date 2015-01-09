@@ -464,6 +464,13 @@ public class ImageEnricher {
         if (images == null) {
             return;
         }
+        Map<String, Integer> imageTypeCountMap = new HashMap<String, Integer>();
+        for(Image image :images) {
+            Integer imageCount = imageTypeCountMap.get(image.getImageTypeObj().getType());
+            imageCount = imageCount == null ? 1 : imageCount + 1;
+            imageTypeCountMap.put(image.getImageTypeObj().getType(), imageCount);
+        }
+        project.setLandmarkImageTypeCount(imageTypeCountMap);
         project.setLandmarkImages(images);
     }
 
