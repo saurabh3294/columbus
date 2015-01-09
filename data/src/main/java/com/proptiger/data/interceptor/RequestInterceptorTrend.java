@@ -15,7 +15,7 @@ import com.proptiger.core.exception.UnauthorizedException;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.userservice.mvc.UserSubscriptionService;
+import com.proptiger.data.service.user.UserSubscriptionHelperService;
 
 /**
  * This class appends the subscription permissions for logged in user to the
@@ -26,7 +26,7 @@ import com.proptiger.userservice.mvc.UserSubscriptionService;
 public class RequestInterceptorTrend {
 
     @Autowired
-    private UserSubscriptionService userSubscriptionService;
+    private UserSubscriptionHelperService userSubscriptionHelperService;
 
     @Before("@annotation(com.proptiger.core.annotations.Intercepted.Trend)")
     public void addSubscriptionPermissionsToSelectorTrend(JoinPoint joinPoint) {
@@ -50,7 +50,7 @@ public class RequestInterceptorTrend {
 
     private void addSubscriptionBasedFiltersToFIQLSelector(JoinPoint jointPoint, ActiveUser user) {
         /* If all of users's permissions have expired then log him out */
-        List<?> permissionList = userSubscriptionService.getUserAppSubscriptionDetails(user.getUserIdentifier());
+        List<?> permissionList = userSubscriptionHelperService.getUserAppSubscriptionDetails(user.getUserIdentifier());
         if (permissionList == null || permissionList.isEmpty()) {
             throw new UnauthorizedException(
                     ResponseCodes.ACCESS_EXPIRED,
@@ -61,7 +61,7 @@ public class RequestInterceptorTrend {
         for (Object arg : methodArgs) {
             if (arg != null && arg.getClass().equals(FIQLSelector.class)) {
 
-                String filters = userSubscriptionService.getUserAppSubscriptionFilters(user.getUserIdentifier());
+                String filters = userSubscriptionHelperService.getUserAppSubscriptionFilters(user.getUserIdentifier());
                 if (filters != null) {
                     ((FIQLSelector) arg).addAndConditionToFilter(filters);
                 }

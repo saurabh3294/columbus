@@ -13,12 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.pojo.response.APIResponse;
-import com.proptiger.core.service.ApplicationNameService;
-import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.userservice.mvc.UserSubscriptionService;
+import com.proptiger.data.service.user.UserSubscriptionHelperService;
 
 /**
  * This class is used for authentication based filtering of APIResponse.
@@ -33,16 +30,16 @@ import com.proptiger.userservice.mvc.UserSubscriptionService;
 @Order(1)
 @Component
 public class ResponseInterceptorListing {
-
-    @Autowired
-    private UserSubscriptionService   userSubscriptionService;
-
+    
     private final int     objTypeIdLocality    = DomainObject.locality.getObjectTypeId();
 
     private final int     objTypeIdCity        = DomainObject.city.getObjectTypeId();
 
     private final String  fieldTagAuthorized   = "authorized";
-
+    
+    @Autowired
+    private UserSubscriptionHelperService userSubscriptionHelperService;
+    
     @Autowired
     private static Logger logger               = LoggerFactory.getLogger(ResponseInterceptorListing.class);
 
@@ -53,7 +50,7 @@ public class ResponseInterceptorListing {
     public void filterResponseProjectListings(Object retVal) throws Throwable {
 
         Object data = getApiResponseData(retVal);
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        MultiKeyMap userSubscriptionMap = userSubscriptionHelperService.getUserSubscriptionMap();
         if (data == null || userSubscriptionMap == null) {
             return;
         }
@@ -77,7 +74,7 @@ public class ResponseInterceptorListing {
             returning = "retVal")
     public void filterResponseLocalityListings(Object retVal) throws Throwable {
         Object data = getApiResponseData(retVal);
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        MultiKeyMap userSubscriptionMap = userSubscriptionHelperService.getUserSubscriptionMap();
         if (data == null || userSubscriptionMap == null) {
             return;
         }
@@ -101,7 +98,7 @@ public class ResponseInterceptorListing {
             returning = "retVal")
     public void filterResponseCityListings(Object retVal) throws Throwable {
         Object data = getApiResponseData(retVal);
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        MultiKeyMap userSubscriptionMap = userSubscriptionHelperService.getUserSubscriptionMap();
         if (data == null || userSubscriptionMap == null) {
             return;
         }
@@ -149,16 +146,4 @@ public class ResponseInterceptorListing {
         return (apiResponse.getData());
     }
 
-    private MultiKeyMap getUserSubscriptionMap() {
-        if (!ApplicationNameService.isB2BApplicationRequest()) {
-            return null;
-        }
-        ActiveUser activeUser = SecurityContextUtils.getActiveUser();
-        if (activeUser != null) {
-            return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
-        }
-        else {
-            return null;
-        }
-    }
 }
