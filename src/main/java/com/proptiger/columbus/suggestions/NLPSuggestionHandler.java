@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.thandlers.RootTHandler;
 import com.proptiger.columbus.thandlers.TemplateMap;
@@ -27,13 +28,17 @@ public class NLPSuggestionHandler {
 
     private Logger          logger        = LoggerFactory.getLogger(NLPSuggestionHandler.class);
 
-    private float           scoreTheshold = 5.0f;
+    private float           templateScoreTheshold = 5.0f;
 
     public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int rows) {
 
+        if(city == null || city.isEmpty()){
+            city = TypeaheadConstants.defaultCityName;
+        }
+
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
-        QueryResponse response = typeaheadDao.getResponseV4(query, rows, queryFilters);
+        QueryResponse response = typeaheadDao.getResponseV3(query, rows, queryFilters);
         List<Typeahead> templateHits = response.getBeans(Typeahead.class);
 
         List<Typeahead> results = new ArrayList<Typeahead>();
@@ -57,7 +62,7 @@ public class NLPSuggestionHandler {
             t.setScore(templateHits.get(0).getScore());
         }
 
-        if (templateHits.get(0).getScore() > scoreTheshold) {
+        if (templateHits.get(0).getScore() > templateScoreTheshold) {
             return resultsFirstHandler;
         }
 
