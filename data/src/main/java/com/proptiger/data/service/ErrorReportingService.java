@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.proptiger.core.internal.dto.mail.MailBody;
+import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.repo.ProjectErrorDao;
 import com.proptiger.data.service.mail.MailSender;

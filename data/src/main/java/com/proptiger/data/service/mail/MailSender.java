@@ -3,7 +3,7 @@ package com.proptiger.data.service.mail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.internal.dto.mail.MailDetails;
+import com.proptiger.core.internal.dto.mail.MailDetails;
 
 /**
  * Mail service to provide methods to send mails

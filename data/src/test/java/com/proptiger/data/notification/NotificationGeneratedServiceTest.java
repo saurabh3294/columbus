@@ -13,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.core.enums.notification.MediumType;
+import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.core.internal.dto.mail.MailDetails;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
 import com.proptiger.core.service.AbstractTest;
-import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
-import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.mocker.NotificationMockerService;
-import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;

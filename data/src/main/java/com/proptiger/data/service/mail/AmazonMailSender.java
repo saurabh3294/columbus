@@ -21,9 +21,9 @@ import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.services.simpleemail.model.SendEmailResult;
 import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
-import com.proptiger.data.internal.dto.mail.MailDetails;
 
 /**
  * Using amazon web service to send mails
