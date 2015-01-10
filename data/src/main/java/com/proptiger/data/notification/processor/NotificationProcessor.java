@@ -27,8 +27,7 @@ public class NotificationProcessor {
             List<NotificationMessage> discardMessages,
             Map<NotificationStatus, List<NotificationGenerated>> discardMap,
             NotificationStatus mergeNotificationStatus,
-            NotificationMessage parentMessage,
-            NotificationGenerated parentGenerated) {
+            NotificationMessage parentMessage) {
 
         List<NotificationMessagePayload> mergePayload = parentMessage.getNotificationMessagePayload()
                 .getNotificationMessagePayloads();

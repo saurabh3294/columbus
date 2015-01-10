@@ -39,7 +39,6 @@ public class NotificationProcessorDtoService {
 		return nIntraProcessorDtos;
 	}
 
-	// Handle if NM not present but NG is present.
 	public void buildNonPrimaryKeyDto(NotificationProcessorDto processorDto) {
 		List<NotificationMessage> typeMessages, keyMessages;
 		List<NotificationGenerated> typeGenerateds, keyGenerateds;
@@ -133,9 +132,6 @@ public class NotificationProcessorDtoService {
 				notificationProcessorDto
 						.setAllNotificationGroupByMessageId(groupGeneratedByMessage
 								.get(userId));
-				/*map.get(userId).getNotificationByTypeDtos().get(nType.getId())
-						.getNotificationMessageByKeys().get(primaryKeyValue)
-						.getNotificationGenerateds().add(nGenerated);*/
 				nByKeyDto.getNotificationGenerateds().add(nGenerated);
 			} catch (NullPointerException e) {
 				continue;

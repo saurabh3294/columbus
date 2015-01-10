@@ -59,4 +59,7 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
     @Modifying
     @Query("UPDATE NotificationGenerated set notificationStatus = ?2 WHERE id = ?1 ")
     public void updateNotificationStatusById(int id, NotificationStatus schedulersuppressed);
+    
+    @Query("SELECT count(*) FROM NotificationGenerated WHERE notificationStatus = ?1")
+    public Long getActiveCountNotificationGenerated(NotificationStatus notificationStatus);
 }

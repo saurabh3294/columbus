@@ -91,6 +91,13 @@ public class NotificationInitiator {
             initialDelayString = "${scheduler.initialdelay.notification.notificationGenerator}")
     public void notificationGenerator() {
         Thread.currentThread().setName("Notification Generator");
+        
+        logger.debug("NotificationInitiator started generating notificationGenerated.");
+        if (!notificationGenerator.isNotificationGeneratedGenerationRequired()) {
+            logger.info("NotificationGeneratedGenerator: Skipping NotificationGenerated Generation.");
+            return;
+        }
+
         logger.info("NotificationGenerator : Initiating Notification Generation.");
         Integer numberOfNotifications = notificationGenerator.generateNotifications();
         logger.info(" Number of Notification Generated are : " + numberOfNotifications);

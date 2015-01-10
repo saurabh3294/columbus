@@ -2,17 +2,27 @@ package com.proptiger.data.notification.processor;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.generator.handler.NotificationProcessorHandler;
+import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType.NotificationOperation;
 import com.proptiger.data.notification.processor.dto.NotificationByTypeDto;
+import com.proptiger.data.notification.service.NotificationMessageService;
 
 @Service
 @Primary
 public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
+    private static Logger              logger = LoggerFactory.getLogger(NotificationNonPrimaryKeyProcessor.class);
+
+    @Autowired
+    private NotificationMessageService nMessageService;
 
     public void intraKeyProcessorHandler(NotificationByTypeDto notificationByTypeDto, NotificationOperation nOperation) {
 
@@ -24,16 +34,30 @@ public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
         }
 
     }
-    
-    // Handle If NM not present.
+
     public void processIntraMerging(NotificationByTypeDto notificationByType) {
         List<NotificationMessage> nMessages = notificationByType.getNotificationMessages();
+        List<NotificationGenerated> nGenerateds = notificationByType.getNotificationGenerateds();
 
-        if (nMessages.size() < 1) {
+        NotificationMessage lastMessage = null;
+        if(nMessages != null && !nMessages.isEmpty()){
+            lastMessage = nMessages.get(nMessages.size() - 1);
+            nMessages.remove(nMessages.size() - 1);
+        }
+        /*
+         * Only if number of NGenerated is > 1 then merging is required.
+         */
+        else if (nGenerateds.size() > 1) {
+            NotificationGenerated nGenerated = nGenerateds.get(0);
+            lastMessage = nMessageService.createNotificationMessage(
+                    nGenerated.getNotificationType().getId(),
+                    nGenerated.getUserId(),
+                    NotificationProcessorHandler.nonPrimaryKeyMergingValue);
+        }
+        else{
             return;
         }
-        NotificationMessage lastMessage = nMessages.get(nMessages.size() - 1);
-        nMessages.remove(nMessages.size() - 1);
+        
 
         merging(
                 nMessages,
@@ -41,12 +65,11 @@ public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
                 notificationByType.getDiscardedMessage(),
                 notificationByType.getDiscardGeneratedMap(),
                 NotificationStatus.IntraNonKeyMerged,
-                lastMessage,
-                null);
-        
+                lastMessage);
+
         nMessages.add(lastMessage);
     }
-    
+
     // TODO to handle IF NM not present.
     public void processIntraSuppressing(NotificationByTypeDto notificationByType) {
         List<NotificationMessage> nMessages = notificationByType.getNotificationMessages();
@@ -67,7 +90,12 @@ public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
     }
 
     public void processInterSuppressing(NotificationByTypeDto parent, NotificationByTypeDto child) {
-        suppressing(child.getNotificationMessages(), child.getNotificationGenerateds(), child.getDiscardedMessage(), child.getDiscardGeneratedMap(), NotificationStatus.InterNonKeySuppressed);
+        suppressing(
+                child.getNotificationMessages(),
+                child.getNotificationGenerateds(),
+                child.getDiscardedMessage(),
+                child.getDiscardGeneratedMap(),
+                NotificationStatus.InterNonKeySuppressed);
 
     }
 
@@ -83,8 +111,7 @@ public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
                     notificationByKeyDto.getDiscardedMessage(),
                     notificationByKeyDto.getDiscardGeneratedMap(),
                     NotificationStatus.InterNonKeyMerged,
-                    notificationMessage,
-                    null);
+                    notificationMessage);
         }
 
     }
