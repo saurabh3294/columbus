@@ -41,7 +41,8 @@ public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
                 notificationByType.getDiscardedMessage(),
                 notificationByType.getDiscardGeneratedMap(),
                 NotificationStatus.IntraNonKeyMerged,
-                lastMessage);
+                lastMessage,
+                null);
         
         nMessages.add(lastMessage);
     }
@@ -82,7 +83,8 @@ public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
                     notificationByKeyDto.getDiscardedMessage(),
                     notificationByKeyDto.getDiscardGeneratedMap(),
                     NotificationStatus.InterNonKeyMerged,
-                    notificationMessage);
+                    notificationMessage,
+                    null);
         }
 
     }
