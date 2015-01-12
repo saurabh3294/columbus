@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.model.cms.Builder;
 import com.proptiger.core.model.cms.LandMark;
@@ -208,6 +209,7 @@ public class ProjectDetailController extends BaseController {
         return new APIResponse(super.filterFields(project, projectSelector.getFields()));
     }
     
+    @Intercepted.ProjectDetail
     @RequestMapping(value = { "app/v4/project-detail/{projectId}" })
     @ResponseBody
     @DisableCaching
