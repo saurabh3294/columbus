@@ -20,7 +20,7 @@ public enum UserAttributeTypes {
                 return attributeType;
             }
         }
-        return null;
+        throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.User.INVALID_ATTRIBUTE_NAME);
     }
 
     public static void validate(String attributeKey, String attributeValue) {

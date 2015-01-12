@@ -41,9 +41,9 @@ public class UserAttributeController extends BaseController {
     public APIResponse updateUserAttributes(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
             @PathVariable Integer attributeId,
-            @RequestParam(required = true, value = "attributeValue") String attributeValue) {
+            @RequestBody UserAttribute userAttribute) {
 
-        return new APIResponse(userAttributeService.updateAttribute(activeUser, attributeId, attributeValue));
+        return new APIResponse(userAttributeService.updateAttribute(activeUser, attributeId, userAttribute.getAttributeValue()));
     }
 
 }

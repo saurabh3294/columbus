@@ -61,7 +61,7 @@ public class OTPService {
     @Autowired
     private UserOTPDao              userOTPDao;
 
-    private OTPGenerator            generator           = new OTPGenerator();
+    private OTPGenerator            generator = new OTPGenerator();
 
     @Autowired
     private AuthSuccessHandler      authSuccessHandler;
@@ -84,21 +84,24 @@ public class OTPService {
             return required;
         }
         ActiveUser activeUser = (ActiveUser) auth.getPrincipal();
-        UserAttribute userAttribute = userAttributeDao.findByUserIdAndAttributeNameAndAttributeValue(
-                activeUser.getUserIdentifier(),
-                Constants.User.OTP_ATTRIBUTE_NAME,
-                Constants.User.OTP_ATTRIBUTE_VALUE_TRUE);
-        if (userAttribute != null) {
-            required = false;
-        }
-        else if (activeUser.getApplicationType().equals(Application.B2B)) {
+
+        if (activeUser.getApplicationType().equals(Application.B2B)) {
             required = true;
-            String userIP = IPUtils.getClientIP(request);
-            if (isUserCompanyIPWhitelisted(userIP, activeUser)) {
-                /*
-                 * if user company ip is whitelisted then no need of otp
-                 */
+            UserAttribute userAttribute = userAttributeDao.findByUserIdAndAttributeNameAndAttributeValue(
+                    activeUser.getUserIdentifier(),
+                    Constants.User.OTP_ATTRIBUTE_NAME,
+                    Constants.User.OTP_ATTRIBUTE_VALUE_TRUE);
+            if (userAttribute != null) {
                 required = false;
+            }
+            else {
+                String userIP = IPUtils.getClientIP(request);
+                if (isUserCompanyIPWhitelisted(userIP, activeUser)) {
+                    /*
+                     * if user company ip is whitelisted then no need of otp
+                     */
+                    required = false;
+                }
             }
         }
         return required;
