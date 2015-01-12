@@ -45,5 +45,9 @@ public class Tokens {
     public enum CouponPaymentFailure {
         CouponCode, Date, UserName, ProjectName, UnitName, Size, Discount, CouponPrice, DiscountPrice, FailedAmount;
     }
+    
+    public enum LoginOtp {
+        UserName, OtpCode;
+    }
 
 }

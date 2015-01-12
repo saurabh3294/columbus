@@ -44,7 +44,10 @@ public class LeadGACookiesHandler {
             enquiry.setGaUserId(randomId);
         }
         if (campaignSource != null) {
-            enquiry.setGaSource(campaignSource);
+            enquiry.setGaSource(campaignSource.replace("+", " "));
+        }
+        else{
+            enquiry.setGaSource(CookieConstants.SOURCE);
         }
         if (campaignTerm != null) {
             enquiry.setGaKeywords(campaignTerm);
@@ -52,7 +55,6 @@ public class LeadGACookiesHandler {
         if (campaignName != null) {
             enquiry.setGaCampaign(campaignName);
         }
-
         if (cookiesMap.get(CookieConstants.USER_NETWORK) != null) {
             enquiry.setGaNetwork(cookiesMap.get(CookieConstants.USER_NETWORK).trim());
         }
