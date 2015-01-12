@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.SubscriptionType;
 import com.proptiger.data.notification.model.UserNotificationTypeSubscription;
 import com.proptiger.data.notification.model.external.NotificationSubscriptionRequest;

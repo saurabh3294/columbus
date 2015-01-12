@@ -397,6 +397,9 @@ public class EventGeneratedService {
   				EventTypeEnum.ProjectInsertionUrl.getName(),
   				property.getProjectId(), EventStatus.Verified);
   		updateEventStatusByEventTypeAndUniqueKey(
+                EventTypeEnum.ProjectGenerateUrl.getName(),
+                property.getProjectId(), EventStatus.Verified);
+  		updateEventStatusByEventTypeAndUniqueKey(
   				EventTypeEnum.LocalityInsertionUrl.getName(),
   				project.getLocalityId(), EventStatus.Verified);
   		updateEventStatusByEventTypeAndUniqueKey(

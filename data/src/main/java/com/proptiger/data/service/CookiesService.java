@@ -108,6 +108,7 @@ public class CookiesService {
                     ppc = false;
                 }
             }
+        }
 
             setCookie(CookieConstants.USER_FROM_PPC, String.valueOf(ppc).toUpperCase(), response, cookiesMap);
         }
@@ -128,6 +129,7 @@ public class CookiesService {
 
     private void setUserIp(HttpServletRequest request, HttpServletResponse response, Map<String, String> cookiesMap) {
         String userIP = null;
+
         if (request.getHeader("IP") != null) {
             userIP = request.getHeader("IP");
         }

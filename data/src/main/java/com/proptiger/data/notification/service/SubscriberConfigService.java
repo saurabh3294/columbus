@@ -88,7 +88,24 @@ public class SubscriberConfigService {
         }
         return Integer.parseInt(configValue);
     }
-
+    
+    /**
+     * Returns the count of Max active notification message count present in DB
+     * 
+     * @return
+     */
+    public Integer getMaxActiveNotificationGeneratedCount() {
+        SubscriberName subscriberName = Subscriber.SubscriberName.Notification;
+        ConfigName configName = SubscriberConfig.ConfigName.MaxActiveNotificationGeneratedCount;
+        String configValue = applicationContext.getBean(SubscriberConfigService.class).getSubscriberConfig(
+                subscriberName,
+                configName);
+        if (configValue == null) {
+            return Integer.MAX_VALUE;
+        }
+        return Integer.parseInt(configValue);
+    }
+    
     public Integer getMaxSubscriberEventTypeCount(SubscriberName subscriberName) {
         ConfigName configName = SubscriberConfig.ConfigName.MaxVerifedEventCount;
         String configValue = applicationContext.getBean(SubscriberConfigService.class).getSubscriberConfig(

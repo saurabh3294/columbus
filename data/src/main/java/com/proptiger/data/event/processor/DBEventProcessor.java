@@ -83,10 +83,7 @@ public abstract class DBEventProcessor implements EventProcessor {
 	public List<EventGenerated> processProcessedEvents(Integer eventTypeId,
 			List<EventGenerated> events) {
 		Map<String, List<EventGenerated>> groupEventMap = groupEventsByKey(events);
-		EventStatus eventStatus = EventStatus.Verified;
-		if (events.get(0).getEventType().getVerficationRequired()) {
-			eventStatus = EventStatus.PendingVerification;
-		}
+		EventStatus eventStatus = getVerificationEventStatus(events);
 
 		// TODO to process them in separate threads
 		for (Map.Entry<String, List<EventGenerated>> entry : groupEventMap
@@ -118,6 +115,15 @@ public abstract class DBEventProcessor implements EventProcessor {
 		return event;
 	}
 
+	protected EventStatus getVerificationEventStatus(List<EventGenerated> events){
+	    EventStatus eventStatus = EventStatus.Verified;
+	    if (events.get(0).getEventType().getVerficationRequired()) {
+            eventStatus = EventStatus.PendingVerification;
+        }
+	    
+	    return eventStatus;
+	}
+	
 	protected void handleProcessedEventsStrategy(
 			Map.Entry<String, List<EventGenerated>> entry,
 			EventStatus verificationStatus) {

@@ -6,9 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
@@ -17,7 +19,6 @@ import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
@@ -67,7 +68,8 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
         /**
          * Price change property count
          */
-        List<NotificationMessagePayload> priceChange = payloadMap.get(NotificationTypeEnum.PortfolioMonthlyPriceChange.getName());
+        List<NotificationMessagePayload> priceChange = payloadMap.get(NotificationTypeEnum.PortfolioMonthlyPriceChange
+                .getName());
         Integer propertyCount = 0;
         if (priceChange != null && !priceChange.isEmpty()) {
             propertyCount = priceChange.size();
@@ -92,18 +94,18 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
             oldPrice += listing.getTotalPrice();
             propertyIds.add(listing.getTypeId());
         }
-        dataMap.put("netWorth", String.format("%.0f", newPrice));
+        dataMap.put("netWorth", numberToString(newPrice));
         if (oldPrice > newPrice) {
             dataMap.put("isPriceIncreased", Boolean.FALSE);
             dataMap.put("priceChangeString", "Loss");
-            dataMap.put("priceChangeValue", String.format("%.0f", oldPrice - newPrice));
+            dataMap.put("priceChangeValue", numberToString(oldPrice - newPrice));
             Double priceChangePercentage = ((oldPrice - newPrice) * 100) / oldPrice;
             dataMap.put("priceChangePercentage", String.format("%.1f", priceChangePercentage));
         }
         else {
             dataMap.put("isPriceIncreased", Boolean.TRUE);
             dataMap.put("priceChangeString", "Gain");
-            dataMap.put("priceChangeValue", String.format("%.0f", newPrice - oldPrice));
+            dataMap.put("priceChangeValue", numberToString(newPrice - oldPrice));
             Double priceChangePercentage = ((newPrice - oldPrice) * 100) / oldPrice;
             dataMap.put("priceChangePercentage", String.format("%.1f", priceChangePercentage));
         }
@@ -117,6 +119,23 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
             dataMap.put("purchaseMonths", purchaseMonths);
         }
 
+        // Get Projects and Localities
+        List<Project> projects = new ArrayList<Project>();
+        Map<Integer, List<Integer>> portfolioProjectMap = new HashMap<Integer, List<Integer>>();
+        List<Locality> localities = new ArrayList<Locality>();
+        for (Integer propertyId : propertyIds) {
+            Property property = propertyService.getPropertyFromSolr(propertyId);
+            projects.add(property.getProject());
+            localities.add(property.getProject().getLocality());
+
+            List<Integer> portfolioProperties = portfolioProjectMap.get(property.getProject().getProjectId());
+            if (portfolioProperties == null) {
+                portfolioProperties = new ArrayList<Integer>();
+            }
+            portfolioProperties.add(propertyId);
+            portfolioProjectMap.put(property.getProject().getProjectId(), portfolioProperties);
+        }
+
         /**
          * Construction Updates
          */
@@ -124,6 +143,7 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
         Integer constructionProjectCount = 0;
         List<Integer> constructionImageCount = new ArrayList<Integer>();
         List<String> constructionProjectName = new ArrayList<String>();
+        List<Integer> constructionPropertyId = new ArrayList<Integer>();
 
         List<NotificationMessagePayload> photoAddPayloadList = payloadMap
                 .get(NotificationTypeEnum.PortfolioMonthlyPhotoAdd.getName());
@@ -138,6 +158,8 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
                 constructionImageCount.add(typePayloads.size());
                 constructionProjectName.add((String) photoAddPayload.getExtraAttributes().get(
                         Tokens.PortfolioPhotoAdd.ProjectName.name()));
+                String projectId = (String) typePayloads.get(0).getPrimaryKeyValue();
+                constructionPropertyId.add(portfolioProjectMap.get(Integer.parseInt(projectId)).get(0));
                 constructionProjectCount++;
             }
         }
@@ -150,14 +172,7 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
         dataMap.put("constructionUpdateTotalCount", constructionUpdateTotalCount);
         dataMap.put("constructionImageCount", constructionImageCount);
         dataMap.put("constructionProjectName", constructionProjectName);
-
-        List<Project> projects = new ArrayList<Project>();
-        List<Locality> localities = new ArrayList<Locality>();
-        for (Integer propertyId : propertyIds) {
-            Property property = propertyService.getPropertyFromSolr(propertyId);
-            projects.add(property.getProject());
-            localities.add(property.getProject().getLocality());
-        }
+        dataMap.put("constructionPropertyId", constructionPropertyId);
 
         /**
          * Project Enquiry
@@ -231,7 +246,7 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
                 User commentUser = userService.getUserById(reviews.get(0).getUserId());
                 reviewPersonName.add(commentUser.getFullName());
                 reviewLocalityName.add(locality.getLabel());
-                reviewComment.add(reviews.get(0).getReview());
+                reviewComment.add(shortString(reviews.get(0).getReview()));
                 reviewLabel.add(reviews.get(0).getReviewLabel());
                 reviewLocalityCount++;
             }
@@ -254,11 +269,13 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
         List<String> newsContent = new ArrayList<String>();
         List<String> newslabel = new ArrayList<String>();
 
-        List<NotificationMessagePayload> projectNews = payloadMap.get(NotificationTypeEnum.PortfolioMonthlyProjectNews.getName());
+        List<NotificationMessagePayload> projectNews = payloadMap.get(NotificationTypeEnum.PortfolioMonthlyProjectNews
+                .getName());
         if (projectNews != null && projectNews.size() > 0) {
             newsCount++;
             newslabel.add((String) projectNews.get(0).getExtraAttributes().get(Tokens.PortfolioNews.NewsTitle.name()));
-            newsContent.add((String) projectNews.get(0).getExtraAttributes().get(Tokens.PortfolioNews.NewsBody.name()));
+            newsContent.add(shortString((String) projectNews.get(0).getExtraAttributes()
+                    .get(Tokens.PortfolioNews.NewsBody.name())));
         }
 
         List<NotificationMessagePayload> localityNews = payloadMap
@@ -266,7 +283,8 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
         if (localityNews != null && localityNews.size() > 0) {
             newsCount++;
             newslabel.add((String) localityNews.get(0).getExtraAttributes().get(Tokens.PortfolioNews.NewsTitle.name()));
-            newsContent.add((String) localityNews.get(0).getExtraAttributes().get(Tokens.PortfolioNews.NewsBody.name()));
+            newsContent.add(shortString((String) localityNews.get(0).getExtraAttributes()
+                    .get(Tokens.PortfolioNews.NewsBody.name())));
         }
 
         if (newsCount > 2) {
@@ -278,5 +296,21 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
         dataMap.put("newsContent", newsContent);
 
         return dataMap;
+    }
+
+    private String numberToString(Double number) {
+        if (number / 10000000 > 1) {
+            return String.format("%.2f Crores", number / 10000000);
+        }
+        else if (number / 100000 > 1) {
+            return String.format("%.2f Lacs", number / 100000);
+        }
+        else {
+            return String.format("%.2f", number);
+        }
+    }
+
+    private String shortString(String str) {
+        return StringUtils.left(str, 250) + "...";
     }
 }

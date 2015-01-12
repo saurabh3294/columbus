@@ -18,9 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
+import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
 import com.proptiger.data.enums.AndroidApplication;
-import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.model.GCMUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
@@ -74,7 +74,7 @@ public class AndroidSender implements MediumSender {
 
         Integer userId = nGenerated.getUserId();
         if (userId == null) {
-            logger.error("Found null User Id while sending Push Notification.");
+            logger.error("Found null User Id while sending Push Notification for nGeneratedId: " + nGenerated.getId());
             return false;
         }
 
@@ -82,7 +82,9 @@ public class AndroidSender implements MediumSender {
         gcmUsersList = gcmUserService.findByLoggedInUserId(userId);
 
         if (gcmUsersList == null || gcmUsersList.isEmpty()) {
-            logger.error("No GCM users found for UserId: " + userId + " while sending Push Notification.");
+            logger.error("No GCM users found for UserId: " + userId
+                    + " while sending Push Notification for nGeneratedId: "
+                    + nGenerated.getId());
             updateStatusAsLookUpFailed(nGenerated.getId());
             return true;
         }
@@ -103,7 +105,8 @@ public class AndroidSender implements MediumSender {
         Integer userId = nGenerated.getUserId();
         if (userId == null) {
             logger.error("Found null User Id while sending Push Notification for " + androidApp.name()
-                    + " AndroidApplication");
+                    + " AndroidApplication for nGeneratedId: "
+                    + nGenerated.getId());
             return false;
         }
 
@@ -114,7 +117,8 @@ public class AndroidSender implements MediumSender {
             logger.error("No GCM users found for UserId: " + userId
                     + " while sending Push Notification for "
                     + androidApp.name()
-                    + " AndroidApplication");
+                    + " AndroidApplication for nGeneratedId: "
+                    + nGenerated.getId());
             updateStatusAsLookUpFailed(nGenerated.getId());
             return true;
         }
@@ -139,8 +143,9 @@ public class AndroidSender implements MediumSender {
         }
 
         if (template == null) {
-            logger.error("Template not found in DB/Payload while sending push notification for notification generated id: " + nGenerated
-                    .getId() + " and typeName: " + typeName);
+            logger.error("Template not found in DB/Payload while sending push notification for typeName: " + typeName
+                    + " and nGeneratedId: "
+                    + nGenerated.getId());
             return false;
         }
 
@@ -173,12 +178,16 @@ public class AndroidSender implements MediumSender {
                         + " and message: "
                         + message
                         + " to regIds: "
-                        + regIds);
+                        + regIds
+                        + " for nGeneratedId: "
+                        + nGenerated.getId());
 
                 for (String regId : regIds) {
                     Result result = sender.send(message, regId, RETRY_COUNT);
                     if (result.getMessageId() == null) {
                         logger.error("Unable to send android notification to regId: " + regId
+                                + " for nGeneratedId: "
+                                + nGenerated.getId()
                                 + ". Got Result: "
                                 + result.toString());
                     }
@@ -186,7 +195,9 @@ public class AndroidSender implements MediumSender {
                         isSent = Boolean.TRUE;
                         logger.info("Got Result " + result.toString()
                                 + " after sending android notification to regId: "
-                                + regId);
+                                + regId
+                                + " for nGeneratedId: "
+                                + nGenerated.getId());
                         String canonicalRegId = result.getCanonicalRegistrationId();
                         if (canonicalRegId != null) {
                             updateGCMRegistrationId(regId, canonicalRegId);
@@ -196,10 +207,12 @@ public class AndroidSender implements MediumSender {
 
             }
             catch (IOException ioe) {
-                logger.error("Error while sending Push Notification.", ioe.getStackTrace().toString());
+                logger.error("Error while sending Push Notification for nGeneratedId: " + nGenerated.getId(), ioe
+                        .getStackTrace().toString());
             }
             catch (Exception e) {
-                logger.error("Error while sending Push Notification.", e.getStackTrace().toString());
+                logger.error("Error while sending Push Notification for nGeneratedId: " + nGenerated.getId(), e
+                        .getStackTrace().toString());
             }
         }
 

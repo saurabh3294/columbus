@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
+import com.proptiger.core.internal.dto.mail.MailBody;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.util.VelocityUtility;
 
 /**
