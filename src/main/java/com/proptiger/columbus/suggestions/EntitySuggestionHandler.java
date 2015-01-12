@@ -45,6 +45,11 @@ public class EntitySuggestionHandler {
         }
 
         Typeahead topResult = results.get(0);
+        
+        /* No suggestions for Google Place results */
+        if(topResult.getIsGooglePlace()){
+            return suggestions;
+        }
 
         /*
          * Should be of the form TYPEAHEAD-<entity>-<entity-id> if an entity is

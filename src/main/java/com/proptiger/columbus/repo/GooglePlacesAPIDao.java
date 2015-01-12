@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +24,10 @@ import com.proptiger.core.util.UtilityClass;
 public class GooglePlacesAPIDao {
 
     @Value("${google.places.api.place.autocomplete.json.url}")
-    private String       gpPlaceAutocompleteApiUrl;
+    private String       gpPlaceAutocompleteApiBaseUrl;
 
     @Value("${google.places.api.place.detail.json.url}")
-    private String       gpPlaceDetailApiUrl;
+    private String       gpPlaceDetailApiBaseUrl;
 
     @Value("${google.places.api.key}")
     private String       gpApiKey;
@@ -40,13 +42,28 @@ public class GooglePlacesAPIDao {
 
     private RestTemplate restTemplate  = new RestTemplate();
 
-    public List<GooglePlace> getMatchingPlaces(String query, int rows) {
-        String apiUrl = addParamsToURL(
-                gpPlaceAutocompleteApiUrl,
-                String.format(QueryParam, query),
+    private String       gpPlaceDetailUrl;
+    private String       gpPlacePredictionUrl;
+
+    @PostConstruct
+    private void initialize() {
+        gpPlaceDetailUrl = addParamsToURL(
+                gpPlaceDetailApiBaseUrl,
+                PlaceIdParam,
                 CountryFilter,
                 LangFilter,
                 String.format(KeyFilter, gpApiKey));
+
+        gpPlacePredictionUrl = addParamsToURL(
+                gpPlaceAutocompleteApiBaseUrl,
+                QueryParam,
+                CountryFilter,
+                LangFilter,
+                String.format(KeyFilter, gpApiKey));
+    }
+
+    public List<GooglePlace> getMatchingPlaces(String query, int rows) {
+        String apiUrl = String.format(gpPlacePredictionUrl, StringUtils.replace(query, " ", "+"));
         String apiResponse = getResponse(apiUrl);
 
         List<GooglePlace> placelist = new ArrayList<GooglePlace>();
@@ -60,14 +77,9 @@ public class GooglePlacesAPIDao {
     }
 
     public GooglePlace getPlaceDetails(String placeId) {
-        String apiUrl = addParamsToURL(
-                gpPlaceDetailApiUrl,
-                String.format(PlaceIdParam, placeId),
-                CountryFilter,
-                LangFilter,
-                String.format(KeyFilter, gpApiKey));
-
+        String apiUrl = String.format(gpPlaceDetailUrl, placeId);
         String apiResponse = getResponse(apiUrl);
+
         GooglePlace googlePlace = null;
         try {
             googlePlace = parsePlaceDetailApiResponse(apiResponse);

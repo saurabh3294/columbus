@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.suggestions.EntitySuggestionHandler;
 import com.proptiger.columbus.suggestions.NLPSuggestionHandler;
@@ -36,6 +37,9 @@ public class TypeaheadService {
 
     @Autowired
     private NLPSuggestionHandler    nlpSuggestionHandler;
+
+    @Autowired
+    private GooglePlacesAPIService  googlePlacesAPIService;
 
     private static Logger           logger = LoggerFactory.getLogger(TypeaheadService.class);
 
@@ -95,6 +99,12 @@ public class TypeaheadService {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
         List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity);
 
+        /*
+         * Remove not-so-good results and replace them with google place
+         * landmarks.
+         */
+        results = incorporateGooglePlaceResults(query, results, rows);
+
         /* Get recommendations type results */
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
         try {
@@ -108,6 +118,34 @@ public class TypeaheadService {
         List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);
 
         return consolidatedResults;
+    }
+
+    /**
+     * @param query
+     * @param results
+     * @param totalRows
+     *            total elements needed in final-list
+     * @return A new List<Typeahead> having sub-par elements of results replaced
+     *         with google-place results
+     */
+    private List<Typeahead> incorporateGooglePlaceResults(String query, List<Typeahead> results, int totalRows) {
+
+        List<Typeahead> finalResults = new ArrayList<Typeahead>();
+        for (Typeahead t : results) {
+            if (t.getScore() > TypeaheadConstants.GooglePlaceDelegationTheshold) {
+                finalResults.add(t);
+            }
+        }
+
+        /* If all results are good then google results are not needed */
+        if (finalResults.size() >= totalRows) {
+            return finalResults;
+        }
+
+        int gpRows = totalRows - finalResults.size();
+        List<Typeahead> gpResults = googlePlacesAPIService.getPlacePredictions(query, gpRows);
+        finalResults.addAll(gpResults);
+        return finalResults;
     }
 
     /* Consolidate results fetched using different methods. */

@@ -105,15 +105,18 @@ public class TypeaheadController extends BaseController {
         for (Cookie c : cookies) {
             if (c.getName().equals(TypeaheadConstants.cityCookieLabel)) {
                 city = StringUtils.substringAfter(c.getValue(), TypeaheadConstants.cityCookieSeparater);
-                if(city == null || city.isEmpty()){
+                if (city == null || city.isEmpty()) {
                     break;
                 }
                 return city;
             }
         }
 
-        /* return null here (because now null means no-city-boosting)
-         * defaultConfiguredCity is used only by templates and will be set there.*/
+        /*
+         * return null here (because now null means no-city-boosting)
+         * defaultConfiguredCity is used only by templates and will be set
+         * there.
+         */
         return null;
     }
 
