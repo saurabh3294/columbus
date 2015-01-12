@@ -147,7 +147,9 @@ public class RawEventToEventTypeMappingService {
                 if (eventTypeMapping.getAttributeName() != null) {
 
                     attributeConfig = new RawDBEventAttributeConfig(eventTypeMapping.getAttributeName(), eventTypeList);
-
+                    if(operationConfig.getRawDBEventAttributeConfigs() == null ){
+                        operationConfig.setRawDBEventAttributeConfigs(new ArrayList<RawDBEventAttributeConfig>());
+                    }
                     operationConfig.getRawDBEventAttributeConfigs().add(attributeConfig);
                     dbAttributeMap.put(attributeKey, attributeConfig);
 
