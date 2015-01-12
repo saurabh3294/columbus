@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +15,16 @@ import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType.NotificationOperation;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.processor.dto.NotificationByKeyDto;
+import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.util.Serializer;
 
 @Service
 @Primary
 public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
-    private static Logger logger = LoggerFactory.getLogger(NotificationPrimaryKeyProcessor.class);
+    private static Logger              logger = LoggerFactory.getLogger(NotificationPrimaryKeyProcessor.class);
+
+    @Autowired
+    private NotificationMessageService nMessageService;
 
     public Object getPrimaryKeyOfNotificationMessage(NotificationMessagePayload notificationMessagePayload) {
         return notificationMessagePayload.getNotificationTypePayload().getPrimaryKeyValue();
@@ -71,12 +76,30 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
                 child.getDiscardGeneratedMap(),
                 NotificationStatus.InterKeySuppressed);
     }
+
     // TODO code needed as if notification message not present.
     public void processIntraMerging(NotificationByKeyDto notificationByKey) {
         List<NotificationMessage> nMessages = notificationByKey.getNotificationMessages();
+        List<NotificationGenerated> nGenerateds = notificationByKey.getNotificationGenerateds();
 
-        NotificationMessage lastMessage = nMessages.get(nMessages.size() - 1);
-        nMessages.remove(lastMessage);
+        NotificationMessage lastMessage = null;
+        if (nMessages != null && !nMessages.isEmpty()) {
+            lastMessage = nMessages.get(nMessages.size() - 1);
+            nMessages.remove(lastMessage);
+        }
+        /*
+         * Only if number of NGenerated is > 1 then merging is required.
+         */
+        else if(nGenerateds.size() > 1){
+            NotificationGenerated nGenerated = nGenerateds.get(0);
+            lastMessage = nMessageService.createNotificationMessage(
+                    nGenerated.getNotificationType().getId(),
+                    nGenerated.getUserId(),
+                    notificationByKey.getObjectId());
+        }
+        else{
+            return;
+        }
 
         merging(
                 notificationByKey.getNotificationMessages(),
@@ -90,7 +113,7 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
         nMessages.add(lastMessage);
 
     }
-    
+
     // TODO code needed as if NM not present.
     public void processIntraSuppressing(NotificationByKeyDto notificationByKey) {
         List<NotificationMessage> nMessages = notificationByKey.getNotificationMessages();
@@ -100,11 +123,26 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
         // discarding all the current Notification Generated .
         Map<NotificationStatus, List<NotificationGenerated>> discardMap = notificationByKey.getDiscardGeneratedMap();
 
-        NotificationMessage lastMessage = nMessages.get(nMessages.size() - 1);
-        nMessages.remove(lastMessage);
+        NotificationGenerated lastNGenerated = null;
+        NotificationMessage lastMessage = null;
+        if (nMessages != null && !nMessages.isEmpty()) {
+            lastMessage = nMessages.get(nMessages.size() - 1);
+            nMessages.remove(lastMessage);
+        }
+        else {
+            lastNGenerated = nGenerateds.get(nGenerateds.size() - 1);
+            nGenerateds.remove(lastNGenerated);
+        }
 
         suppressing(nMessages, nGenerateds, discardMessages, discardMap, NotificationStatus.IntrakeySuppressed);
-        nMessages.add(lastMessage);
+
+        // As last message is being processed. Hence, inserting it in the list.
+        if (lastMessage != null) {
+            nMessages.add(lastMessage);
+        }
+        else {
+            nGenerateds.add(lastNGenerated);
+        }
     }
 
 }

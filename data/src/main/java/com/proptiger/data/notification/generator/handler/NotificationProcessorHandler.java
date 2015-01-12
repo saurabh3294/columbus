@@ -26,7 +26,8 @@ import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationProcessorHandler {
-    private static Logger                   logger = LoggerFactory.getLogger(NotificationProcessorHandler.class);
+    private static Logger                   logger                    = LoggerFactory
+                                                                              .getLogger(NotificationProcessorHandler.class);
 
     @Autowired
     private NotificationMessageService      nMessageService;
@@ -40,6 +41,8 @@ public class NotificationProcessorHandler {
     @Autowired
     private NotificationProcessorDtoService processorDtoService;
 
+    public final static String             nonPrimaryKeyMergingValue = "-1";
+
     /**
      * 
      * @param notificationMessages
@@ -51,18 +54,18 @@ public class NotificationProcessorHandler {
 
         // Intra Primary Key Processing
         handleIntraPrimaryKeyProcessing(nMap);
-        
+
         logger.info(" AFTER INTRA KEY PROCESSING");
         logger.debug(Serializer.toJson(nMap));
         // Inter Primary Key Suppressing
         handleInterPrimaryKeySuppressing(nMap);
-        
+
         logger.info(" AFTER INTER KEY SUPPRESSING");
         logger.debug(Serializer.toJson(nMap));
-        
+
         // Inter Primary Key Merging
         handleInterPrimaryKeyMerging(nMap, userId);
-        
+
         logger.info(" AFTER INTER KEY MERGING");
         logger.debug(Serializer.toJson(nMap));
 
@@ -77,16 +80,16 @@ public class NotificationProcessorHandler {
 
         logger.info(" AFTER INTRA NONKEY PROCESSING");
         logger.debug(Serializer.toJson(nMap));
-        
+
         // Inter Non Primary Key Suppressing
         handleInterNonPrimaryKeySuppressing(nMap);
-        
+
         logger.info(" AFTER INTER NONKEY SUPPRESSING");
         logger.debug(Serializer.toJson(nMap));
 
         // Inter Non Primary Key Merging
         handleInterNonPrimaryKeyMerging(nMap, userId);
-        
+
         logger.info(" AFTER INTER NONKEY MERGING");
         logger.debug(Serializer.toJson(nMap));
 
@@ -117,7 +120,7 @@ public class NotificationProcessorHandler {
         NotificationMessage notificationMessage = null;
         List<Integer> childNotificationTypeIds = null;
         List<NotificationByTypeDto> foundNTypeDtos = new ArrayList<NotificationByTypeDto>();
-        
+
         logger.debug(Serializer.toJson(mergeGroup));
         for (Map.Entry<Integer, List<Integer>> parentChildentry : mergeGroup.entrySet()) {
             parentNotificationByTypeDto = nMap.get(parentChildentry.getKey());
@@ -136,7 +139,7 @@ public class NotificationProcessorHandler {
                 parentNotificationByTypeDto = new NotificationByTypeDto();
                 parentNotificationByTypeDto.setNotificationType(notificationTypeService.findOne(parentChildentry
                         .getKey()));
-                notificationMessage = nMessageService.createNotificationMessage(parentChildentry.getKey(), userId, null);
+                notificationMessage = nMessageService.createNotificationMessage(parentChildentry.getKey(), userId, nonPrimaryKeyMergingValue);
                 parentNotificationByTypeDto.getNotificationMessages().add(notificationMessage);
                 nMap.put(parentChildentry.getKey(), parentNotificationByTypeDto);
             }
@@ -155,38 +158,49 @@ public class NotificationProcessorHandler {
          * types based on their primary key. In Map key is of parent
          * Notification Type and value is Child Notification Type.
          */
-        Map<Integer, Integer> suppressGroup = notificationTypeService
+        Map<Integer, List<Integer>> suppressGroup = notificationTypeService
                 .getNotificationInterNonPrimaryKeySupressGroupingMap();
 
         NotificationByTypeDto parentNotificationByTypeDto, childNotificationByTypeDto;
         NotificationType parentNotificationType;
         NotificationNonPrimaryKeyProcessor nNonPrimaryKeyProcessor = null;
-        
-        logger.debug(" NON PRIMARY KEY "+Serializer.toJson(suppressGroup));
+
+        logger.debug(" NON PRIMARY KEY " + Serializer.toJson(suppressGroup));
         /**
          * Iterating over all possible suppress groups.
          */
-        for (Map.Entry<Integer, Integer> parentChildentry : suppressGroup.entrySet()) {
+        for (Map.Entry<Integer, List<Integer>> parentChildentry : suppressGroup.entrySet()) {
             /**
-             * Getting the parent and child Notification Types From the existing
+             * Getting the parent Notification Type From the existing
              * notification from the map.
              */
             parentNotificationByTypeDto = nMap.get(parentChildentry.getKey());
-            childNotificationByTypeDto = nMap.get(parentChildentry.getValue());
 
             /**
-             * Only if parent and child exists, then suppressing can be done.
+             * If parent exists
              */
-            if (parentNotificationByTypeDto != null && childNotificationByTypeDto != null) {
+            if (parentNotificationByTypeDto != null) {
                 parentNotificationType = parentNotificationByTypeDto.getNotificationType();
                 nNonPrimaryKeyProcessor = parentNotificationType.getNotificationTypeConfig()
                         .getNonPrimaryKeyProcessorObject();
-                nNonPrimaryKeyProcessor
-                        .processInterSuppressing(parentNotificationByTypeDto, childNotificationByTypeDto);
+                /**
+                 * Iterating on all the childs of the parent Notification Type.
+                 */
+                for (Integer childNotificationTypeId : parentChildentry.getValue()) {
+                    childNotificationByTypeDto = nMap.get(childNotificationTypeId);
 
+                    /**
+                     * If child exists, then suppressing can be done.
+                     */
+                    if (childNotificationByTypeDto != null) {
+                        nNonPrimaryKeyProcessor.processInterSuppressing(
+                                parentNotificationByTypeDto,
+                                childNotificationByTypeDto);
+
+                    }
+                }
             }
         }
-
     }
 
     public void handleIntraNonPrimaryKeyProcessing(Map<Integer, NotificationByTypeDto> nMap) {
@@ -240,7 +254,7 @@ public class NotificationProcessorHandler {
          * types based on their primary key. In Map key is of parent
          * Notification Type and value is Child Notification Type.
          */
-        Map<Integer, Integer> suppressGroup = notificationTypeService
+        Map<Integer, List<Integer>> suppressGroup = notificationTypeService
                 .getNotificationInterPrimaryKeySupressGroupingMap();
 
         NotificationByTypeDto parentNotificationByTypeDto, childNotificationByTypeDto;
@@ -252,45 +266,55 @@ public class NotificationProcessorHandler {
         /**
          * Iterating over all possible suppress groups.
          */
-        for (Map.Entry<Integer, Integer> parentChildentry : suppressGroup.entrySet()) {
+        for (Map.Entry<Integer, List<Integer>> parentChildentry : suppressGroup.entrySet()) {
             /**
-             * Getting the parent and child Notification Types From the existing
-             * notification from the map.
+             * Getting the parent and child Notification Types List From the
+             * existing notification from the map.
              */
             parentNotificationByTypeDto = nMap.get(parentChildentry.getKey());
-            childNotificationByTypeDto = nMap.get(parentChildentry.getValue());
 
             /**
-             * Only if parent and child exists, then suppressing can be done.
+             * Only if parent exists then suppressing can be done.
              */
-            if (parentNotificationByTypeDto != null && childNotificationByTypeDto != null) {
+            if (parentNotificationByTypeDto != null) {
                 parentNotificationByKeyMap = parentNotificationByTypeDto.getNotificationMessageByKeys();
-                childNotificationByKeyMap = childNotificationByTypeDto.getNotificationMessageByKeys();
                 parentNotificationType = parentNotificationByTypeDto.getNotificationType();
                 nPrimaryKeyProcessor = parentNotificationType.getNotificationTypeConfig()
                         .getPrimaryKeyProcessorObject();
 
-                /**
-                 * For each primary key present in the parent Notification Type,
-                 * check if that primary key is present for the child also. If
-                 * present then suppress the child notifications.
-                 */
-                for (Map.Entry<Object, NotificationByKeyDto> entry : parentNotificationByKeyMap.entrySet()) {
-                    childNotificationByKeyDto = childNotificationByKeyMap.get(entry.getKey());
-                    if (childNotificationByKeyDto != null) {
-                        nPrimaryKeyProcessor.processInterSuppressing(entry.getValue(), childNotificationByKeyDto);
+                for (Integer childNotificationTypeId : parentChildentry.getValue()) {
+                    childNotificationByTypeDto = nMap.get(childNotificationTypeId);
+                    /**
+                     * if child exists, then suppressing can be done.
+                     */
+                    if (childNotificationByTypeDto != null) {
+                        childNotificationByKeyMap = childNotificationByTypeDto.getNotificationMessageByKeys();
+
+                        /**
+                         * For each primary key present in the parent
+                         * Notification Type, check if that primary key is
+                         * present for the child also. If present then suppress
+                         * the child notifications.
+                         */
+                        for (Map.Entry<Object, NotificationByKeyDto> entry : parentNotificationByKeyMap.entrySet()) {
+                            childNotificationByKeyDto = childNotificationByKeyMap.get(entry.getKey());
+                            if (childNotificationByKeyDto != null) {
+                                nPrimaryKeyProcessor.processInterSuppressing(
+                                        entry.getValue(),
+                                        childNotificationByKeyDto);
+                            }
+                        }
                     }
                 }
             }
         }
-
     }
 
     public void handleInterPrimaryKeyMerging(Map<Integer, NotificationByTypeDto> nMap, Integer userId) {
         logger.info(" Handling Inter Primary Key Merging");
         Map<Integer, List<Integer>> mergeGroup = notificationTypeService.notificationInterKeyMergeGroupingMap();
-        logger.debug(" INTER PRIMARY KEY GROUP "+Serializer.toJson(mergeGroup));
-        
+        logger.debug(" INTER PRIMARY KEY GROUP " + Serializer.toJson(mergeGroup));
+
         NotificationByTypeDto parentNotificationByTypeDto;
         Map<Object, NotificationByKeyDto> parentNotificationByKeyMap;
         NotificationByKeyDto parentNotificationByKeyDto;
@@ -309,12 +333,12 @@ public class NotificationProcessorHandler {
                     foundNTypeDtos.add(nMap.get(notificationTypeId));
                 }
             }
-            logger.debug(" FOUND PARENT "+parentChildentry.getKey()+" GROUP "+ Serializer.toJson(foundNTypeDtos));
+            logger.debug(" FOUND PARENT " + parentChildentry.getKey() + " GROUP " + Serializer.toJson(foundNTypeDtos));
             if (foundNTypeDtos.size() < 1) {
                 continue;
             }
             groupNotificationsByKey(foundNTypeDtos, groupNotificationByKey);
-            logger.debug(" GROPED NOTIFICATION BY KEY "+Serializer.toJson(groupNotificationByKey));
+            logger.debug(" GROPED NOTIFICATION BY KEY " + Serializer.toJson(groupNotificationByKey));
             if (parentNotificationByTypeDto == null) {
                 parentNotificationByTypeDto = new NotificationByTypeDto();
                 parentNotificationByTypeDto
@@ -328,19 +352,22 @@ public class NotificationProcessorHandler {
             nPrimaryKeyProcessor = parentNotificationByTypeDto.getNotificationType().getNotificationTypeConfig()
                     .getPrimaryKeyProcessorObject();
             for (Map.Entry<Object, List<NotificationByKeyDto>> entry : groupNotificationByKey.entrySet()) {
-                logger.debug(" Inter Primary Key for Object Id : "+entry.getKey());
+                logger.debug(" Inter Primary Key for Object Id : " + entry.getKey());
                 parentNotificationByKeyDto = parentNotificationByKeyMap.get(entry.getKey());
                 if (parentNotificationByKeyDto == null) {
                     parentNotificationByKeyDto = new NotificationByKeyDto();
 
-                    notificationMessage = nMessageService.createNotificationMessage(parentChildentry.getKey(), userId, entry.getKey());
+                    notificationMessage = nMessageService.createNotificationMessage(
+                            parentChildentry.getKey(),
+                            userId,
+                            entry.getKey());
                     parentNotificationByKeyDto.getNotificationMessages().add(notificationMessage);
                     parentNotificationByKeyMap.put(entry.getKey(), parentNotificationByKeyDto);
-                    logger.debug("Created Parent Notification Message: "+Serializer.toJson(notificationMessage));
+                    logger.debug("Created Parent Notification Message: " + Serializer.toJson(notificationMessage));
                 }
-                
+
                 nPrimaryKeyProcessor.processInterMerging(parentNotificationByKeyDto, entry.getValue());
-                logger.debug(" Created Parent Object "+Serializer.toJson(parentNotificationByKeyDto));
+                logger.debug(" Created Parent Object " + Serializer.toJson(parentNotificationByKeyDto));
             }
 
         }

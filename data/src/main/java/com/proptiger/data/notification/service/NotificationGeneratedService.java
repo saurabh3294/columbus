@@ -388,6 +388,10 @@ public class NotificationGeneratedService {
                 ntGenerated.getId(),
                 NotificationStatus.SchedulerSuppressed);
     }
+    
+    public Long getNumberOfActiveNotificationGenerated(){
+        return notificationGeneratedDao.getActiveCountNotificationGenerated(NotificationStatus.Generated);
+    }
 
     public NotificationGeneratedDao getNotificationGeneratedDao() {
         return notificationGeneratedDao;
