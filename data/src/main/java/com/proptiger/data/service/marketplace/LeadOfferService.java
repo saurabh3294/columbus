@@ -30,6 +30,8 @@ import com.proptiger.core.enums.TaskStatus;
 import com.proptiger.core.exception.APIServerException;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.internal.dto.mail.MailBody;
+import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.companyuser.CompanyUser;
@@ -41,8 +43,6 @@ import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.internal.dto.SenderDetail;
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
@@ -60,7 +60,6 @@ import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.userservice.mvc.CompanyService;
 
 /**
  * 

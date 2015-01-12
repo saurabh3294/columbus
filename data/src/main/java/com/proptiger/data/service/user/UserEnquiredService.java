@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.model.proptiger.Enquiry.EnquiryCustomDetails;
 import com.proptiger.data.repo.EnquiryDao;
@@ -24,9 +25,6 @@ public class UserEnquiredService {
     @Autowired
     private EnquiryDao   enquiryDao;
 
-    @Autowired
-    private UserService      userService;
-    
     @Value("${enquired.within.days}")
     private Integer                          enquiredWithinDays;
 
@@ -36,8 +34,8 @@ public class UserEnquiredService {
      * @param userId
      * @return
      */
-    public List<EnquiryCustomDetails> getEnquiries(Integer userId) {
-        List<EnquiryCustomDetails> list = enquiryDao.findEnquiriesByEmail(userService.getUserById(userId).getEmail());
+    public List<EnquiryCustomDetails> getEnquiries(ActiveUser activeUser) {
+        List<EnquiryCustomDetails> list = enquiryDao.findEnquiriesByEmail(activeUser.getUsername());
         return list;
     }
     
@@ -45,11 +43,11 @@ public class UserEnquiredService {
      * Get if user have already enquired a entity
      * 
      * @param projectId
-     * @param userId
+     * @param activeUser
      * @return
      */
-    public AlreadyEnquiredDetails hasEnquired(Integer projectId, Integer userId) {
-        String email = userService.getUserById(userId).getEmail();
+    public AlreadyEnquiredDetails hasEnquired(Integer projectId, ActiveUser activeUser) {
+        String email = activeUser.getUsername();
         Enquiry enquiry = null;
         AlreadyEnquiredDetails alreadyEnquiredDetails = new AlreadyEnquiredDetails(null, false, enquiredWithinDays);
         if (projectId != null) {

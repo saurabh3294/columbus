@@ -34,8 +34,8 @@ public class EnquiredPropertyController extends BaseController {
     @ResponseBody
     public APIResponse getEnquiredProperties(
             @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-         List<EnquiryCustomDetails> result = enquiredPropertyService.getEnquiries(userInfo.getUserIdentifier());
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+         List<EnquiryCustomDetails> result = enquiredPropertyService.getEnquiries(activeUser);
         return new APIResponse(result, result.size());
     }
 }

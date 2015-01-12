@@ -69,9 +69,6 @@ public class ProjectDiscussionsService {
     @Autowired
     private ProjectDBDao            projectDBDao;
 
-    @Autowired
-    private UserService             userService;
-
     public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, ActiveUser activeUser) {
 
         if (projectDiscussion.getComment() == null || projectDiscussion.getComment().isEmpty()) {
@@ -82,10 +79,10 @@ public class ProjectDiscussionsService {
             throw new IllegalArgumentException("Enter valid Project Id");
         }
 
-        User user = userService.getUserById(activeUser.getUserIdentifier());
+        //User user = userService.getUserById(activeUser.getUserIdentifier());
 
         projectDiscussion.setUserId(activeUser.getUserIdentifier());
-        projectDiscussion.setAdminUserName(user.getFullName());
+        projectDiscussion.setAdminUserName(activeUser.getFullName());
         projectDiscussion.setLevel(0);
         projectDiscussion.setNumLikes(0);
         projectDiscussion.setStatus("0");

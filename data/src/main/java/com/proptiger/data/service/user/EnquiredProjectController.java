@@ -33,8 +33,8 @@ public class EnquiredProjectController {
         return hasEnquiredByUser(userInfo, projectId);
     }
 
-    private APIResponse hasEnquiredByUser(ActiveUser userInfo, Integer projectId) {
-        AlreadyEnquiredDetails enquiredDetails = enquiredPropertyService.hasEnquired(projectId, userInfo.getUserIdentifier());
+    private APIResponse hasEnquiredByUser(ActiveUser activeUser, Integer projectId) {
+        AlreadyEnquiredDetails enquiredDetails = enquiredPropertyService.hasEnquired(projectId, activeUser);
         return new APIResponse(enquiredDetails);
     }
 

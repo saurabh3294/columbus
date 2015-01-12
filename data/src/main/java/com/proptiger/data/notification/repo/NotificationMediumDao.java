@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.proptiger.data.notification.enums.MediumType;
+import com.proptiger.core.enums.notification.MediumType;
 import com.proptiger.data.notification.model.NotificationMedium;
 
 public interface NotificationMediumDao extends PagingAndSortingRepository<NotificationMedium, Integer> {

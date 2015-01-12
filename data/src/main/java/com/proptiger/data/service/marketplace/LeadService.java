@@ -31,7 +31,7 @@ import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.CityService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
-import com.proptiger.userservice.mvc.CompanyService;
+import com.proptiger.data.service.user.CompanyUserServiceHelper;
 
 /**
  * @author Anubhav
@@ -40,9 +40,6 @@ import com.proptiger.userservice.mvc.CompanyService;
  */
 @Service
 public class LeadService {
-    @Autowired
-    private UserService             userService;
-
     @Autowired
     private LeadDao                 leadDao;
 
@@ -59,9 +56,6 @@ public class LeadService {
     private ProjectService          projectService;
 
     @Autowired
-    private CompanyService          companyService;
-
-    @Autowired
     private LocalityService         localityService;
 
     @Autowired
@@ -74,6 +68,9 @@ public class LeadService {
 
     @Autowired
     private CityService             cityService;
+    
+    @Autowired
+    private CompanyUserServiceHelper companyUserServiceHelper;
 
     public void manageLeadAuctionWithBeforeCycleForRequestBrokers(int leadId) {
         Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseIdByLeadId(leadId);
@@ -196,7 +193,7 @@ public class LeadService {
             throw new ProAPIException("No locality found in lead");
         }
         else {
-            brokers = companyService.getBrokersForLocalities(localityIds);
+            brokers = companyUserServiceHelper.getCompaniesThatDealInOneOfLocalities(localityIds);
         }
 
         List<Integer> agentIds = new ArrayList<Integer>();
@@ -214,7 +211,7 @@ public class LeadService {
         List<Company> brokerToConsider = new ArrayList<Company>();
 
         if (!agentIds.isEmpty()) {
-            List<Company> brokersToExclude = companyService.getCompanyFromUserId(agentIds);
+            List<Company> brokersToExclude = companyUserServiceHelper.getListOfCompanyOfUsersIds(agentIds);
             List<Integer> brokerIds = new ArrayList<Integer>();
 
             for (Company broker : brokersToExclude) {

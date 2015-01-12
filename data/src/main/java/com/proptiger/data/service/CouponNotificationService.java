@@ -12,17 +12,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.enums.notification.MediumType;
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
+import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.core.internal.dto.mail.MailDetails;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.notification.external.NotificationCreatorServiceRequest;
 import com.proptiger.core.model.user.User;
-import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
-import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.model.transaction.Transaction;
-import com.proptiger.data.notification.enums.MediumType;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
-import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
 

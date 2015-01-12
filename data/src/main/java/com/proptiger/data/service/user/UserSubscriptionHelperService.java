@@ -82,10 +82,10 @@ public class UserSubscriptionHelperService {
             return new ArrayList<SubscriptionPermission>();
         }
         String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + URL_USERDETAILS_SUBSCRIPTION_PERMISSION;
-        List<SubscriptionPermission> subscriptionPermissions = (httpRequestUtil.getInternalApiResultAsTypeList(
+        List<SubscriptionPermission> subscriptionPermissions = httpRequestUtil.getInternalApiResultAsTypeList(
                 URI.create(stringUrl),
                 header,
-                SubscriptionPermission.class));
+                SubscriptionPermission.class);
         
         return subscriptionPermissions;
     }
@@ -106,10 +106,10 @@ public class UserSubscriptionHelperService {
             return new ArrayList<UserSubscriptionMapping>();
         }
         String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + URL_USERDETAILS_SUBSCRIPTION_MAPPING;
-        List<UserSubscriptionMapping> subscriptionPermissions = (httpRequestUtil.getInternalApiResultAsTypeList(
+        List<UserSubscriptionMapping> subscriptionPermissions = httpRequestUtil.getInternalApiResultAsTypeList(
                 URI.create(stringUrl),
                 header,
-                UserSubscriptionMapping.class));
+                UserSubscriptionMapping.class);
         
         return subscriptionPermissions;
     }

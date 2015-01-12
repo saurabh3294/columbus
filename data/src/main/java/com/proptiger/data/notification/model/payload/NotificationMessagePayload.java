@@ -3,8 +3,8 @@ package com.proptiger.data.notification.model.payload;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.proptiger.core.internal.dto.mail.MediumDetails;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
 
 public class NotificationMessagePayload extends BaseModel {
 

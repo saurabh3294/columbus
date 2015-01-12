@@ -3,11 +3,11 @@ package com.proptiger.data.notification.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.proptiger.core.enums.notification.MediumType;
+import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.core.internal.dto.mail.MailDetails;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
-import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
-import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.sender.AndroidSender;
 import com.proptiger.data.notification.sender.EmailSender;
 import com.proptiger.data.notification.sender.MarketplaceAppSender;
