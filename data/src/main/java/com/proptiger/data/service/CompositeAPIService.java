@@ -124,8 +124,7 @@ public class CompositeAPIService {
         Cookie[] requestCookies = request.getCookies();
         String phpsessId = null;
         String jsessionId = null;
-        String applicationType = null;
-        
+
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
 
@@ -135,20 +134,21 @@ public class CompositeAPIService {
                 else if (c.getName().equals(Constants.JSESSIONID)) {
                     jsessionId = c.getValue();
                 }
-                else if (c.getName().equals(Constants.APPLICATION_TYPE)) {
-                    applicationType = c.getValue();
-                }
-                else{
+                else {
                     continue;
                 }
             }
-        }     
+        }
         
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Cookie", "PHPSESSID=" + phpsessId);
         requestHeaders.add("Cookie", "JSESSIONID=" + jsessionId);
-        requestHeaders.add("Cookie", "applicationType=b2b");
-        
+
+        String applicationType = request.getHeader(Constants.APPLICATION_TYPE_HEADER);
+        if (applicationType != null && !applicationType.isEmpty()) {
+            requestHeaders.add(Constants.APPLICATION_TYPE_HEADER, applicationType);
+        }
+
         final HttpEntity<Object> requestEntity = new HttpEntity<Object>(requestHeaders);
 
         if (apis != null && apis.size() > 0) {
@@ -203,8 +203,6 @@ public class CompositeAPIService {
                 timeTakenByApis);
         return response;
     }
-
- 
 
     /**
      * This method is to use spring's internal architecture to hit required
