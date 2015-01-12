@@ -25,6 +25,8 @@ import com.proptiger.core.enums.ProcessingStatus;
 import com.proptiger.core.enums.ProjectStatus;
 import com.proptiger.core.enums.SalesType;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.internal.dto.mail.MailBody;
+import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
@@ -38,8 +40,6 @@ import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.mail.LeadSubmitMail;
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.EnquiryAttributes;
 import com.proptiger.data.repo.EnquiryAttributesDao;
 import com.proptiger.data.repo.EnquiryDao;
@@ -149,8 +149,7 @@ public class EnquiryService {
                 updateUserDetails(enquiry);
             }
 
-            if (enquiry.getUserMedium().equals(CookieConstants.PPC) || enquiry.getUserMedium().equals(
-                    CookieConstants.CPC)) {
+            if (enquiry.getPpc()) {
                 enquiry.setTrackingFlag(true);
             }
 

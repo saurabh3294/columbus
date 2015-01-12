@@ -25,11 +25,13 @@ public class SeoPropertyChangeProcessor extends DBEventProcessor{
         logger.info(" Populating the Property Change Event Type Old data.");
         DefaultEventTypePayload payload = (DefaultEventTypePayload)event.getEventTypePayload();
         Object newValue = payload.getNewValue();
-        if( newValue.getClass().equals(String.class) ){
+        // newValue is null when there is property insert.
+        if( newValue != null && newValue.getClass().equals(String.class) ){
             if( !newValue.equals(EntityType.Actual.name()) && !newValue.equals(UnitType.Apartment.name()) && !newValue.equals(UnitType.Villa.name()) && !newValue.equals(UnitType.Plot.name()) ){
                 return null;
             }
         }
+        
         Property property = propertyService.getActivePropertyByIdFromDB(Integer.parseInt(event.getEventTypeUniqueKey()));
         // The property is not active.
         if(property == null){

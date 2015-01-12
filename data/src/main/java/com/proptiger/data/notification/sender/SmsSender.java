@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
 import com.proptiger.core.model.user.UserContactNumber;
-import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.service.user.UserService;
 

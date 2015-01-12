@@ -16,6 +16,7 @@ import com.proptiger.data.notification.processor.dto.NotificationProcessorDto;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.NotificationProcessorDtoService;
+import com.proptiger.data.notification.service.SubscriberConfigService;
 import com.proptiger.data.util.Serializer;
 
 @Service
@@ -34,11 +35,29 @@ public class NotificationGenerator {
     @Autowired
     private NotificationProcessorDtoService nDtoService;
 
+    @Autowired
+    private SubscriberConfigService         subscriberConfigService;
+
+    public boolean isNotificationGeneratedGenerationRequired() {
+        Long activeNGCount = notificationGeneratedService.getNumberOfActiveNotificationGenerated();
+        Integer maxActiveNGCount = subscriberConfigService.getMaxActiveNotificationGeneratedCount();
+
+        if (activeNGCount < maxActiveNGCount) {
+            logger.debug("NotificationGenerated Generation required as activeNGCount " + activeNGCount
+                    + " is less than maxActiveNGCount "
+                    + maxActiveNGCount);
+            return true;
+        }
+        logger.debug("NotificationGenerated Generation not required as activeNGCount " + activeNGCount
+                + " is greater then or equal to maxActiveNGCount "
+                + maxActiveNGCount);
+        return false;
+    }
+
     public Integer generateNotifications() {
         logger.info("Retrieving the notification messages from database.");
         // TODO to handle the pageable condition.
-        List<NotificationMessage> notificationMessages = notificationMessageService
-                .getRawNotificationMessages(new LimitOffsetPageRequest(0, 5));
+        List<NotificationMessage> notificationMessages = notificationMessageService.getRawNotificationMessages();
 
         logger.info("Fetch " + notificationMessages.size() + " messages from the database.");
         logger.debug("Notification Messages Retrieved " + Serializer.toJson(notificationMessages));
