@@ -43,6 +43,7 @@ public class CookiesService {
         boolean originalPPC = false;
 
         utmSourceFromRequest = request.getParameter(CookieConstants.UTM_SOURCE);
+        httpReferer = request.getHeader(CookieConstants.REFERER);
 
         // Reading request Cookies
         Cookie[] requestCookies = request.getCookies();
@@ -68,6 +69,8 @@ public class CookiesService {
         // Override cookies only if USER_FROM_PPC is not true
         if (!originalPPC) {
 
+            setLandingPage(request, landingPage, response, cookiesMap);
+
             // Setting user_network cookie
             network = setCookieWithDueOrder(
                     CookieConstants.NETWORK,
@@ -80,12 +83,6 @@ public class CookiesService {
 
             // Setting utm cookies
             setUTMCookies(request, response, requestCookiesMap, cookiesMap);
-
-            // setting REF_URL cookie
-            httpReferer = request.getHeader(CookieConstants.REFERER);
-            if (httpReferer != null && !httpReferer.isEmpty()) {
-                setCookie(CookieConstants.REF_URL, httpReferer, response, cookiesMap);
-            }
 
             // ppc set to true if utm_medium is 'ppc' or 'cpc'
             if (CookieConstants.CPC.equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_MEDIUM)) || CookieConstants.PPC
@@ -108,7 +105,6 @@ public class CookiesService {
                     ppc = false;
                 }
             }
-        }
 
             setCookie(CookieConstants.USER_FROM_PPC, String.valueOf(ppc).toUpperCase(), response, cookiesMap);
         }
@@ -122,7 +118,11 @@ public class CookiesService {
         }
 
         setUserIp(request, response, cookiesMap);
-        setLandingPage(request, landingPage, response, cookiesMap);
+
+        // setting REF_URL cookie
+        if (httpReferer != null && !httpReferer.isEmpty()) {
+            setCookie(CookieConstants.REF_URL, httpReferer, response, cookiesMap);
+        }
 
         return cookiesMap;
     }
