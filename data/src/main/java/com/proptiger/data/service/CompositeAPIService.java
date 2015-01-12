@@ -124,6 +124,7 @@ public class CompositeAPIService {
         Cookie[] requestCookies = request.getCookies();
         String phpsessId = null;
         String jsessionId = null;
+        String applicationType = null;
         
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
@@ -134,6 +135,9 @@ public class CompositeAPIService {
                 else if (c.getName().equals(Constants.JSESSIONID)) {
                     jsessionId = c.getValue();
                 }
+                else if (c.getName().equals(Constants.APPLICATION_TYPE)) {
+                    applicationType = c.getValue();
+                }
                 else{
                     continue;
                 }
@@ -143,7 +147,8 @@ public class CompositeAPIService {
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Cookie", "PHPSESSID=" + phpsessId);
         requestHeaders.add("Cookie", "JSESSIONID=" + jsessionId);
-
+        requestHeaders.add("Cookie", "applicationType=b2b");
+        
         final HttpEntity<Object> requestEntity = new HttpEntity<Object>(requestHeaders);
 
         if (apis != null && apis.size() > 0) {

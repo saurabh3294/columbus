@@ -166,6 +166,7 @@ public class ProjectDetailController extends BaseController {
         return getProjectDetailsV2(projectId, selector);
     }
 
+    @Intercepted.ProjectDetail
     @RequestMapping(value = { "app/v2/project-detail/{projectId}" })
     @ResponseBody
     @DisableCaching
@@ -192,6 +193,7 @@ public class ProjectDetailController extends BaseController {
         return new APIResponse(super.filterFields(project, fields));
     }
 
+    @Intercepted.ProjectDetail
     @RequestMapping(value = { "app/v3/project-detail/{projectId}" })
     @ResponseBody
     @DisableCaching
