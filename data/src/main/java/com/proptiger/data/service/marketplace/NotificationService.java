@@ -55,6 +55,7 @@ import com.proptiger.data.repo.marketplace.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.user.CompanyUserServiceHelper;
 import com.proptiger.data.util.SerializationUtils;
 import com.rits.cloning.Cloner;
 
@@ -88,9 +89,6 @@ public class NotificationService {
     private static final NotificationTypeEnum defaultNotificationType = NotificationTypeEnum.MarketplaceDefault;
 
     @Autowired
-    UserService                               userService;
-
-    @Autowired
     LeadTaskStatusDao                         leadTaskStatusDao;
 
     @Autowired
@@ -99,7 +97,7 @@ public class NotificationService {
     private static Logger                     logger                  = LoggerFactory
                                                                               .getLogger(NotificationService.class);
     @Autowired
-    CompanyUserService                        companyUserService;
+    private CompanyUserServiceHelper companyUserServiceHelper;
 
     static {
         for (LeadTaskName leadTask : LeadTaskName.values()) {
@@ -923,7 +921,7 @@ public class NotificationService {
                         .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID);
                 createNotification(rmUserId, notificationTypeId, userId, null);
 
-                String companyname = companyUserService.getCompanyUsers(userId).get(0).getCompany().getName();
+                String companyname = companyUserServiceHelper.getCompanyUserOfUserId(userId).getCompany().getName();
                 String emailSubject = "Too Many Overdue Tasks for " + companyname;
                 String emailContent = companyname + " has not updated "
                         + overDueTaskCountForUser.getOverDueTaskCount()

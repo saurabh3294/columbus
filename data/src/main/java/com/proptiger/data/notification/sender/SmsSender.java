@@ -40,9 +40,6 @@ public class SmsSender implements MediumSender {
     private String              SENDER_ID;
 
     @Autowired
-    private UserService         userService;
-
-    @Autowired
     private TemplateGenerator   templateGenerator;
 
     @Override

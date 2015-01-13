@@ -23,9 +23,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.dto.internal.mail.ListingAddMail;
 import com.proptiger.core.dto.internal.mail.ListingLoanRequestMail;
 import com.proptiger.core.dto.internal.mail.ListingResaleMail;
+import com.proptiger.core.dto.internal.user.CustomUser;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.enums.ListingStatus;
 import com.proptiger.core.enums.ResidentialFlag;
@@ -77,6 +79,7 @@ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.user.LeadGenerationService;
 import com.proptiger.data.service.user.SubscriptionService;
+import com.proptiger.data.service.user.UserServiceHelper;
 import com.proptiger.data.util.portfolio.PortfolioUtil;
 
 /**
@@ -139,9 +142,9 @@ public class PortfolioService {
 
     @Autowired
     private ImageEnricher             imageEnricher;
-
+    
     @Autowired
-    private UserService               userService;
+    private UserServiceHelper userServiceHelper;
 
     /**
      * Get portfolio object for a particular user id
@@ -772,19 +775,19 @@ public class PortfolioService {
     }
 
     /**
-     * @param userId
+     * @param activeUser
      * @param listingId
      * @param mailType
      * @return
      */
-    public boolean handleMailRequest(Integer userId, Integer listingId, String mailType) {
+    public boolean handleMailRequest(ActiveUser activeUser, Integer listingId, String mailType) {
         MailType mailTypeEnum = null;
         mailTypeEnum = MailType.valueOfString(mailType);
         if (mailTypeEnum == null) {
             throw new IllegalArgumentException("Invalid mail type");
         }
-        PortfolioListing listing = getPortfolioListingById(userId, listingId);
-        return sendMail(userId, listing, mailTypeEnum);
+        PortfolioListing listing = getPortfolioListingById(activeUser.getUserIdentifier(), listingId);
+        return sendMail(activeUser.getUserIdentifier(), listing, mailTypeEnum);
     }
 
     /**
@@ -797,15 +800,11 @@ public class PortfolioService {
      * @return
      */
     private boolean sendMail(Integer userId, PortfolioListing listing, MailType mailTypeEnum) {
-        User user = userService.getUserById(listing.getUserId());
+        CustomUser user = userServiceHelper.getActiveUserDetails();
         String toStr = user.getEmail();
         MailBody mailBody = null;
         MailDetails mailDetails = null;
-        UserContactNumber priorityContact = userService.getTopPriorityContact(user.getId());
-        String contactNumber = null;
-        if (priorityContact != null) {
-            contactNumber = priorityContact.getContactNumber();
-        }
+        String contactNumber = user.getContactNumber();
         switch (mailTypeEnum) {
             case LISTING_ADD_MAIL_TO_USER:
                 ListingAddMail listingAddMail = listing.createListingAddMailObject(user);

@@ -60,6 +60,7 @@ import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.data.service.user.CompanyUserServiceHelper;
 
 /**
  * 
@@ -70,7 +71,7 @@ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 @Service
 public class LeadOfferService {
     @Autowired
-    private CompanyService               companyService;
+    private CompanyUserServiceHelper companyUserServiceHelper;
 
     @Autowired
     private LeadOfferDao                 leadOfferDao;
@@ -80,9 +81,6 @@ public class LeadOfferService {
 
     @Autowired
     private LeadRequirementsService      leadRequirementsService;
-
-    @Autowired
-    private UserService                  userService;
 
     @Autowired
     private LeadOfferedListingDao        leadOfferedListingDao;
@@ -448,7 +446,7 @@ public class LeadOfferService {
     }
 
     public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId, Integer phaseId) {
-        List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
+        List<CompanyUser> agents = companyUserServiceHelper.getCompanyUsersInCompany(brokerCompany.getId());
         Integer countLeadOfferInDB = (int) (long) leadOfferDao.getCountByLeadIdAndPhaseId(lead.getId(), phaseId);
         LeadOffer leadOffer = null;
         LeadOffer leadOfferInDB = null;

@@ -72,9 +72,6 @@ public class EnquiryService {
     BeanstalkService                beanstalkService;
 
     @Autowired
-    UserService                     userService;
-
-    @Autowired
     SecurityUtilService             securityUtilService;
 
     @Autowired

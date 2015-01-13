@@ -5,13 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.enums.ResourceType;
+import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.companyuser.CompanyUser;
+import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.RequestHolderUtil;
 
 /**
  * A helper service over company user service defined in userservice application
@@ -23,8 +29,9 @@ import com.proptiger.core.util.PropertyReader;
 @Service
 public class CompanyUserServiceHelper {
 
-    private static String   URL_GET_COMPANY_FOR_LOCALITY_IDS = "data/v1/entity/company?localityIds=";
-    private static String   URL_GET_COMPANY_USERS_IN_COMPANY = "data/v1/entity/company/{companyId}/company-users";
+    private static String   URL_GET_COMPANY_FOR_LOCALITY_IDS   = "data/v1/entity/company?localityIds=";
+    private static String   URL_GET_COMPANY_USERS_IN_COMPANY   = "data/v1/entity/company/{companyId}/company-users";
+    private static String   URL_GET_COMANY_USER_OF_ACTIVE_USER = "data/v1/entity/company-users/{userId}";
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
@@ -38,16 +45,18 @@ public class CompanyUserServiceHelper {
                 .append(URL_GET_COMPANY_FOR_LOCALITY_IDS);
         boolean first = Boolean.TRUE;
         for (Integer id : localityIds) {
-            if(!first){
+            if (!first) {
                 stringUrl.append(",");
             }
-            stringUrl.append("localityIds="+id);
+            stringUrl.append("localityIds=" + id);
             first = Boolean.FALSE;
         }
-        List<Company> list = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), Company.class);
+        List<Company> list = httpRequestUtil.getInternalApiResultAsTypeList(
+                URI.create(stringUrl.toString()),
+                Company.class);
         return list;
     }
-    
+
     public List<Company> getListOfCompanyOfUsersIds(List<Integer> userIds) {
         if (userIds == null || userIds.isEmpty()) {
             return new ArrayList<Company>();
@@ -57,13 +66,15 @@ public class CompanyUserServiceHelper {
                 .append(URL_GET_COMPANY_FOR_LOCALITY_IDS);
         boolean first = Boolean.TRUE;
         for (Integer id : userIds) {
-            if(!first){
+            if (!first) {
                 stringUrl.append(",");
             }
-            stringUrl.append("userIds="+id);
+            stringUrl.append("userIds=" + id);
             first = Boolean.FALSE;
         }
-        List<Company> list = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), Company.class);
+        List<Company> list = httpRequestUtil.getInternalApiResultAsTypeList(
+                URI.create(stringUrl.toString()),
+                Company.class);
         return list;
     }
 
@@ -76,4 +87,26 @@ public class CompanyUserServiceHelper {
         return list;
     }
 
+    public CompanyUser getCompanyUserOfUserId(Integer userId) {
+        String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + URL_GET_COMANY_USER_OF_ACTIVE_USER
+                .replace("{userId}", String.valueOf(userId));
+        List<CompanyUser> companyUsers = httpRequestUtil.getInternalApiResultAsTypeList(
+                URI.create(stringUrl),
+                CompanyUser.class);
+        CompanyUser u = (companyUsers != null && companyUsers.isEmpty()) ? companyUsers.get(0) : null;
+        if(u == null){
+            throw new ResourceNotAvailableException(ResourceType.COMPANY_USER, ResourceTypeAction.GET);
+        }
+        return u;
+    }
+
+    private HttpHeaders createJsessionIdHeader() {
+        HttpHeaders requestHeaders = null;
+        String jsessionId = RequestHolderUtil.getJsessionIdFromRequestCookie();
+        if (jsessionId != null && !jsessionId.isEmpty()) {
+            requestHeaders = new HttpHeaders();
+            requestHeaders.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
+        }
+        return requestHeaders;
+    }
 }

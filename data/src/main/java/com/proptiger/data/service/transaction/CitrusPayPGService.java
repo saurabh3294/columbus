@@ -113,9 +113,6 @@ public class CitrusPayPGService {
     private NotificationMessageService    nMessageService;
 
     @Autowired
-    private UserService                   userService;
-
-    @Autowired
     private ApplicationContext            applicationContext;
 
     @Autowired

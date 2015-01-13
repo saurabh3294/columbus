@@ -45,9 +45,6 @@ public class TransactionService {
     private TransactionDao            transactionDao;
 
     @Autowired
-    private UserService               userService;
-
-    @Autowired
     private ApplicationContext        applicationContext;
 
     // do not autowire this class.

@@ -30,9 +30,6 @@ public class EmailSender implements MediumSender {
     private AmazonMailSender    amazonMailSender;
 
     @Autowired
-    private UserService         userService;
-
-    @Autowired
     private TemplateGenerator   templateGenerator;
 
     @SuppressWarnings("deprecation")

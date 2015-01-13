@@ -33,9 +33,6 @@ public class CouponNotificationService {
     private PropertyService            propertyService;
 
     @Autowired
-    private UserService                userService;
-
-    @Autowired
     private ApplicationContext         applicationContext;
 
     @Autowired

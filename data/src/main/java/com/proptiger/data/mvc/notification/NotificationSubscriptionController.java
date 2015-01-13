@@ -36,9 +36,6 @@ public class NotificationSubscriptionController extends BaseController {
     @Autowired
     private UserNotificationTypeSubscriptionService subscriptionService;
 
-    @Autowired
-    private UserService                             userService;
-
     /**
      * This API can be used to subscribe the logged in user to the given
      * notificationTypes

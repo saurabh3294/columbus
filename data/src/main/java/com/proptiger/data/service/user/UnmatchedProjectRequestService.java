@@ -30,9 +30,6 @@ public class UnmatchedProjectRequestService {
     private PropertyReader          propertyReader;
     
 
-    @Autowired
-    private UserService userService;
-    
     private static Logger           logger = LoggerFactory.getLogger(UnmatchedProjectRequestService.class);
 
     /**

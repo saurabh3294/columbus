@@ -33,9 +33,6 @@ import com.proptiger.data.service.user.portfolio.PortfolioService;
 public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
 
     @Autowired
-    private UserService               userService;
-
-    @Autowired
     private PortfolioService          portfolioService;
 
     @Autowired

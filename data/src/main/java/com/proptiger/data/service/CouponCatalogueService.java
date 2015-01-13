@@ -33,9 +33,6 @@ public class CouponCatalogueService {
     private CouponCatalogueDao         couponCatalogueDao;
 
     @Autowired
-    private UserService                userService;
-
-    @Autowired
     private ApplicationContext         applicationContext;
 
     @Autowired

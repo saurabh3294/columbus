@@ -50,9 +50,6 @@ public class LocalityReviewService {
     @Autowired
     private LocalityService       localityService;
 
-    @Autowired
-    private UserService           userService;
-
     private static Logger         logger = LoggerFactory.getLogger(LocalityReviewService.class);
 
     /**
