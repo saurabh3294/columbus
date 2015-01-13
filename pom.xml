@@ -21,6 +21,7 @@
 			<id>develop</id>
 			<properties>
 				<midl-core.version>develop-SNAPSHOT</midl-core.version>
+				<skipTests>true</skipTests>
 			</properties>
 		</profile>
 		<profile>

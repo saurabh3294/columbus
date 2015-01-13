@@ -21,7 +21,7 @@ public class GooglePlacesAPIController extends BaseController {
     @Autowired
     GooglePlacesAPIService googlePlacesAPIService;
 
-    @RequestMapping(value = "app/v1/gp/place-suggest")
+//    @RequestMapping(value = "app/v1/gp/place-suggest")
     @ResponseBody
     public APIResponse getPlaceList(@RequestParam String query, @RequestParam(defaultValue = "5") int rows) {
         List<Typeahead> list = new ArrayList<Typeahead>();
@@ -29,7 +29,7 @@ public class GooglePlacesAPIController extends BaseController {
         return new APIResponse(super.filterFields(list, null), list.size());
     }
 
-    @RequestMapping(value = "app/v1/gp/place-detail")
+//    @RequestMapping(value = "app/v1/gp/place-detail")
     @ResponseBody
     public APIResponse getPlaceDetails(@RequestParam String placeId) {
         // "ChIJN1t_tDeuEmsRUsoyG83frY4"

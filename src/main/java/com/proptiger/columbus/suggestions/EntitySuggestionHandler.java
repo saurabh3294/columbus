@@ -15,7 +15,7 @@ import com.proptiger.columbus.model.TypeaheadConstants;
 @Component
 public class EntitySuggestionHandler {
 
-    private Logger              logger                   = LoggerFactory.getLogger(EntitySuggestionHandler.class);
+    private Logger              logger = LoggerFactory.getLogger(EntitySuggestionHandler.class);
 
     @Autowired
     private CitySuggestions     citySuggestions;
@@ -39,15 +39,14 @@ public class EntitySuggestionHandler {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
-        /* If top-result is not relevant enough then don't give suggestions. */
-        if (results == null || results.isEmpty() || results.get(0).getScore() < TypeaheadConstants.SuggestionScoreThreshold) {
+        if (results == null || results.isEmpty()) {
             return suggestions;
         }
 
         Typeahead topResult = results.get(0);
-        
-        /* No suggestions for Google Place results */
-        if(topResult.getIsGooglePlace()){
+
+        /* No suggestions for Google Place results or if top-result is not relevant enough */
+        if (topResult.getIsGooglePlace() || topResult.getScore() < TypeaheadConstants.SuggestionScoreThreshold) {
             return suggestions;
         }
 

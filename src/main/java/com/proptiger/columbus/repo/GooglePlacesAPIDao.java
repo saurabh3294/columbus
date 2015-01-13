@@ -1,6 +1,8 @@
 package com.proptiger.columbus.repo;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +65,13 @@ public class GooglePlacesAPIDao {
     }
 
     public List<GooglePlace> getMatchingPlaces(String query, int rows) {
+        try {
+            query = URLEncoder.encode(query, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            logger.error("Unsupported Encoding UTF-8.");
+        }
+
         String apiUrl = String.format(gpPlacePredictionUrl, StringUtils.replace(query, " ", "+"));
         String apiResponse = getResponse(apiUrl);
 
@@ -163,17 +172,9 @@ public class GooglePlacesAPIDao {
     }
 
     private String addParamsToURL(String url, String... filters) {
-
-        String finalUrl = url;
-        for (String filter : filters) {
-            if (StringUtils.contains(finalUrl, "?")) {
-                finalUrl += ("&" + filter);
-            }
-            else {
-                finalUrl += ("?" + filter);
-            }
-        }
-        return finalUrl;
+        String urlparams = StringUtils.join(filters, "&");
+        String join = (StringUtils.contains(url, "?") ? "&" : "?");
+        return url + join + urlparams;
     }
 
 }
