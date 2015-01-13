@@ -26,8 +26,10 @@ import com.proptiger.core.internal.dto.mail.MailBody;
 import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.proptiger.CompanySubscription;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
+import com.proptiger.core.model.user.UserAttribute;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.repo.APIAccessLogDao;
+import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
@@ -36,6 +38,7 @@ import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.model.CompanyIP;
 import com.proptiger.data.model.user.UserOTP;
 import com.proptiger.data.repo.CompanyIPDao;
+import com.proptiger.data.repo.user.UserAttributeDao;
 import com.proptiger.data.repo.user.UserOTPDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
@@ -68,25 +71,37 @@ public class OTPService {
 
     @Autowired
     private CompanyIPDao            companyIPDao;
-    
+
     @Autowired
-    private TemplateToHtmlGenerator   mailBodyGenerator;
+    private UserAttributeDao        userAttributeDao;
+
+    @Autowired
+    private TemplateToHtmlGenerator mailBodyGenerator;
 
     public boolean isOTPRequired(Authentication auth, HttpServletRequest request) {
         boolean required = false;
-        if(!PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_OTP, Boolean.class)){
+        if (!PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_OTP, Boolean.class)) {
             return required;
         }
         ActiveUser activeUser = (ActiveUser) auth.getPrincipal();
+
         if (activeUser.getApplicationType().equals(Application.B2B)) {
             required = true;
-            String userIP = IPUtils.getClientIP(request);
-            if(isUserCompanyIPWhitelisted(userIP, activeUser)){
-                /*
-                 * if user company ip is whitelisted then no need of
-                 * otp
-                 */
+            UserAttribute userAttribute = userAttributeDao.findByUserIdAndAttributeNameAndAttributeValue(
+                    activeUser.getUserIdentifier(),
+                    Constants.User.OTP_ATTRIBUTE_NAME,
+                    Constants.User.OTP_ATTRIBUTE_VALUE_TRUE);
+            if (userAttribute != null) {
                 required = false;
+            }
+            else {
+                String userIP = IPUtils.getClientIP(request);
+                if (isUserCompanyIPWhitelisted(userIP, activeUser)) {
+                    /*
+                     * if user company ip is whitelisted then no need of otp
+                     */
+                    required = false;
+                }
             }
         }
         return required;
@@ -116,13 +131,13 @@ public class OTPService {
     }
 
     @Transactional
-    public void respondWithOTP(ActiveUser activeUser) {
+    public String respondWithOTP(ActiveUser activeUser) {
         int otp = generator.getRandomInt();
         UserOTP userOTP = new UserOTP();
         userOTP.setOtp(otp);
         userOTP.setUserId(activeUser.getUserIdentifier());
         userOTPDao.save(userOTP);
-        
+
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.OTP,
                 new OtpMail(activeUser.getFullName(), otp, UserOTP.EXPIRES_IN_MINUTES));
@@ -130,6 +145,7 @@ public class OTPService {
                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.MAIL_OTP_BCC));
         mailSender.sendMailUsingAws(mailDetails);
 
+        return ("New OTP has been sent to your registered email");
     }
 
     @Transactional
@@ -167,22 +183,26 @@ public class OTPService {
         userOTPDao.deleteByUserId(activeUser.getUserIdentifier());
     }
 
-    public static class OtpMail{
-        private String userName;
+    public static class OtpMail {
+        private String  userName;
         private Integer otp;
         private Integer validity;
+
         public OtpMail(String userName, Integer otp, Integer validity) {
             super();
             this.userName = userName;
             this.otp = otp;
             this.validity = validity;
         }
+
         public String getUserName() {
             return userName;
         }
+
         public Integer getOtp() {
             return otp;
         }
+
         public Integer getValidity() {
             return validity;
         }
