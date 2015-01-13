@@ -58,8 +58,8 @@ public class PropertyController extends BaseController {
     private static Logger         logger = LoggerFactory.getLogger(PropertyController.class);
 
     @RequestMapping(value = "data/v1/entity/property")
-    public @ResponseBody
-    APIResponse getProperties(@RequestParam(required = false, value = "selector") String selector) throws Exception {
+    public @ResponseBody APIResponse getProperties(@RequestParam(required = false, value = "selector") String selector)
+            throws Exception {
 
         Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
         if (propRequestParam == null) {
@@ -72,8 +72,7 @@ public class PropertyController extends BaseController {
     }
 
     @RequestMapping(value = "data/v2/entity/property")
-    public @ResponseBody
-    APIResponse getV2Properties(@ModelAttribute FIQLSelector selector) throws Exception {
+    public @ResponseBody APIResponse getV2Properties(@ModelAttribute FIQLSelector selector) throws Exception {
         PaginatedResponse<List<Property>> response = propertyService.getProperties(selector);
         return new APIResponse(response.getResults(), response.getTotalCount());
     }
@@ -81,9 +80,7 @@ public class PropertyController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/property/{propertyId}/report-error")
     @ResponseBody
     @DisableCaching
-    public APIResponse reportPropertyError(
-            @Valid @RequestBody ProjectError projectError,
-            @PathVariable int propertyId) {
+    public APIResponse reportPropertyError(@Valid @RequestBody ProjectError projectError, @PathVariable int propertyId) {
         if (projectError.getPropertyId() != null && projectError.getPropertyId() > 0)
             throw new IllegalArgumentException("Property Id should not be present in the request body");
         if (projectError.getProjectId() != null)
@@ -98,20 +95,22 @@ public class PropertyController extends BaseController {
     @ResponseBody
     @DisableCaching
     public APIResponse sellYourProperty(@RequestBody PortfolioListing portfolioListing) {
-        return new APIResponse(portfolioService.sellYourProperty(portfolioListing));
+        return new APIResponse(portfolioService.sellYourPropertyForNonLoggedIn(portfolioListing));
     }
-    
+
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/user/property/sell-property")
     @ResponseBody
     @DisableCaching
-    public APIResponse userSellYourProperty(@RequestBody PortfolioListing portfolioListing, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        portfolioListing.setUserId(userInfo.getUserIdentifier());
-        return new APIResponse(portfolioService.sellYourProperty(portfolioListing));
+    public APIResponse userSellYourProperty(
+            @RequestBody PortfolioListing portfolioListing,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+        portfolioListing.setUserId(activeUser.getUserIdentifier());
+        return new APIResponse(portfolioService.sellYourProperty(portfolioListing, activeUser));
     }
-    
+
     @RequestMapping(value = "data/v1/entity/property/{id}/deleted", method = RequestMethod.GET)
     @ResponseBody
-    public APIResponse getProjectIdFromPropertyId(@PathVariable Integer id){
+    public APIResponse getProjectIdFromPropertyId(@PathVariable Integer id) {
         return new APIResponse(propertyService.getProjectIdFromDeletedPropertyId(id));
     }
 }

@@ -800,7 +800,7 @@ public class PortfolioService {
      * @return
      */
     private boolean sendMail(Integer userId, PortfolioListing listing, MailType mailTypeEnum) {
-        CustomUser user = userServiceHelper.getActiveUserDetails();
+        CustomUser user = userServiceHelper.getActiveUserCustomDetails();
         String toStr = user.getEmail();
         MailBody mailBody = null;
         MailDetails mailDetails = null;
@@ -858,7 +858,7 @@ public class PortfolioService {
 
     }
 
-    public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
+    public PortfolioListing sellYourPropertyForNonLoggedIn(PortfolioListing portfolioListing) {
         User user = null;
         if (portfolioListing.getUserId() != null) {
             user = userService.getUserById(portfolioListing.getUserId());
@@ -866,7 +866,21 @@ public class PortfolioService {
                 throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
             }
         }
-
+        return sellYourProperty(portfolioListing, user);
+    } 
+    
+    public PortfolioListing sellYourProperty(PortfolioListing portfolioListing, ActiveUser activeUser) {
+        User user = null;
+        if (portfolioListing.getUserId() != null) {
+            user = userServiceHelper.getActiveUser();
+            if (user == null) {
+                throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
+            }
+        }
+        return sellYourProperty(portfolioListing, user);
+    } 
+    
+    private PortfolioListing sellYourProperty(PortfolioListing portfolioListing, User user) {
         if (portfolioListing.getTypeId() != null) {
             Property property = propertyService.getProperty(portfolioListing.getTypeId());
             if (property == null) {
