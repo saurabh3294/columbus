@@ -10,10 +10,10 @@ import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.UserAttributeTypes;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.user.UserAttribute;
-import com.proptiger.data.enums.user.UserAttributeTypes;
 import com.proptiger.data.repo.user.UserAttributeDao;
 
 /**
