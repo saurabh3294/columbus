@@ -8,11 +8,13 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.LandMark;
@@ -207,5 +209,15 @@ public class CityService {
         }
         List<LandMark> amenity = localityAmenityService.getLandMarksByCity(cityId, null, new Paging(0, 2000));
         return imageEnricher.getCityAmenityImages(amenity);
+    }
+    @Transactional
+    public City updateCity(City city) {
+        if(city.getDescription() != null && !city.getDescription().isEmpty()){
+            City cityActual=cityDao.findOne(city.getId());
+            cityActual.setDescription(city.getDescription());
+            cityActual = cityDao.save(cityActual);
+            return cityActual;
+        }
+        throw new BadRequestException("Invalid city description");
     }
 }
