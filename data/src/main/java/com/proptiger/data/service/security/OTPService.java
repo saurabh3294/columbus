@@ -1,9 +1,13 @@
 package com.proptiger.data.service.security;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -15,21 +19,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.app.config.security.AuthSuccessHandler;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.Application;
+import com.proptiger.core.enums.notification.MediumType;
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.core.internal.dto.mail.MailBody;
 import com.proptiger.core.internal.dto.mail.MailDetails;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
+import com.proptiger.core.model.notification.external.NotificationCreatorServiceRequest;
 import com.proptiger.core.model.proptiger.CompanySubscription;
 import com.proptiger.core.model.proptiger.UserSubscriptionMapping;
 import com.proptiger.core.model.user.UserAttribute;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
+import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.repo.APIAccessLogDao;
 import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.IPUtils;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
@@ -37,6 +49,7 @@ import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.model.CompanyIP;
 import com.proptiger.data.model.user.UserOTP;
+import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.repo.CompanyIPDao;
 import com.proptiger.data.repo.user.UserAttributeDao;
 import com.proptiger.data.repo.user.UserOTPDao;
@@ -52,6 +65,8 @@ import com.proptiger.data.service.user.UserSubscriptionService;
  */
 public class OTPService {
 
+    private static final String     OTP_RESPONSE_MESSAGE = "New OTP has been sent over to your registered Email and Mobile Phone";
+
     @Autowired
     private APIAccessLogDao         accessLogDao;
 
@@ -61,7 +76,7 @@ public class OTPService {
     @Autowired
     private UserOTPDao              userOTPDao;
 
-    private OTPGenerator            generator = new OTPGenerator();
+    private OTPGenerator            generator            = new OTPGenerator();
 
     @Autowired
     private AuthSuccessHandler      authSuccessHandler;
@@ -77,6 +92,9 @@ public class OTPService {
 
     @Autowired
     private TemplateToHtmlGenerator mailBodyGenerator;
+
+    @Autowired
+    private HttpRequestUtil         httpRequestUtil;
 
     public boolean isOTPRequired(Authentication auth, HttpServletRequest request) {
         boolean required = false;
@@ -130,9 +148,41 @@ public class OTPService {
         return whitelisted;
     }
 
+    private String getAPIUrl() {
+
+        return PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
+                .getRequiredPropertyAsString(PropertyKeys.NOTIFICATION_SEND_URL);
+    }
+
     @Transactional
     public String respondWithOTP(ActiveUser activeUser) {
         int otp = generator.getRandomInt();
+
+        sendOTPOverMail(otp, activeUser);
+        sendOTPOverSms(otp, activeUser);
+        return OTP_RESPONSE_MESSAGE;
+    }
+
+    private void sendOTPOverSms(int otp, ActiveUser activeUser) {
+        URI uri = URI.create(UriComponentsBuilder.fromUriString(getAPIUrl()).build().encode().toString());
+
+        List<MediumDetails> mediumDetails = new ArrayList<MediumDetails>();
+        mediumDetails.add(new DefaultMediumDetails(MediumType.Sms));
+
+        Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
+        notificationPayloadMap.put(Tokens.LoginOtp.UserName.name(), activeUser.getFullName());
+        notificationPayloadMap.put(Tokens.LoginOtp.OtpCode.name(), otp);
+
+        NotificationCreatorServiceRequest request = new NotificationCreatorServiceRequest(
+                NotificationTypeEnum.LoginOtp,
+                activeUser.getUserIdentifier(),
+                notificationPayloadMap,
+                mediumDetails);
+
+        httpRequestUtil.postAndReturnInternalJsonRequest(uri, request, APIResponse.class);
+    }
+
+    private void sendOTPOverMail(int otp, ActiveUser activeUser) {
         UserOTP userOTP = new UserOTP();
         userOTP.setOtp(otp);
         userOTP.setUserId(activeUser.getUserIdentifier());
@@ -144,8 +194,6 @@ public class OTPService {
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(activeUser.getUsername()).setMailBCC(
                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.MAIL_OTP_BCC));
         mailSender.sendMailUsingAws(mailDetails);
-
-        return ("New OTP has been sent to your registered email");
     }
 
     @Transactional
