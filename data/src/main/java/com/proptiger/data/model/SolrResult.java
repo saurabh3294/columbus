@@ -464,6 +464,15 @@ public class SolrResult extends BaseModel {
     @Field(value = "CARPET_AREA")
     private Double            carpetArea;
     
+    @Field(value = "CITY_TAXONOMY_URL")
+    private String            cityTaxonomyUrls;
+    
+    @Field(value = "SUBURB_TAXONOMY_URL")
+    private String            suburbTaxonomyUrls;
+    
+    @Field(value = "LOCALITY_TAXONOMY_URL")
+    private String            localityTaxonomyUrls;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -1444,5 +1453,20 @@ public class SolrResult extends BaseModel {
     @Field(value = "CARPET_AREA")
     public void setCarpetArea(Double carpetArea) {
         property.setCarpetArea(carpetArea);
+    }
+    
+    @Field(value = "CITY_TAXONOMY_URL")
+    public void setCityTaxonomyUrls(String cityTaxonomyUrls) {
+        city.setCityTaxonomyUrls(new Gson().fromJson(cityTaxonomyUrls, Map.class));
+    }
+
+    @Field(value = "SUBURB_TAXONOMY_URL")
+    public void setSuburbTaxonomyUrls(String suburbTaxonomyUrls) {
+        suburb.setSuburbTaxonomyUrls(new Gson().fromJson(suburbTaxonomyUrls, Map.class));
+    }
+
+    @Field(value = "LOCALITY_TAXONOMY_URL")
+    public void setLocalityTaxonomyUrls(String localityTaxonomyUrls) {
+        locality.setLocalityTaxonomyUrls(new Gson().fromJson(localityTaxonomyUrls, Map.class));
     }
 }
