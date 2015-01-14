@@ -338,9 +338,13 @@ public class CitrusPayPGService {
         EnquiryCollection enquiryResult = null;
         try {
             enquiryResult = com.citruspay.pg.model.Enquiry.create(map);
+            if(enquiryResult == null){
+                enquiryResult = new EnquiryCollection();
+            }
         }
         catch (CitruspayException e) {
             logger.error("Could not fetch payment details", e);
+            enquiryResult = null;
         }
 
         return enquiryResult;
@@ -350,12 +354,13 @@ public class CitrusPayPGService {
         TransactionStatus transactionStatus = null;
         PaymentStatus paymentStatus = null;
         Enquiry lastEnquiry = null;
+        boolean wasPaymentDone = false;
 
         EnquiryCollection enquiryCollection = fetchEnquiryCollection(transaction.getId());
-        if (enquiryCollection != null && enquiryCollection.getEnquiry()!= null && ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE.equals(enquiryCollection
-                .getRespCode())) {
+        if (enquiryCollection != null && enquiryCollection.getEnquiry() != null
+                && ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE.equals(enquiryCollection.getRespCode())) {
             Enquiry lastEnquiryFound = null;
-            boolean wasPaymentDone = false;
+            wasPaymentDone = false;
             for (Enquiry enquiry : enquiryCollection.getEnquiry()) {
                 lastEnquiryFound = enquiry;
                 if (enquiry.getRespCode().equals(EnquiryResponseCode.SuccessPayment.getResponseCode())) {
@@ -404,8 +409,14 @@ public class CitrusPayPGService {
                 // Only for transactions that are marked as incomplete.
                 handleTransactionFailure(transaction, wasPaymentDone, lastEnquiryFound);
             }
-
         }
+        /**
+         * There was no exception hence enquiry collection was not null. Hence cancelling the transaction.
+         */
+        else if(enquiryCollection != null){
+            handleTransactionFailure(transaction, wasPaymentDone, lastEnquiry);
+        }
+
     }
 
     @Transactional
@@ -416,16 +427,21 @@ public class CitrusPayPGService {
      * @param lastEnquiryFound
      */
     private void handleTransactionFailure(Transaction transaction, boolean wasPaymentDone, Enquiry lastEnquiryFound) {
-        if (lastEnquiryFound != null && lastEnquiryFound.getRespCode().equalsIgnoreCase(
-                EnquiryResponseCode.FailPayment.getResponseCode())
-                && !wasPaymentDone
-                && transaction.getStatusId() == TransactionStatus.Incomplete.getId()) {
-            
+        if (transaction.getStatusId() == TransactionStatus.Incomplete.getId() && !wasPaymentDone) {
+            /**
+             * Transaction was not successful as no payment was done. Hence marking them as TransactionCancelled. 
+             */
             transactionService.updateTransactionStatusByOldStatus(
                     transaction.getId(),
                     TransactionStatus.TransactionCancelled,
                     TransactionStatus.Incomplete);
-            couponNotificationService.notifyUserOnPaymentFailure(transaction);
+            /**
+             * If payment was failed then notifying the user that there was payment failure.
+             */
+            if (lastEnquiryFound != null && lastEnquiryFound.getRespCode().equalsIgnoreCase(
+                    EnquiryResponseCode.FailPayment.getResponseCode())) {
+                couponNotificationService.notifyUserOnPaymentFailure(transaction);
+            }
         }
     }
 
@@ -486,14 +502,14 @@ public class CitrusPayPGService {
             TransactionStatus transactionStatus,
             PaymentStatus paymentStatus,
             Enquiry lastEnquiry) {
-        
+
         // getting the latest transaction in the database.
         transaction = transactionService.getTransaction(transaction.getId());
         // Only Incomplete Transaction are allowed to proceed further.
-        if(transaction.getStatusId() != TransactionStatus.Incomplete.getId()){
+        if (transaction.getStatusId() != TransactionStatus.Incomplete.getId()) {
             return;
         }
-        
+
         if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
 
             CouponCatalogue couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
