@@ -32,6 +32,7 @@ import com.proptiger.data.service.CityService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.user.CompanyUserServiceHelper;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 /**
  * @author Anubhav
@@ -71,6 +72,9 @@ public class LeadService {
     
     @Autowired
     private CompanyUserServiceHelper companyUserServiceHelper;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     public void manageLeadAuctionWithBeforeCycleForRequestBrokers(int leadId) {
         Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseIdByLeadId(leadId);
@@ -476,7 +480,7 @@ public class LeadService {
      * @return
      */
     public boolean exists(String email, int cityId) {
-        User user = userService.getUserByEmail(email);
+        User user = userServiceHelper.getUserByEmail_CallerNonLogin(email);
         return (user != null) && (getExistingLead(user.getId(), cityId) != null);
     }
 

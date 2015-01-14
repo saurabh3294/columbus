@@ -25,6 +25,7 @@ import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 @Service
 public class CouponNotificationService {
@@ -45,6 +46,9 @@ public class CouponNotificationService {
 
     @Value("${mail.from.customer}")
     private String                     fromEmail;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     @Async
     public void notifyUserOnCouponBuy(Transaction transaction, CouponCatalogue couponCatalogue) {
@@ -52,7 +56,7 @@ public class CouponNotificationService {
 
         Property property = applicationContext.getBean(PropertyService.class).getProperty(
                 couponCatalogue.getPropertyId());
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
         String dateString = new SimpleDateFormat("MMM d, yyy").format(couponCatalogue.getPurchaseExpiryAt());
 
         payloadMap.put(Tokens.CouponIssued.CouponCode.name(), transaction.getCode());
@@ -89,7 +93,7 @@ public class CouponNotificationService {
     public void notifyUserOnRefund(Transaction transaction, CouponCatalogue couponCatalogue) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
 
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
 
         String couponCode = transaction.getCode() == null ? "" : transaction.getCode();
 
@@ -124,7 +128,7 @@ public class CouponNotificationService {
         Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
 
         Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
 
         notificationPayloadMap.put(Tokens.CouponCancelled.CouponCode.name(), transaction.getCode());
         notificationPayloadMap.put(Tokens.CouponCancelled.ProjectName.name(), property.getProject().getName());
@@ -167,7 +171,7 @@ public class CouponNotificationService {
         Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
 
         Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
 
         notificationPayloadMap.put(Tokens.CouponRedeemed.RedeemedDate.name(), transaction.getUpdatedAt());
         notificationPayloadMap.put(Tokens.CouponRedeemed.ProjectName.name(), property.getProject().getName());
@@ -204,7 +208,7 @@ public class CouponNotificationService {
     public void notifyUserOnPaymentFailure(Transaction transaction) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
 
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
         CouponCatalogue couponCatalogue = getCouponCatalogueService().getCouponCatalogue(transaction.getProductId());
         Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
 

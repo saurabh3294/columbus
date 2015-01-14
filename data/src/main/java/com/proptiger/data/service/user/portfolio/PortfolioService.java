@@ -861,7 +861,7 @@ public class PortfolioService {
     public PortfolioListing sellYourPropertyForNonLoggedIn(PortfolioListing portfolioListing) {
         User user = null;
         if (portfolioListing.getUserId() != null) {
-            user = userService.getUserById(portfolioListing.getUserId());
+            user = userServiceHelper.getUserById_CallerNonLogin(portfolioListing.getUserId());
             if (user == null) {
                 throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
             }

@@ -68,6 +68,9 @@ public class ProjectDiscussionsService {
 
     @Autowired
     private ProjectDBDao            projectDBDao;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, ActiveUser activeUser) {
 
@@ -227,7 +230,7 @@ public class ProjectDiscussionsService {
             for (ProjectDiscussion pd : discussions) {
                 usersIds.add(pd.getUserId());
             }
-            Map<Integer, User> userMap = userService.getUsers(usersIds);
+            Map<Integer, User> userMap = userServiceHelper.getUsersMapByUserIds_CallerNonLogin(usersIds);
             Iterator<ProjectDiscussion> it = discussions.iterator();
             while (it.hasNext()) {
                 ProjectDiscussion pd = it.next();

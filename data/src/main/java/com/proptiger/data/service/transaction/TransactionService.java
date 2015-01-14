@@ -28,6 +28,7 @@ import com.proptiger.data.repo.transaction.TransactionDao;
 import com.proptiger.data.service.CitrusPayPGTransactionService;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.CouponNotificationService;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 /**
  * @author mandeep
@@ -58,6 +59,9 @@ public class TransactionService {
 
     @Autowired
     private PaymentService            paymentService;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
     
     private CitrusPayPGTransactionService citrusPayPGTransactionService;
 
@@ -122,8 +126,8 @@ public class TransactionService {
 
         transaction = transactionDao.findOne(transactionId);
         if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
-            transaction.setUser(userService.getUserById(transaction.getUserId()));
-            userService.enrichUserDetails(transaction.getUser());
+            transaction.setUser(userServiceHelper.getUserWithCompleteDetailsByUserIds_CallerNonLogin(transaction.getUserId()));
+            //userService.enrichUserDetails(transaction.getUser());
             transaction.setProduct(couponCatalogueService.getCouponCatalogue(transaction.getProductId()));
         }
 

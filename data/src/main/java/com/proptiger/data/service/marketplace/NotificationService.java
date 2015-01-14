@@ -56,6 +56,7 @@ import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.user.CompanyUserServiceHelper;
+import com.proptiger.data.service.user.UserServiceHelper;
 import com.proptiger.data.util.SerializationUtils;
 import com.rits.cloning.Cloner;
 
@@ -98,6 +99,9 @@ public class NotificationService {
                                                                               .getLogger(NotificationService.class);
     @Autowired
     private CompanyUserServiceHelper companyUserServiceHelper;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     static {
         for (LeadTaskName leadTask : LeadTaskName.values()) {
@@ -311,7 +315,7 @@ public class NotificationService {
 
     private void sendDuplicateLeadNotification(int leadOfferId) {
         LeadOffer offer = leadOfferDao.getById(leadOfferId);
-        User user = userService.getUserById(offer.getLead().getClientId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(offer.getLead().getClientId());
         String message = user.getFullName() + ", "
                 + offer.getId()
                 + " has submitted another request. The new information is updated in current lead.";
@@ -549,7 +553,7 @@ public class NotificationService {
         if (tasks.size() == 1) {
             LeadTask task = tasks.get(0);
             int userId = leadOfferDao.getById(task.getLeadOfferId()).getLead().getClientId();
-            User user = userService.getUserById(userId);
+            User user = userServiceHelper.getUserById_CallerNonLogin(userId);
             LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusDetail(task.getTaskStatusId());
             message = "Your " + leadTaskStatus.getMasterLeadTask().getSingularDisplayName()
                     + " with "
@@ -593,7 +597,7 @@ public class NotificationService {
         String message = "";
         if (tasks.size() == 1) {
             LeadTask task = tasks.get(0);
-            User user = userService.getUserById(task.getLeadOffer().getLead().getClientId());
+            User user = userServiceHelper.getUserById_CallerNonLogin(task.getLeadOffer().getLead().getClientId());
             message = "Your " + task.getTaskStatus().getMasterLeadTask().getSingularDisplayName()
                     + " with "
                     + user.getFullName()
@@ -856,7 +860,7 @@ public class NotificationService {
             mailBody.setBody(content);
 
             MailDetails mailDetails = new MailDetails(mailBody);
-            mailDetails.setMailTo(userService.getUserById(userId).getEmail());
+            mailDetails.setMailTo(userServiceHelper.getUserById_CallerNonLogin(userId).getEmail());
             mailSender.sendMailUsingAws(mailDetails);
         }
     }

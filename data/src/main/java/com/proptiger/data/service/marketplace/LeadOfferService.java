@@ -61,6 +61,7 @@ import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.CompanyUserServiceHelper;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 /**
  * 
@@ -130,6 +131,9 @@ public class LeadOfferService {
     private DeclineReasonService         declineReasonService;
 
     private static Logger                logger = LoggerFactory.getLogger(LeadOfferService.class);
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     private LeadService getLeadService() {
         if (leadService == null) {
@@ -222,17 +226,13 @@ public class LeadOfferService {
         if (fields != null && leadOffers != null && !leadOffers.isEmpty()) {
             if (fields.contains("client")) {
                 Set<Integer> clientIds = extractClientIds(leadOffers);
-                Map<Integer, User> users = userService.getUsers(clientIds);
+                Map<Integer, User> users = userServiceHelper.getUserWithCompleteDetailsByUserIds_CallerNonLogin(clientIds);
 
-                Map<Integer, Set<UserContactNumber>> contactNumbers = null;
-                if (fields.contains("contactNumbers")) {
-                    contactNumbers = userService.getUserContactNumbers(clientIds);
-                }
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
                     if (fields.contains("contactNumbers")) {
                         leadOffer.getLead().getClient()
-                                .setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
+                                .setContactNumbers(users.get(leadOffer.getLead().getClientId()).getContactNumbers());
                     }
                 }
             }
@@ -773,8 +773,8 @@ public class LeadOfferService {
                     listingMap.put(listing.getId(), listing);
                 }
             }
-
-            leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
+            
+            leadOfferInDB.setAgent(userServiceHelper.getUserById_CallerNonLogin(leadOfferInDB.getAgentId()));
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
 
@@ -1055,7 +1055,7 @@ public class LeadOfferService {
             throw new BadRequestException("Invalid mail details");
         }
 
-        String username = userService.getUserById(activeUser.getUserIdentifier()).getFullName();
+        String username = userServiceHelper.getActiveUser().getFullName();
 
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
                 senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername())

@@ -1,5 +1,6 @@
 package com.proptiger.data.notification.sender;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,8 +13,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.core.internal.dto.mail.MediumDetails;
+import com.proptiger.core.model.companyuser.ContactNumber;
+import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.data.notification.model.NotificationGenerated;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 @Service
 public class SmsSender implements MediumSender {
@@ -41,6 +45,9 @@ public class SmsSender implements MediumSender {
 
     @Autowired
     private TemplateGenerator   templateGenerator;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     @Override
     public boolean send(NotificationGenerated nGenerated) {
@@ -51,7 +58,19 @@ public class SmsSender implements MediumSender {
             return false;
         }
 
-        UserContactNumber userContactNumber = userService.getTopPriorityContact(userId);
+        Map<Integer, User> userDetailsMap = userServiceHelper.getUserWithCompleteDetailsByUserIds_CallerNonLogin(Arrays.asList(userId));
+        UserContactNumber userContactNumber = null;
+        if(userDetailsMap.get(userId) != null){
+            User u = userDetailsMap.get(userId);
+            if(u.getContactNumbers() != null && !u.getContactNumbers().isEmpty()){
+                for(UserContactNumber contactNumber: u.getContactNumbers()){
+                    if(contactNumber.getPriority() == UserContactNumber.primaryContactPriority){
+                        userContactNumber = contactNumber;
+                        break;
+                    }
+                }
+            }
+        }
         if (userContactNumber == null) {
             logger.error("No contact number found for UserId: " + userId
                     + " while sending SMS for notification generated id: "

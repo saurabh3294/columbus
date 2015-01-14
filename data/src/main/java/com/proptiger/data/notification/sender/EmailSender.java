@@ -17,6 +17,7 @@ import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.service.mail.AmazonMailSender;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 @Service
 public class EmailSender implements MediumSender {
@@ -31,6 +32,9 @@ public class EmailSender implements MediumSender {
 
     @Autowired
     private TemplateGenerator   templateGenerator;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -46,7 +50,7 @@ public class EmailSender implements MediumSender {
             return false;
         }
 
-        User user = userService.getUserById(userId);
+        User user = userServiceHelper.getUserById_CallerNonLogin(userId);
         if (user == null) {
             logger.error("No user found with UserId: " + userId
                     + " while sending email for notification generated id: "
