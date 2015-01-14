@@ -212,7 +212,8 @@ public class EnquiryService {
             contactNumbers.add(userContactNumber);
             newUser.setContactNumbers(contactNumbers);
             newUser.setId(user.getId());
-            userService.updateContactNumbers(newUser);
+            newUser.setEmail(user.getEmail());
+            userServiceHelper.createOrPatchUser_CallerNonLogin(newUser);
         }
     }
 

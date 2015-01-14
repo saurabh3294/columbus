@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.user.CustomUser;
+import com.proptiger.core.dto.internal.user.RegisterUser;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.exception.AuthenticationExceptionImpl;
@@ -35,10 +36,10 @@ import com.proptiger.core.util.RequestHolderUtil;
 public class UserServiceHelper {
 
     private static final String URL_GET_ACTIVE_USER_DETAILS    = "/app/v1/user/details";
-    private static final String URL_GET_ACTIVE_USER            = "/data/v1/entity/user";
-    private static final String URL_GET_USERS_BY_USER_IDS              = "/data/v1/entity/user?userId=";
+    private static final String URL_DATA_V1_ENTITY_USER        = "/data/v1/entity/user";
+    private static final String URL_GET_USERS_BY_USER_IDS      = "/data/v1/entity/user?userId=";
     private static final String URL_GET_USER_LIST_WITH_DETAILS = "data/v1/entity/user-details?userId=";
-    private static final String URL_GET_USER_DETAILS_BY_EMAIL = "data/v1/entity/user-details?email=";
+    private static final String URL_GET_USER_DETAILS_BY_EMAIL  = "data/v1/entity/user-details?email=";
 
     @Autowired
     private HttpRequestUtil     httpRequestUtil;
@@ -72,7 +73,7 @@ public class UserServiceHelper {
     public User getActiveUser() {
         HttpHeaders header = createJsessionIdHeader();
         String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(URL_GET_ACTIVE_USER).toString();
+                .append(URL_DATA_V1_ENTITY_USER).toString();
         User user = httpRequestUtil.getInternalApiResultAsType(URI.create(stringUrl), header, User.class);
         return user;
     }
@@ -100,11 +101,11 @@ public class UserServiceHelper {
         List<User> users = getUsersByIds(userIds, URL_GET_USER_LIST_WITH_DETAILS, null);
         return userListToMap(users);
     }
-    
+
     public User getUserWithCompleteDetailsByUserIds_CallerNonLogin(Integer userId) {
         List<User> users = getUsersByIds(Arrays.asList(userId), URL_GET_USER_LIST_WITH_DETAILS, null);
-        if(users == null || users.isEmpty()){
-            throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET); 
+        if (users == null || users.isEmpty()) {
+            throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
         return users.get(0);
     }
@@ -125,9 +126,8 @@ public class UserServiceHelper {
             users = httpRequestUtil
                     .getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), header, User.class);
         }
-        else{
-            users = httpRequestUtil
-                    .getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), User.class);
+        else {
+            users = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), User.class);
         }
         return users;
     }
@@ -152,19 +152,44 @@ public class UserServiceHelper {
         }
         return map;
     }
-    
-    public User getUserByEmail_CallerNonLogin(String email){
-        if(email == null || email.isEmpty()){
+
+    public User getUserByEmail_CallerNonLogin(String email) {
+        if (email == null || email.isEmpty()) {
             throw new BadRequestException("Invalid email id");
         }
         StringBuilder stringUrl = new StringBuilder(
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)).append(URL_GET_USER_DETAILS_BY_EMAIL).append(email);
-        
-        List<User> users = httpRequestUtil
-        .getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), User.class);
-        if(users == null || users.isEmpty()){
+                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)).append(
+                URL_GET_USER_DETAILS_BY_EMAIL).append(email);
+
+        List<User> users = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), User.class);
+        if (users == null || users.isEmpty()) {
             throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
         return users.get(0);
+    }
+
+    public User getOrCreateUser_CallerNonLogin(User userToFind) {
+        User user = null;
+        try {
+            user = getUserById_CallerNonLogin(userToFind.getId());
+        }
+        catch (ResourceNotAvailableException e) {
+            // user does not exit so call register
+            user = createOrPatchUser_CallerNonLogin(userToFind);
+        }
+
+        return user;
+    }
+
+    public User createOrPatchUser_CallerNonLogin(User userToFind) {
+        User user;
+        StringBuilder stringUrl = new StringBuilder(
+                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
+                .append(URL_DATA_V1_ENTITY_USER);
+        user = httpRequestUtil.postAndReturnInternalJsonRequest(
+                URI.create(stringUrl.toString()),
+                userToFind,
+                User.class);
+        return user;
     }
 }

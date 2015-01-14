@@ -101,7 +101,7 @@ public class TransactionService {
 
     private User createUserForTransaction(Transaction transaction) {
         transaction.getUser().setRegistered(false);
-        User user = userService.createUser(transaction.getUser());
+        User user = userServiceHelper.createOrPatchUser_CallerNonLogin(transaction.getUser());
         // SecurityContextUtils.autoLogin(user);
 
         return user;

@@ -305,7 +305,7 @@ public class LeadService {
         // Setting isregistered false for all such users
         lead.getClient().setRegistered(false);
 
-        User user = userService.createUser(lead.getClient());
+        User user = userServiceHelper.createOrPatchUser_CallerNonLogin(lead.getClient());
         lead.setClient(user);
         lead.setClientId(user.getId());
         Lead leadOriginal = (Lead) SerializationUtils.clone(lead);
