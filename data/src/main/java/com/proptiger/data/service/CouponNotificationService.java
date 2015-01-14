@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.notification.MediumType;
 import com.proptiger.core.enums.notification.NotificationTypeEnum;
+import com.proptiger.core.enums.notification.Tokens;
 import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.internal.dto.mail.MediumDetails;
@@ -22,7 +23,6 @@ import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.notification.external.NotificationCreatorServiceRequest;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.transaction.Transaction;
-import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
 import com.proptiger.data.service.user.UserServiceHelper;

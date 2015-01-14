@@ -13,8 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.service.ApplicationNameService;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.service.user.UserSubscriptionHelperService;
 
 /**
@@ -65,6 +70,31 @@ public class ResponseInterceptorListing {
                     cityId) != null))) {
                 ((Map<String, Object>) element).put(fieldTagAuthorized, false);
             }
+        }
+    }
+
+    @AfterReturning(
+            pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.ProjectDetail)",
+            returning = "retVal")
+    public void filterResponseProjectDetails(Object retVal) throws Throwable {
+
+        Object data = getApiResponseData(retVal);
+        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        if (data == null || userSubscriptionMap == null) {
+             return;
+        }
+
+        if (!(data instanceof Project)) {
+            throw new ProAPIException("Unrecognised Response from ProjectDetail API.");
+        }
+
+        Project project = (Project) data;
+        int localityId = project.getLocalityId();
+        int cityId = project.getLocality().getSuburb().getCity().getId();
+        if (!((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+                objTypeIdCity,
+                cityId) != null))) {
+            project.setAuthorized(false);
         }
     }
 
@@ -146,4 +176,16 @@ public class ResponseInterceptorListing {
         return (apiResponse.getData());
     }
 
+    private MultiKeyMap getUserSubscriptionMap() {
+        if (!ApplicationNameService.isB2BApplicationRequest()) {
+            return null;
+        }
+        ActiveUser activeUser = SecurityContextUtils.getActiveUser();
+        if (activeUser != null) {
+            return (userSubscriptionHelperService.getUserSubscriptionMap());
+        }
+        else {
+            return null;
+        }
+    }
 }

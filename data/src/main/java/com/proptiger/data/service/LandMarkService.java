@@ -249,4 +249,8 @@ public class LandMarkService {
     public LandMark getLandMark(Integer landMarkId) {
         return localityAmenityDao.getLandMark(landMarkId);
     }
+
+    public List<LandMark> getLandMarksOnSelector(Selector selector) {
+        return localityAmenityDao.getLocalityAmenitiesOnSelector(selector);
+    }
 }

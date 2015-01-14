@@ -9,10 +9,10 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.notification.MediumType;
+import com.proptiger.core.enums.notification.Tokens;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
-import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;

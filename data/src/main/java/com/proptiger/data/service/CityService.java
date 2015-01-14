@@ -1,10 +1,13 @@
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -178,10 +181,39 @@ public class CityService {
      * @param cities
      */
     private void updateAirportInfo(List<City> cities) {
-        if (cities != null) {
-            for (City city : cities) {
-                updateAirportInfo(city);
+        if (cities == null || cities.isEmpty()) {
+            return;
+        }
+        List<Integer> cityIds = new ArrayList<Integer>();
+        for (City city : cities) {
+            cityIds.add(city.getId());
+        }
+        String cityIdsStr = StringUtils.join(cityIds.toArray(), ",");
+        
+        Paging paging = new Paging(0, 500);
+        String jsonSelector = "{\"filters\":{\"and\":[{\"equal\":{\"cityId\":[" + cityIdsStr
+                + "],\"amenityType\":\"" + Constants.AmenityName.AIRPORT +"\""
+                + "}}]}, \"paging\":{\"start\":"
+                + paging.getStart()
+                + ",\"rows\":"
+                + paging.getRows()
+                + "}}";
+        
+        Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
+        List<LandMark> amenities = localityAmenityService.getLandMarksOnSelector(selector);
+        
+        Map<Integer, List<LandMark>> cityAmenitiesMap = new HashMap<Integer, List<LandMark>>();
+        for(LandMark amenity : amenities) {
+            List<LandMark> amenitylist = cityAmenitiesMap.get(new Integer(amenity.getCityId()));
+            if (amenitylist == null) {
+                amenitylist = new ArrayList<LandMark>();
+                cityAmenitiesMap.put(new Integer(amenity.getCityId()), amenitylist);
             }
+            amenitylist.add(amenity);
+        }
+        
+        for(City city: cities) {
+            city.setAmenities(cityAmenitiesMap.get(city.getId()));
         }
     }
 
