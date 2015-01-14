@@ -107,7 +107,13 @@ public class Typeahead extends BaseModel {
     private Double            longitude;
 
     @Transient
-    private Boolean           isSuggestion     = false;
+    private String            googlePlaceId;
+
+    @Transient
+    private boolean           isSuggestion     = false;
+
+    @Transient
+    private boolean           isGooglePlace    = false;
 
     public String getId() {
         return id;
@@ -309,16 +315,33 @@ public class Typeahead extends BaseModel {
         this.longitude = longitude;
     }
 
-    public Boolean getIsSuggestion() {
+    public boolean getIsSuggestion() {
         return isSuggestion;
     }
 
-    public void setIsSuggestion(Boolean isSuggestion) {
+    public void setIsSuggestion(boolean isSuggestion) {
         this.isSuggestion = isSuggestion;
+    }
+
+    public String getGooglePlaceId() {
+        return googlePlaceId;
+    }
+
+    public void setGooglePlaceId(String googlePlaceId) {
+        this.googlePlaceId = googlePlaceId;
+    }
+
+    public boolean getIsGooglePlace() {
+        return isGooglePlace;
+    }
+
+    public void setIsGooglePlace(boolean isGooglePlace) {
+        this.isGooglePlace = isGooglePlace;
     }
 
     @Override
     public String toString() {
         return (id + ":" + displayText + ":" + score);
     }
+
 }

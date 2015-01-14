@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.google.common.reflect.TypeToken;
@@ -14,7 +16,10 @@ import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerPropertyFor extends RootTHandler {
-    private String localityFilter = "locality=%s";
+
+    private static String localityFilter = "locality=%s";
+
+    private static Logger logger         = LoggerFactory.getLogger(THandlerPropertyFor.class);
 
     @Override
     public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
@@ -27,6 +32,12 @@ public class THandlerPropertyFor extends RootTHandler {
         results.add(getTopResult(query, typeahead, city));
 
         List<Locality> topLocalities = getTopLocalities(city);
+
+        if (topLocalities == null) {
+            logger.error("Could not fetch top localities for city " + city);
+            return results;
+        }
+
         String redirectURL;
         for (Locality locality : topLocalities) {
             redirectURL = getRedirectUrl(city);
@@ -68,8 +79,8 @@ public class THandlerPropertyFor extends RootTHandler {
     }
 
     private List<Locality> getTopLocalities(String cityName) {
-        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
-                URI.create(UriComponentsBuilder
+        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(URI
+                .create(UriComponentsBuilder
                         .fromUriString(
                                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
                                         .getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
@@ -77,8 +88,7 @@ public class THandlerPropertyFor extends RootTHandler {
                                         + URLGenerationConstants.Selector
                                         + String.format(
                                                 URLGenerationConstants.SelectorGetLocalityNamesByCityName,
-                                                cityName)).build().encode().toString()),
-                Locality.class);
+                                                cityName)).build().encode().toString()), Locality.class);
         return topLocalities;
     }
 
