@@ -78,13 +78,13 @@ public class TypeaheadController extends BaseController {
     public APIResponse getTypeaheadsV3(HttpServletRequest request, @RequestParam String query, @RequestParam(
             defaultValue = "5") int rows, @RequestParam(required = false) String typeAheadType, @RequestParam(
             required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
-            required = false) String usercity) {
+            required = false) String usercity, @RequestParam(required = false) String enhance) {
 
         List<String> filterQueries = new ArrayList<String>();
         addReqParamBasedFilterToQuery(filterQueries, city, locality, typeAheadType);
 
         usercity = getCityContext(usercity, request);
-        List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, usercity);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, usercity, enhance);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }

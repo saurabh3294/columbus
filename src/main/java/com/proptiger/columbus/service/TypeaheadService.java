@@ -75,7 +75,16 @@ public class TypeaheadService {
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
+    public List<Typeahead> getTypeaheadsV3(
+            String query,
+            int rows,
+            List<String> filterQueries,
+            String usercity,
+            String enhance) {
+
+        if (query == null || query.isEmpty()) {
+            return new ArrayList<Typeahead>();
+        }
 
         /* If any filters were passed in URL, return only normal results */
         if (!filterQueries.isEmpty()) {
@@ -88,7 +97,7 @@ public class TypeaheadService {
             nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, usercity, rows);
         }
         catch (Exception ex) {
-            logger.error("Error while fetching templates.", ex);
+            logger.error("Error while fetching templates. Query = " + query, ex);
         }
 
         /*
@@ -103,7 +112,9 @@ public class TypeaheadService {
          * Remove not-so-good results and replace them with google place
          * landmarks.
          */
-        results = incorporateGooglePlaceResults(query, results, rows);
+        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.ExternalApiIdentifierGoogle)) {
+            results = incorporateGooglePlaceResults(query, results, rows);
+        }
 
         /* Get recommendations type results */
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
