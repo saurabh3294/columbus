@@ -18,8 +18,8 @@ import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.model.LocalityReviewComments;
-import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 
 @Service
 public class SuburbDescriptionService {

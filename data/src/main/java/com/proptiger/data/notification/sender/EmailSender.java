@@ -14,9 +14,9 @@ import com.google.gson.JsonParser;
 import com.proptiger.core.internal.dto.mail.MailBody;
 import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.service.mail.AmazonMailSender;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
-import com.proptiger.data.service.mail.AmazonMailSender;
 import com.proptiger.data.service.user.UserService;
 
 @Service
