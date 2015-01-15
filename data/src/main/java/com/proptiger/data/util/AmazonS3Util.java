@@ -2,6 +2,8 @@ package com.proptiger.data.util;
 
 import java.io.File;
 
+import javax.annotation.PreDestroy;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -42,5 +44,15 @@ public class AmazonS3Util {
     public void uploadFile(String pathInS3Bucket, File file) {
         AmazonS3 amazonS3 = getS3Instance();
         amazonS3.putObject(bucket, pathInS3Bucket, file);
+    }
+    
+    @PreDestroy
+    private void cleanUp() {
+        try {
+            // Shutting down AWS IdleConnectionReaper thread...
+            com.amazonaws.http.IdleConnectionReaper.shutdown();
+        } catch (Throwable t) {
+            // log error
+        }
     }
 }
