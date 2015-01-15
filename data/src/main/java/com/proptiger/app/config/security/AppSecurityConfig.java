@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -46,7 +47,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
+        http.addFilterBefore(createSessionRepositoryFilter(), ChannelProcessingFilter.class);
         http.csrf().disable();
 
         http.authorizeRequests()
@@ -62,6 +63,12 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
 
         http.exceptionHandling().accessDeniedHandler(createAccessDeniedHandler());
+    }
+
+
+    @Bean
+    public Filter createSessionRepositoryFilter() {
+        return new SessionRepositoryFilter();
     }
 
 

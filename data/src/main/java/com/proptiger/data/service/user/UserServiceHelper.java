@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.dto.internal.user.CustomUser;
-import com.proptiger.core.dto.internal.user.RegisterUser;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.exception.AuthenticationExceptionImpl;
