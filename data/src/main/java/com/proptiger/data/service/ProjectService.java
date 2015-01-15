@@ -70,6 +70,7 @@ import com.proptiger.data.util.Serializer;
 public class ProjectService {
     @Autowired
     private ProjectDao              projectDao;
+    
     @Autowired
     private ProjectDaoNew           projectDaoNew;
     @Autowired
