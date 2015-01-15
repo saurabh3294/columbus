@@ -47,10 +47,9 @@ public class NotificationMessageService {
                 .getNotificationMessageCountByNotificationStatus(NotificationStatus.MessageGenerated);
     }
 
-    public List<NotificationMessage> getRawNotificationMessages(Pageable pageable) {
+    public List<NotificationMessage> getRawNotificationMessages() {
         List<NotificationMessage> notificationMessages = notificationMessageDao.findByNotificationStatus(
-                NotificationStatus.MessageGenerated,
-                pageable);
+                NotificationStatus.MessageGenerated);
 
         logger.debug(Serializer.toJson(notificationMessages));
 

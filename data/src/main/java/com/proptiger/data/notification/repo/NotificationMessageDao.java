@@ -11,7 +11,7 @@ import com.proptiger.data.notification.model.NotificationMessage;
 
 public interface NotificationMessageDao extends JpaRepository<NotificationMessage, Integer> {
 
-    List<NotificationMessage> findByNotificationStatus(NotificationStatus notificationStatus, Pageable pageable);
+    List<NotificationMessage> findByNotificationStatus(NotificationStatus notificationStatus);
 
     @Query("Select count(id) from NotificationMessage N where N.notificationStatus = ?1 ")
     public Long getNotificationMessageCountByNotificationStatus(NotificationStatus status);

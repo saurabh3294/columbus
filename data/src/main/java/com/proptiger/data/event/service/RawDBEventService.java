@@ -14,10 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.event.DBOperation;
+import com.proptiger.core.enums.event.EventAllAttributeName;
 import com.proptiger.core.model.event.RawDBEvent;
 import com.proptiger.core.model.event.RawEventTableDetails;
 import com.proptiger.core.model.event.generator.model.RawDBEventTableConfig;
-import com.proptiger.data.event.enums.EventAllAttributeName;
 import com.proptiger.data.event.repo.RawDBEventDao;
 import com.proptiger.data.util.Serializer;
 
@@ -118,10 +118,11 @@ public class RawDBEventService {
 
     private RawDBEvent populateInsertRawDBEventData(RawDBEvent rawDBEvent) {
         logger.debug(" INSERT RAW DB EVENT ");
-        Map<String, Object> allattributes = new HashMap<String, Object>();
-        allattributes.put(EventAllAttributeName.All.name(), rawDBEvent.getNewDBValueMap());
-        rawDBEvent.setNewDBValueMap(allattributes);
+        Map<String, Object> newValueMap = rawDBEvent.getNewDBValueMap();
+        Map<String, Object> newValueMapCopy = new HashMap<String, Object>();
+        newValueMapCopy.putAll(newValueMap);
         
+        newValueMap.put(EventAllAttributeName.All.name(), newValueMapCopy);
         return rawDBEvent;
     }
 

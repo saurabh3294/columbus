@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.exception.ResourceNotAvailableException;
-import com.proptiger.data.model.user.Widget;
+import com.proptiger.core.model.user.Widget;
 import com.proptiger.data.repo.user.WidgetDao;
 
 /**

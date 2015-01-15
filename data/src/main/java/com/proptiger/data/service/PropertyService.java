@@ -501,6 +501,33 @@ public class PropertyService {
 
         return properties.getResults().get(0);
     }
+    
+    /**
+     * Get Active Properties from DB. ********* NO CACHING *********
+     * 
+     * @param propertyId
+     * @return
+     */
+    public List<Property> getActivePropertiesByProjectIdFromDB(int projectId) {
+        FIQLSelector fiqlSelector = new FIQLSelector();
+        fiqlSelector.addAndConditionToFilter("optionCategory==" + EntityType.Actual
+                + ";(unitType=="
+                + UnitType.Apartment
+                + ",unitType=="
+                + UnitType.Villa
+                + ",unitType=="
+                + UnitType.Plot
+                + ")"
+                + ";projectId=="
+                + projectId);
+        PaginatedResponse<List<Property>> properties = getPropertiesFromDB(fiqlSelector);
+
+        if (properties == null || properties.getResults() == null || properties.getResults().isEmpty()){
+            return null;
+        }
+
+        return properties.getResults();
+    }
 
     public Integer getProjectIdFromDeletedPropertyId(Integer propertyId) {
         return projectService.getProjectIdForPropertyId(propertyId);

@@ -21,10 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.Gson;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.MailTemplateDetail;
 import com.proptiger.core.enums.ProcessingStatus;
 import com.proptiger.core.enums.ProjectStatus;
 import com.proptiger.core.enums.SalesType;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.internal.dto.mail.MailBody;
+import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
@@ -32,21 +35,18 @@ import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.model.proptiger.Enquiry.LeadEnquiryResponse;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.service.mail.MailSender;
+import com.proptiger.core.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.core.service.security.SecurityUtilService;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.mail.LeadSubmitMail;
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.EnquiryAttributes;
 import com.proptiger.data.repo.EnquiryAttributesDao;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDaoNew;
-import com.proptiger.data.service.mail.MailSender;
-import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.lead.CookieConstants;
 import com.proptiger.data.util.lead.LeadCookiesHandler;
@@ -149,8 +149,7 @@ public class EnquiryService {
                 updateUserDetails(enquiry);
             }
 
-            if (enquiry.getUserMedium().equals(CookieConstants.PPC) || enquiry.getUserMedium().equals(
-                    CookieConstants.CPC)) {
+            if (enquiry.getPpc()) {
                 enquiry.setTrackingFlag(true);
             }
 
@@ -495,9 +494,7 @@ public class EnquiryService {
         }
         else {
             if (project != null) {
-                if (project.getForceResale() == FORCE_RESALE_VALUE || (project.getForceResale() != FORCE_PRIMARY_VALUE && (project
-                        .getProjectStatus().equals(ProjectStatus.COMPLETED.getValue()) || Integer.valueOf(0).equals(
-                        project.getDerivedAvailability())))) {
+                if (project.isResaleEnquiry()) {
                     enquiry.setSalesType(SalesType.resale);
                 }
                 else {
@@ -528,7 +525,6 @@ public class EnquiryService {
                 enquiryAttributes.setTypeId(typeId);
                 enquiryAttributesDao.saveAndFlush(enquiryAttributes);
             }
-
             savedEnquiry = enquiryDao.saveAndFlush(savedEnquiry);
 
             if (savedEnquiry.getProjectId() != 0) {
