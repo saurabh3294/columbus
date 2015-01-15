@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.model.cms.Project;
+import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Selector;
@@ -231,6 +232,21 @@ public class ProjectController extends BaseController {
     @ResponseBody
     public APIResponse getActiveInactiveProject(@PathVariable int id){
         return new APIResponse(projectService.getActiveOrInactiveProjectById(id));
+    }
+    
+    @RequestMapping(value = "data/v1/entity/project/{projectId}", method = RequestMethod.POST)
+    @ResponseBody
+    public APIResponse updateProjectDescriptiom(@RequestBody Project project, @RequestParam(
+            required = false,
+            value = "needUpdatedProject",
+            defaultValue = "false") boolean needUpdatedProject) {
+        Project updated = projectService.updateProject(project);
+        if (needUpdatedProject) {
+            return new APIResponse(updated);
+        }
+        else {
+            return new APIResponse();
+        }
     }
 
 }

@@ -8,10 +8,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
@@ -347,5 +350,20 @@ public class LocalityController extends BaseController {
     @ResponseBody
     public APIResponse getActiveInactiveLocality(@PathVariable int id){
         return new APIResponse(localityService.getActiveOrInactiveLocalityById(id));
+    }
+    
+    @RequestMapping(value = "data/v1/entity/locality/{localityId}", method = RequestMethod.POST)
+    @ResponseBody
+    public APIResponse updateLocalityDescriptiom(@RequestBody Locality locality, @RequestParam(
+            required = false,
+            value = "needUpdatedLocality",
+            defaultValue = "false") boolean needUpdatedLocality) {
+        Locality updated = localityService.updateLocality(locality);
+        if (needUpdatedLocality) {
+            return new APIResponse(updated);
+        }
+        else {
+            return new APIResponse();
+        }
     }
 }

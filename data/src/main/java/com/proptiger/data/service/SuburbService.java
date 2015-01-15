@@ -11,10 +11,13 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.model.proptiger.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.core.pojo.Selector;
@@ -114,4 +117,20 @@ public class SuburbService {
     public Suburb getActiveOrInactiveSuburbById(Integer id) {
         return suburbDao.findOne(id);
     }
+    /*
+     * updates description of the suburb
+     */
+    @Transactional
+    public Suburb updateSuburb(Suburb suburb) {
+        if(suburb.getDescription() != null && !suburb.getDescription().isEmpty()){
+            Suburb suburbActual=suburbDao.findOne(suburb.getId());
+            suburbActual.setDescription(suburb.getDescription());
+            suburbActual = suburbDao.save(suburbActual);
+            return suburbActual;
+        }else{
+        throw new BadRequestException("Invalid suburb description");
+        }
+    }
+
+   
 }
