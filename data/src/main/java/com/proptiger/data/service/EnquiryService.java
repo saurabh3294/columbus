@@ -495,9 +495,7 @@ public class EnquiryService {
         }
         else {
             if (project != null) {
-                if (project.getForceResale() == FORCE_RESALE_VALUE || (project.getForceResale() != FORCE_PRIMARY_VALUE && (project
-                        .getProjectStatus().equals(ProjectStatus.COMPLETED.getValue()) || Integer.valueOf(0).equals(
-                        project.getDerivedAvailability())))) {
+                if (project.isResaleEnquiry()) {
                     enquiry.setSalesType(SalesType.resale);
                 }
                 else {
