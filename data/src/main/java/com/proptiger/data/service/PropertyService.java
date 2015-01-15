@@ -92,9 +92,9 @@ public class PropertyService {
     @Autowired
     private ConfigService          configService;
 
-    private final String           dynamicRelevanceSortOrder   = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
+    private final String           DYNAMIC_RELEVANCE_SORT_ORDER   = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
 
-    private final String           maxPrimaryIndexWeightConfig = "maxPrimaryIndexWeight";
+    private final String           MAX_PRIMARY_WEIGHT_CONFIG = "maxPrimaryIndexWeight";
 
     @Value("${enable.dynamic.relevance}")
     private boolean                enableDynamicRelevance;
@@ -183,7 +183,7 @@ public class PropertyService {
             double primaryFactor = 0;
             double maxPrimaryWeight = configService.getConfigValueAsDouble(
                     ConfigGroupName.Relevance,
-                    maxPrimaryIndexWeightConfig);
+                    MAX_PRIMARY_WEIGHT_CONFIG);
             Double unsoldInventory = getUnsoldInventoryPercentageForSelector(selector);
             if (unsoldInventory != null) {
                 primaryFactor = unsoldInventory * maxPrimaryWeight / 100;
@@ -191,7 +191,7 @@ public class PropertyService {
 
             LinkedHashSet<SortBy> sortBy = new LinkedHashSet<>();
             SortBy sort = new SortBy();
-            sort.setField(String.format(dynamicRelevanceSortOrder, primaryFactor, 1 - primaryFactor));
+            sort.setField(String.format(DYNAMIC_RELEVANCE_SORT_ORDER, primaryFactor, 1 - primaryFactor));
             sort.setSortOrder(SortOrder.DESC);
             sortBy.add(sort);
 
