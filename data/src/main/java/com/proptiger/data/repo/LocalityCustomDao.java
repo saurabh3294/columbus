@@ -41,6 +41,4 @@ public interface LocalityCustomDao {
             int maxDistance);
     
     public PaginatedResponse<List<Locality>> getLocalities(FIQLSelector selector);
-    
-   
 }
