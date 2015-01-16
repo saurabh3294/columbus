@@ -7,8 +7,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -37,15 +39,16 @@ import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.dto.external.marketplace.GcmMessage;
+import com.proptiger.data.dto.external.marketplace.TaskNotificationDetail;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
-import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.LeadTask.AgentOverDueTaskCount;
+import com.proptiger.data.model.marketplace.LeadTaskStatus;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
@@ -83,6 +86,9 @@ public class NotificationService {
     private LeadDao                           leadDao;
 
     @Autowired
+    private LeadTaskService                   taskService;
+
+    @Autowired
     NotificationCreatorService                notificationCreatorService;
 
     public static final List<Integer>         allMasterTaskIdsButCall = new ArrayList<>();
@@ -114,22 +120,20 @@ public class NotificationService {
     /**
      * 
      * @param userId
-     * @return {@link List} of {@link Notification} grouped on the basis of
-     *         {@link MarketplaceNotificationType} in default order
-     */
-    public List<MarketplaceNotificationType> getNotificationsForUser(int userId) {
-        List<MarketplaceNotificationType> notificationTypes = notificationDao.getNotificationTypesForUser(userId);
-        return getFilteredAndOrderedNotificationTypes(notificationTypes);
-    }
-
-    /**
-     * 
-     * @param userId
      *            notificationTypeId
      * @return {@link List} of {@link Notification} grouped on the basis of
      *         {@link MarketplaceNotificationType} in default order
      */
     public List<MarketplaceNotificationType> getNotificationsForUser(int userId, Integer notificationTypeId) {
+        List<MarketplaceNotificationType> notificationTypes = getUnsortedNotificationsForUser(
+                userId,
+                notificationTypeId);
+        addCustomNotificationDetails(notificationTypes);
+        Collections.sort(notificationTypes, MarketplaceNotificationType.getNotificationtypereversecomparator());
+        return notificationTypes;
+    }
+
+    private List<MarketplaceNotificationType> getUnsortedNotificationsForUser(int userId, Integer notificationTypeId) {
         List<MarketplaceNotificationType> notificationTypes;
         if (notificationTypeId == null) {
             notificationTypes = notificationDao.getNotificationTypesForUser(userId);
@@ -137,10 +141,10 @@ public class NotificationService {
         else {
             notificationTypes = notificationDao.getNotificationTypesForUser(userId, notificationTypeId);
         }
-        return getFilteredAndOrderedNotificationTypes(notificationTypes);
+        return getFilteredNotificationTypes(notificationTypes);
     }
 
-    private List<MarketplaceNotificationType> getFilteredAndOrderedNotificationTypes(
+    private List<MarketplaceNotificationType> getFilteredNotificationTypes(
             List<MarketplaceNotificationType> notificationTypes) {
         List<MarketplaceNotificationType> finalNotificationTypes = new ArrayList<>();
         for (MarketplaceNotificationType notificationType : notificationTypes) {
@@ -163,8 +167,69 @@ public class NotificationService {
         }
 
         finalNotificationTypes = filterReadNotifications(finalNotificationTypes);
-        Collections.sort(finalNotificationTypes, MarketplaceNotificationType.getNotificationtypereversecomparator());
         return finalNotificationTypes;
+    }
+
+    private void addCustomNotificationDetails(List<MarketplaceNotificationType> notificationTypes) {
+        if (notificationTypes != null) {
+            notificationTypes.forEach(notificationType -> {
+                if (notificationType.getNotificationType().equals(NotificationType.TaskDue)) {
+                    updateDetailInTaskNotification(notificationType.getNotifications());
+                }
+                else if (notificationType.getNotificationType().equals(NotificationType.TaskOverDue)) {
+                    updateDetailInTaskNotification(notificationType.getNotifications());
+                }
+            });
+        }
+    }
+
+    /**
+     * updates details upto cilent object in lead task notification list
+     * 
+     * @param notifications
+     */
+    private void updateDetailInTaskNotification(List<Notification> notifications) {
+        List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
+        Map<Integer, LeadTask> tasks = getIndexedLeadTasksByIds(populateUserDetailsInLeadTasks(taskService
+                .getLeadTaskByIdsWithLeadAndMasterTask(taskIds)));
+        for (Notification notification : notifications) {
+            LeadTask task = tasks.get(notification.getObjectId());
+            TaskNotificationDetail notificationDetail = new TaskNotificationDetail();
+            notificationDetail.setId(task.getId());
+            notificationDetail.setTaskName(task.getTaskStatus().getMasterLeadTask().getName());
+            notificationDetail.setLeadOfferId(task.getLeadOfferId());
+            notificationDetail.setScheduledFor(task.getScheduledFor());
+            notificationDetail.setClientName(task.getLeadOffer().getLead().getClient().getFullName());
+
+            notification.setDetails(SerializationUtils.objectToJson(notificationDetail));
+        }
+    }
+
+    /**
+     * indexes list of tasks on task id.. returns a map
+     * 
+     * @param tasks
+     * @return
+     */
+    private Map<Integer, LeadTask> getIndexedLeadTasksByIds(List<LeadTask> tasks) {
+        Map<Integer, LeadTask> map = new HashMap<>();
+        tasks.forEach(task -> map.put(task.getId(), task));
+        return map;
+    }
+
+    /**
+     * assumes that task will have leads populated
+     * 
+     * @param tasks
+     * @return List LeadTask
+     */
+    private List<LeadTask> populateUserDetailsInLeadTasks(List<LeadTask> tasks) {
+        List<Integer> userIds = tasks.stream().map(t -> t.getLeadOffer().getLead().getClientId())
+                .collect(Collectors.toList());
+        Map<Integer, User> userMap = userService.getUsers(new HashSet<>(userIds));
+        tasks.stream().forEach(
+                t -> t.getLeadOffer().getLead().setClient(userMap.get(t.getLeadOffer().getLead().getClientId())));
+        return tasks;
     }
 
     /**
@@ -174,7 +239,7 @@ public class NotificationService {
      * @return
      */
     public int getNotificationsCountForUser(int userId) {
-        List<MarketplaceNotificationType> notificationTypes = getNotificationsForUser(userId);
+        List<MarketplaceNotificationType> notificationTypes = getUnsortedNotificationsForUser(userId, null);
 
         int count = 0;
         for (MarketplaceNotificationType notificationType : notificationTypes) {

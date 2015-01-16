@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.ListingComparator;
 import com.proptiger.core.enums.ResourceType;
@@ -27,6 +30,7 @@ import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.internal.dto.mail.MailBody;
 import com.proptiger.core.internal.dto.mail.MailDetails;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.user.User;
@@ -35,16 +39,18 @@ import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.service.mail.MailSender;
 import com.proptiger.core.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.enums.DeclineReason;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.enums.TaskStatus;
+import com.proptiger.data.external.dto.ListingJsonDump;
 import com.proptiger.data.internal.dto.SenderDetail;
-import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
@@ -52,6 +58,7 @@ import com.proptiger.data.model.marketplace.LeadOffer.CountListingObject;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.LeadTaskStatus;
 import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.repo.LeadTaskStatusDao;
@@ -59,7 +66,7 @@ import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
-import com.proptiger.data.service.LeadTaskService;
+import com.proptiger.data.service.TypeAheadService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
 
@@ -133,7 +140,12 @@ public class LeadOfferService {
     @Autowired
     private DeclineReasonService         declineReasonService;
 
-    private static Logger                logger = LoggerFactory.getLogger(LeadOfferService.class);
+    @Autowired
+    private TypeAheadService             typeAheadService;
+
+    private final String                 supportedTypeAheadType = "project";
+
+    private static Logger                logger                 = LoggerFactory.getLogger(LeadOfferService.class);
 
     private LeadService getLeadService() {
         if (leadService == null) {
@@ -645,7 +657,7 @@ public class LeadOfferService {
         leadOfferInDB.setOfferedListings(leadOfferedListingList);
         restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
-        String heading = "Matching Property suggested by our trusted broker";
+        String heading = "Matching Property suggested by our trusted broker | PropTiger.com";
         String templatePath = marketplaceTemplateBasePath + claimTemplate;
         logger.debug("Sending email from inside claim lead");
         sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId, "Proptiger.com");
@@ -731,7 +743,7 @@ public class LeadOfferService {
                         listingIds,
                         leadOfferInDB.getId(),
                         leadOfferInDB.getAgentId());
-                String heading = "More properties matching your requirement";
+                String heading = "More properties matching your requirement | PropTiger.com";
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
 
                 if (newListingIds != null && !newListingIds.isEmpty()
@@ -762,6 +774,8 @@ public class LeadOfferService {
             fields.add("requirements");
             enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields, userId);
             Map<String, Object> map = new HashMap<>();
+            User client = leadOfferInDB.getLead().getClient();
+            client.setFullName(StringUtils.capitalize(client.getFullName()));
 
             for (LeadOfferedListing leadOfferedListing : leadOfferInDB.getOfferedListings()) {
                 if (!newListingIds.contains(leadOfferedListing.getListingId())) {
@@ -772,15 +786,33 @@ public class LeadOfferService {
             fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster,amenityId,jsonDump");
             List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
             Map<Integer, Listing> listingMap = new HashMap<>();
+            Map<Integer, ListingJsonDump> jsonDumpMap = new HashMap<>();
+
             for (Listing listing : listings) {
                 if (newListingIds.contains(listing.getId())) {
                     listingMap.put(listing.getId(), listing);
+                    Gson gson = new GsonBuilder().create();
+                    if (listing.getJsonDump() != null) {
+                        ListingJsonDump jsonDump = gson.fromJson(listing.getJsonDump(), ListingJsonDump.class);
+                        jsonDumpMap.put(listing.getId(), jsonDump);
+                    }
                 }
             }
 
+            Company broker = companyService.getCompanywithContactNumberFromUserId(leadOfferInDB.getAgentId());
+
             leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
+
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
+
+            if (jsonDumpMap != null) {
+                map.put("jsonDumpMap", jsonDumpMap);
+            }
+
+            if (broker != null) {
+                map.put("broker", broker);
+            }
 
             if (username == null) {
                 username = leadOfferInDB.getAgent().getFullName();
@@ -878,12 +910,24 @@ public class LeadOfferService {
     }
 
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
+        return getUnsortedMatchingListings(leadOfferId, null, userId);
+    }
 
+    private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(
+            int leadOfferId,
+            List<Integer> projectIds,
+            Integer userId) {
         LeadOffer leadOfferInDB = leadOfferDao.getById(leadOfferId);
         if (leadOfferInDB.getAgentId() != userId) {
             throw new BadRequestException("you can only view listings offered by you for lead offers assigned to you");
         }
-        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId, userId);
+        List<Listing> matchingListings = new ArrayList<>();
+        if (projectIds == null || projectIds.isEmpty()) {
+            matchingListings = leadOfferDao.getMatchingListings(leadOfferId);
+        }
+        else {
+            matchingListings = leadOfferDao.getMatchingListingsInProject(leadOfferId, projectIds);
+        }
         populateOfferedFlag(leadOfferId, matchingListings, userId);
         return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
     }
@@ -903,11 +947,31 @@ public class LeadOfferService {
         }
     }
 
-    public PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId, Integer userId) {
-        PaginatedResponse<List<Listing>> listings = getUnsortedMatchingListings(leadOfferId, userId);
+    public PaginatedResponse<List<Listing>> getSortedMatchingListings(
+            int leadOfferId,
+            List<Integer> projectIds,
+            Integer userId) {
+        PaginatedResponse<List<Listing>> listings = getUnsortedMatchingListings(leadOfferId, projectIds, userId);
         List<LeadRequirement> leadRequirements = leadRequirementsService.getRequirements(leadOfferId);
         listings.setResults(sortMatchingListings(listings.getResults(), leadRequirements));
         return listings;
+    }
+
+    private PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId, Integer userId) {
+        return getSortedMatchingListings(leadOfferId, null, userId);
+    }
+
+    public List<Typeahead> getMatchingListingsTypeAhead(int leadOfferId, String query, String typeAheadType, int rows) {
+        if (!typeAheadType.equals(supportedTypeAheadType)) {
+            throw new BadRequestException("Unsupported typeahead type");
+        }
+        List<Listing> listings = getSortedMatchingListings(leadOfferId, SecurityContextUtils.getLoggedInUserId())
+                .getResults();
+        List<Typeahead> typeAheads = typeAheadService.getTypeaheadResultsFromColumbus(
+                query,
+                typeAheadType,
+                rows * Constants.TYPEAHEAD_CALL_FACTOR);
+        return typeAheadService.filterTypeAheadContainingListings(typeAheads, listings, rows);
     }
 
     /**

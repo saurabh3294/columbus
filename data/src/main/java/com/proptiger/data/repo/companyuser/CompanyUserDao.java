@@ -21,7 +21,7 @@ public interface CompanyUserDao extends JpaRepository<CompanyUser, Integer> {
     public CompanyUser findLocalitiesByUserId(int agentId);
 
     public CompanyUser findByUserId(Integer companyUserId);
-    
+
     public List<CompanyUser> findByUserIdIn(List<Integer> companyUserId);
 
     @Query("select C from CompanyUser CU join CU.company C where CU.userId in (?1)")
@@ -33,8 +33,14 @@ public interface CompanyUserDao extends JpaRepository<CompanyUser, Integer> {
     @Query("select CU from CompanyUser CU join fetch CU.company C where CU.userId = ?1 ")
     public List<CompanyUser> findCompanyUsersByUserId(Integer userId);
 
+    @Query("select C from CompanyUser CU join CU.company C join fetch C.brokerContacts BC join fetch BC.contactNumbers CN where CN.tableName='broker_contacts' and CN.type = 'mobile' and CU.userId = ?1")
+    public Company getCompanywithContactNumberFromUserId(int agentId);
+
+    @Query("select CU from CompanyUser CU where CU.left > ?1 and CU.right < ?2 order by CU.left asc")
+    public List<CompanyUser> getCompanyUsersInLeftRightRange(int left, int right);
+
     @Query("select CU from CompanyUser CU where CU.left > ?1 and CU.right < ?2  and CU.companyId=?3 order by CU.left asc")
     public List<CompanyUser> getCompanyUsersInLeftRightRangeInCompany(int left, int right, int companyId);
-    
+
     public List<CompanyUser> findByParentIdAndCompanyId(int parentId, int companyId);
 }

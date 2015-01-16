@@ -356,6 +356,7 @@ public class LeadService {
                 leadRequirement.getBedroom(),
                 leadRequirement.getLocalityId(),
                 leadRequirement.getProjectId(),
+                leadRequirement.getPropertyTypeId(),
                 leadRequirement.getLeadId());
 
         return !leadRequirementList.isEmpty();
@@ -386,6 +387,10 @@ public class LeadService {
         existingLead.setMaxSize(UtilityClass.max(existingLead.getMaxSize(), lead.getMaxSize()));
         existingLead.setMinBudget(UtilityClass.min(existingLead.getMinBudget(), lead.getMinBudget()));
         existingLead.setMaxBudget(UtilityClass.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
+
+        if (lead.isFlexibleBudget()) {
+            existingLead.setFlexibleBudget(lead.isFlexibleBudget());
+        }
 
         leadDao.save(existingLead);
     }
@@ -435,11 +440,15 @@ public class LeadService {
         Integer otherLocalityId = otherLeadRequirement.getLocalityId();
         Integer projectId = leadRequirement.getProjectId();
         Integer otherProjectId = otherLeadRequirement.getProjectId();
+        Integer propertyTypeId = leadRequirement.getPropertyTypeId();
+        Integer otherPropertyTypeId = otherLeadRequirement.getPropertyTypeId();
 
         if (((bedroom == null && otherBedroom == null) || (otherBedroom != null && otherBedroom.equals(bedroom))) && ((localityId == null && otherLocalityId == null) || (otherLocalityId != null && otherLocalityId
                 .equals(localityId)))
                 && ((projectId == null && otherProjectId == null) || (otherProjectId != null && otherProjectId
-                        .equals(projectId)))) {
+                        .equals(projectId)))
+                && ((propertyTypeId == null && otherPropertyTypeId == null) || (otherPropertyTypeId != null && otherPropertyTypeId
+                        .equals(propertyTypeId)))) {
             return true;
         }
         else {

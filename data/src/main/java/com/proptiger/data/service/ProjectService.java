@@ -912,6 +912,10 @@ public class ProjectService {
 
     }
 
+    public Project getProjectWithVersion(int projectId, DataVersion version) {
+        return projectDao.getProjectWithVersion(projectId, version);
+    }
+
     public List<Integer> getProjectIdsFromLocalityId(Integer localityId) {
         Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId
                 + "}}]}}", Selector.class);
@@ -937,5 +941,4 @@ public class ProjectService {
         }
 
     }
-
 }

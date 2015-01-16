@@ -5,5 +5,10 @@ import java.util.List;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 
 public interface LeadRequirementsCustomDao {
-    public List<LeadRequirement> fetchRequirements(Integer bedroom, Integer localityId, Integer projectId, int leadId);
+    public List<LeadRequirement> fetchRequirements(
+            Integer bedroom,
+            Integer localityId,
+            Integer projectId,
+            Integer propertyTypeId,
+            int leadId);
 }

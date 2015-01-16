@@ -9,6 +9,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.proptiger.core.model.BaseModel;
+import com.proptiger.data.model.marketplace.LeadTaskStatus;
 
 /**
  * 

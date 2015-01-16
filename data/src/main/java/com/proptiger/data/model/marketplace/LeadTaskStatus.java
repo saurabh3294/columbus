@@ -1,4 +1,4 @@
-package com.proptiger.data.model;
+package com.proptiger.data.model.marketplace;
 
 import java.util.List;
 
@@ -12,7 +12,9 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.model.marketplace.LeadTaskStatusReason;
+import com.proptiger.data.model.MasterLeadOfferStatus;
+import com.proptiger.data.model.MasterLeadTask;
+import com.proptiger.data.model.MasterLeadTaskStatus;
 
 /**
  * 
