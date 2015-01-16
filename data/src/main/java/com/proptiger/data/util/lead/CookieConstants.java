@@ -38,5 +38,6 @@ public class CookieConstants {
     public static final String UTM_CMD           = "utmcmd";
     public static final String UTM_CSR           = "utmcsr";
     public static final String UTM_GCLID         = "utmgclid";
+    public static final String SOURCE            = "Website";
 
 }

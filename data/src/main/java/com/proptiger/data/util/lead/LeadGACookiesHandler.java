@@ -43,8 +43,11 @@ public class LeadGACookiesHandler {
         if (randomId != null) {
             enquiry.setGaUserId(randomId);
         }
-        if (campaignSource != null) {
-            enquiry.setGaSource(campaignSource);
+        if (campaignSource != null && !campaignSource.isEmpty()) {
+            enquiry.setGaSource(campaignSource.replace("+", " "));
+        }
+        else{
+            enquiry.setGaSource(CookieConstants.SOURCE);
         }
         if (campaignTerm != null) {
             enquiry.setGaKeywords(campaignTerm);
