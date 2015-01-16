@@ -17,6 +17,8 @@ import javax.persistence.EntityManagerFactory;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -83,7 +85,7 @@ public class PropertyService {
     @Autowired
     private ApplicationContext     applicationContext;
 
-    private static int             ROWS_THRESHOLD              = 200;
+    private static int             ROWS_THRESHOLD               = 200;
 
     public static String           cdnImageUrl;
 
@@ -93,12 +95,14 @@ public class PropertyService {
     @Autowired
     private ConfigService          configService;
 
-    private final String           DYNAMIC_RELEVANCE_SORT_ORDER   = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
+    private final String           DYNAMIC_RELEVANCE_SORT_ORDER = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
 
-    private final String           MAX_PRIMARY_WEIGHT_CONFIG = "maxPrimaryIndexWeight";
+    private final String           MAX_PRIMARY_WEIGHT_CONFIG    = "maxPrimaryIndexWeight";
 
     @Value("${enable.dynamic.relevance}")
     private boolean                enableDynamicRelevance;
+
+    private Logger                 logger                       = LoggerFactory.getLogger(PropertyService.class);
 
     @PostConstruct
     private void init() {
@@ -373,9 +377,11 @@ public class PropertyService {
         Double inventory = null;
         if (stats.get(Project.SUPPLY_FIELD_NAME) != null) {
             totalSupply = (Double) stats.get(Project.SUPPLY_FIELD_NAME).getSum();
+            logger.debug("supply for selector = " + totalSupply);
         }
         if (stats.get(Project.DEVIVED_AVAILABILITY_FIELD_NAME) != null) {
             inventory = (Double) stats.get(Project.DEVIVED_AVAILABILITY_FIELD_NAME).getSum();
+            logger.debug("inventory for selector = " + inventory);
         }
         if (totalSupply != null && !totalSupply.equals(0) && inventory != null && !inventory.equals(0)) {
             unsoldInventory = inventory * 100 / totalSupply;
