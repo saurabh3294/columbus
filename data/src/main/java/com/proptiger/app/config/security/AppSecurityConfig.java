@@ -20,6 +20,9 @@ import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.session.ExpiringSession;
+import org.springframework.session.MapSession;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 
 import com.proptiger.api.filter.IPBasedAPIAccessFilter;
 import com.proptiger.core.config.CustomAccessDeniedHandler;
@@ -40,37 +43,51 @@ import com.proptiger.core.util.Constants;
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private DataSource               dataSource;
+    private DataSource         dataSource;
 
     @Autowired
-    private RedisSerializer<?>       jdkSerializer;
+    private RedisSerializer<?> jdkSerializer;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.addFilterBefore(createSessionRepositoryFilter(), ChannelProcessingFilter.class);
         http.csrf().disable();
 
-        http.authorizeRequests()
-                .regexMatchers(Constants.Security.USER_ROLE_API_REGEX).access("hasRole('" + UserRole.Admin.name() + "')")
-                .regexMatchers(Constants.Security.USER_DETAIL_API_REGEX).access("hasRole('" + UserRole.Admin.name() + "')")
-                .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.USER.name() + "')")
-                .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.Admin.name() + "')")
+        http.authorizeRequests().regexMatchers(Constants.Security.USER_ROLE_API_REGEX)
+                .access("hasRole('" + UserRole.Admin.name() + "')")
+                .regexMatchers(Constants.Security.USER_DETAIL_API_REGEX)
+                .access("hasRole('" + UserRole.Admin.name() + "')").regexMatchers(Constants.Security.USER_API_REGEX)
+                .access("hasRole('" + UserRole.USER.name() + "')").regexMatchers(Constants.Security.USER_API_REGEX)
+                .access("hasRole('" + UserRole.Admin.name() + "')")
                 .regexMatchers(Constants.Security.OTP_VALIDATE_API_REGEX)
                 .access("hasRole('" + UserRole.PRE_AUTH_USER.name() + "')")
-                .regexMatchers(Constants.Security.SUDO_USER_API_REGEX).access("hasRole('" + UserRole.Admin.name() + "')")
-                .anyRequest().permitAll();
+                .regexMatchers(Constants.Security.SUDO_USER_API_REGEX)
+                .access("hasRole('" + UserRole.Admin.name() + "')").anyRequest().permitAll();
 
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
 
         http.exceptionHandling().accessDeniedHandler(createAccessDeniedHandler());
     }
 
-
-    @Bean
-    public Filter createSessionRepositoryFilter() {
-        return new SessionRepositoryFilter();
+    /**
+     * Create session repository filter, that will create session object instead
+     * of container
+     * 
+     * @return
+     */
+    @Bean(name = "springSessionRepositoryFilter")
+    public SessionRepositoryFilter<? extends ExpiringSession> createSessionRepositoryFilter() {
+        final SessionRepositoryFilter<MapSession> sessionRepositoryFilter = new SessionRepositoryFilter<MapSession>(
+                createSessionRepository());
+        DoNothingCookieSessionStrategy httpSessionStrategy = new DoNothingCookieSessionStrategy();
+        sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
+        return sessionRepositoryFilter;
     }
 
+    @Bean
+    public UserServiceSessionRepository createSessionRepository() {
+        return new UserServiceSessionRepository();
+    }
 
     @Bean
     public Filter createIPBasedAPIAccessFilter() {
@@ -90,7 +107,6 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
                 Constants.Security.REMEMBER_ME_COOKIE);
     }
 
-
     @Bean
     public LoginUrlAuthenticationEntryPoint createAuthEntryPoint() {
         AuthEntryPoint authEntryPoint = new AuthEntryPoint(Constants.Security.LOGIN_URL);
@@ -101,8 +117,6 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     public SessionRegistry createSessionRegistry() {
         return new SessionRegistryImpl();
     }
-
-
 
     @Bean
     public Md5PasswordEncoder createPasswordEncoder() {
