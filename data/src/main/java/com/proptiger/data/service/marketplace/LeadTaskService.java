@@ -576,12 +576,6 @@ public class LeadTaskService {
                 logger.debug("TASK TYPE CANT BE CHANGED");
                 result = false;
             }
-            // cases where performed at is mandatory
-            if ((newStatus.getMasterLeadTaskStatus().isComplete() && !newStatus.getMasterLeadTaskStatus().getStatus()
-                    .equals(TaskStatus.Cancelled)) && leadTask.getPerformedAt() == null) {
-                logger.debug("COMPLETE TASKS SHOULD HAVE PERFORMED AT");
-                result = false;
-            }
             // cases where next task is mandatory
             else if (newStatus.getMasterLeadTaskStatus().isNextTaskRequired()) {
                 if (leadTask.getNextTask() == null) {
