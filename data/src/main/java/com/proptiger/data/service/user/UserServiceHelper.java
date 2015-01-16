@@ -1,6 +1,8 @@
 package com.proptiger.data.service.user;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -40,12 +44,14 @@ public class UserServiceHelper {
     
     private static final String URL_GET_ACTIVE_USER_DETAILS    = "/app/v1/user/details";
     private static final String URL_DATA_V1_ENTITY_USER        = "/data/v1/entity/user";
-    private static final String URL_GET_USERS_BY_USER_IDS      = "/data/v1/entity/user?userId=";
-    private static final String URL_GET_USER_LIST_WITH_DETAILS = "data/v1/entity/user-details?userId=";
-    private static final String URL_GET_USER_DETAILS_BY_EMAIL  = "data/v1/entity/user-details?email=";
+    private static final String URL_APP_V1_USER_BY_USER_IDS      = "/app/v1/user?userId=";
+    private static final String URL_APP_V1_USER_DETAILS_BY_USER_IDS = "/app/v1/user-details?userId=";
+    private static final String URL_APP_V1_USER_DETAILS_BY_EMAIL  = "app/v1/user-details?email=";
 
     @Autowired
     private HttpRequestUtil     httpRequestUtil;
+    
+    private static Logger                logger = LoggerFactory.getLogger(UserServiceHelper.class);
 
     private HttpHeaders createJsessionIdHeader() {
         HttpHeaders requestHeaders = null;
@@ -81,32 +87,17 @@ public class UserServiceHelper {
         return user;
     }
 
-    /**
-     * This will get only user object, so contact and other details will not be
-     * present
-     * 
-     * @param userIds
-     * @return
-     */
-    public List<User> getUsersByUserIds_CallerLoginRequired(Collection<Integer> userIds) {
-        if (userIds != null && !userIds.isEmpty()) {
-            return new ArrayList<User>();
-        }
-        HttpHeaders header = createJsessionIdHeader();
-        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_GET_USERS_BY_USER_IDS), header);
-        return users;
-    }
 
     public Map<Integer, User> getUserWithCompleteDetailsByUserIds_CallerNonLogin(Collection<Integer> userIds) {
         if (userIds != null && !userIds.isEmpty()) {
             return new HashMap<Integer, User>();
         }
-        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_GET_USER_LIST_WITH_DETAILS), null);
+        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_APP_V1_USER_DETAILS_BY_USER_IDS), null);
         return userListToMap(users);
     }
 
-    public User getUserWithCompleteDetailsByUserIds_CallerNonLogin(Integer userId) {
-        List<User> users = getUsersByIds(Arrays.asList(userId), getRelativeUrl(URL_GET_USER_LIST_WITH_DETAILS), null);
+    public User getUserWithCompleteDetailsById_CallerNonLogin(Integer userId) {
+        List<User> users = getUsersByIds(Arrays.asList(userId), getRelativeUrl(URL_APP_V1_USER_DETAILS_BY_USER_IDS), null);
         if (users == null || users.isEmpty()) {
             throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
@@ -120,23 +111,31 @@ public class UserServiceHelper {
         for (Integer id : userIds) {
             if (!first) {
                 completeURL.append(",");
-                first = false;
             }
+            first = false;
             completeURL.append(id);
         }
         List<User> users = new ArrayList<User>();
-        if (header != null) {
-            users = httpRequestUtil
-                    .getInternalApiResultAsTypeList(URI.create(completeURL.toString()), header, User.class);
+        String encoded;
+        try {
+            encoded = URLEncoder.encode(completeURL.toString(), "UTF-8");
+            if (header != null) {
+                users = httpRequestUtil
+                        .getInternalApiResultAsTypeList(URI.create(encoded), header, User.class);
+            }
+            else {
+                users = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(completeURL.toString()), User.class);
+            }
         }
-        else {
-            users = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(completeURL.toString()), User.class);
+        catch (UnsupportedEncodingException e) {
+           logger.error("error while fetching user details for {}",userIds.toString(),e);
         }
+        
         return users;
     }
 
     public User getUserById_CallerNonLogin(Integer userId) {
-        List<User> list = getUsersByIds(Arrays.asList(userId), getRelativeUrl(URL_GET_USERS_BY_USER_IDS), null);
+        List<User> list = getUsersByIds(Arrays.asList(userId), getRelativeUrl(URL_APP_V1_USER_BY_USER_IDS), null);
         if (list == null || list.isEmpty()) {
             throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
@@ -144,7 +143,7 @@ public class UserServiceHelper {
     }
 
     public Map<Integer, User> getUsersMapByUserIds_CallerNonLogin(Collection<Integer> userIds) {
-        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_GET_USERS_BY_USER_IDS), null);
+        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_APP_V1_USER_BY_USER_IDS), null);
         return userListToMap(users);
     }
 
@@ -162,7 +161,7 @@ public class UserServiceHelper {
         }
         StringBuilder stringUrl = new StringBuilder(
                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)).append(
-                        getRelativeUrl(URL_GET_USER_DETAILS_BY_EMAIL)).append(email);
+                        getRelativeUrl(URL_APP_V1_USER_DETAILS_BY_EMAIL)).append(email);
 
         List<User> users = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), User.class);
         if (users == null || users.isEmpty()) {

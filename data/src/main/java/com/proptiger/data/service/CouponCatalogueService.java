@@ -206,7 +206,7 @@ public class CouponCatalogueService {
                     "User Identity for this Coupon code does not match with our records.");
         }
 
-        User user = userServiceHelper.getUserWithCompleteDetailsByUserIds_CallerNonLogin(transaction.getUserId());
+        User user = userServiceHelper.getUserWithCompleteDetailsById_CallerNonLogin(transaction.getUserId());
 
         return user;
     }
@@ -257,7 +257,7 @@ public class CouponCatalogueService {
     }
 
     private UserAttribute getUserAttribute(String userProofId, Transaction transaction) {
-        User u = userServiceHelper.getUserWithCompleteDetailsByUserIds_CallerNonLogin(transaction.getUserId());
+        User u = userServiceHelper.getUserWithCompleteDetailsById_CallerNonLogin(transaction.getUserId());
         UserAttribute userAttribute = null;
         if(u.getAttributes() != null){
             for(UserAttribute attribute: u.getAttributes()){

@@ -126,7 +126,7 @@ public class TransactionService {
 
         transaction = transactionDao.findOne(transactionId);
         if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
-            transaction.setUser(userServiceHelper.getUserWithCompleteDetailsByUserIds_CallerNonLogin(transaction.getUserId()));
+            transaction.setUser(userServiceHelper.getUserWithCompleteDetailsById_CallerNonLogin(transaction.getUserId()));
             //userService.enrichUserDetails(transaction.getUser());
             transaction.setProduct(couponCatalogueService.getCouponCatalogue(transaction.getProductId()));
         }
