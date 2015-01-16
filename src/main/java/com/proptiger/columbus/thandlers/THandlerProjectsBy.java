@@ -4,15 +4,19 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.google.common.reflect.TypeToken;
 import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.core.model.cms.Builder;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerProjectsBy extends RootTHandler {
+
+    private static Logger logger = LoggerFactory.getLogger(THandlerProjectsBy.class);
+
     @Override
     public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
 
@@ -21,6 +25,11 @@ public class THandlerProjectsBy extends RootTHandler {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
         List<Builder> topBuilders = getTopBuilders(city);
+
+        if (topBuilders == null) {
+            logger.error("Could not fetch top builders for city " + city);
+            return results;
+        }
 
         String redirectURL;
         for (Builder builder : topBuilders) {
@@ -49,8 +58,8 @@ public class THandlerProjectsBy extends RootTHandler {
     }
 
     private List<Builder> getTopBuilders(String cityName) {
-        List<Builder> topBuilders = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
-                URI.create(UriComponentsBuilder
+        List<Builder> topBuilders = httpRequestUtil.getInternalApiResultAsTypeListFromCache(URI
+                .create(UriComponentsBuilder
                         .fromUriString(
                                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
                                         .getRequiredPropertyAsString(PropertyKeys.BUILDER_API_URL)
@@ -58,8 +67,7 @@ public class THandlerProjectsBy extends RootTHandler {
                                         + URLGenerationConstants.Selector
                                         + String.format(
                                                 URLGenerationConstants.SelectorGetBuilderNamesByCityName,
-                                                cityName)).build().encode().toString()),
-                Builder.class);
+                                                cityName)).build().encode().toString()), Builder.class);
         return topBuilders;
     }
 

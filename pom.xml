@@ -21,12 +21,13 @@
 			<id>develop</id>
 			<properties>
 				<midl-core.version>develop-SNAPSHOT</midl-core.version>
+				<skipTests>true</skipTests>
 			</properties>
 		</profile>
 		<profile>
 			<id>release</id>
 			<properties>
-				<midl-core.version>2.0.0</midl-core.version>
+				<midl-core.version>2.0.3</midl-core.version>
 			</properties>
 		</profile>
 	</profiles>
