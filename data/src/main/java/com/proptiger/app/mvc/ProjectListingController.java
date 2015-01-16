@@ -24,12 +24,12 @@ import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Project.NestedProperties;
+import com.proptiger.core.model.external.GooglePlace;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.model.GooglePlace;
 import com.proptiger.data.service.GooglePlacesAPIService;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.ProjectService;
@@ -99,8 +99,8 @@ public class ProjectListingController extends BaseController {
         }
 
         /*
-         * If google-place-id (gpid) is given then add a geo filter after
-         * fetching place information.
+         * If google-place-id (gpid) is given, add a geo filter after fetching
+         * place information.
          */
         if (gpid != null && !gpid.isEmpty()) {
             GooglePlace gp = googlePlacesAPIService.getPlaceDetails(gpid);

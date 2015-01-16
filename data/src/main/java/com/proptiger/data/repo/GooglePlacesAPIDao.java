@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.proptiger.data.model.GooglePlace;
+import com.proptiger.core.model.external.GooglePlace;
 
 @Repository
 public class GooglePlacesAPIDao {

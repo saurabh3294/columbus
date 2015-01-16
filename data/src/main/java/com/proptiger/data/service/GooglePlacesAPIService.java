@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.model.external.GooglePlace;
 import com.proptiger.core.util.Constants;
-import com.proptiger.data.model.GooglePlace;
 import com.proptiger.data.repo.GooglePlacesAPIDao;
 
 @Service
@@ -30,7 +30,11 @@ public class GooglePlacesAPIService {
             logger.error("Google Places API is not enabled.");
             return null;
         }
+
+        long timeStart = System.currentTimeMillis();
         GooglePlace googlePlace = googlePlacesAPIDao.getPlaceDetails(placeId);
+        long timeTaken = System.currentTimeMillis() - timeStart;
+        logger.info("Google Place API call : Time Taken = " + timeTaken + " ms");
         return googlePlace;
     }
 

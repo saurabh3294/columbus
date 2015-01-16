@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.model.external.GooglePlace;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
-import com.proptiger.data.model.GooglePlace;
 import com.proptiger.data.service.GooglePlacesAPIService;
 
 @Controller
@@ -23,5 +23,4 @@ public class GooglePlacesAPIController extends BaseController {
         GooglePlace googlePlace = googlePlacesAPIService.getPlaceDetails(placeId);
         return new APIResponse(googlePlace);
     }
-
 }
