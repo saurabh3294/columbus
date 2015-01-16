@@ -113,17 +113,7 @@ public class CookiesService {
         // else just add the request cookies to cookies map
         else {
             for (Cookie cookie : requestCookies) {
-
-                // Decoding cookie value as HttpServletRequest is reading cookie
-                // as encoded
-                try {
-                    cookiesMap.put(
-                            cookie.getName(),
-                            java.net.URLDecoder.decode(cookie.getValue(), CookieConstants.UTF_8));
-                }
-                catch (UnsupportedEncodingException exception) {
-                    cookiesMap.put(cookie.getName(), cookie.getValue());
-                }
+                setCookieInMap(cookiesMap, cookie.getName(), cookie.getValue());
             }
         }
 
@@ -135,6 +125,20 @@ public class CookiesService {
         }
 
         return cookiesMap;
+    }
+
+    private void setCookieInMap(Map<String, String> cookiesMap, String name, String value) {
+        String cookie = null;
+
+        // Decoding cookie value as HttpServletRequest is reading cookie as
+        // encoded
+        try {
+            cookie = java.net.URLDecoder.decode(value, CookieConstants.UTF_8);
+        }
+        catch (UnsupportedEncodingException exception) {
+            cookiesMap.put(name, value);
+        }
+        cookiesMap.put(name, cookie);
     }
 
     private void setUserIp(HttpServletRequest request, HttpServletResponse response, Map<String, String> cookiesMap) {
@@ -304,16 +308,7 @@ public class CookiesService {
         landingPageCookie.setMaxAge(cookieExpiryPeriod);
         landingPageCookie.setPath("/");
         response.addCookie(landingPageCookie);
-        String cookie = null;
+        setCookieInMap(cookiesMap, cookieName, cookieValue);
 
-        // Decoding cookie value as HttpServletRequest is reading cookie as
-        // encoded
-        try {
-            cookie = java.net.URLDecoder.decode(cookieValue, CookieConstants.UTF_8);
-        }
-        catch (UnsupportedEncodingException exception) {
-            cookiesMap.put(cookieName, cookieValue);
-        }
-        cookiesMap.put(cookieName, cookie);
     }
 }
