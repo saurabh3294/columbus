@@ -95,13 +95,13 @@ public class LeadOffer extends BaseModel {
     @Column(name = "next_task_id")
     private Integer                  nextTaskId;
 
-    @JsonManagedReference
     @OneToOne(fetch = FetchType.LAZY)
+    @JsonManagedReference
     @JoinColumn(name = "previous_task_id", referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 lastTask;
 
-    @JsonManagedReference
     @OneToOne(fetch = FetchType.LAZY)
+    @JsonManagedReference
     @JoinColumn(name = "next_task_id", referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 nextTask;
 
@@ -146,12 +146,11 @@ public class LeadOffer extends BaseModel {
     private int                      phaseId;
 
     @Column(name = "decline_reason_id")
-    private Integer                      declineReasonId;
-    
+    private Integer                  declineReasonId;
+
     @Column(name = "other_reason")
     private String                   otherReason;
-    
-    
+
     public Integer getDeclineReasonId() {
         return declineReasonId;
     }

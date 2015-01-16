@@ -17,6 +17,8 @@ import javax.persistence.EntityManagerFactory;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.EntityType;
+import com.proptiger.core.enums.ProjectTypeToOptionTypeMapping;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.SortOrder;
@@ -94,10 +97,6 @@ public class PropertyService {
     @Autowired
     private ConfigService          configService;
 
-    private final String           DYNAMIC_RELEVANCE_SORT_ORDER        = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
-
-    private final String           MAX_PRIMARY_WEIGHT_CONFIG           = "maxPrimaryIndexWeight";
-
     @Autowired
     private GooglePlacesAPIService googlePlacesAPIService;
 
@@ -105,8 +104,14 @@ public class PropertyService {
 
     private static double          GOOGLE_PLACE_QUERY_DEFAULT_GEO_DIST = 3.0d;
 
+    private final String           DYNAMIC_RELEVANCE_SORT_ORDER = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
+
+    private final String           MAX_PRIMARY_WEIGHT_CONFIG    = "maxPrimaryIndexWeight";
+
     @Value("${enable.dynamic.relevance}")
     private boolean                enableDynamicRelevance;
+
+    private Logger                 logger                       = LoggerFactory.getLogger(PropertyService.class);
 
     @PostConstruct
     private void init() {
@@ -420,9 +425,11 @@ public class PropertyService {
         Double inventory = null;
         if (stats.get(Project.SUPPLY_FIELD_NAME) != null) {
             totalSupply = (Double) stats.get(Project.SUPPLY_FIELD_NAME).getSum();
+            logger.debug("supply for selector = " + totalSupply);
         }
         if (stats.get(Project.DEVIVED_AVAILABILITY_FIELD_NAME) != null) {
             inventory = (Double) stats.get(Project.DEVIVED_AVAILABILITY_FIELD_NAME).getSum();
+            logger.debug("inventory for selector = " + inventory);
         }
         if (totalSupply != null && !totalSupply.equals(0) && inventory != null && !inventory.equals(0)) {
             unsoldInventory = inventory * 100 / totalSupply;
@@ -443,6 +450,7 @@ public class PropertyService {
     }
 
     /*
+     * 
      * Only Solr call, no DB call specific changes should be added in this
      * method
      */
@@ -470,38 +478,66 @@ public class PropertyService {
     public Property createUnverifiedPropertyOrGetExisting(Listing listing, Integer userId) {
         Property property = null;
         OtherInfo otherInfo = listing.getOtherInfo();
-        if (otherInfo != null && otherInfo.getSize() > 0 && otherInfo.getBedrooms() > 0 && otherInfo.getProjectId() > 0) {
+        if (otherInfo != null && otherInfo.getSize() != null
+                && otherInfo.getSize() > 0
+                && otherInfo.getProjectId() > 0
+                && otherInfo.getUnitType() != null) {
+
+            if (otherInfo.getBedrooms() == 0 && (!otherInfo.getUnitType().equals(UnitType.Plot.toString()))) {
+                throw new BadRequestException("Other info is invalid");
+            }
+
             FIQLSelector selector = new FIQLSelector()
                     .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
-                    .addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms())
                     .addAndConditionToFilter("size==" + otherInfo.getSize())
+                    .addAndConditionToFilter("unitType==" + otherInfo.getUnitType())
                     .addAndConditionToFilter("project.version==" + DataVersion.Website);
 
-            if (otherInfo.getBathrooms() > 0) {
+            if (otherInfo.getBedrooms() > 0 && (!otherInfo.getUnitType().equals(UnitType.Plot.toString()))) {
+                selector.addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms());
+            }
+
+            if (otherInfo.getBathrooms() > 0 && (!otherInfo.getUnitType().equals(UnitType.Plot.toString()))) {
                 selector.addAndConditionToFilter("bathrooms==" + otherInfo.getBathrooms());
             }
             PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
             if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
                     && propertyWithMatchingCriteria.getResults().size() > 0) {
-                // matching property object found for the given other
-                // information
                 property = propertyWithMatchingCriteria.getResults().get(0);
             }
             else {
-                selector = new FIQLSelector().setGroup("unitType")
-                        .addAndConditionToFilter("projectId==" + otherInfo.getProjectId()).setRows(1)
-                        .addSortDESC("countPropertyId");
+                Project project = projectService.getProjectWithVersion(otherInfo.getProjectId(), DataVersion.Website);
+                int projectTypeId = project.getProjectTypeId();
 
-                propertyWithMatchingCriteria = getPropertiesFromDB(selector);
-                Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, propertyWithMatchingCriteria
-                        .getResults().get(0).getUnitType());
-                property = propertyDao.saveAndFlush(toCreate);
+                if (getByName(otherInfo.getUnitType()) != null && getByName(otherInfo.getUnitType()).contains(
+                        projectTypeId)) {
+                    Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, otherInfo.getUnitType());
+                    property = propertyDao.saveAndFlush(toCreate);
+                }
+                else {
+                    throw new BadRequestException("This project does not contain " + otherInfo.getUnitType());
+                }
             }
         }
         else {
             throw new BadRequestException("Other info is invalid");
         }
         return property;
+    }
+
+    public List<Integer> getByName(String name) {
+        if (name.equals(UnitType.Apartment.toString())) {
+            return ProjectTypeToOptionTypeMapping.Apartment.getProjectTypeIds();
+        }
+        else if (name.equals(UnitType.Plot.toString())) {
+            return ProjectTypeToOptionTypeMapping.Plot.getProjectTypeIds();
+        }
+        else if (name.equals(UnitType.Villa.toString())) {
+            return ProjectTypeToOptionTypeMapping.Villa.getProjectTypeIds();
+        }
+        else {
+            return null;
+        }
     }
 
     public void updateProjectsLifestyleScores(List<Property> properties) {

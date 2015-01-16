@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
@@ -25,17 +27,24 @@ import com.proptiger.core.enums.Status;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceAlreadyExistException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.ListingAmenity;
 import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.user.User;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.service.TypeAheadService;
+import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.JsonUtil;
 
 /**
@@ -44,7 +53,7 @@ import com.proptiger.data.util.JsonUtil;
  */
 @Service
 public class ListingService {
-    private static Logger         logger = LoggerFactory.getLogger(ListingService.class);
+    private static Logger         logger                 = LoggerFactory.getLogger(ListingService.class);
     @Autowired
     private PropertyService       propertyService;
 
@@ -62,6 +71,14 @@ public class ListingService {
 
     @Autowired
     private PropertyDao           propertyDao;
+
+    @Autowired
+    private TypeAheadService      typeAheadService;
+
+    private final String          supportedTypeAheadType = "project";
+
+    @Autowired
+    private UserService           userService;
 
     public Listing getListingByListingId(Integer listingId) {
         return listingDao.findOne(listingId);
@@ -98,7 +115,7 @@ public class ListingService {
             throw new ResourceAlreadyExistException("Listing could not be created");
         }
         if (currentListingPrice != null) {
-            ListingPrice listingPriceCreated = listingPriceService.createListingPrice(currentListingPrice, listing);
+            ListingPrice listingPriceCreated = listingPriceService.createOrUpdateListingPrice(currentListingPrice, listing);
 
             // save listing again with current listing price id
             listing.setCurrentPriceId(listingPriceCreated.getId());
@@ -114,7 +131,7 @@ public class ListingService {
 
     public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) {
         listing.setId(listingId);
-        Listing listingInDB = listingDao.findById(listingId);
+        Listing listingInDB = listingDao.findListingWithPriceAndPropertyById(listingId);
 
         if (!listingInDB.getSellerId().equals(userIdentifier)) {
             throw new BadRequestException("you can change only your listings");
@@ -123,12 +140,17 @@ public class ListingService {
         Property property = listingInDB.getProperty();
         listing.setProperty(null);
 
-        if (listing.getFloor() != null) {
-            listingInDB.setFloor(listing.getFloor());
-        }
-
-        if (listing.getJsonDump() != null) {
-            listingInDB.setJsonDump(listing.getJsonDump());
+        listingInDB.setFloor(listing.getFloor());
+        listingInDB.setJsonDump(listing.getJsonDump());
+        
+        ListingPrice currentListingPrice = listing.getCurrentListingPrice();
+        ListingPrice currentListingPriceInDB = listingInDB.getCurrentListingPrice();
+        if (currentListingPrice != null) {             
+            currentListingPriceInDB.setPrice(currentListingPrice.getPrice());
+            currentListingPriceInDB.setPricePerUnitArea(currentListingPrice.getPricePerUnitArea());
+            currentListingPriceInDB.setOtherCharges(currentListingPrice.getOtherCharges());
+            ListingPrice listingPriceUpdated = listingPriceService.createOrUpdateListingPrice(currentListingPriceInDB, listingInDB);
+            listingInDB.setCurrentPriceId(listingPriceUpdated.getId());
         }
 
         List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(Collections
@@ -232,17 +254,47 @@ public class ListingService {
      * @return
      */
     public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector) {
+        return getListings(userId, selector, null);
+    }
+
+    public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector, List<Integer> projectIds) {
         selector.applyDefSort("-id");
 
-        List<Long> listingSize = listingDao.findListingsCount(userId, DataVersion.Website, Status.Active);
-
-        List<Listing> listings;
-        if (selector.getStart() > listingSize.get(0)) {
-            return new PaginatedResponse<>(null, listingSize.get(0));
+        long listingSize;
+        if (projectIds == null) {
+            listingSize = listingDao.findCountBySellerIdAndStatus(userId, Status.Active).get(0);
         }
         else {
-            listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, selector);
+            listingSize = listingDao.findCountBySellerIdAndVersionAndStatusAndProjectIdIn(
+                    userId,
+                    DataVersion.Website,
+                    Status.Active,
+                    projectIds).get(0);
         }
+
+        List<Listing> listings = new ArrayList<>();
+        if (listingSize > 0 && selector.getStart() < listingSize) {
+            LimitOffsetPageRequest request = new LimitOffsetPageRequest(selector.getStart(), selector.getRows());
+            if (projectIds == null) {
+                listings = listingDao.findBySellerIdAndVersionAndStatusWithCity(
+                        userId,
+                        DataVersion.Website,
+                        Status.Active,
+                        request);
+            }
+            else {
+                listings = listingDao.findBySellerIdAndVersionAndStatusAndProjectIdInWithCity(
+                        userId,
+                        DataVersion.Website,
+                        Status.Active,
+                        projectIds,
+                        request);
+            }
+        }
+        return new PaginatedResponse<>(setExtraFieldsBasedOnFiql(listings, selector), listingSize);
+    }
+
+    private List<Listing> setExtraFieldsBasedOnFiql(List<Listing> listings, FIQLSelector selector) {
         String fields = selector.getFields();
         if (fields != null) {
             if (fields.contains("listingAmenities")) {
@@ -254,7 +306,18 @@ public class ListingService {
                     }
                 }
             }
+
+            if (fields.contains("seller")) {
+                Set<Integer> sellerIds = extractSellerIds(listings);
+                Map<Integer, User> users = userService.getUsers(sellerIds);
+                for (Listing l : listings) {
+                    if (users.get(l.getSellerId()) != null) {
+                        l.setSeller(users.get(l.getSellerId()));
+                    }
+                }
+            }
         }
+
         // TODO due to explicit join would be fetched so if not asked then set
         // this to null, handle using FIQL
         if (fields == null || !fields.contains("property")) {
@@ -262,7 +325,31 @@ public class ListingService {
                 l.setProperty(null);
             }
         }
-        return new PaginatedResponse<>(listings, listingSize.get(0));
+        return listings;
+    }
+
+    public List<Typeahead> getListingTypeaheadForUser(String query, String typeAheadType, int rows) {
+        if (!typeAheadType.equals(supportedTypeAheadType)) {
+            throw new BadRequestException("Unsupported typeahead type");
+        }
+        FIQLSelector selector = new FIQLSelector();
+        selector.setFields("property,projectId");
+        List<Listing> listings = getListings(SecurityContextUtils.getLoggedInUserId(), selector).getResults();
+        List<Typeahead> typeAheads = typeAheadService.getTypeaheadResultsFromColumbus(
+                query,
+                typeAheadType,
+                rows * Constants.TYPEAHEAD_CALL_FACTOR);
+        return typeAheadService.filterTypeAheadContainingListings(typeAheads, listings, rows);
+    }
+
+    private Set<Integer> extractSellerIds(List<Listing> listings) {
+        Set<Integer> listingIds = new HashSet<Integer>();
+        for (Listing listing : listings) {
+            if (listing.getSellerId() != null) {
+                listingIds.add(listing.getSellerId());
+            }
+        }
+        return listingIds;
     }
 
     /**
@@ -283,6 +370,13 @@ public class ListingService {
                 List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(Arrays
                         .asList(listing));
                 listing.setListingAmenities(listingAmenities);
+            }
+
+            if (fields.contains("seller")) {
+                User user = userService.getUserById(listing.getSellerId());
+                if (user != null) {
+                    listing.setSeller(user);
+                }
             }
         }
         if (fields == null || !fields.contains("property")) {
