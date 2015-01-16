@@ -1,5 +1,6 @@
 package com.proptiger.data.service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +44,7 @@ public class CookiesService {
         boolean originalPPC = false;
 
         utmSourceFromRequest = request.getParameter(CookieConstants.UTM_SOURCE);
+        httpReferer = request.getHeader(CookieConstants.REFERER);
 
         // Reading request Cookies
         Cookie[] requestCookies = request.getCookies();
@@ -68,6 +70,8 @@ public class CookiesService {
         // Override cookies only if USER_FROM_PPC is not true
         if (!originalPPC) {
 
+            setLandingPage(request, landingPage, response, cookiesMap);
+
             // Setting user_network cookie
             network = setCookieWithDueOrder(
                     CookieConstants.NETWORK,
@@ -80,12 +84,6 @@ public class CookiesService {
 
             // Setting utm cookies
             setUTMCookies(request, response, requestCookiesMap, cookiesMap);
-
-            // setting REF_URL cookie
-            httpReferer = request.getHeader(CookieConstants.REFERER);
-            if (httpReferer != null && !httpReferer.isEmpty()) {
-                setCookie(CookieConstants.REF_URL, httpReferer, response, cookiesMap);
-            }
 
             // ppc set to true if utm_medium is 'ppc' or 'cpc'
             if (CookieConstants.CPC.equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_MEDIUM)) || CookieConstants.PPC
@@ -114,16 +112,33 @@ public class CookiesService {
 
         // else just add the request cookies to cookies map
         else {
-
             for (Cookie cookie : requestCookies) {
-                cookiesMap.put(cookie.getName(), cookie.getValue());
+                setCookieInMap(cookiesMap, cookie.getName(), cookie.getValue());
             }
         }
 
         setUserIp(request, response, cookiesMap);
-        setLandingPage(request, landingPage, response, cookiesMap);
+
+        // setting REF_URL cookie
+        if (httpReferer != null && !httpReferer.isEmpty()) {
+            setCookie(CookieConstants.REF_URL, httpReferer, response, cookiesMap);
+        }
 
         return cookiesMap;
+    }
+
+    private void setCookieInMap(Map<String, String> cookiesMap, String name, String value) {
+        String cookie = null;
+
+        // Decoding cookie value as HttpServletRequest is reading cookie as
+        // encoded
+        try {
+            cookie = java.net.URLDecoder.decode(value, CookieConstants.UTF_8);
+        }
+        catch (UnsupportedEncodingException exception) {
+            cookiesMap.put(name, value);
+        }
+        cookiesMap.put(name, cookie);
     }
 
     private void setUserIp(HttpServletRequest request, HttpServletResponse response, Map<String, String> cookiesMap) {
@@ -293,6 +308,7 @@ public class CookiesService {
         landingPageCookie.setMaxAge(cookieExpiryPeriod);
         landingPageCookie.setPath("/");
         response.addCookie(landingPageCookie);
-        cookiesMap.put(cookieName, cookieValue);
+        setCookieInMap(cookiesMap, cookieName, cookieValue);
+
     }
 }
