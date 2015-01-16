@@ -50,6 +50,7 @@ import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
+import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
 import com.proptiger.data.util.SerializationUtils;
@@ -71,10 +72,10 @@ public class LeadTaskService {
     private MasterLeadTaskDao            masterLeadTaskDao;
 
     @Autowired
-    private LeadOfferService             leadOfferService;
+    private LeadTaskStatusReasonDao      taskStatusReasonDao;
 
     @Autowired
-    private LeadTaskStatusReasonDao      taskStatusReasonDao;
+    private MasterLeadOfferStatusDao     leadOfferStatusDao;
 
     @Autowired
     private LeadOfferDao                 leadOfferDao;
@@ -141,8 +142,7 @@ public class LeadTaskService {
                 leadTaskDao.saveAndFlush(savedTask);
                 manageLeadTaskListingsOnUpdate(currentTaskId, taskDto.getListingIds());
                 if (taskStatus.getResultingStatusId() != null) {
-                    leadOfferService
-                            .updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
+                    updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
                 }
                 if (taskStatus.getMasterLeadTaskStatus().isComplete()) {
                     if (savedTask.getNextTask() != null) {
@@ -151,7 +151,7 @@ public class LeadTaskService {
                         manageLeadTaskListingsOnUpdate(nextTaskId, taskDto.getNextTask().getListingIds());
                     }
                     Integer offerNextTaskId = nextTaskId == 0 ? null : nextTaskId;
-                    leadOfferService.updateLeadOfferTasks(savedTask.getLeadOffer(), currentTaskId, offerNextTaskId);
+                    updateLeadOfferTasks(savedTask.getLeadOffer(), currentTaskId, offerNextTaskId);
                 }
             }
             catch (IllegalAccessException | InvocationTargetException e) {
@@ -702,12 +702,27 @@ public class LeadTaskService {
             leadTask.setNotes("Contact the client to discuss the requirements");
             leadTask = leadTaskDao.save(leadTask);
 
-            leadOfferService.updateLeadOfferTasks(leadOffer, null, leadTask.getId());
+            updateLeadOfferTasks(leadOffer, null, leadTask.getId());
         }
         else {
             throw new ProAPIException("Lead Task Already Exists");
         }
         return leadTask;
+    }
+
+    /**
+     * utility method for updating lead offer status
+     * 
+     * @param leadOfferId
+     * @param lastTaskId
+     * @param nextTaskId
+     * @return
+     */
+    public LeadOffer updateLeadOfferTasks(LeadOffer leadOffer, Integer lastTaskId, Integer nextTaskId) {
+        leadOffer.setLastTaskId(lastTaskId);
+        leadOffer.setNextTaskId(nextTaskId);
+        leadOffer = leadOfferDao.save(leadOffer);
+        return leadOffer;
     }
 
     /**
@@ -761,6 +776,22 @@ public class LeadTaskService {
             }
         }
         return leadTasks;
+    }
+
+    /**
+     * utility method for updating lead offer status
+     * 
+     * @param leadOfferId
+     * @param statusId
+     * @return
+     */
+    public LeadOffer updateLeadOfferStatus(int leadOfferId, int statusId) {
+        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
+        if (leadOffer.getMasterLeadOfferStatus().getLevel() < leadOfferStatusDao.findOne(statusId).getLevel()) {
+            leadOffer.setStatusId(statusId);
+            leadOffer = leadOfferDao.save(leadOffer);
+        }
+        return leadOffer;
     }
 
     public Map<Integer, LeadTask> getTaskById(List<Integer> leadTaskIds) {
@@ -849,20 +880,5 @@ public class LeadTaskService {
 
     public List<LeadTask> getLeadTaskIdsByLeadOfferId(int leadOfferId) {
         return leadTaskDao.findByLeadOfferId(leadOfferId);
-    }
-
-    /**
-     * method to get list of lead tasks from list of task ids... task objects
-     * will contain nested objects lead offer and lead
-     * 
-     * @param taskIds
-     * @return List LeadTask
-     */
-    public List<LeadTask> getLeadTaskByIdsWithLeadAndMasterTask(List<Integer> taskIds) {
-        List<LeadTask> tasks = new ArrayList<>();
-        if (tasks != null) {
-            tasks = leadTaskDao.findByIdInWithLeadAndMasterLeadTask(taskIds);
-        }
-        return tasks;
     }
 }

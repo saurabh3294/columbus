@@ -878,37 +878,6 @@ public class LeadOfferService {
         }
     }
 
-    /**
-     * utility method for updating lead offer status
-     * 
-     * @param leadOfferId
-     * @param statusId
-     * @return
-     */
-    public LeadOffer updateLeadOfferStatus(int leadOfferId, int statusId) {
-        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
-        if (leadOffer.getMasterLeadOfferStatus().getLevel() < leadOfferStatusDao.findOne(statusId).getLevel()) {
-            leadOffer.setStatusId(statusId);
-            leadOffer = leadOfferDao.save(leadOffer);
-        }
-        return leadOffer;
-    }
-
-    /**
-     * utility method for updating lead offer status
-     * 
-     * @param leadOfferId
-     * @param lastTaskId
-     * @param nextTaskId
-     * @return
-     */
-    public LeadOffer updateLeadOfferTasks(LeadOffer leadOffer, Integer lastTaskId, Integer nextTaskId) {
-        leadOffer.setLastTaskId(lastTaskId);
-        leadOffer.setNextTaskId(nextTaskId);
-        leadOffer = leadOfferDao.save(leadOffer);
-        return leadOffer;
-    }
-
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
         return getUnsortedMatchingListings(leadOfferId, null, userId);
     }
