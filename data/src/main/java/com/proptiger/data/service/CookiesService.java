@@ -1,5 +1,6 @@
 package com.proptiger.data.service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -111,9 +112,18 @@ public class CookiesService {
 
         // else just add the request cookies to cookies map
         else {
-
             for (Cookie cookie : requestCookies) {
-                cookiesMap.put(cookie.getName(), cookie.getValue());
+
+                // Decoding cookie value as HttpServletRequest is reading cookie
+                // as encoded
+                try {
+                    cookiesMap.put(
+                            cookie.getName(),
+                            java.net.URLDecoder.decode(cookie.getValue(), CookieConstants.UTF_8));
+                }
+                catch (UnsupportedEncodingException exception) {
+                    cookiesMap.put(cookie.getName(), cookie.getValue());
+                }
             }
         }
 
@@ -294,6 +304,16 @@ public class CookiesService {
         landingPageCookie.setMaxAge(cookieExpiryPeriod);
         landingPageCookie.setPath("/");
         response.addCookie(landingPageCookie);
-        cookiesMap.put(cookieName, cookieValue);
+        String cookie = null;
+
+        // Decoding cookie value as HttpServletRequest is reading cookie as
+        // encoded
+        try {
+            cookie = java.net.URLDecoder.decode(cookieValue, CookieConstants.UTF_8);
+        }
+        catch (UnsupportedEncodingException exception) {
+            cookiesMap.put(cookieName, cookieValue);
+        }
+        cookiesMap.put(cookieName, cookie);
     }
 }
