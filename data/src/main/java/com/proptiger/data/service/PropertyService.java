@@ -33,12 +33,14 @@ import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.Listing.OtherInfo;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.external.GooglePlace;
 import com.proptiger.core.model.filter.AbstractQueryBuilder;
 import com.proptiger.core.model.filter.FieldsMapLoader;
 import com.proptiger.core.model.filter.JPAQueryBuilder;
@@ -82,7 +84,7 @@ public class PropertyService {
     @Autowired
     private ApplicationContext     applicationContext;
 
-    private static int             ROWS_THRESHOLD              = 200;
+    private static int             ROWS_THRESHOLD                      = 200;
 
     public static String           cdnImageUrl;
 
@@ -92,9 +94,16 @@ public class PropertyService {
     @Autowired
     private ConfigService          configService;
 
-    private final String           DYNAMIC_RELEVANCE_SORT_ORDER   = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
+    private final String           DYNAMIC_RELEVANCE_SORT_ORDER        = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
 
-    private final String           MAX_PRIMARY_WEIGHT_CONFIG = "maxPrimaryIndexWeight";
+    private final String           MAX_PRIMARY_WEIGHT_CONFIG           = "maxPrimaryIndexWeight";
+
+    @Autowired
+    private GooglePlacesAPIService googlePlacesAPIService;
+
+    private Gson                   gson                                = new Gson();
+
+    private static double          GOOGLE_PLACE_QUERY_DEFAULT_GEO_DIST = 3.0d;
 
     @Value("${enable.dynamic.relevance}")
     private boolean                enableDynamicRelevance;
@@ -132,6 +141,29 @@ public class PropertyService {
         List<Property> properties = propertyDao.getProperties(propertyFilter);
 
         return properties;
+    }
+
+    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(
+            Selector propertyListingSelector,
+            String googlePlaceId) {
+
+        /*
+         * If google-place-id (gpid) is given, add a geo filter after fetching
+         * place information.
+         */
+        if (googlePlaceId != null && !googlePlaceId.isEmpty()) {
+            GooglePlace gp = googlePlacesAPIService.getPlaceDetails(googlePlaceId);
+            if (gp == null) {
+                throw new ProAPIException("Could not retrieve place information for google-place-id : " + googlePlaceId);
+            }
+            addGeoFilterToSelector(
+                    propertyListingSelector,
+                    gp.getLatitude(),
+                    gp.getLongitude(),
+                    PropertyService.GOOGLE_PLACE_QUERY_DEFAULT_GEO_DIST);
+        }
+
+        return getPropertiesGroupedToProjects(propertyListingSelector);
     }
 
     /**
@@ -198,6 +230,22 @@ public class PropertyService {
             selector.setSort(sortBy);
         }
         return selector;
+    }
+
+    private void addGeoFilterToSelector(Selector selector, double latitude, double longitude, double distance) {
+
+        /* making a temp selector with just geo-filter */
+        String GeoFilterTemplate = "{\"filters\":{\"and\":[{\"geoDistance\":{\"geo\":{\"distance\":%s,\"lat\":%s,\"lon\":%s}}}]}}";
+        String geoFilter = String.format(
+                GeoFilterTemplate,
+                String.valueOf(distance),
+                String.valueOf(latitude),
+                String.valueOf(longitude));
+        Selector newSelector = gson.fromJson(geoFilter, Selector.class);
+
+        /* extracting geo-filter and adding it to old selector */
+        List<Map<String, Map<String, Object>>> filterList = selector.getFilters().get(Operator.and.name());
+        filterList.addAll(newSelector.getFilters().get(Operator.and.name()));
     }
 
     /**
