@@ -862,9 +862,6 @@ public class PortfolioService {
         User user = null;
         if (portfolioListing.getUserId() != null) {
             user = userServiceHelper.getUserById_CallerNonLogin(portfolioListing.getUserId());
-            if (user == null) {
-                throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
-            }
         }
         return sellYourProperty(portfolioListing, user);
     } 
@@ -872,15 +869,15 @@ public class PortfolioService {
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing, ActiveUser activeUser) {
         User user = null;
         if (portfolioListing.getUserId() != null) {
-            user = userServiceHelper.getActiveUser();
-            if (user == null) {
-                throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
-            }
+            user = userServiceHelper.getLoggedInUserObj();
         }
         return sellYourProperty(portfolioListing, user);
     } 
     
     private PortfolioListing sellYourProperty(PortfolioListing portfolioListing, User user) {
+        if (user == null) {
+            throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
+        }
         if (portfolioListing.getTypeId() != null) {
             Property property = propertyService.getProperty(portfolioListing.getTypeId());
             if (property == null) {

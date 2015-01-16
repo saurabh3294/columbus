@@ -1054,7 +1054,7 @@ public class LeadOfferService {
             throw new BadRequestException("Invalid mail details");
         }
 
-        String username = userServiceHelper.getActiveUser().getFullName();
+        String username = userServiceHelper.getLoggedInUserObj().getFullName();
 
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
                 senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername())

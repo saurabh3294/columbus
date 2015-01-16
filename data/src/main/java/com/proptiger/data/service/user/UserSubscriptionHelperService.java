@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -32,24 +33,27 @@ import com.proptiger.data.service.trend.TrendService;
 
 /**
  * User subscription helper service to get data from userservice
+ * 
  * @author Rajeev Pandey
  *
  */
 @Service
 public class UserSubscriptionHelperService {
 
+    @Value("${userservice.module.name}")
+    private String          userServiceModuleName;
+
     private final String    URL_USERDETAILS_SUBSCRIPTION_PERMISSION = "/data/v1/entity/user/subscription/permission";
-    private final String    URL_USERDETAILS_SUBSCRIPTION_MAPPING = "/data/v1/entity/user/subscription/mapping";
+    private final String    URL_USERDETAILS_SUBSCRIPTION_MAPPING    = "/data/v1/entity/user/subscription/mapping";
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
-    
+
     @Autowired
     private LocalityService localityService;
-    
+
     @Autowired
-    private TrendService trendService;
-    
+    private TrendService    trendService;
 
     public String getUserAppSubscriptionFilters(int userId) {
 
@@ -78,41 +82,44 @@ public class UserSubscriptionHelperService {
 
     public List<SubscriptionPermission> getUserAppSubscriptionDetails(int userId) {
         HttpHeaders header = createJsessionIdHeader();
-        if(header == null){
+        if (header == null) {
             return new ArrayList<SubscriptionPermission>();
         }
-        String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + URL_USERDETAILS_SUBSCRIPTION_PERMISSION;
+        String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
+                .append(getRelativeUrl(URL_USERDETAILS_SUBSCRIPTION_PERMISSION)).toString();
         List<SubscriptionPermission> subscriptionPermissions = httpRequestUtil.getInternalApiResultAsTypeList(
                 URI.create(stringUrl),
                 header,
                 SubscriptionPermission.class);
-        
+
         return subscriptionPermissions;
     }
-    
+
     private HttpHeaders createJsessionIdHeader() {
         HttpHeaders requestHeaders = null;
         String jsessionId = RequestHolderUtil.getJsessionIdFromRequestCookie();
-        if(jsessionId != null && !jsessionId.isEmpty()){
+        if (jsessionId != null && !jsessionId.isEmpty()) {
             requestHeaders = new HttpHeaders();
             requestHeaders.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
         }
         return requestHeaders;
     }
-    
-    public List<UserSubscriptionMapping> getUserSubscriptionMapping(int userId){
+
+    public List<UserSubscriptionMapping> getUserSubscriptionMapping(int userId) {
         HttpHeaders header = createJsessionIdHeader();
-        if(header == null){
+        if (header == null) {
             return new ArrayList<UserSubscriptionMapping>();
         }
-        String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + URL_USERDETAILS_SUBSCRIPTION_MAPPING;
+        String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
+                .append(getRelativeUrl(URL_USERDETAILS_SUBSCRIPTION_MAPPING)).toString();
         List<UserSubscriptionMapping> subscriptionPermissions = httpRequestUtil.getInternalApiResultAsTypeList(
                 URI.create(stringUrl),
                 header,
                 UserSubscriptionMapping.class);
-        
+
         return subscriptionPermissions;
     }
+
     /*
      * Returns a MultiKeyMap with 2 keys. [K1 = ObjectTypeId, K2 = ObjectId],
      * [Value = Permission Object]
@@ -128,8 +135,9 @@ public class UserSubscriptionHelperService {
         }
         ActiveUser activeUser = SecurityContextUtils.getActiveUser();
         if (activeUser != null) {
-            List<SubscriptionPermission> subscriptionPermissions =  getUserAppSubscriptionDetails(activeUser.getUserIdentifier());
-            
+            List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(activeUser
+                    .getUserIdentifier());
+
             MultiKeyMap userSubscriptionMap = new MultiKeyMap();
             Permission permission;
             int objectTypeId, objectId;
@@ -151,8 +159,8 @@ public class UserSubscriptionHelperService {
             }
 
             /*
-             * populating psuedo permissions for city if any locality in that city
-             * is permitted
+             * populating psuedo permissions for city if any locality in that
+             * city is permitted
              */
             Set<Integer> cityIdList = getCityIdListFromLocalityIdList(localityIDList);
             for (int cityId : cityIdList) {
@@ -169,7 +177,7 @@ public class UserSubscriptionHelperService {
             return null;
         }
     }
-    
+
     private List<Integer> getSubscribedBuilderList(int userId) {
         FIQLSelector selector = new FIQLSelector().addAndConditionToFilter(getUserAppSubscriptionFilters(userId));
         List<Integer> builderList = new ArrayList<>();
@@ -189,8 +197,8 @@ public class UserSubscriptionHelperService {
     private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList) {
         Set<Integer> cityIdList = new HashSet<Integer>();
         FIQLSelector fiqlSelector = new FIQLSelector();
-        for(Integer id: localityIDList){
-            fiqlSelector.addOrConditionToFilter("localityId=="+id);
+        for (Integer id : localityIDList) {
+            fiqlSelector.addOrConditionToFilter("localityId==" + id);
         }
         fiqlSelector.setStart(0).setRows(9999);
         List<Locality> localiltyList = localityService.getLocalities(fiqlSelector).getResults();
@@ -198,5 +206,9 @@ public class UserSubscriptionHelperService {
             cityIdList.add(locality.getSuburb().getCityId());
         }
         return cityIdList;
+    }
+    
+    private String getRelativeUrl(String url){
+        return new StringBuilder(userServiceModuleName).append(url).toString();
     }
 }

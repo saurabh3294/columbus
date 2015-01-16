@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,10 @@ import com.proptiger.core.util.RequestHolderUtil;
  */
 @Service
 public class UserServiceHelper {
-
+    
+    @Value("${userservice.module.name}")
+    private String userServiceModuleName;
+    
     private static final String URL_GET_ACTIVE_USER_DETAILS    = "/app/v1/user/details";
     private static final String URL_DATA_V1_ENTITY_USER        = "/data/v1/entity/user";
     private static final String URL_GET_USERS_BY_USER_IDS      = "/data/v1/entity/user?userId=";
@@ -61,7 +65,7 @@ public class UserServiceHelper {
     public CustomUser getActiveUserCustomDetails() {
         HttpHeaders header = createJsessionIdHeader();
         String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(URL_GET_ACTIVE_USER_DETAILS).toString();
+                .append(getRelativeUrl(URL_GET_ACTIVE_USER_DETAILS)).toString();
         CustomUser customUser = httpRequestUtil.getInternalApiResultAsType(
                 URI.create(stringUrl),
                 header,
@@ -69,10 +73,10 @@ public class UserServiceHelper {
         return customUser;
     }
 
-    public User getActiveUser() {
+    public User getLoggedInUserObj() {
         HttpHeaders header = createJsessionIdHeader();
         String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(URL_DATA_V1_ENTITY_USER).toString();
+                .append(getRelativeUrl(URL_DATA_V1_ENTITY_USER)).toString();
         User user = httpRequestUtil.getInternalApiResultAsType(URI.create(stringUrl), header, User.class);
         return user;
     }
@@ -89,7 +93,7 @@ public class UserServiceHelper {
             return new ArrayList<User>();
         }
         HttpHeaders header = createJsessionIdHeader();
-        List<User> users = getUsersByIds(userIds, URL_GET_USERS_BY_USER_IDS, header);
+        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_GET_USERS_BY_USER_IDS), header);
         return users;
     }
 
@@ -97,42 +101,42 @@ public class UserServiceHelper {
         if (userIds != null && !userIds.isEmpty()) {
             return new HashMap<Integer, User>();
         }
-        List<User> users = getUsersByIds(userIds, URL_GET_USER_LIST_WITH_DETAILS, null);
+        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_GET_USER_LIST_WITH_DETAILS), null);
         return userListToMap(users);
     }
 
     public User getUserWithCompleteDetailsByUserIds_CallerNonLogin(Integer userId) {
-        List<User> users = getUsersByIds(Arrays.asList(userId), URL_GET_USER_LIST_WITH_DETAILS, null);
+        List<User> users = getUsersByIds(Arrays.asList(userId), getRelativeUrl(URL_GET_USER_LIST_WITH_DETAILS), null);
         if (users == null || users.isEmpty()) {
             throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
         return users.get(0);
     }
 
-    private List<User> getUsersByIds(Collection<Integer> userIds, String userGetUrl, HttpHeaders header) {
-        StringBuilder stringUrl = new StringBuilder(
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)).append(userGetUrl);
+    private List<User> getUsersByIds(Collection<Integer> userIds, String completeURI, HttpHeaders header) {
+        StringBuilder completeURL = new StringBuilder(
+                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)).append(completeURI);
         boolean first = true;
         for (Integer id : userIds) {
             if (!first) {
-                stringUrl.append(",");
+                completeURL.append(",");
                 first = false;
             }
-            stringUrl.append(id);
+            completeURL.append(id);
         }
         List<User> users = new ArrayList<User>();
         if (header != null) {
             users = httpRequestUtil
-                    .getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), header, User.class);
+                    .getInternalApiResultAsTypeList(URI.create(completeURL.toString()), header, User.class);
         }
         else {
-            users = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), User.class);
+            users = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(completeURL.toString()), User.class);
         }
         return users;
     }
 
     public User getUserById_CallerNonLogin(Integer userId) {
-        List<User> list = getUsersByIds(Arrays.asList(userId), URL_GET_USERS_BY_USER_IDS, null);
+        List<User> list = getUsersByIds(Arrays.asList(userId), getRelativeUrl(URL_GET_USERS_BY_USER_IDS), null);
         if (list == null || list.isEmpty()) {
             throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
@@ -140,7 +144,7 @@ public class UserServiceHelper {
     }
 
     public Map<Integer, User> getUsersMapByUserIds_CallerNonLogin(Collection<Integer> userIds) {
-        List<User> users = getUsersByIds(userIds, URL_GET_USERS_BY_USER_IDS, null);
+        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_GET_USERS_BY_USER_IDS), null);
         return userListToMap(users);
     }
 
@@ -158,7 +162,7 @@ public class UserServiceHelper {
         }
         StringBuilder stringUrl = new StringBuilder(
                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)).append(
-                URL_GET_USER_DETAILS_BY_EMAIL).append(email);
+                        getRelativeUrl(URL_GET_USER_DETAILS_BY_EMAIL)).append(email);
 
         List<User> users = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), User.class);
         if (users == null || users.isEmpty()) {
@@ -184,11 +188,15 @@ public class UserServiceHelper {
         User user;
         StringBuilder stringUrl = new StringBuilder(
                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(URL_DATA_V1_ENTITY_USER);
+                .append(getRelativeUrl(URL_DATA_V1_ENTITY_USER));
         user = httpRequestUtil.postAndReturnInternalJsonRequest(
                 URI.create(stringUrl.toString()),
                 userToFind,
                 User.class);
         return user;
+    }
+    
+    private String getRelativeUrl(String url){
+        return new StringBuilder(userServiceModuleName).append(url).toString();
     }
 }
