@@ -13,8 +13,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
-import com.proptiger.data.notification.enums.MediumType;
+import com.proptiger.core.enums.notification.MediumType;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
 import com.proptiger.data.notification.model.MediumTypeConfig;
 import com.proptiger.data.util.Serializer;
 

@@ -148,6 +148,7 @@ public class ImageService extends MediaService {
 			if (quality != null) {
 				processedImage = resizeAndQualityChange(waterMark, null, quality.getQuality(), format, true);
 				amazonS3Util.uploadFile(image.getPath() + image.getId() + HYPHON + Image.OPTIMAL_SUFFIX + Image.DOT + format, processedImage);
+				deleteFileFromDisc(processedImage);
 			}
 		}
 		catch (Exception e) {
@@ -459,6 +460,9 @@ public class ImageService extends MediaService {
 
     @Cacheable(value = Constants.CacheName.CACHE, key = "#objectType.getText()+#objectIds")
     public List<Image> getLandMarkImages(DomainObject objectType, List<Long> objectIds) {
+        if (objectIds == null || objectIds.isEmpty()) {
+            return new ArrayList<Image>();
+        }
         return imageDao.getLandMarkImages(objectType.getText(), objectIds);
     }
 

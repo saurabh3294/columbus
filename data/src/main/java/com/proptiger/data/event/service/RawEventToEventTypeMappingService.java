@@ -147,12 +147,17 @@ public class RawEventToEventTypeMappingService {
                 if (eventTypeMapping.getAttributeName() != null) {
 
                     attributeConfig = new RawDBEventAttributeConfig(eventTypeMapping.getAttributeName(), eventTypeList);
-
+                    if(operationConfig.getRawDBEventAttributeConfigs() == null ){
+                        operationConfig.setRawDBEventAttributeConfigs(new ArrayList<RawDBEventAttributeConfig>());
+                    }
                     operationConfig.getRawDBEventAttributeConfigs().add(attributeConfig);
                     dbAttributeMap.put(attributeKey, attributeConfig);
 
                 }
                 else {
+                    if (operationConfig.getListEventTypes() == null) {
+                        operationConfig.setListEventTypes(new ArrayList<EventType>());
+                    }
                     operationConfig.getListEventTypes().add(eventTypeMapping.getEventType());
                 }
                 dbEventTypemap.put(eventTypeKey, eventTypeMapping.getEventType());

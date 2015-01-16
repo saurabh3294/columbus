@@ -430,7 +430,7 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "CITY_PROPERTY_COUNT")
     private Integer           cityPropertyCount;
-    
+
     @Field(value = "CITY_IS_SERVING")
     private boolean           isServing;
 
@@ -454,13 +454,31 @@ public class SolrResult extends BaseModel {
 
     @Field("AMENITIES_URLS")
     private String            amenitiesUrls;
-    
+
     @Field(value = "NEWS_TAG")
     private String            newsTag;
 
     @Field(value = "ENCODED_POLYGON")
     private String            encodedPolygon;
-    
+
+    @Field(value = "CARPET_AREA")
+    private Double            carpetArea;
+
+    @Field(value = "CITY_TAXONOMY_URL")
+    private String            cityTaxonomyUrls;
+
+    @Field(value = "SUBURB_TAXONOMY_URL")
+    private String            suburbTaxonomyUrls;
+
+    @Field(value = "LOCALITY_TAXONOMY_URL")
+    private String            localityTaxonomyUrls;
+
+    @Field(value = "PROJECT_SUPPLY")
+    private Integer           supply;
+
+    @Field(value = "AVAILABILITY")
+    private Integer           derivedAvailability;
+
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -692,7 +710,7 @@ public class SolrResult extends BaseModel {
     public void setIsServing(boolean isServing) {
         city.setIsServing(isServing);
     }
-    
+
     @Field("NORTH_EAST_LATITUDE")
     public void setNorthEastLatitude(Double northEastLatitude) {
         city.setNorthEastLatitude(northEastLatitude);
@@ -1432,9 +1450,29 @@ public class SolrResult extends BaseModel {
         project.setNewsTag(newsTag);
         locality.setNewsTag(newsTag);
     }
-    
+
     @Field("ENCODED_POLYGON")
     public void setEncodedPolygon(String encodedPolygon) {
         locality.setEncodedPolygon(encodedPolygon);
+    }
+
+    @Field(value = "CARPET_AREA")
+    public void setCarpetArea(Double carpetArea) {
+        property.setCarpetArea(carpetArea);
+    }
+
+    @Field(value = "CITY_TAXONOMY_URL")
+    public void setCityTaxonomyUrls(String cityTaxonomyUrls) {
+        city.setCityTaxonomyUrls(new Gson().fromJson(cityTaxonomyUrls, Map.class));
+    }
+
+    @Field(value = "SUBURB_TAXONOMY_URL")
+    public void setSuburbTaxonomyUrls(String suburbTaxonomyUrls) {
+        suburb.setSuburbTaxonomyUrls(new Gson().fromJson(suburbTaxonomyUrls, Map.class));
+    }
+
+    @Field(value = "LOCALITY_TAXONOMY_URL")
+    public void setLocalityTaxonomyUrls(String localityTaxonomyUrls) {
+        locality.setLocalityTaxonomyUrls(new Gson().fromJson(localityTaxonomyUrls, Map.class));
     }
 }

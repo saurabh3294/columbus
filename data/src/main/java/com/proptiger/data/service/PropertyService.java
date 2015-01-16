@@ -6,6 +6,7 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,7 @@ import javax.persistence.EntityManagerFactory;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import com.proptiger.core.enums.EntityType;
 import com.proptiger.core.enums.ProjectTypeToOptionTypeMapping;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.BadRequestException;
@@ -43,8 +46,11 @@ import com.proptiger.core.model.filter.JPAQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.SortBy;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.repo.SolrDao;
+import com.proptiger.core.service.ConfigService;
+import com.proptiger.core.service.ConfigService.ConfigGroupName;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.model.SolrResult;
@@ -77,12 +83,22 @@ public class PropertyService {
     @Autowired
     private ApplicationContext     applicationContext;
 
-    private static int             ROWS_THRESHOLD = 200;
+    private static int             ROWS_THRESHOLD              = 200;
 
     public static String           cdnImageUrl;
 
     @Autowired
     private PropertyReader         reader;
+
+    @Autowired
+    private ConfigService          configService;
+
+    private final String           DYNAMIC_RELEVANCE_SORT_ORDER   = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
+
+    private final String           MAX_PRIMARY_WEIGHT_CONFIG = "maxPrimaryIndexWeight";
+
+    @Value("${enable.dynamic.relevance}")
+    private boolean                enableDynamicRelevance;
 
     @PostConstruct
     private void init() {
@@ -131,6 +147,8 @@ public class PropertyService {
     public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         PaginatedResponse<List<Project>> projects = null;
 
+        enableDynamicRelevance(propertyListingSelector);
+
         if (propertyListingSelector != null && propertyListingSelector.getPaging() != null
                 && propertyListingSelector.getPaging().getRows() > ROWS_THRESHOLD) {
             projects = new PaginatedResponse<>();
@@ -159,6 +177,28 @@ public class PropertyService {
         }
 
         return projects;
+    }
+
+    private Selector enableDynamicRelevance(Selector selector) {
+        if (enableDynamicRelevance && selector.getSort() == null) {
+            double primaryFactor = 0;
+            double maxPrimaryWeight = configService.getConfigValueAsDouble(
+                    ConfigGroupName.Relevance,
+                    MAX_PRIMARY_WEIGHT_CONFIG);
+            Double unsoldInventory = getUnsoldInventoryPercentageForSelector(selector);
+            if (unsoldInventory != null) {
+                primaryFactor = unsoldInventory * maxPrimaryWeight / 100;
+            }
+
+            LinkedHashSet<SortBy> sortBy = new LinkedHashSet<>();
+            SortBy sort = new SortBy();
+            sort.setField(String.format(DYNAMIC_RELEVANCE_SORT_ORDER, primaryFactor, 1 - primaryFactor));
+            sort.setSortOrder(SortOrder.DESC);
+            sortBy.add(sort);
+
+            selector.setSort(sortBy);
+        }
+        return selector;
     }
 
     /**
@@ -319,6 +359,28 @@ public class PropertyService {
         }
 
         return resultMap;
+    }
+
+    private Double getUnsoldInventoryPercentageForSelector(Selector selector) {
+        Double unsoldInventory = null;
+
+        List<String> fields = new ArrayList<>();
+        fields.add(Project.SUPPLY_FIELD_NAME);
+        fields.add(Project.DEVIVED_AVAILABILITY_FIELD_NAME);
+        Map<String, FieldStatsInfo> stats = getStats(fields, selector);
+
+        Double totalSupply = null;
+        Double inventory = null;
+        if (stats.get(Project.SUPPLY_FIELD_NAME) != null) {
+            totalSupply = (Double) stats.get(Project.SUPPLY_FIELD_NAME).getSum();
+        }
+        if (stats.get(Project.DEVIVED_AVAILABILITY_FIELD_NAME) != null) {
+            inventory = (Double) stats.get(Project.DEVIVED_AVAILABILITY_FIELD_NAME).getSum();
+        }
+        if (totalSupply != null && !totalSupply.equals(0) && inventory != null && !inventory.equals(0)) {
+            unsoldInventory = inventory * 100 / totalSupply;
+        }
+        return unsoldInventory;
     }
 
     public Property getProperty(int propertyId) {
@@ -530,6 +592,33 @@ public class PropertyService {
             return null;
 
         return properties.getResults().get(0);
+    }
+
+    /**
+     * Get Active Properties from DB. ********* NO CACHING *********
+     * 
+     * @param propertyId
+     * @return
+     */
+    public List<Property> getActivePropertiesByProjectIdFromDB(int projectId) {
+        FIQLSelector fiqlSelector = new FIQLSelector();
+        fiqlSelector.addAndConditionToFilter("optionCategory==" + EntityType.Actual
+                + ";(unitType=="
+                + UnitType.Apartment
+                + ",unitType=="
+                + UnitType.Villa
+                + ",unitType=="
+                + UnitType.Plot
+                + ")"
+                + ";projectId=="
+                + projectId);
+        PaginatedResponse<List<Property>> properties = getPropertiesFromDB(fiqlSelector);
+
+        if (properties == null || properties.getResults() == null || properties.getResults().isEmpty()) {
+            return null;
+        }
+
+        return properties.getResults();
     }
 
     public Integer getProjectIdFromDeletedPropertyId(Integer propertyId) {

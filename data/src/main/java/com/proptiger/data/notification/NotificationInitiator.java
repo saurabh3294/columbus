@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.core.config.scheduling.QuartzScheduledClass;
 import com.proptiger.core.config.scheduling.QuartzScheduledJob;
-import com.proptiger.data.notification.enums.MediumType;
+import com.proptiger.core.enums.notification.MediumType;
 import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.generator.NotificationMessageGenerator;
 import com.proptiger.data.notification.generator.NotificationTypeGenerator;
@@ -91,6 +91,13 @@ public class NotificationInitiator {
             initialDelayString = "${scheduler.initialdelay.notification.notificationGenerator}")
     public void notificationGenerator() {
         Thread.currentThread().setName("Notification Generator");
+        
+        logger.debug("NotificationInitiator started generating notificationGenerated.");
+        if (!notificationGenerator.isNotificationGeneratedGenerationRequired()) {
+            logger.info("NotificationGeneratedGenerator: Skipping NotificationGenerated Generation.");
+            return;
+        }
+
         logger.info("NotificationGenerator : Initiating Notification Generation.");
         Integer numberOfNotifications = notificationGenerator.generateNotifications();
         logger.info(" Number of Notification Generated are : " + numberOfNotifications);

@@ -40,11 +40,11 @@
 					  
 					  Yours sincerely, <br /><br />
                       The PropTiger Family<br />
-                      <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                      <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="https://www.proptiger.com">https://www.proptiger.com</a><br />
                       <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:${CUSTOMER_SERVICE_MAIL_ID}">${CUSTOMER_SERVICE_MAIL_ID}</a><br />
                       <strong>Call:</strong> ${HELP_DESK_MOBILE_NO} (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
                       <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
-                      notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:${CUSTOMER_SERVICE_MAIL_ID}">${CUSTOMER_SERVICE_MAIL_ID}</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+                      notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:${CUSTOMER_SERVICE_MAIL_ID}">${CUSTOMER_SERVICE_MAIL_ID}</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="https://www.proptiger.com/contactus">https://www.proptiger.com/contactus</a></span>
                    </td>
                    <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
                 </tr>

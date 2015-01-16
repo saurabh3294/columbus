@@ -6,9 +6,9 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
 import com.proptiger.core.model.BaseModel;
 import com.proptiger.core.model.user.User;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.SubscriptionType;
 
 public class NotificationSubscriptionRequest extends BaseModel {

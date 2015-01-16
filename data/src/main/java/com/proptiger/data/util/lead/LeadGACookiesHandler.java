@@ -43,8 +43,11 @@ public class LeadGACookiesHandler {
         if (randomId != null) {
             enquiry.setGaUserId(randomId);
         }
-        if (campaignSource != null) {
-            enquiry.setGaSource(campaignSource);
+        if (campaignSource != null && !campaignSource.isEmpty()) {
+            enquiry.setGaSource(campaignSource.replace("+", " "));
+        }
+        else{
+            enquiry.setGaSource(CookieConstants.SOURCE);
         }
         if (campaignTerm != null) {
             enquiry.setGaKeywords(campaignTerm);
@@ -52,13 +55,11 @@ public class LeadGACookiesHandler {
         if (campaignName != null) {
             enquiry.setGaCampaign(campaignName);
         }
-
         if (cookiesMap.get(CookieConstants.USER_NETWORK) != null) {
             enquiry.setGaNetwork(cookiesMap.get(CookieConstants.USER_NETWORK).trim());
         }
 
-        if (enquiry.getGaMedium() != null && (enquiry.getGaMedium().trim().equals(CookieConstants.PPC) || enquiry
-                .getGaMedium().trim().equals(CookieConstants.CPC))) {
+        if (CookieConstants.PPC_TRUE.equalsIgnoreCase(cookiesMap.get(CookieConstants.USER_FROM_PPC))) {
             enquiry.setPpc(true);
             enquiry.setGaPpc(gaPpcActiveDBEnum);
         }
