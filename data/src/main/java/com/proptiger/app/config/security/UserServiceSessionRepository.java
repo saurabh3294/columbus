@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -27,16 +29,18 @@ import com.proptiger.core.util.PropertyReader;
  */
 public class UserServiceSessionRepository implements SessionRepository<MapSession> {
 
-    private static Logger                    logger = LoggerFactory.getLogger(UserServiceSessionRepository.class);
+    private static Logger               logger                     = LoggerFactory
+                                                                           .getLogger(UserServiceSessionRepository.class);
     @Autowired
-    private HttpRequestUtil     httpRequestUtil;
+    private HttpRequestUtil             httpRequestUtil;
 
-    private static final String URL_DATA_V1_ENTITY_SESSION = "/userservice/data/v1/entity/session";
+    private AuthenticationTrustResolver trustResolver              = new AuthenticationTrustResolverImpl();
+
+    private static final String         URL_DATA_V1_ENTITY_SESSION = "/userservice/data/v1/entity/session";
 
     @Override
     public MapSession createSession() {
-        // do nothing
-        return null;
+        return new MapSession();
     }
 
     @Override
@@ -46,6 +50,9 @@ public class UserServiceSessionRepository implements SessionRepository<MapSessio
 
     @Override
     public MapSession getSession(String jsessionId) {
+        // Authentication authentication =
+        // SecurityContextUtils.getAuthentication();
+
         HttpHeaders header = new HttpHeaders();
         header.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
         String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
@@ -61,7 +68,7 @@ public class UserServiceSessionRepository implements SessionRepository<MapSessio
             }
         }
         catch (Exception e) {
-            logger.error("Error while getting session info from user service for {}",jsessionId);
+            logger.error("Error while getting session info from user service for {}", jsessionId);
         }
         return null;
     }
@@ -87,7 +94,7 @@ public class UserServiceSessionRepository implements SessionRepository<MapSessio
 
     @Override
     public void delete(String id) {
-        //do nothing
+        // do nothing
     }
 
 }
