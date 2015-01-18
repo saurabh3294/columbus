@@ -76,16 +76,13 @@ public class NotificationService {
     private MarketplaceNotificationTypeDao    notificationTypeDao;
 
     @Autowired
-    private LeadTaskDao                       taskDao;
+    private LeadTaskDao                       leadTaskDao;
 
     @Autowired
     private LeadOfferDao                      leadOfferDao;
 
     @Autowired
     private LeadDao                           leadDao;
-
-    @Autowired
-    private LeadTaskService                   taskService;
 
     @Autowired
     NotificationCreatorService                notificationCreatorService;
@@ -189,8 +186,7 @@ public class NotificationService {
      */
     private void updateDetailInTaskNotification(List<Notification> notifications) {
         List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
-        Map<Integer, LeadTask> tasks = getIndexedLeadTasksByIds(populateUserDetailsInLeadTasks(taskService
-                .getLeadTaskByIdsWithLeadAndMasterTask(taskIds)));
+        Map<Integer, LeadTask> tasks = getIndexedLeadTasksByIds(populateUserDetailsInLeadTasks(getLeadTaskByIdsWithLeadAndMasterTask(taskIds)));
         for (Notification notification : notifications) {
             LeadTask task = tasks.get(notification.getObjectId());
             TaskNotificationDetail notificationDetail = new TaskNotificationDetail();
@@ -202,6 +198,21 @@ public class NotificationService {
 
             notification.setDetails(SerializationUtils.objectToJson(notificationDetail));
         }
+    }
+
+    /**
+     * method to get list of lead tasks from list of task ids... task objects
+     * will contain nested objects lead offer and lead
+     * 
+     * @param taskIds
+     * @return List LeadTask
+     */
+    public List<LeadTask> getLeadTaskByIdsWithLeadAndMasterTask(List<Integer> taskIds) {
+        List<LeadTask> tasks = new ArrayList<>();
+        if (tasks != null) {
+            tasks = leadTaskDao.findByIdInWithLeadAndMasterLeadTask(taskIds);
+        }
+        return tasks;
     }
 
     /**
@@ -597,7 +608,7 @@ public class NotificationService {
     }
 
     private List<Integer> getLeadOfferIdsFromTaskIds(List<Integer> taskIds) {
-        List<LeadTask> tasks = taskDao
+        List<LeadTask> tasks = leadTaskDao
                 .findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(taskIds);
         List<Integer> leadOfferIds = new ArrayList<>();
         for (LeadTask leadTask : tasks) {
@@ -611,7 +622,7 @@ public class NotificationService {
         for (Notification notification : notifications) {
             taskIds.add(notification.getObjectId());
         }
-        List<LeadTask> tasks = taskDao.findByIdInWithLead(taskIds);
+        List<LeadTask> tasks = leadTaskDao.findByIdInWithLead(taskIds);
         String message = "";
 
         if (tasks.size() == 1) {
@@ -656,7 +667,7 @@ public class NotificationService {
 
     private String getTaskOverDueNotificationMessage(List<Notification> notifications) {
         List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
-        List<LeadTask> tasks = taskDao.findByIdInWithLead(taskIds);
+        List<LeadTask> tasks = leadTaskDao.findByIdInWithLead(taskIds);
 
         String message = "";
         if (tasks.size() == 1) {
@@ -979,7 +990,7 @@ public class NotificationService {
                         new Date(),
                         -1 * PropertyReader
                                 .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_DURATION_DAY_FOR_RM_NOTIFICATION));
-        List<AgentOverDueTaskCount> overDueTaskCountForUsers = taskDao.findOverDueTasksForAgents(
+        List<AgentOverDueTaskCount> overDueTaskCountForUsers = leadTaskDao.findOverDueTasksForAgents(
                 scheduledForBefore,
                 minOverDueTaskForNotification);
         for (AgentOverDueTaskCount overDueTaskCountForUser : overDueTaskCountForUsers) {
