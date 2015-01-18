@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.core.internal.dto.mail.MediumDetails;
-import com.proptiger.core.model.companyuser.ContactNumber;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.data.notification.model.NotificationGenerated;
