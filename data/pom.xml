@@ -22,6 +22,7 @@
 		<spring.social.google.version>1.0.0.M3</spring.social.google.version>
 		<quartz.version>2.2.1</quartz.version>
 		<skipTests>true</skipTests>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<profiles>
 		<profile>
@@ -33,7 +34,7 @@
 		<profile>
 			<id>release</id>
 			<properties>
-				<midl-core.version>2.0.0</midl-core.version>
+				<midl-core.version>2.0.3</midl-core.version>
 			</properties>
 		</profile>
 	</profiles>
@@ -279,10 +280,10 @@
 			<artifactId>aspectjrt</artifactId>
 			<version>${aspectj.version}</version>
 		</dependency>
-      <dependency>
-		    <groupId>com.surftools</groupId>
- 		    <artifactId>BeanstalkClient</artifactId>
-		    <version>1.4.6</version>
+		<dependency>
+			<groupId>com.surftools</groupId>
+			<artifactId>BeanstalkClient</artifactId>
+			<version>1.4.6</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.uadetector</groupId>
@@ -308,8 +309,8 @@
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
 			<version>6.1.1</version>
-<!-- 			<scope>test</scope>
- -->		</dependency>
+			<!-- <scope>test</scope> -->
+		</dependency>
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
@@ -326,6 +327,11 @@
 			<version>2.1.0</version>
 		</dependency>
 		<dependency>
+			<groupId>com.github.fge</groupId>
+			<artifactId>json-patch</artifactId>
+			<version>1.5</version>
+		</dependency>
+		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
 			<version>1.4.0</version>
@@ -334,8 +340,8 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
-<!-- 			<scope>test</scope>
- -->		</dependency>
+			<!-- <scope>test</scope> -->
+		</dependency>
 		<dependency>
 			<groupId>org.mapdb</groupId>
 			<artifactId>mapdb</artifactId>
@@ -363,6 +369,28 @@
 			<artifactId>spring-social-security</artifactId>
 			<version>${spring.social.version}</version>
 		</dependency>
+		<!-- Spring Social Facebook -->
+		<dependency>
+			<groupId>org.springframework.social</groupId>
+			<artifactId>spring-social-facebook-web</artifactId>
+			<version>1.1.1.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.social</groupId>
+			<artifactId>spring-social-facebook</artifactId>
+			<version>${spring.social.facebook.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.social</groupId>
+			<artifactId>spring-social-google</artifactId>
+			<version>${spring.social.google.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.3.3</version>
+		</dependency>
+		<!--Spring social dependency ends -->
 		<dependency>
 			<groupId>com.google.code.maven-play-plugin.net.tanesha.recaptcha4j</groupId>
 			<artifactId>recaptcha4j</artifactId>
@@ -379,48 +407,48 @@
 			<version>1.0.2</version>
 		</dependency>
 		<dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>3.10.1</version>
-        </dependency>
-        <dependency>
-		    <groupId>org.apache.poi</groupId>
-		    <artifactId>poi-ooxml</artifactId>
-		    <version>3.10.1</version>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.10.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.10.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.proptiger</groupId>
 			<artifactId>midl-core</artifactId>
 			<version>${midl-core.version}</version>
 		</dependency>
-		
+
 		<dependency>
-		  <groupId>org.springframework</groupId>
-		  <artifactId>spring-web</artifactId>
-		  <version>${spring.version}</version>
+		  <groupId>org.springframework.session</groupId>
+		  <artifactId>spring-session-data-redis</artifactId>
+		  <version>1.0.0.RC1</version>
+		  <exclusions>
+                <exclusion>
+                	<groupId>org.apache.commons</groupId>
+                	<artifactId>commons-pool2</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
-		    <groupId>org.quartz-scheduler</groupId>
-		    <artifactId>quartz</artifactId>
-		    <version>${quartz.version}</version>
-		    <scope>compile</scope>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.quartz-scheduler</groupId>
-		    <artifactId>quartz-jobs</artifactId>
-		    <version>${quartz.version}</version>
-		    <scope>compile</scope>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>${quartz.version}</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.session</groupId>
-			<artifactId>spring-session-data-redis</artifactId>
-			<version>1.0.0.RC1</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.commons</groupId>
-					<artifactId>commons-pool2</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz-jobs</artifactId>
+			<version>${quartz.version}</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<repositories>
@@ -448,6 +476,14 @@
 		<repository>
 			<id>spring-milestones</id>
 			<url>http://repo.springsource.org/libs-milestone/</url>
+		</repository>
+		<repository>
+			<id>spring-milestones-rc</id>
+			<name>Spring Milestones</name>
+			<url>http://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 </project>

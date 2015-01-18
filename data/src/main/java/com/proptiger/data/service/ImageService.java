@@ -148,6 +148,7 @@ public class ImageService extends MediaService {
 			if (quality != null) {
 				processedImage = resizeAndQualityChange(waterMark, null, quality.getQuality(), format, true);
 				amazonS3Util.uploadFile(image.getPath() + image.getId() + HYPHON + Image.OPTIMAL_SUFFIX + Image.DOT + format, processedImage);
+				deleteFileFromDisc(processedImage);
 			}
 		}
 		catch (Exception e) {

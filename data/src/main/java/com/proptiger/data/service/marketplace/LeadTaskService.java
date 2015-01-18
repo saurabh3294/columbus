@@ -1,4 +1,4 @@
-package com.proptiger.data.service;
+package com.proptiger.data.service.marketplace;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -34,12 +34,12 @@ import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.external.dto.LeadTaskDto;
-import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.MasterLeadOfferStatus;
 import com.proptiger.data.model.MasterLeadTask;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.LeadTaskStatus;
 import com.proptiger.data.model.marketplace.LeadTaskStatusReason;
 import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.model.marketplace.TaskOfferedListingMapping;
@@ -52,10 +52,6 @@ import com.proptiger.data.repo.marketplace.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
-import com.proptiger.data.service.marketplace.LeadOfferService;
-import com.proptiger.data.service.marketplace.ListingService;
-import com.proptiger.data.service.marketplace.MasterLeadOfferStatusService;
-import com.proptiger.data.service.marketplace.NotificationService;
 import com.proptiger.data.util.SerializationUtils;
 
 /**
@@ -556,40 +552,34 @@ public class LeadTaskService {
 
         // offer id should be same
         if (leadTask.getLeadOfferId() != leadTask.getLeadOfferId()) {
-            logger.info("OFFER ID PASSED IS NOT CONSISTENT");
+            logger.debug("OFFER ID PASSED IS NOT CONSISTENT");
             result = false;
         }
         // complete tasks should not be editable
         else if (oldStatus.getMasterLeadTaskStatus().isComplete()) {
-            logger.info("COMPLATE TASK CANT BE EDITED");
+            logger.debug("COMPLATE TASK CANT BE EDITED");
             result = false;
         }
         // task status should not be the one for the new tasks
         else if (newStatus.getMasterLeadTaskStatus().isBeginning()) {
-            logger.info("NOT A VALID STATUS FOR TASK BEING UPDATED");
+            logger.debug("NOT A VALID STATUS FOR TASK BEING UPDATED");
             result = false;
         }
         // validating status reason
         else if (!isValidStatusReason(leadTask)) {
-            logger.info("NOT A VALID STATUS REASON");
+            logger.debug("NOT A VALID STATUS REASON");
             result = false;
         }
         else if (oldStatus.getId() != newStatus.getId()) {
             // task type is not editable
             if (oldStatus.getMasterTaskId() != newStatus.getMasterTaskId()) {
-                logger.info("TASK TYPE CANT BE CHANGED");
-                result = false;
-            }
-            // cases where performed at is mandatory
-            if ((newStatus.getMasterLeadTaskStatus().isComplete() && !newStatus.getMasterLeadTaskStatus().getStatus()
-                    .equals(TaskStatus.Cancelled)) && leadTask.getPerformedAt() == null) {
-                logger.info("COMPLETE TASKS SHOULD HAVE PERFORMED AT");
+                logger.debug("TASK TYPE CANT BE CHANGED");
                 result = false;
             }
             // cases where next task is mandatory
             else if (newStatus.getMasterLeadTaskStatus().isNextTaskRequired()) {
                 if (leadTask.getNextTask() == null) {
-                    logger.info("NEXT TASK IS MENDATORY");
+                    logger.debug("NEXT TASK IS MENDATORY");
                     result = false;
                 }
                 else if (!isValidNextTask(leadTask)) {
@@ -598,7 +588,7 @@ public class LeadTaskService {
             }
             // next task is not required but is provided
             else if (!newStatus.getMasterLeadTaskStatus().isNextTaskRequired() && leadTask.getNextTask() != null) {
-                logger.info("NEXT TASK IS NOT NEEDED");
+                logger.debug("NEXT TASK IS NOT NEEDED");
                 result = false;
             }
         }
@@ -859,5 +849,20 @@ public class LeadTaskService {
 
     public List<LeadTask> getLeadTaskIdsByLeadOfferId(int leadOfferId) {
         return leadTaskDao.findByLeadOfferId(leadOfferId);
+    }
+
+    /**
+     * method to get list of lead tasks from list of task ids... task objects
+     * will contain nested objects lead offer and lead
+     * 
+     * @param taskIds
+     * @return List LeadTask
+     */
+    public List<LeadTask> getLeadTaskByIdsWithLeadAndMasterTask(List<Integer> taskIds) {
+        List<LeadTask> tasks = new ArrayList<>();
+        if (tasks != null) {
+            tasks = leadTaskDao.findByIdInWithLeadAndMasterLeadTask(taskIds);
+        }
+        return tasks;
     }
 }

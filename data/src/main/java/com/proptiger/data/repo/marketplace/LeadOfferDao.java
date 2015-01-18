@@ -45,8 +45,12 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     public List<LeadOffer> getByLeadId(int leadId);
 
     // XXX Hard coding for Banglore for faster retrieval
-    @Query("select LI from LeadOffer LO join LO.matchingListings LI left join fetch LI.projectSupply left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LO.id = ?1 and LI.property.project.locality.suburb.cityId = 2 and LI.status = 'Active' and LIPP.version='Website' and LI.sellerId = ?2 group by LI")
-    public List<Listing> getMatchingListings(int leadOfferId, int userId);
+    @Query("select LI from LeadOffer LO join LO.matchingListings LI left join fetch LI.projectSupply left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LO.id = ?1 and LI.property.project.locality.suburb.cityId = 2 and LI.status = 'Active' and LIPP.version='Website' and LI.sellerId = LO.agentId group by LI")
+    public List<Listing> getMatchingListings(int leadOfferId);
+
+    // XXX Hard coding for Banglore for faster retrieval
+    @Query("select LI from LeadOffer LO join LO.matchingListings LI left join fetch LI.projectSupply left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LO.id = ?1 and LI.property.project.locality.suburb.cityId = 2 and LI.status = 'Active' and LIPP.version='Website' and LI.sellerId = LO.agentId and LIP.projectId in (?2) group by LI")
+    public List<Listing> getMatchingListingsInProject(int leadOfferId, List<Integer> projectIds);
 
     @Query("select distinct(LO) from LeadOffer LO join LO.masterLeadOfferStatus LOM where LO.leadId = ?1 and LOM.claimedFlag = ?2 and LOM.openFlag = ?3")
     public List<LeadOffer> getByLeadIdAndOpenFlagAndClaimedFlag(int leadId, boolean openFlag, boolean claimedFlag);

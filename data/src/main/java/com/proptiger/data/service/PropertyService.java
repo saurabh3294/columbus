@@ -6,6 +6,7 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,10 @@ import javax.persistence.EntityManagerFactory;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -25,25 +29,32 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.EntityType;
+import com.proptiger.core.enums.ProjectTypeToOptionTypeMapping;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.cms.Listing;
 import com.proptiger.core.model.cms.Listing.OtherInfo;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.external.GooglePlace;
 import com.proptiger.core.model.filter.AbstractQueryBuilder;
 import com.proptiger.core.model.filter.FieldsMapLoader;
 import com.proptiger.core.model.filter.JPAQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
+import com.proptiger.core.pojo.SortBy;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.repo.SolrDao;
+import com.proptiger.core.service.ConfigService;
+import com.proptiger.core.service.ConfigService.ConfigGroupName;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.model.SolrResult;
@@ -76,12 +87,31 @@ public class PropertyService {
     @Autowired
     private ApplicationContext     applicationContext;
 
-    private static int             ROWS_THRESHOLD = 200;
+    private static int             ROWS_THRESHOLD                      = 200;
 
     public static String           cdnImageUrl;
 
     @Autowired
     private PropertyReader         reader;
+
+    @Autowired
+    private ConfigService          configService;
+
+    @Autowired
+    private GooglePlacesAPIService googlePlacesAPIService;
+
+    private Gson                   gson                                = new Gson();
+
+    private static double          GOOGLE_PLACE_QUERY_DEFAULT_GEO_DIST = 3.0d;
+
+    private final String           DYNAMIC_RELEVANCE_SORT_ORDER = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
+
+    private final String           MAX_PRIMARY_WEIGHT_CONFIG    = "maxPrimaryIndexWeight";
+
+    @Value("${enable.dynamic.relevance}")
+    private boolean                enableDynamicRelevance;
+
+    private Logger                 logger                       = LoggerFactory.getLogger(PropertyService.class);
 
     @PostConstruct
     private void init() {
@@ -118,6 +148,29 @@ public class PropertyService {
         return properties;
     }
 
+    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(
+            Selector propertyListingSelector,
+            String googlePlaceId) {
+
+        /*
+         * If google-place-id (gpid) is given, add a geo filter after fetching
+         * place information.
+         */
+        if (googlePlaceId != null && !googlePlaceId.isEmpty()) {
+            GooglePlace gp = googlePlacesAPIService.getPlaceDetails(googlePlaceId);
+            if (gp == null) {
+                throw new ProAPIException("Could not retrieve place information for google-place-id : " + googlePlaceId);
+            }
+            addGeoFilterToSelector(
+                    propertyListingSelector,
+                    gp.getLatitude(),
+                    gp.getLongitude(),
+                    PropertyService.GOOGLE_PLACE_QUERY_DEFAULT_GEO_DIST);
+        }
+
+        return getPropertiesGroupedToProjects(propertyListingSelector);
+    }
+
     /**
      * Returns projects given a selector on property attributes and a few more
      * like cityLabel etc. This is needed to address listing page requirements
@@ -129,6 +182,8 @@ public class PropertyService {
      */
     public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         PaginatedResponse<List<Project>> projects = null;
+
+        enableDynamicRelevance(propertyListingSelector);
 
         if (propertyListingSelector != null && propertyListingSelector.getPaging() != null
                 && propertyListingSelector.getPaging().getRows() > ROWS_THRESHOLD) {
@@ -158,6 +213,44 @@ public class PropertyService {
         }
 
         return projects;
+    }
+
+    private Selector enableDynamicRelevance(Selector selector) {
+        if (enableDynamicRelevance && selector.getSort() == null) {
+            double primaryFactor = 0;
+            double maxPrimaryWeight = configService.getConfigValueAsDouble(
+                    ConfigGroupName.Relevance,
+                    MAX_PRIMARY_WEIGHT_CONFIG);
+            Double unsoldInventory = getUnsoldInventoryPercentageForSelector(selector);
+            if (unsoldInventory != null) {
+                primaryFactor = unsoldInventory * maxPrimaryWeight / 100;
+            }
+
+            LinkedHashSet<SortBy> sortBy = new LinkedHashSet<>();
+            SortBy sort = new SortBy();
+            sort.setField(String.format(DYNAMIC_RELEVANCE_SORT_ORDER, primaryFactor, 1 - primaryFactor));
+            sort.setSortOrder(SortOrder.DESC);
+            sortBy.add(sort);
+
+            selector.setSort(sortBy);
+        }
+        return selector;
+    }
+
+    private void addGeoFilterToSelector(Selector selector, double latitude, double longitude, double distance) {
+
+        /* making a temp selector with just geo-filter */
+        String GeoFilterTemplate = "{\"filters\":{\"and\":[{\"geoDistance\":{\"geo\":{\"distance\":%s,\"lat\":%s,\"lon\":%s}}}]}}";
+        String geoFilter = String.format(
+                GeoFilterTemplate,
+                String.valueOf(distance),
+                String.valueOf(latitude),
+                String.valueOf(longitude));
+        Selector newSelector = gson.fromJson(geoFilter, Selector.class);
+
+        /* extracting geo-filter and adding it to old selector */
+        List<Map<String, Map<String, Object>>> filterList = selector.getFilters().get(Operator.and.name());
+        filterList.addAll(newSelector.getFilters().get(Operator.and.name()));
     }
 
     /**
@@ -320,6 +413,30 @@ public class PropertyService {
         return resultMap;
     }
 
+    private Double getUnsoldInventoryPercentageForSelector(Selector selector) {
+        Double unsoldInventory = null;
+
+        List<String> fields = new ArrayList<>();
+        fields.add(Project.SUPPLY_FIELD_NAME);
+        fields.add(Project.DEVIVED_AVAILABILITY_FIELD_NAME);
+        Map<String, FieldStatsInfo> stats = getStats(fields, selector);
+
+        Double totalSupply = null;
+        Double inventory = null;
+        if (stats.get(Project.SUPPLY_FIELD_NAME) != null) {
+            totalSupply = (Double) stats.get(Project.SUPPLY_FIELD_NAME).getSum();
+            logger.debug("supply for selector = " + totalSupply);
+        }
+        if (stats.get(Project.DEVIVED_AVAILABILITY_FIELD_NAME) != null) {
+            inventory = (Double) stats.get(Project.DEVIVED_AVAILABILITY_FIELD_NAME).getSum();
+            logger.debug("inventory for selector = " + inventory);
+        }
+        if (totalSupply != null && !totalSupply.equals(0) && inventory != null && !inventory.equals(0)) {
+            unsoldInventory = inventory * 100 / totalSupply;
+        }
+        return unsoldInventory;
+    }
+
     public Property getProperty(int propertyId) {
         String jsonSelector = "{\"paging\":{\"rows\":1},\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyId
                 + "}}]}}";
@@ -333,6 +450,7 @@ public class PropertyService {
     }
 
     /*
+     * 
      * Only Solr call, no DB call specific changes should be added in this
      * method
      */
@@ -360,38 +478,66 @@ public class PropertyService {
     public Property createUnverifiedPropertyOrGetExisting(Listing listing, Integer userId) {
         Property property = null;
         OtherInfo otherInfo = listing.getOtherInfo();
-        if (otherInfo != null && otherInfo.getSize() > 0 && otherInfo.getBedrooms() > 0 && otherInfo.getProjectId() > 0) {
+        if (otherInfo != null && otherInfo.getSize() != null
+                && otherInfo.getSize() > 0
+                && otherInfo.getProjectId() > 0
+                && otherInfo.getUnitType() != null) {
+
+            if (otherInfo.getBedrooms() == 0 && (!otherInfo.getUnitType().equals(UnitType.Plot.toString()))) {
+                throw new BadRequestException("Other info is invalid");
+            }
+
             FIQLSelector selector = new FIQLSelector()
                     .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
-                    .addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms())
                     .addAndConditionToFilter("size==" + otherInfo.getSize())
+                    .addAndConditionToFilter("unitType==" + otherInfo.getUnitType())
                     .addAndConditionToFilter("project.version==" + DataVersion.Website);
 
-            if (otherInfo.getBathrooms() > 0) {
+            if (otherInfo.getBedrooms() > 0 && (!otherInfo.getUnitType().equals(UnitType.Plot.toString()))) {
+                selector.addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms());
+            }
+
+            if (otherInfo.getBathrooms() > 0 && (!otherInfo.getUnitType().equals(UnitType.Plot.toString()))) {
                 selector.addAndConditionToFilter("bathrooms==" + otherInfo.getBathrooms());
             }
             PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
             if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
                     && propertyWithMatchingCriteria.getResults().size() > 0) {
-                // matching property object found for the given other
-                // information
                 property = propertyWithMatchingCriteria.getResults().get(0);
             }
             else {
-                selector = new FIQLSelector().setGroup("unitType")
-                        .addAndConditionToFilter("projectId==" + otherInfo.getProjectId()).setRows(1)
-                        .addSortDESC("countPropertyId");
+                Project project = projectService.getProjectWithVersion(otherInfo.getProjectId(), DataVersion.Website);
+                int projectTypeId = project.getProjectTypeId();
 
-                propertyWithMatchingCriteria = getPropertiesFromDB(selector);
-                Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, propertyWithMatchingCriteria
-                        .getResults().get(0).getUnitType());
-                property = propertyDao.saveAndFlush(toCreate);
+                if (getByName(otherInfo.getUnitType()) != null && getByName(otherInfo.getUnitType()).contains(
+                        projectTypeId)) {
+                    Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, otherInfo.getUnitType());
+                    property = propertyDao.saveAndFlush(toCreate);
+                }
+                else {
+                    throw new BadRequestException("This project does not contain " + otherInfo.getUnitType());
+                }
             }
         }
         else {
             throw new BadRequestException("Other info is invalid");
         }
         return property;
+    }
+
+    public List<Integer> getByName(String name) {
+        if (name.equals(UnitType.Apartment.toString())) {
+            return ProjectTypeToOptionTypeMapping.Apartment.getProjectTypeIds();
+        }
+        else if (name.equals(UnitType.Plot.toString())) {
+            return ProjectTypeToOptionTypeMapping.Plot.getProjectTypeIds();
+        }
+        else if (name.equals(UnitType.Villa.toString())) {
+            return ProjectTypeToOptionTypeMapping.Villa.getProjectTypeIds();
+        }
+        else {
+            return null;
+        }
     }
 
     public void updateProjectsLifestyleScores(List<Property> properties) {
@@ -501,7 +647,7 @@ public class PropertyService {
 
         return properties.getResults().get(0);
     }
-    
+
     /**
      * Get Active Properties from DB. ********* NO CACHING *********
      * 
@@ -522,7 +668,7 @@ public class PropertyService {
                 + projectId);
         PaginatedResponse<List<Property>> properties = getPropertiesFromDB(fiqlSelector);
 
-        if (properties == null || properties.getResults() == null || properties.getResults().isEmpty()){
+        if (properties == null || properties.getResults() == null || properties.getResults().isEmpty()) {
             return null;
         }
 

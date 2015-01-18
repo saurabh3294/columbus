@@ -62,13 +62,29 @@ public class LeadOfferController extends BaseController {
     public APIResponse getMatchingListings(
             @PathVariable int leadOfferId,
             @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) List<Integer> projectId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
         PaginatedResponse<List<Listing>> matchingListings = leadOfferService.getSortedMatchingListings(
                 leadOfferId,
+                projectId,
                 activeUser.getUserIdentifier());
         return new APIResponse(
                 super.filterFieldsFromSelector(matchingListings.getResults(), selector),
                 matchingListings.getTotalCount());
+    }
+
+    @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/matching-listings/typeahead")
+    @ResponseBody
+    public APIResponse getMatchingListingsTypeAhead(
+            @PathVariable int leadOfferId,
+            @RequestParam String query,
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam String typeAheadType) {
+        return new APIResponse(leadOfferService.getMatchingListingsTypeAhead(
+                leadOfferId,
+                query,
+                typeAheadType,
+                rows));
     }
 
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}")

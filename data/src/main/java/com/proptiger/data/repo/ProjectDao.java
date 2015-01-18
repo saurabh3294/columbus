@@ -32,11 +32,11 @@ public class ProjectDao extends ProjectSolrDao {
     private ProjectDBDao         projectDBDao;
 
     @Autowired
-    private ProjectDaoNew projectDaoNew;
+    private ProjectDaoNew        projectDaoNew;
 
     @Autowired
     private EntityManagerFactory emf;
-    
+
     @Deprecated
     public ProjectDB findByProjectId(int projectId) {
         return projectDBDao.findByProjectIdAndVersion(projectId, DataVersion.Website);
@@ -88,5 +88,9 @@ public class ProjectDao extends ProjectSolrDao {
 
     public Project findActiveOrInactiveProjectById(Integer id) {
         return projectDaoNew.findByProjectIdAndVersion(id, DataVersion.Website);
+    }
+
+    public Project getProjectWithVersion(int projectId, DataVersion version) {
+        return projectDaoNew.findByProjectIdAndVersion(projectId, version);
     }
 }

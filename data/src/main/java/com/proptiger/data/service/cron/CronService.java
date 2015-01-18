@@ -24,9 +24,9 @@ import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
-import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.service.marketplace.LeadService;
+import com.proptiger.data.service.marketplace.LeadTaskService;
 import com.proptiger.data.service.marketplace.NotificationService;
 
 /**
