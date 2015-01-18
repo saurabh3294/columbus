@@ -118,7 +118,7 @@ public class UserServiceHelper {
         List<User> users = new ArrayList<User>();
         String encoded;
         try {
-            encoded = URLEncoder.encode(completeURL.toString(), "UTF-8");
+            encoded = URLEncoder.encode(completeURL.toString(), Constants.DEFAULT_ENCODING);
             if (header != null) {
                 users = httpRequestUtil
                         .getInternalApiResultAsTypeList(URI.create(encoded), header, User.class);
@@ -176,7 +176,7 @@ public class UserServiceHelper {
             user = getUserById_CallerNonLogin(userToFind.getId());
         }
         catch (ResourceNotAvailableException e) {
-            // user does not exit so call register
+            // user does not exist so call register
             user = createOrPatchUser_CallerNonLogin(userToFind);
         }
 
