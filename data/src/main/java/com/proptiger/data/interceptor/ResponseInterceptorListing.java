@@ -20,7 +20,7 @@ import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.service.user.UserSubscriptionService;
+import com.proptiger.data.service.user.UserSubscriptionHelperService;
 
 /**
  * This class is used for authentication based filtering of APIResponse.
@@ -35,18 +35,18 @@ import com.proptiger.data.service.user.UserSubscriptionService;
 @Order(1)
 @Component
 public class ResponseInterceptorListing {
+    
+    private final int     objTypeIdLocality    = DomainObject.locality.getObjectTypeId();
 
+    private final int     objTypeIdCity        = DomainObject.city.getObjectTypeId();
+
+    private final String  fieldTagAuthorized   = "authorized";
+    
     @Autowired
-    private UserSubscriptionService userSubscriptionService;
-
-    private final int               objTypeIdLocality  = DomainObject.locality.getObjectTypeId();
-
-    private final int               objTypeIdCity      = DomainObject.city.getObjectTypeId();
-
-    private final String            fieldTagAuthorized = "authorized";
-
+    private UserSubscriptionHelperService userSubscriptionHelperService;
+    
     @Autowired
-    private static Logger           logger             = LoggerFactory.getLogger(ResponseInterceptorListing.class);
+    private static Logger logger               = LoggerFactory.getLogger(ResponseInterceptorListing.class);
 
     @SuppressWarnings("unchecked")
     @AfterReturning(
@@ -55,7 +55,7 @@ public class ResponseInterceptorListing {
     public void filterResponseProjectListings(Object retVal) throws Throwable {
 
         Object data = getApiResponseData(retVal);
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        MultiKeyMap userSubscriptionMap = userSubscriptionHelperService.getUserSubscriptionMap();
         if (data == null || userSubscriptionMap == null) {
             return;
         }
@@ -104,7 +104,7 @@ public class ResponseInterceptorListing {
             returning = "retVal")
     public void filterResponseLocalityListings(Object retVal) throws Throwable {
         Object data = getApiResponseData(retVal);
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        MultiKeyMap userSubscriptionMap = userSubscriptionHelperService.getUserSubscriptionMap();
         if (data == null || userSubscriptionMap == null) {
             return;
         }
@@ -128,7 +128,7 @@ public class ResponseInterceptorListing {
             returning = "retVal")
     public void filterResponseCityListings(Object retVal) throws Throwable {
         Object data = getApiResponseData(retVal);
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        MultiKeyMap userSubscriptionMap = userSubscriptionHelperService.getUserSubscriptionMap();
         if (data == null || userSubscriptionMap == null) {
             return;
         }
@@ -182,7 +182,7 @@ public class ResponseInterceptorListing {
         }
         ActiveUser activeUser = SecurityContextUtils.getActiveUser();
         if (activeUser != null) {
-            return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
+            return (userSubscriptionHelperService.getUserSubscriptionMap());
         }
         else {
             return null;

@@ -17,6 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.LeadOfferStatus;
+import com.proptiger.core.enums.LeadTaskName;
+import com.proptiger.core.enums.NotificationType;
+import com.proptiger.core.enums.TaskStatus;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceNotFoundException;
@@ -29,10 +33,6 @@ import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.enums.LeadOfferStatus;
-import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.NotificationType;
-import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.model.MasterLeadOfferStatus;
 import com.proptiger.data.model.MasterLeadTask;
@@ -50,6 +50,7 @@ import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
+import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
 import com.proptiger.data.util.SerializationUtils;
@@ -71,10 +72,10 @@ public class LeadTaskService {
     private MasterLeadTaskDao            masterLeadTaskDao;
 
     @Autowired
-    private LeadOfferService             leadOfferService;
+    private LeadTaskStatusReasonDao      taskStatusReasonDao;
 
     @Autowired
-    private LeadTaskStatusReasonDao      taskStatusReasonDao;
+    private MasterLeadOfferStatusDao     leadOfferStatusDao;
 
     @Autowired
     private LeadOfferDao                 leadOfferDao;
@@ -141,8 +142,7 @@ public class LeadTaskService {
                 leadTaskDao.saveAndFlush(savedTask);
                 manageLeadTaskListingsOnUpdate(currentTaskId, taskDto.getListingIds());
                 if (taskStatus.getResultingStatusId() != null) {
-                    leadOfferService
-                            .updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
+                    updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
                 }
                 if (taskStatus.getMasterLeadTaskStatus().isComplete()) {
                     if (savedTask.getNextTask() != null) {
@@ -151,7 +151,7 @@ public class LeadTaskService {
                         manageLeadTaskListingsOnUpdate(nextTaskId, taskDto.getNextTask().getListingIds());
                     }
                     Integer offerNextTaskId = nextTaskId == 0 ? null : nextTaskId;
-                    leadOfferService.updateLeadOfferTasks(savedTask.getLeadOffer(), currentTaskId, offerNextTaskId);
+                    updateLeadOfferTasks(savedTask.getLeadOffer(), currentTaskId, offerNextTaskId);
                 }
             }
             catch (IllegalAccessException | InvocationTargetException e) {
@@ -203,7 +203,7 @@ public class LeadTaskService {
     public void manageCallDueNotification() {
         Date validStartTime = new Date();
         Date validEndTime = notificationService.getCallDueEndScheduledTime();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
 
         List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
                 validStartTime,
@@ -232,7 +232,7 @@ public class LeadTaskService {
     public void populateTaskDueNotification() {
         Date validStartTime = new Date();
         Date validEndTime = notificationService.getTaskDueEndScheduledTime();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
 
         List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
                 validStartTime,
@@ -261,7 +261,7 @@ public class LeadTaskService {
 
         Date validStartTime = new Date();
         Date validEndTime = notificationService.getCallDueEndScheduledTime();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
 
         int validTaskIdForNotification = 0;
 
@@ -290,7 +290,7 @@ public class LeadTaskService {
     public void populateTaskOverDueNotification() {
         Date validStartTime = new Date(0);
         Date validEndTime = new Date();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskOverDue.getId();
 
         List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
                 validStartTime,
@@ -319,7 +319,7 @@ public class LeadTaskService {
 
         Date validStartTime = new Date(0);
         Date validEndTime = new Date();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskOverDue.getId();
 
         int validTaskIdForNotification = 0;
 
@@ -351,7 +351,7 @@ public class LeadTaskService {
 
         Date validStartTime = new Date();
         Date validEndTime = notificationService.getTaskDueEndScheduledTime();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
 
         int validTaskIdForNotification = 0;
 
@@ -702,12 +702,27 @@ public class LeadTaskService {
             leadTask.setNotes("Contact the client to discuss the requirements");
             leadTask = leadTaskDao.save(leadTask);
 
-            leadOfferService.updateLeadOfferTasks(leadOffer, null, leadTask.getId());
+            updateLeadOfferTasks(leadOffer, null, leadTask.getId());
         }
         else {
             throw new ProAPIException("Lead Task Already Exists");
         }
         return leadTask;
+    }
+
+    /**
+     * utility method for updating lead offer status
+     * 
+     * @param leadOfferId
+     * @param lastTaskId
+     * @param nextTaskId
+     * @return
+     */
+    public LeadOffer updateLeadOfferTasks(LeadOffer leadOffer, Integer lastTaskId, Integer nextTaskId) {
+        leadOffer.setLastTaskId(lastTaskId);
+        leadOffer.setNextTaskId(nextTaskId);
+        leadOffer = leadOfferDao.save(leadOffer);
+        return leadOffer;
     }
 
     /**
@@ -761,6 +776,22 @@ public class LeadTaskService {
             }
         }
         return leadTasks;
+    }
+
+    /**
+     * utility method for updating lead offer status
+     * 
+     * @param leadOfferId
+     * @param statusId
+     * @return
+     */
+    public LeadOffer updateLeadOfferStatus(int leadOfferId, int statusId) {
+        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
+        if (leadOffer.getMasterLeadOfferStatus().getLevel() < leadOfferStatusDao.findOne(statusId).getLevel()) {
+            leadOffer.setStatusId(statusId);
+            leadOffer = leadOfferDao.save(leadOffer);
+        }
+        return leadOffer;
     }
 
     public Map<Integer, LeadTask> getTaskById(List<Integer> leadTaskIds) {

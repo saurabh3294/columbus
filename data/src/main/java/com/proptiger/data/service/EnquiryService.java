@@ -47,7 +47,7 @@ import com.proptiger.data.repo.EnquiryAttributesDao;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDaoNew;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserServiceHelper;
 import com.proptiger.data.util.lead.CookieConstants;
 import com.proptiger.data.util.lead.LeadCookiesHandler;
 import com.proptiger.data.util.lead.LeadGACookiesHandler;
@@ -71,9 +71,6 @@ public class EnquiryService {
 
     @Autowired
     BeanstalkService                beanstalkService;
-
-    @Autowired
-    UserService                     userService;
 
     @Autowired
     SecurityUtilService             securityUtilService;
@@ -101,6 +98,9 @@ public class EnquiryService {
 
     @Autowired
     private PropertyReader          propertyReader;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
@@ -202,7 +202,7 @@ public class EnquiryService {
 
     private void updateUserDetails(Enquiry enquiry) {
 
-        User user = userService.getUserByEmail(enquiry.getEmail());
+        User user = userServiceHelper.getUserByEmail_CallerNonLogin(enquiry.getEmail());
 
         if ((user != null && user.getUserAuthProviderDetails() != null) && !user.getUserAuthProviderDetails().isEmpty()) {
             User newUser = new User();
@@ -212,7 +212,8 @@ public class EnquiryService {
             contactNumbers.add(userContactNumber);
             newUser.setContactNumbers(contactNumbers);
             newUser.setId(user.getId());
-            userService.updateContactNumbers(newUser);
+            newUser.setEmail(user.getEmail());
+            userServiceHelper.createOrPatchUser_CallerNonLogin(newUser);
         }
     }
 

@@ -48,11 +48,8 @@ public class ProjectListingController extends BaseController {
     @Intercepted.ProjectListing
     @RequestMapping(value = "app/v1/project-listing")
     @Cacheable(value = Constants.CacheName.CACHE)
-    public @ResponseBody
-    Object getProjectListings(
-            @RequestParam(required = false) String selector,
-            @RequestParam(required = false) String facets,
-            @RequestParam(required = false) String stats) {
+    public @ResponseBody Object getProjectListings(@RequestParam(required = false) String selector, @RequestParam(
+            required = false) String facets, @RequestParam(required = false) String stats) {
 
         Selector projectListingSelector = super.parseJsonToObject(selector, Selector.class);
         if (projectListingSelector == null) {
@@ -81,18 +78,17 @@ public class ProjectListingController extends BaseController {
     @Intercepted.ProjectListing
     @RequestMapping(value = "app/v2/project-listing")
     @Cacheable(value = Constants.CacheName.CACHE)
-    public @ResponseBody
-    Object getProjectListingsV2(
-            @RequestParam(required = false) String selector,
-            @RequestParam(required = false) String facets,
-            @RequestParam(required = false) String stats) {
+    public @ResponseBody Object getProjectListingsV2(@RequestParam(required = false) String selector, @RequestParam(
+            required = false) String facets, @RequestParam(required = false) String stats, @RequestParam(
+            required = false) String gpid) {
         Selector projectListingSelector = super.parseJsonToObject(selector, Selector.class);
         if (projectListingSelector == null) {
             projectListingSelector = new Selector();
         }
 
-        PaginatedResponse<List<Project>> projects = propertyService
-                .getPropertiesGroupedToProjects(projectListingSelector);
+        PaginatedResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(
+                projectListingSelector,
+                gpid);
 
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);

@@ -52,7 +52,6 @@ import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
 import com.proptiger.data.service.CitrusPayPGTransactionService;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.CouponNotificationService;
-import com.proptiger.data.service.user.UserService;
 
 /**
  * @author mandeep
@@ -112,9 +111,6 @@ public class CitrusPayPGService {
 
     @Autowired
     private NotificationMessageService    nMessageService;
-
-    @Autowired
-    private UserService                   userService;
 
     @Autowired
     private ApplicationContext            applicationContext;

@@ -37,6 +37,7 @@ import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.JsonUtil;
 import com.proptiger.core.util.SecurityContextUtils;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.repo.PropertyDao;
@@ -44,8 +45,7 @@ import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.TypeAheadService;
-import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.JsonUtil;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 /**
  * @author Rajeev Pandey
@@ -76,9 +76,9 @@ public class ListingService {
     private TypeAheadService      typeAheadService;
 
     private final String          supportedTypeAheadType = "project";
-
+    
     @Autowired
-    private UserService           userService;
+    private UserServiceHelper userServiceHelper;
 
     public Listing getListingByListingId(Integer listingId) {
         return listingDao.findOne(listingId);
@@ -309,7 +309,7 @@ public class ListingService {
 
             if (fields.contains("seller")) {
                 Set<Integer> sellerIds = extractSellerIds(listings);
-                Map<Integer, User> users = userService.getUsers(sellerIds);
+                Map<Integer, User> users = userServiceHelper.getUsersMapByUserIds_CallerNonLogin(sellerIds);
                 for (Listing l : listings) {
                     if (users.get(l.getSellerId()) != null) {
                         l.setSeller(users.get(l.getSellerId()));
@@ -373,7 +373,7 @@ public class ListingService {
             }
 
             if (fields.contains("seller")) {
-                User user = userService.getUserById(listing.getSellerId());
+                User user = userServiceHelper.getUserById_CallerNonLogin(listing.getSellerId());
                 if (user != null) {
                     listing.setSeller(user);
                 }
