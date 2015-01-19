@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -36,7 +37,9 @@ import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.enums.filter.Operator;
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.LandMark;
 import com.proptiger.core.model.cms.LandMarkTypes;
 import com.proptiger.core.model.cms.Locality;
@@ -1154,6 +1157,23 @@ public class LocalityService {
 
     public PaginatedResponse<List<Locality>> getLocalities(FIQLSelector selector) {
         return localityDao.getLocalities(selector);
+    }
+    /*
+     * updates description of the locality
+     */
+    @Transactional
+    public Locality updateLocality(Locality locality) {
+        if(locality.getDescription() != null && !locality.getDescription().isEmpty() ){
+            Locality localityActual=localityDao.findOne(locality.getLocalityId());
+           
+            localityActual.setDescription(locality.getDescription());
+           
+            localityActual = localityDao.save(localityActual);
+            return localityActual;
+        }else{
+            throw new BadRequestException("Invalid locality description");
+        }
+      
     }
 
     public List<Locality> getLocalitiesOnCityOrSuburb(DomainObject domainObject, int domainId, Paging paging) {
