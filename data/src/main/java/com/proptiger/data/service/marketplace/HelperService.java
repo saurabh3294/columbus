@@ -10,12 +10,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.dto.internal.user.CustomUser;
 import com.proptiger.core.model.user.UserHierarchy;
 import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.RequestHolderUtil;
-import com.proptiger.data.external.dto.CustomUser;
 
 @Service
 public class HelperService {

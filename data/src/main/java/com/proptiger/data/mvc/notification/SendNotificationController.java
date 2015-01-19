@@ -18,7 +18,7 @@ import com.proptiger.core.model.user.User;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 /**
  * @author Sahil Garg
@@ -30,9 +30,9 @@ public class SendNotificationController {
 
     @Autowired
     private NotificationCreatorService notificationCreatorService;
-
+    
     @Autowired
-    private UserService                userService;
+    private UserServiceHelper userServiceHelper;
 
     /**
      * This API is used to send notification of given notification type to a
@@ -47,7 +47,7 @@ public class SendNotificationController {
 
         List<User> registeredUsers = new ArrayList<User>();
         for (User user : request.getUsers()) {
-            registeredUsers.add(userService.findOrCreateUser(user));
+            registeredUsers.add(userServiceHelper.getOrCreateUser_CallerNonLogin(user));
         }
 
         request.setUsers(registeredUsers);

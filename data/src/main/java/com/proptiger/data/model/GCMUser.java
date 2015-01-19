@@ -14,8 +14,8 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
 
+import com.proptiger.core.enums.AndroidApplication;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.enums.AndroidApplication;
 
 @Entity
 @Table(name = "user.gcm_users")

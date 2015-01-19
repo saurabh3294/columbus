@@ -185,7 +185,7 @@ public class PortfolioController extends BaseController {
      * @param userId
      * @param listingId
      * @param mailType
-     * @param userInfo
+     * @param activeUser
      * @return
      */
     @RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/mail")
@@ -193,8 +193,8 @@ public class PortfolioController extends BaseController {
     public APIResponse sendMailForListing(@PathVariable Integer userId, @PathVariable Integer listingId, 
             @RequestParam(
             required = true,
-            value = "mailType") String mailType, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        boolean status = portfolioService.handleMailRequest(userInfo.getUserIdentifier(), listingId, mailType);
+            value = "mailType") String mailType, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+        boolean status = portfolioService.handleMailRequest(activeUser, listingId, mailType);
         return new APIResponse(status);
     }
 

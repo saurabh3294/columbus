@@ -20,7 +20,7 @@ import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
 import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
 import com.proptiger.core.internal.dto.mail.MediumDetails;
-import com.proptiger.data.enums.AndroidApplication;
+import com.proptiger.core.enums.AndroidApplication;
 import com.proptiger.data.model.GCMUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;

@@ -24,7 +24,7 @@ import com.proptiger.data.notification.enums.SubscriptionType;
 import com.proptiger.data.notification.model.UserNotificationTypeSubscription;
 import com.proptiger.data.notification.model.external.NotificationSubscriptionRequest;
 import com.proptiger.data.notification.service.UserNotificationTypeSubscriptionService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 /**
  * @author Sahil Garg
@@ -36,9 +36,8 @@ public class NotificationSubscriptionController extends BaseController {
 
     @Autowired
     private UserNotificationTypeSubscriptionService subscriptionService;
-
-    @Autowired
-    private UserService                             userService;
+    
+    private UserServiceHelper userServiceHelper;
 
     /**
      * This API can be used to subscribe the logged in user to the given
@@ -115,7 +114,7 @@ public class NotificationSubscriptionController extends BaseController {
 
         List<User> registeredUsers = new ArrayList<User>();
         for (User user : request.getUsers()) {
-            User registeredUser = userService.getUserById(user.getId());
+            User registeredUser = userServiceHelper.getUserById_CallerNonLogin(user.getId());
             if (registeredUser == null) {
                 return new APIResponse(ResponseCodes.BAD_REQUEST, "User " + user.getId() + " is not registered");
             }

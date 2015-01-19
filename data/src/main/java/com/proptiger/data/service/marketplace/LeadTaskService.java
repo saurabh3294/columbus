@@ -17,6 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.LeadOfferStatus;
+import com.proptiger.core.enums.LeadTaskName;
+import com.proptiger.core.enums.NotificationType;
+import com.proptiger.core.enums.TaskStatus;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceNotFoundException;
@@ -29,10 +33,6 @@ import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.enums.LeadOfferStatus;
-import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.NotificationType;
-import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.model.MasterLeadOfferStatus;
 import com.proptiger.data.model.MasterLeadTask;
@@ -203,7 +203,7 @@ public class LeadTaskService {
     public void manageCallDueNotification() {
         Date validStartTime = new Date();
         Date validEndTime = notificationService.getCallDueEndScheduledTime();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
 
         List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
                 validStartTime,
@@ -232,7 +232,7 @@ public class LeadTaskService {
     public void populateTaskDueNotification() {
         Date validStartTime = new Date();
         Date validEndTime = notificationService.getTaskDueEndScheduledTime();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
 
         List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
                 validStartTime,
@@ -261,7 +261,7 @@ public class LeadTaskService {
 
         Date validStartTime = new Date();
         Date validEndTime = notificationService.getCallDueEndScheduledTime();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
 
         int validTaskIdForNotification = 0;
 
@@ -290,7 +290,7 @@ public class LeadTaskService {
     public void populateTaskOverDueNotification() {
         Date validStartTime = new Date(0);
         Date validEndTime = new Date();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskOverDue.getId();
 
         List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
                 validStartTime,
@@ -319,7 +319,7 @@ public class LeadTaskService {
 
         Date validStartTime = new Date(0);
         Date validEndTime = new Date();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskOverDue.getId();
 
         int validTaskIdForNotification = 0;
 
@@ -351,7 +351,7 @@ public class LeadTaskService {
 
         Date validStartTime = new Date();
         Date validEndTime = notificationService.getTaskDueEndScheduledTime();
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
 
         int validTaskIdForNotification = 0;
 
@@ -880,5 +880,20 @@ public class LeadTaskService {
 
     public List<LeadTask> getLeadTaskIdsByLeadOfferId(int leadOfferId) {
         return leadTaskDao.findByLeadOfferId(leadOfferId);
+    }
+
+    /**
+     * method to get list of lead tasks from list of task ids... task objects
+     * will contain nested objects lead offer and lead
+     * 
+     * @param taskIds
+     * @return List LeadTask
+     */
+    public List<LeadTask> getLeadTaskByIdsWithLeadAndMasterTask(List<Integer> taskIds) {
+        List<LeadTask> tasks = new ArrayList<>();
+        if (tasks != null) {
+            tasks = leadTaskDao.findByIdInWithLeadAndMasterLeadTask(taskIds);
+        }
+        return tasks;
     }
 }

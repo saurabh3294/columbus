@@ -48,7 +48,7 @@ import com.proptiger.data.model.trend.TrendReportLog;
 import com.proptiger.data.repo.trend.TrendReportLogDao;
 import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.user.CatchmentService;
-import com.proptiger.data.service.user.UserSubscriptionService;
+import com.proptiger.data.service.user.UserSubscriptionHelperService;
 import com.proptiger.data.util.FIQLUtils;
 import com.proptiger.data.util.MSExcelUtils;
 
@@ -80,7 +80,7 @@ public class TrendReportService {
     private TrendService            trendService;
 
     @Autowired
-    private UserSubscriptionService userSubscriptionService;
+    private UserSubscriptionHelperService userSubscriptionHelperService;
 
     @Autowired
     TrendReportLogDao               trendReportLogDao;
@@ -145,7 +145,7 @@ public class TrendReportService {
 
         logger.debug("PnA_Report: Download request recieved : FIQLSelector = " + selector);
 
-        List<UserSubscriptionMapping> usmList = userSubscriptionService.getUserSubscriptionMappingList(user.getUserIdentifier());
+        List<UserSubscriptionMapping> usmList = userSubscriptionHelperService.getUserSubscriptionMapping(user.getUserIdentifier());
         if (getRemainingDownloadsDaily(user, usmList) <= 0) {
             throw new ProAPIException(
                     ResponseCodes.DAILY_DOWNLOAD_LIMIT_EXPIRED,

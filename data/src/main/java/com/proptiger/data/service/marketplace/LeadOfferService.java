@@ -22,9 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.DeclineReason;
+import com.proptiger.core.enums.LeadOfferStatus;
+import com.proptiger.core.enums.LeadTaskName;
 import com.proptiger.core.enums.ListingComparator;
+import com.proptiger.core.enums.NotificationType;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
+import com.proptiger.core.enums.TaskStatus;
 import com.proptiger.core.exception.APIServerException;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
@@ -33,8 +38,8 @@ import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Company;
 import com.proptiger.core.model.cms.Listing;
+import com.proptiger.core.model.companyuser.CompanyUser;
 import com.proptiger.core.model.user.User;
-import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.service.mail.MailSender;
@@ -44,14 +49,8 @@ import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.enums.DeclineReason;
-import com.proptiger.data.enums.LeadOfferStatus;
-import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.NotificationType;
-import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.external.dto.ListingJsonDump;
 import com.proptiger.data.internal.dto.SenderDetail;
-import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOffer.CountListingObject;
@@ -66,9 +65,9 @@ import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
+import com.proptiger.data.service.user.CompanyUserServiceHelper;
+import com.proptiger.data.service.user.UserServiceHelper;
 import com.proptiger.data.service.TypeAheadService;
-import com.proptiger.data.service.companyuser.CompanyService;
-import com.proptiger.data.service.user.UserService;
 
 /**
  * 
@@ -79,7 +78,7 @@ import com.proptiger.data.service.user.UserService;
 @Service
 public class LeadOfferService {
     @Autowired
-    private CompanyService               companyService;
+    private CompanyUserServiceHelper companyUserServiceHelper;
 
     @Autowired
     private LeadOfferDao                 leadOfferDao;
@@ -89,9 +88,6 @@ public class LeadOfferService {
 
     @Autowired
     private LeadRequirementsService      leadRequirementsService;
-
-    @Autowired
-    private UserService                  userService;
 
     @Autowired
     private LeadOfferedListingDao        leadOfferedListingDao;
@@ -140,12 +136,15 @@ public class LeadOfferService {
     @Autowired
     private DeclineReasonService         declineReasonService;
 
+    private static Logger                logger = LoggerFactory.getLogger(LeadOfferService.class);
+    
     @Autowired
     private TypeAheadService             typeAheadService;
 
     private final String                 supportedTypeAheadType = "project";
 
-    private static Logger                logger                 = LoggerFactory.getLogger(LeadOfferService.class);
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     private LeadService getLeadService() {
         if (leadService == null) {
@@ -238,17 +237,13 @@ public class LeadOfferService {
         if (fields != null && leadOffers != null && !leadOffers.isEmpty()) {
             if (fields.contains("client")) {
                 Set<Integer> clientIds = extractClientIds(leadOffers);
-                Map<Integer, User> users = userService.getUsers(clientIds);
+                Map<Integer, User> users = userServiceHelper.getUserWithCompleteDetailsByUserIds_CallerNonLogin(clientIds);
 
-                Map<Integer, Set<UserContactNumber>> contactNumbers = null;
-                if (fields.contains("contactNumbers")) {
-                    contactNumbers = userService.getUserContactNumbers(clientIds);
-                }
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
                     if (fields.contains("contactNumbers")) {
                         leadOffer.getLead().getClient()
-                                .setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
+                                .setContactNumbers(users.get(leadOffer.getLead().getClientId()).getContactNumbers());
                     }
                 }
             }
@@ -462,7 +457,7 @@ public class LeadOfferService {
     }
 
     public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId, Integer phaseId) {
-        List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
+        List<CompanyUser> agents = companyUserServiceHelper.getCompanyUsersInCompany(brokerCompany.getId());
         Integer countLeadOfferInDB = (int) (long) leadOfferDao.getCountByLeadIdAndPhaseId(lead.getId(), phaseId);
         LeadOffer leadOffer = null;
         LeadOffer leadOfferInDB = null;
@@ -798,11 +793,8 @@ public class LeadOfferService {
                     }
                 }
             }
-
-            Company broker = companyService.getCompanywithContactNumberFromUserId(leadOfferInDB.getAgentId());
-
-            leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
-
+            Company broker = companyUserServiceHelper.getCompanyUserOfUserId(leadOfferInDB.getAgentId()).getCompany();
+            leadOfferInDB.setAgent(userServiceHelper.getUserById_CallerNonLogin(leadOfferInDB.getAgentId()));
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
 
@@ -1092,7 +1084,7 @@ public class LeadOfferService {
             throw new BadRequestException("Invalid mail details");
         }
 
-        String username = userService.getUserById(activeUser.getUserIdentifier()).getFullName();
+        String username = userServiceHelper.getLoggedInUserObj().getFullName();
 
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
                 senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setMailCC(activeUser.getUsername())

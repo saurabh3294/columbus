@@ -7,13 +7,16 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.mvc.BaseController;
+import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.pojo.response.PaginatedResponse;
@@ -347,5 +350,11 @@ public class LocalityController extends BaseController {
     @ResponseBody
     public APIResponse getActiveInactiveLocality(@PathVariable int id){
         return new APIResponse(localityService.getActiveOrInactiveLocalityById(id));
+    }
+    
+    @RequestMapping(value = "data/v4/entity/locality", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getLocality(@ModelAttribute FIQLSelector selector){
+        return new APIResponse(localityService.getLocalities(selector));
     }
 }
