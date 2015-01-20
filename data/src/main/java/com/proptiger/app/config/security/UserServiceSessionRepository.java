@@ -54,33 +54,35 @@ public class UserServiceSessionRepository implements SessionRepository<MapSessio
 
     @Override
     public MapSession getSession(String jsessionId) {
-        HttpHeaders header = new HttpHeaders();
-        header.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
-        String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(URL_DATA_V1_ENTITY_SESSION).toString();
-        try {
-            ActiveUserCopy activeUserCopy = httpRequestUtil.getInternalApiResultAsType(
-                    URI.create(stringUrl),
-                    header,
-                    ActiveUserCopy.class);
-            if (activeUserCopy != null) {
-                ActiveUser activeUser = activeUserCopy.toActiveUser();
-                return createSessionForActiveUser(activeUser, jsessionId);
+        if(jsessionId != null && !jsessionId.isEmpty()){
+            HttpHeaders header = new HttpHeaders();
+            header.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
+            String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
+                    .append(URL_DATA_V1_ENTITY_SESSION).toString();
+            try {
+                ActiveUserCopy activeUserCopy = httpRequestUtil.getInternalApiResultAsType(
+                        URI.create(stringUrl),
+                        header,
+                        ActiveUserCopy.class);
+                if (activeUserCopy != null) {
+                    ActiveUser activeUser = activeUserCopy.toActiveUser();
+                    return createSessionForActiveUser(activeUser, jsessionId);
+                }
+                /*
+                else {
+                   
+                     * AnonymousAuthenticationToken auth = new
+                     * AnonymousAuthenticationToken( key, ANONYMOUS_USER,
+                     * AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+                     * auth.setDetails
+                     * (authenticationDetailsSource.buildDetails(request));
+                     
+                }
+                */
             }
-            /*
-            else {
-               
-                 * AnonymousAuthenticationToken auth = new
-                 * AnonymousAuthenticationToken( key, ANONYMOUS_USER,
-                 * AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-                 * auth.setDetails
-                 * (authenticationDetailsSource.buildDetails(request));
-                 
+            catch (Exception e) {
+                logger.error("Error while getting session info from user service for {}", jsessionId);
             }
-            */
-        }
-        catch (Exception e) {
-            logger.error("Error while getting session info from user service for {}", jsessionId);
         }
         return null;
     }

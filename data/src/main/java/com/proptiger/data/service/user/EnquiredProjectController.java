@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.service.user.UserEnquiredService.AlreadyEnquiredDetails;
@@ -19,7 +20,7 @@ import com.proptiger.data.service.user.UserEnquiredService.AlreadyEnquiredDetail
  *
  */
 @Controller
-public class EnquiredProjectController {
+public class EnquiredProjectController extends BaseController{
 
     @Autowired
     private UserEnquiredService enquiredPropertyService;
