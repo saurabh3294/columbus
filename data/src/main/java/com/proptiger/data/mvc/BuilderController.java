@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.model.cms.Builder;
+import com.proptiger.core.model.cms.City;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Selector;
@@ -63,5 +65,20 @@ public class BuilderController extends BaseController {
         Builder builder = builderService.getBuilderDetails(builderId, selector);
         Set<String> fields = selector.getFieldSet();
         return new APIResponse(super.filterFields(builder, fields));
+    }
+    
+    @RequestMapping(value = "data/v1/entity/builder/{builderId}", method = RequestMethod.POST)
+    @ResponseBody
+    public APIResponse updateBuilderDescriptiom(@RequestBody Builder builder, @RequestParam(
+            required = false,
+            value = "needUpdatedBuilder",
+            defaultValue = "false") boolean needUpdatedBuilder) {
+        Builder updated = builderService.updateBuilder(builder);
+        if (needUpdatedBuilder) {
+            return new APIResponse(updated);
+        }
+        else {
+            return new APIResponse();
+        }
     }
 }
