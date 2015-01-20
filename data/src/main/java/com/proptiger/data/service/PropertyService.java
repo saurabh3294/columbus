@@ -85,7 +85,7 @@ public class PropertyService {
     @Autowired
     private ApplicationContext     applicationContext;
 
-    private static int             ROWS_THRESHOLD                      = 200;
+    private static int             ROWS_THRESHOLD               = 200;
 
     public static String           cdnImageUrl;
 
@@ -95,7 +95,9 @@ public class PropertyService {
     @Autowired
     private ConfigService          configService;
 
-    private final String           DYNAMIC_RELEVANCE_SORT_ORDER = "sum(product(PROJECT_PRIMARY_INDEX, %f), product(PROJECT_LIVABILITY_SCORE, %f))";
+    private final String           FIXED_RELEVANCE_SORT_ORDER   = "assignedPriority";
+
+    private final String           DYNAMIC_RELEVANCE_SORT_ORDER = "sum(product(PRIMARY_INDEX, %f), PROJECT_LIVABILITY_SCORE, product(RESALE_INDEX, %f))";
 
     private final String           MAX_PRIMARY_WEIGHT_CONFIG    = "maxPrimaryIndexWeight";
 
@@ -186,19 +188,28 @@ public class PropertyService {
     private Selector enableDynamicRelevance(Selector selector) {
         if (enableDynamicRelevance && selector.getSort() == null) {
             double primaryFactor = 0;
+            double resaleFactor = 0;
             double maxPrimaryWeight = configService.getConfigValueAsDouble(
                     ConfigGroupName.Relevance,
                     MAX_PRIMARY_WEIGHT_CONFIG);
             Double unsoldInventory = getUnsoldInventoryPercentageForSelector(selector);
             if (unsoldInventory != null) {
                 primaryFactor = unsoldInventory * maxPrimaryWeight / 100;
+                resaleFactor = 1 - (unsoldInventory / 100);
             }
 
             LinkedHashSet<SortBy> sortBy = new LinkedHashSet<>();
-            SortBy sort = new SortBy();
-            sort.setField(String.format(DYNAMIC_RELEVANCE_SORT_ORDER, primaryFactor, 1 - primaryFactor));
-            sort.setSortOrder(SortOrder.DESC);
-            sortBy.add(sort);
+
+            SortBy fixedSort = new SortBy();
+            fixedSort.setField(FIXED_RELEVANCE_SORT_ORDER);
+            fixedSort.setSortOrder(SortOrder.ASC);
+
+            sortBy.add(fixedSort);
+
+            SortBy dynamicSort = new SortBy();
+            dynamicSort.setField(String.format(DYNAMIC_RELEVANCE_SORT_ORDER, primaryFactor, resaleFactor));
+            dynamicSort.setSortOrder(SortOrder.DESC);
+            sortBy.add(dynamicSort);
 
             selector.setSort(sortBy);
         }
