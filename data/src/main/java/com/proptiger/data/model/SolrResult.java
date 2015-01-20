@@ -982,6 +982,11 @@ public class SolrResult extends BaseModel {
     public void setPoojaRoom(int poojaRoom) {
         property.setPoojaRoom(poojaRoom);
     }
+    
+    @Field("STUDY_ROOM")
+    public void setStudyRoom(int studyRoom) {
+        property.setStudyRoom(studyRoom);
+    }
 
     @Field("AVAILABILITY")
     public void setAvailability(Integer availability) {
