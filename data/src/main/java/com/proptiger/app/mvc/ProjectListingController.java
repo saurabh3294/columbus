@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
 import com.proptiger.core.annotations.Intercepted;
+import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Project;
@@ -111,6 +112,7 @@ public class ProjectListingController extends BaseController {
         if (isProjectOnlyQuery(projectListingSelector))
         {
             projects = projectService.getProjects(projectListingSelector);
+            enrichProjectsWithDistinctBedrooms(projects);
         }
         else {
             projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
@@ -131,6 +133,26 @@ public class ProjectListingController extends BaseController {
         }
 
         return new APIResponse(response, projects.getTotalCount());
+    }
+
+    // XXX - This is to avoid additional overhead of keeping distinct bedrooms in Solr
+    private void enrichProjectsWithDistinctBedrooms(PaginatedResponse<List<Project>> projects) {
+        for (Project project: projects.getResults()) {
+            for (String subString : project.getUnitTypeString().split(" ")) {
+                for (String subSubString : subString.split(",")) {
+                    try {
+                        project.addBedrooms(Integer.valueOf(subSubString));
+                    }
+                    catch (NumberFormatException e) {
+                        try {
+                            project.addPropertyUnitType(UnitType.valueOf(subSubString).toString());
+                        }
+                        catch (Exception e1) {
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private boolean isProjectOnlyQuery(Selector projectListingSelector) {
