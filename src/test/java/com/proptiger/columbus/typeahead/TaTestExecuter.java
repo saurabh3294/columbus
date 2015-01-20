@@ -2,6 +2,8 @@ package com.proptiger.columbus.typeahead;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -38,7 +40,9 @@ public class TaTestExecuter {
     @Autowired
     private TypeaheadController typeaheadController;
 
-    private static Logger       logger = LoggerFactory.getLogger(TaTestExecuter.class);
+    private static Logger       logger           = LoggerFactory.getLogger(TaTestExecuter.class);
+
+    private final String        URL_PARAM_FORMAT = "&%s=%s";
 
     /**
      * Runs top 'limit' number of test-cases from 'testList'.
@@ -56,13 +60,8 @@ public class TaTestExecuter {
 
         ExecutorService executerService = Executors.newFixedThreadPool(20);
         List<Future<TaTestCase>> futureList = new ArrayList<Future<TaTestCase>>();
-        String testCaseUrl;
         for (TaTestCase ttc : testListLimited) {
-            testCaseUrl = TYPEAHEAD_API_URL + "?query=" + ttc.getQuery();
-            if(ttc.getUsercity() != null){
-                testCaseUrl += ("&usercity=" + ttc.getUsercity());
-            }
-            ttc.setTestUrl(testCaseUrl);
+            ttc.setTestUrl(getTypeaheadTestUrl(ttc));
             futureList.add(executerService.submit(new CustomCallable(ttc)));
         }
 
@@ -81,6 +80,18 @@ public class TaTestExecuter {
         executerService.shutdown();
 
         return testListLimited;
+    }
+
+    private String getTypeaheadTestUrl(TaTestCase ttc) {
+        String testCaseUrl = TYPEAHEAD_API_URL + "?query=" + ttc.getQuery();
+        Map<String, String> urlParams = ttc.getUrlParams();
+        if (urlParams == null || urlParams.size() == 0) {
+            return testCaseUrl;
+        }
+        for (Entry<String, String> entry : urlParams.entrySet()) {
+            testCaseUrl += String.format(URL_PARAM_FORMAT, entry.getKey(), entry.getValue());
+        }
+        return testCaseUrl;
     }
 
     class CustomCallable implements Callable<TaTestCase> {
@@ -104,7 +115,8 @@ public class TaTestExecuter {
                 response = mhsr.getContentAsString();
             }
             catch (Exception ex) {
-                logger.error("Exception while executing testcase callable : " + taTestCase.getLogString() + " Moving On." , ex);
+                logger.error("Exception while executing testcase callable : " + taTestCase.getLogString()
+                        + " Moving On.", ex);
             }
             if (mhsr.getStatus() == 404) {
                 logger.error("Problem executing testcase : " + taTestCase.getLogString(), "Invalid Url : Status = 404");

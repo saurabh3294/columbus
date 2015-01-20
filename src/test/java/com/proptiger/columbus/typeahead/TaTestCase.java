@@ -1,19 +1,20 @@
 package com.proptiger.columbus.typeahead;
 
 import java.util.List;
+import java.util.Map;
 
 import com.proptiger.columbus.model.Typeahead;
 
 public class TaTestCase {
 
-    protected String         query;
-    protected String         usercity;
-    protected TaTestCaseType type;
-    protected int            minRank;
-    protected int            maxRank;
-    protected String         expectedTypeaheadId;
-    protected String         testUrl;
-    private List<Typeahead>  results;
+    protected String              query;
+    protected Map<String, String> urlParams;
+    protected TaTestCaseType      type;
+    protected int                 minRank;
+    protected int                 maxRank;
+    protected String              expectedTypeaheadId;
+    protected String              testUrl;
+    private List<Typeahead>       results;
 
     public TaTestCase(String query, TaTestCaseType type, int minRank, int maxRank, String expectedTypeaheadId) {
         super();
@@ -32,12 +33,12 @@ public class TaTestCase {
         this.query = query;
     }
 
-    public String getUsercity() {
-        return usercity;
+    public Map<String, String> getUrlParams() {
+        return urlParams;
     }
 
-    public void setUsercity(String usercity) {
-        this.usercity = usercity;
+    public void setUrlParams(Map<String, String> urlParams) {
+        this.urlParams = urlParams;
     }
 
     public TaTestCaseType getType() {
@@ -96,7 +97,10 @@ public class TaTestCase {
                 + this.maxRank
                 + ")"
                 + ","
-                + this.expectedTypeaheadId;
+                + this.expectedTypeaheadId
+                + ", [ "
+                +  String.valueOf(urlParams)
+                + " ]";
         return logString;
     }
 }
