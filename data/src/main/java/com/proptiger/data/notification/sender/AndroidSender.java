@@ -185,7 +185,9 @@ public class AndroidSender implements MediumSender {
                 for (String regId : regIds) {
                     Result result = sender.send(message, regId, RETRY_COUNT);
                     if (result.getMessageId() == null) {
-                        logger.error("Unable to send android notification to regId: " + regId
+                        logger.error("Unable to send android notification with message: " + message
+                                + " to regId: "
+                                + regId
                                 + " for nGeneratedId: "
                                 + nGenerated.getId()
                                 + ". Got Result: "
@@ -216,7 +218,11 @@ public class AndroidSender implements MediumSender {
             }
         }
 
-        return isSent;
+        if (!isSent) {
+            updateStatusAsLookUpFailed(nGenerated.getId());
+        }
+
+        return true;
     }
 
     private Map<String, String> getDataMap(String template, String typeName) {
