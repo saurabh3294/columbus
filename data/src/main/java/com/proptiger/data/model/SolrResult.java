@@ -1461,6 +1461,11 @@ public class SolrResult extends BaseModel {
         property.setCarpetArea(carpetArea);
     }
 
+    @Field(value = "ALL_BEDROOMS")
+    public void setUnitTypeString(String unitTypeString) {
+        project.setUnitTypeString(unitTypeString);
+    }
+
     @Field(value = "CITY_TAXONOMY_URL")
     public void setCityTaxonomyUrls(String cityTaxonomyUrls) {
         city.setCityTaxonomyUrls(new Gson().fromJson(cityTaxonomyUrls, Map.class));
