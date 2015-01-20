@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,6 @@ import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.MailTemplateDetail;
 import com.proptiger.core.enums.ProcessingStatus;
-import com.proptiger.core.enums.ProjectStatus;
 import com.proptiger.core.enums.SalesType;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.internal.dto.mail.MailBody;
@@ -48,7 +49,6 @@ import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDaoNew;
 import com.proptiger.data.service.user.UserServiceHelper;
-import com.proptiger.data.util.lead.CookieConstants;
 import com.proptiger.data.util.lead.LeadCookiesHandler;
 import com.proptiger.data.util.lead.LeadGACookiesHandler;
 import com.proptiger.data.util.lead.LeadValidator;
@@ -101,6 +101,7 @@ public class EnquiryService {
     
     @Autowired
     private UserServiceHelper userServiceHelper;
+    private static Logger                    logger = LoggerFactory.getLogger(EnquiryService.class);
 
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
@@ -201,8 +202,13 @@ public class EnquiryService {
     }
 
     private void updateUserDetails(Enquiry enquiry) {
-
-        User user = userServiceHelper.getUserByEmail_CallerNonLogin(enquiry.getEmail());
+        User user = null;
+        try {
+            user = userServiceHelper.getUserByEmail_CallerNonLogin(enquiry.getEmail());
+        }
+        catch (Exception e) {
+            logger.error("User with email id {} not found from userservice", enquiry.getEmail());;
+        }
 
         if ((user != null && user.getUserAuthProviderDetails() != null) && !user.getUserAuthProviderDetails().isEmpty()) {
             User newUser = new User();
