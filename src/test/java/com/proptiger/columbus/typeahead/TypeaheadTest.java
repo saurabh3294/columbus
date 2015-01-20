@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import com.proptiger.columbus.service.AbstractTest;
 
 @Component
-@Test(singleThreaded=true)
+@Test(singleThreaded = true)
 public class TypeaheadTest extends AbstractTest {
 
     @Autowired
