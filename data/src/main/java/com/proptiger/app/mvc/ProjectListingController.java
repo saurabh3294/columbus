@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
 import com.proptiger.core.annotations.Intercepted;
+import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.enums.filter.Operator;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Project;
@@ -143,7 +144,11 @@ public class ProjectListingController extends BaseController {
                         project.addBedrooms(Integer.valueOf(subSubString));
                     }
                     catch (NumberFormatException e) {
-                        project.addPropertyUnitType(subSubString);
+                        try {
+                            project.addPropertyUnitType(UnitType.valueOf(subSubString).toString());
+                        }
+                        catch (Exception e1) {
+                        }
                     }
                 }
             }
