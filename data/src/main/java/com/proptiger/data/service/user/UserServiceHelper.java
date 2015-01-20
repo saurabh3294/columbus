@@ -46,7 +46,7 @@ public class UserServiceHelper {
     private static final String URL_DATA_V1_ENTITY_USER        = "/data/v1/entity/user";
     private static final String URL_APP_V1_USER_BY_USER_IDS      = "/app/v1/user?userId=";
     private static final String URL_APP_V1_USER_DETAILS_BY_USER_IDS = "/app/v1/user-details?userId=";
-    private static final String URL_APP_V1_USER_DETAILS_BY_EMAIL  = "app/v1/user-details?email=";
+    private static final String URL_APP_V1_USER_DETAILS_BY_EMAIL  = "/app/v1/user-details?email=";
 
     @Autowired
     private HttpRequestUtil     httpRequestUtil;
@@ -163,11 +163,11 @@ public class UserServiceHelper {
                 PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)).append(
                         getRelativeUrl(URL_APP_V1_USER_DETAILS_BY_EMAIL)).append(email);
 
-        List<User> users = httpRequestUtil.getInternalApiResultAsTypeList(URI.create(stringUrl.toString()), User.class);
-        if (users == null || users.isEmpty()) {
+        User user = httpRequestUtil.getInternalApiResultAsTypeFromCache(URI.create(stringUrl.toString()), User.class);
+        if (user == null) {
             throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
-        return users.get(0);
+        return user;
     }
 
     public User getOrCreateUser_CallerNonLogin(User userToFind) {
