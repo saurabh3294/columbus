@@ -6,6 +6,7 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -32,6 +33,9 @@ public class UserServiceSessionRepository implements SessionRepository<MapSessio
                                                                    .getLogger(UserServiceSessionRepository.class);
     @Autowired
     private HttpRequestUtil     httpRequestUtil;
+    
+    @Value("${internal.api.userservice}")
+    private String          userServiceModuleInternalApiHost;
 
     /*
      * private AuthenticationTrustResolver trustResolver = new
@@ -40,7 +44,7 @@ public class UserServiceSessionRepository implements SessionRepository<MapSessio
      * authenticationDetailsSource = new WebAuthenticationDetailsSource();
      * private String key = UUID.randomUUID() .toString();
      */
-    private static final String URL_DATA_V1_ENTITY_SESSION = "/userservice/data/v1/entity/session";
+    private static final String URL_DATA_V1_ENTITY_SESSION = "/data/v1/entity/session";
 
     @Override
     public MapSession createSession() {
@@ -57,7 +61,7 @@ public class UserServiceSessionRepository implements SessionRepository<MapSessio
         if(jsessionId != null && !jsessionId.isEmpty()){
             HttpHeaders header = new HttpHeaders();
             header.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
-            String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
+            String stringUrl = new StringBuilder(userServiceModuleInternalApiHost)
                     .append(URL_DATA_V1_ENTITY_SESSION).toString();
             try {
                 ActiveUserCopy activeUserCopy = httpRequestUtil.getInternalApiResultAsType(

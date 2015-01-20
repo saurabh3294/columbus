@@ -39,8 +39,8 @@ import com.proptiger.core.util.RequestHolderUtil;
 @Service
 public class UserServiceHelper {
     
-    @Value("${userservice.module.name}")
-    private String userServiceModuleName;
+    @Value("${internal.api.userservice}")
+    private String          userServiceModuleInternalApiHost;
     
     private static final String URL_GET_ACTIVE_USER_DETAILS    = "/app/v1/user/details";
     private static final String URL_DATA_V1_ENTITY_USER        = "/data/v1/entity/user";
@@ -70,8 +70,8 @@ public class UserServiceHelper {
 
     public CustomUser getActiveUserCustomDetails() {
         HttpHeaders header = createJsessionIdHeader();
-        String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(getRelativeUrl(URL_GET_ACTIVE_USER_DETAILS)).toString();
+        String stringUrl = new StringBuilder(userServiceModuleInternalApiHost)
+                .append(URL_GET_ACTIVE_USER_DETAILS).toString();
         CustomUser customUser = httpRequestUtil.getInternalApiResultAsType(
                 URI.create(stringUrl),
                 header,
@@ -81,8 +81,8 @@ public class UserServiceHelper {
 
     public User getLoggedInUserObj() {
         HttpHeaders header = createJsessionIdHeader();
-        String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(getRelativeUrl(URL_DATA_V1_ENTITY_USER)).toString();
+        String stringUrl = new StringBuilder(userServiceModuleInternalApiHost)
+                .append(URL_DATA_V1_ENTITY_USER).toString();
         User user = httpRequestUtil.getInternalApiResultAsType(URI.create(stringUrl), header, User.class);
         return user;
     }
@@ -92,12 +92,12 @@ public class UserServiceHelper {
         if (userIds != null && !userIds.isEmpty()) {
             return new HashMap<Integer, User>();
         }
-        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_APP_V1_USER_DETAILS_BY_USER_IDS), null);
+        List<User> users = getUsersByIds(userIds, URL_APP_V1_USER_DETAILS_BY_USER_IDS, null);
         return userListToMap(users);
     }
 
     public User getUserWithCompleteDetailsById_CallerNonLogin(Integer userId) {
-        List<User> users = getUsersByIds(Arrays.asList(userId), getRelativeUrl(URL_APP_V1_USER_DETAILS_BY_USER_IDS), null);
+        List<User> users = getUsersByIds(Arrays.asList(userId), URL_APP_V1_USER_DETAILS_BY_USER_IDS, null);
         if (users == null || users.isEmpty()) {
             throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
@@ -105,8 +105,7 @@ public class UserServiceHelper {
     }
 
     private List<User> getUsersByIds(Collection<Integer> userIds, String completeURI, HttpHeaders header) {
-        StringBuilder completeURL = new StringBuilder(
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)).append(completeURI);
+        StringBuilder completeURL = new StringBuilder(userServiceModuleInternalApiHost).append(completeURI);
         boolean first = true;
         for (Integer id : userIds) {
             if (!first) {
@@ -135,7 +134,7 @@ public class UserServiceHelper {
     }
 
     public User getUserById_CallerNonLogin(Integer userId) {
-        List<User> list = getUsersByIds(Arrays.asList(userId), getRelativeUrl(URL_APP_V1_USER_BY_USER_IDS), null);
+        List<User> list = getUsersByIds(Arrays.asList(userId), URL_APP_V1_USER_BY_USER_IDS, null);
         if (list == null || list.isEmpty()) {
             throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
@@ -143,7 +142,7 @@ public class UserServiceHelper {
     }
 
     public Map<Integer, User> getUsersMapByUserIds_CallerNonLogin(Collection<Integer> userIds) {
-        List<User> users = getUsersByIds(userIds, getRelativeUrl(URL_APP_V1_USER_BY_USER_IDS), null);
+        List<User> users = getUsersByIds(userIds, URL_APP_V1_USER_BY_USER_IDS, null);
         return userListToMap(users);
     }
 
@@ -159,9 +158,8 @@ public class UserServiceHelper {
         if (email == null || email.isEmpty()) {
             throw new BadRequestException("Invalid email id");
         }
-        StringBuilder stringUrl = new StringBuilder(
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)).append(
-                        getRelativeUrl(URL_APP_V1_USER_DETAILS_BY_EMAIL)).append(email);
+        StringBuilder stringUrl = new StringBuilder(userServiceModuleInternalApiHost).append(
+                        URL_APP_V1_USER_DETAILS_BY_EMAIL).append(email);
 
         User user = httpRequestUtil.getInternalApiResultAsTypeFromCache(URI.create(stringUrl.toString()), User.class);
         if (user == null) {
@@ -185,9 +183,8 @@ public class UserServiceHelper {
 
     public User createOrPatchUser_CallerNonLogin(User userToFind) {
         User user;
-        StringBuilder stringUrl = new StringBuilder(
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(getRelativeUrl(URL_DATA_V1_ENTITY_USER));
+        StringBuilder stringUrl = new StringBuilder(userServiceModuleInternalApiHost)
+                .append(URL_DATA_V1_ENTITY_USER);
         user = httpRequestUtil.postAndReturnInternalJsonRequest(
                 URI.create(stringUrl.toString()),
                 userToFind,
@@ -195,7 +192,4 @@ public class UserServiceHelper {
         return user;
     }
     
-    private String getRelativeUrl(String url){
-        return new StringBuilder(userServiceModuleName).append(url).toString();
-    }
 }

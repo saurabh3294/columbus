@@ -40,8 +40,8 @@ import com.proptiger.data.service.trend.TrendService;
 @Service
 public class UserSubscriptionHelperService {
 
-    @Value("${userservice.module.name}")
-    private String          userServiceModuleName;
+    @Value("${internal.api.userservice}")
+    private String          userServiceModuleInternalApiHost;
 
     private final String    URL_USERDETAILS_SUBSCRIPTION_PERMISSION = "/data/v1/entity/user/subscription/permission";
     private final String    URL_USERDETAILS_SUBSCRIPTION_MAPPING    = "/data/v1/entity/user/subscription/mapping";
@@ -85,8 +85,8 @@ public class UserSubscriptionHelperService {
         if (header == null) {
             return new ArrayList<SubscriptionPermission>();
         }
-        String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(getRelativeUrl(URL_USERDETAILS_SUBSCRIPTION_PERMISSION)).toString();
+        String stringUrl = new StringBuilder(userServiceModuleInternalApiHost).append(
+                URL_USERDETAILS_SUBSCRIPTION_PERMISSION).toString();
         List<SubscriptionPermission> subscriptionPermissions = httpRequestUtil.getInternalApiResultAsTypeList(
                 URI.create(stringUrl),
                 header,
@@ -110,8 +110,8 @@ public class UserSubscriptionHelperService {
         if (header == null) {
             return new ArrayList<UserSubscriptionMapping>();
         }
-        String stringUrl = new StringBuilder(PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
-                .append(getRelativeUrl(URL_USERDETAILS_SUBSCRIPTION_MAPPING)).toString();
+        String stringUrl = new StringBuilder(userServiceModuleInternalApiHost).append(
+                URL_USERDETAILS_SUBSCRIPTION_MAPPING).toString();
         List<UserSubscriptionMapping> subscriptionPermissions = httpRequestUtil.getInternalApiResultAsTypeList(
                 URI.create(stringUrl),
                 header,
@@ -207,8 +207,5 @@ public class UserSubscriptionHelperService {
         }
         return cityIdList;
     }
-    
-    private String getRelativeUrl(String url){
-        return new StringBuilder(userServiceModuleName).append(url).toString();
-    }
+
 }
