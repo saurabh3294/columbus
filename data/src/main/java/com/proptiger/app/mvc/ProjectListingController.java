@@ -143,6 +143,7 @@ public class ProjectListingController extends BaseController {
                         project.addBedrooms(Integer.valueOf(subSubString));
                     }
                     catch (NumberFormatException e) {
+                        project.addPropertyUnitType(subSubString);
                     }
                 }
             }
