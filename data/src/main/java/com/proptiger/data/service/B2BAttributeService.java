@@ -18,16 +18,15 @@ import com.proptiger.data.repo.B2BAttributeDao;
 @Service
 public class B2BAttributeService {
 
-    @Autowired
     private static Logger logger = LoggerFactory.getLogger(B2BAttributeService.class);
 
     @Value("${b2b.price-inventory.max.month.dblabel}")
     String                b2bEndDateDbLabel;
 
     @Autowired
-    B2BAttributeDao       b2bAttributeDao;
+    private B2BAttributeDao       b2bAttributeDao;
 
-    Map<String, String>   b2bAttributeMap;
+    private Map<String, String>   b2bAttributeMap;
 
     @PostConstruct
     private void getAttributes() throws ProAPIException {

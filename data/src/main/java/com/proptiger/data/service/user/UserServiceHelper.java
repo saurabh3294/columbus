@@ -89,7 +89,7 @@ public class UserServiceHelper {
 
 
     public Map<Integer, User> getUserWithCompleteDetailsByUserIds_CallerNonLogin(Collection<Integer> userIds) {
-        if (userIds != null && !userIds.isEmpty()) {
+        if (userIds == null || userIds.isEmpty()) {
             return new HashMap<Integer, User>();
         }
         List<User> users = getUsersByIds(userIds, URL_APP_V1_USER_DETAILS_BY_USER_IDS, null);

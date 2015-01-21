@@ -242,8 +242,12 @@ public class LeadOfferService {
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
                     if (fields.contains("contactNumbers")) {
-                        leadOffer.getLead().getClient()
-                                .setContactNumbers(users.get(leadOffer.getLead().getClientId()).getContactNumbers());
+                        leadOffer
+                                .getLead()
+                                .getClient()
+                                .setContactNumbers(
+                                        users.get(leadOffer.getLead().getClientId()) != null ? users.get(
+                                                leadOffer.getLead().getClientId()).getContactNumbers() : null);
                     }
                 }
             }

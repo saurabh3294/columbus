@@ -271,9 +271,10 @@ public class BuilderService {
     @Transactional
     public Builder updateBuilder(Builder builder) {
         if(builder.getDescription() != null && !builder.getDescription().isEmpty()){
+            builderDao.updateDescriptionOfBuilder(builder.getDescription(),builder.getId());
             Builder builderActual=builderDao.findOne(builder.getId());
-            builderActual.setDescription(builder.getDescription());
-            builderActual = builderDao.save(builderActual);
+  /*          builderActual.setDescription(builder.getDescription());
+            builderActual = builderDao.save(builderActual);*/
             return builderActual;
         }else{
         throw new BadRequestException("Invalid builder description");
