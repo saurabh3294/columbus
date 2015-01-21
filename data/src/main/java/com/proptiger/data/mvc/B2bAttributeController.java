@@ -1,5 +1,6 @@
 package com.proptiger.data.mvc;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +17,7 @@ import com.proptiger.data.service.B2BAttributeService;
 @Controller
 public class B2bAttributeController {
 
+    @Autowired
     private B2BAttributeService b2bAttributeService;
 
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/b2b/attribute")
