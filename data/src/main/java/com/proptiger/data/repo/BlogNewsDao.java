@@ -15,9 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.config.AppRepositoryConfig;
+import com.proptiger.core.model.wordpress.WordpressPost;
+import com.proptiger.core.model.wordpress.WordpressTerms;
 import com.proptiger.core.pojo.Paging;
-import com.proptiger.data.model.WordpressPost;
-import com.proptiger.data.model.WordpressTerms;
 
 /**
  * This class handles queries for both wordpress and wordpress_news database
