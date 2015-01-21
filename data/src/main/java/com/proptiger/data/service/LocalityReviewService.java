@@ -32,7 +32,7 @@ import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetail;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.repo.LocalityReviewDao;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 /**
  * Service class to handle CRUD operations for locality review details.
@@ -50,9 +50,9 @@ public class LocalityReviewService {
 
     @Autowired
     private LocalityService       localityService;
-
+    
     @Autowired
-    private UserService           userService;
+    private UserServiceHelper userServiceHelper;
 
     private static Logger         logger = LoggerFactory.getLogger(LocalityReviewService.class);
 
@@ -116,7 +116,7 @@ public class LocalityReviewService {
                 userIds.add(comments.getUserId());
             }
         }
-        Map<Integer, User> usersMap = userService.getUsers(userIds);
+        Map<Integer, User> usersMap = userServiceHelper.getUsersMapByUserIds_CallerNonLogin(userIds);
         for (LocalityReviewComments c : reviewComments) {
             User user = usersMap.get(c.getUserId());
             customDetails.add(new LocalityReviewCustomDetail(c.getReview(), c.getReviewLabel(), user != null ? user
@@ -260,7 +260,7 @@ public class LocalityReviewService {
             for (LocalityReviewComments l : results) {
                 userIds.add(l.getUserId());
             }
-            Map<Integer, User> usersMap = userService.getUsers(userIds);
+            Map<Integer, User> usersMap = userServiceHelper.getUsersMapByUserIds_CallerNonLogin(userIds);
             for (LocalityReviewComments l : results) {
                 l.setForumUser(usersMap.get(l.getUserId()).toForumUser());
                 ;

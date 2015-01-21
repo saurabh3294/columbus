@@ -113,8 +113,8 @@ public class CompositeAPIService {
      * @param request
      * @return
      */
-    public Map<String, Object> getResponseForApis(List<String> apis, HttpServletRequest request) {
-        if (apis != null && apis.size() > Constants.LIMIT_OF_COMPOSITE_APIs) {
+    public Map<String, Object> getResponseForApis(String[] apis, HttpServletRequest request) {
+        if (apis != null && apis.length > Constants.LIMIT_OF_COMPOSITE_APIs) {
             throw new BadRequestException(ResponseErrorMessages.LIMIT_OF_COMPOSITE_API_EXCEEDED);
         }
         Date start = new Date();
@@ -124,7 +124,7 @@ public class CompositeAPIService {
         Cookie[] requestCookies = request.getCookies();
         String phpsessId = null;
         String jsessionId = null;
-        
+
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
 
@@ -134,22 +134,27 @@ public class CompositeAPIService {
                 else if (c.getName().equals(Constants.JSESSIONID)) {
                     jsessionId = c.getValue();
                 }
-                else{
+                else {
                     continue;
                 }
             }
-        }     
+        }
         
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Cookie", "PHPSESSID=" + phpsessId);
         requestHeaders.add("Cookie", "JSESSIONID=" + jsessionId);
 
+        String applicationType = request.getHeader(Constants.APPLICATION_TYPE_HEADER);
+        if (applicationType != null && !applicationType.isEmpty()) {
+            requestHeaders.add(Constants.APPLICATION_TYPE_HEADER, applicationType);
+        }
+
         final HttpEntity<Object> requestEntity = new HttpEntity<Object>(requestHeaders);
 
-        if (apis != null && apis.size() > 0) {
+        if (apis != null && apis.length > 0) {
             response = new HashMap<String, Object>();
 
-            ExecutorService executors = Executors.newFixedThreadPool(apis.size());
+            ExecutorService executors = Executors.newFixedThreadPool(apis.length);
             Map<String, Future<CallableWithTime>> futureObjMap = new ConcurrentHashMap<String, Future<CallableWithTime>>();
             for (String api : apis) {
                 final String completeUrl = URLUtil.getCompleteUrl(api, BASE_URL);
@@ -198,8 +203,6 @@ public class CompositeAPIService {
                 timeTakenByApis);
         return response;
     }
-
- 
 
     /**
      * This method is to use spring's internal architecture to hit required

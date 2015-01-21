@@ -18,7 +18,7 @@ import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.PaginatedResponse;
-import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.core.service.mail.TemplateToHtmlGenerator;
 
 /**
  * This class is responsible to create locality description from various set of

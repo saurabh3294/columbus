@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
 import com.proptiger.data.notification.exception.NotificationTypeNotFoundException;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeConfig;

@@ -28,13 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.Striped;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.ImageResolution;
 import com.proptiger.core.enums.MediaType;
 import com.proptiger.core.exception.ResourceAlreadyExistException;
 import com.proptiger.core.model.proptiger.Image;
 import com.proptiger.core.util.Caching;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyReader;
-import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.model.image.ImageQuality;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.MediaUtil;
@@ -148,6 +148,7 @@ public class ImageService extends MediaService {
 			if (quality != null) {
 				processedImage = resizeAndQualityChange(waterMark, null, quality.getQuality(), format, true);
 				amazonS3Util.uploadFile(image.getPath() + image.getId() + HYPHON + Image.OPTIMAL_SUFFIX + Image.DOT + format, processedImage);
+				deleteFileFromDisc(processedImage);
 			}
 		}
 		catch (Exception e) {

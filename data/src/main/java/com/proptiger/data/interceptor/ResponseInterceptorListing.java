@@ -15,10 +15,12 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.exception.ProAPIException;
+import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.service.ApplicationNameService;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.service.user.UserSubscriptionService;
+import com.proptiger.data.service.user.UserSubscriptionHelperService;
 
 /**
  * This class is used for authentication based filtering of APIResponse.
@@ -33,16 +35,16 @@ import com.proptiger.data.service.user.UserSubscriptionService;
 @Order(1)
 @Component
 public class ResponseInterceptorListing {
-
-    @Autowired
-    private UserSubscriptionService   userSubscriptionService;
-
+    
     private final int     objTypeIdLocality    = DomainObject.locality.getObjectTypeId();
 
     private final int     objTypeIdCity        = DomainObject.city.getObjectTypeId();
 
     private final String  fieldTagAuthorized   = "authorized";
-
+    
+    @Autowired
+    private UserSubscriptionHelperService userSubscriptionHelperService;
+    
     @Autowired
     private static Logger logger               = LoggerFactory.getLogger(ResponseInterceptorListing.class);
 
@@ -53,7 +55,7 @@ public class ResponseInterceptorListing {
     public void filterResponseProjectListings(Object retVal) throws Throwable {
 
         Object data = getApiResponseData(retVal);
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        MultiKeyMap userSubscriptionMap = userSubscriptionHelperService.getUserSubscriptionMap();
         if (data == null || userSubscriptionMap == null) {
             return;
         }
@@ -71,13 +73,38 @@ public class ResponseInterceptorListing {
         }
     }
 
+    @AfterReturning(
+            pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.ProjectDetail)",
+            returning = "retVal")
+    public void filterResponseProjectDetails(Object retVal) throws Throwable {
+
+        Object data = getApiResponseData(retVal);
+        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        if (data == null || userSubscriptionMap == null) {
+             return;
+        }
+
+        if (!(data instanceof Project)) {
+            throw new ProAPIException("Unrecognised Response from ProjectDetail API.");
+        }
+
+        Project project = (Project) data;
+        int localityId = project.getLocalityId();
+        int cityId = project.getLocality().getSuburb().getCity().getId();
+        if (!((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+                objTypeIdCity,
+                cityId) != null))) {
+            project.setAuthorized(false);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     @AfterReturning(
             pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.LocalityListing)",
             returning = "retVal")
     public void filterResponseLocalityListings(Object retVal) throws Throwable {
         Object data = getApiResponseData(retVal);
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        MultiKeyMap userSubscriptionMap = userSubscriptionHelperService.getUserSubscriptionMap();
         if (data == null || userSubscriptionMap == null) {
             return;
         }
@@ -101,7 +128,7 @@ public class ResponseInterceptorListing {
             returning = "retVal")
     public void filterResponseCityListings(Object retVal) throws Throwable {
         Object data = getApiResponseData(retVal);
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        MultiKeyMap userSubscriptionMap = userSubscriptionHelperService.getUserSubscriptionMap();
         if (data == null || userSubscriptionMap == null) {
             return;
         }
@@ -155,7 +182,7 @@ public class ResponseInterceptorListing {
         }
         ActiveUser activeUser = SecurityContextUtils.getActiveUser();
         if (activeUser != null) {
-            return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
+            return (userSubscriptionHelperService.getUserSubscriptionMap());
         }
         else {
             return null;

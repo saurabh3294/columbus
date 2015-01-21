@@ -24,6 +24,7 @@ public class CookieConstants {
     public static final String CPC               = "cpc";
     public static final String PPC               = "ppc";
     public static final String USER_FROM_PPC     = "USER_FROM_PPC";
+    public static final String PPC_TRUE          = "TRUE";
 
     public static final String REF_URL           = "REF_URL";
     public static final String UTM_SOURCE        = "utm_source";
@@ -35,7 +36,9 @@ public class CookieConstants {
     public static final String UTM_CCN           = "utmccn";
     public static final String UTM_CTR           = "utmctr";
     public static final String UTM_CMD           = "utmcmd";
-    public static final String UTM_CSR           = "utmcsr";    
-    public static final String UTM_GCLID           = "utmgclid";
+    public static final String UTM_CSR           = "utmcsr";
+    public static final String UTM_GCLID         = "utmgclid";
+    public static final String SOURCE            = "Website";
+
 
 }

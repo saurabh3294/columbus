@@ -16,7 +16,7 @@ import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
  *
  */
 @Service
-public class LeadRequirementsService {    
+public class LeadRequirementsService {
     @Autowired
     private LeadRequirementsDao leadRequirementsDao;
 
@@ -28,8 +28,13 @@ public class LeadRequirementsService {
         leadRequirementsDao.save(leadRequirement);
     }
 
-    public List<LeadRequirement> getRequirements(Integer bedroom, Integer localityId, Integer projectId, int leadId) {
-        return leadRequirementsDao.fetchRequirements(bedroom, localityId, projectId, leadId);
+    public List<LeadRequirement> getRequirements(
+            Integer bedroom,
+            Integer localityId,
+            Integer projectId,
+            Integer propertyTypeId,
+            int leadId) {
+        return leadRequirementsDao.fetchRequirements(bedroom, localityId, projectId, propertyTypeId, leadId);
     }
 
     public void saveAndFlush(LeadRequirement leadRequirement) {

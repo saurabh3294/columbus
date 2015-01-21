@@ -101,19 +101,19 @@ public class PortfolioController extends BaseController {
             HttpServletRequest request,
             @PathVariable Integer userId,
             @RequestBody PortfolioListing portfolioProperty,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
         /*
          * Setting user-agent to the portfolio-listing to track the platform
          * info for analysis purpose.
          */
         setUserAgent(request, portfolioProperty);
         PortfolioListing created = portfolioService.createPortfolioListing(
-                userInfo.getUserIdentifier(),
+                activeUser.getUserIdentifier(),
                 portfolioProperty);
         /*
          * Calling this ListingById method to update current listing with price and other details 
          */
-        created = portfolioService.getPortfolioListingById(userId, created.getId());
+        created = portfolioService.getPortfolioListingById(activeUser.getUserIdentifier(), created.getId());
         return new APIResponse(super.filterFields(created, null));
     }
 
@@ -133,7 +133,7 @@ public class PortfolioController extends BaseController {
             @RequestBody PortfolioListing portfolioProperty,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         portfolioService.updatePortfolioListing(userInfo.getUserIdentifier(), listingId, portfolioProperty);
-        PortfolioListing updatedListing = portfolioService.getPortfolioListingById(userId, listingId);
+        PortfolioListing updatedListing = portfolioService.getPortfolioListingById(userInfo.getUserIdentifier(), listingId);
         return new APIResponse(super.filterFields(updatedListing, null));
     }
 
@@ -185,7 +185,7 @@ public class PortfolioController extends BaseController {
      * @param userId
      * @param listingId
      * @param mailType
-     * @param userInfo
+     * @param activeUser
      * @return
      */
     @RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/mail")
@@ -193,8 +193,8 @@ public class PortfolioController extends BaseController {
     public APIResponse sendMailForListing(@PathVariable Integer userId, @PathVariable Integer listingId, 
             @RequestParam(
             required = true,
-            value = "mailType") String mailType, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        boolean status = portfolioService.handleMailRequest(userInfo.getUserIdentifier(), listingId, mailType);
+            value = "mailType") String mailType, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+        boolean status = portfolioService.handleMailRequest(activeUser, listingId, mailType);
         return new APIResponse(status);
     }
 
@@ -213,7 +213,7 @@ public class PortfolioController extends BaseController {
             @RequestParam(required = true, value = "unsubscribeTypes") String[] unsubscribeTypes,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         List<Subscription> subscriptions = subscriptionService.disableSubscription(
-                userId,
+                userInfo.getUserIdentifier(),
                 listingId,
                 PortfolioListing.class.getAnnotation(Table.class).name(),
                 unsubscribeTypes);

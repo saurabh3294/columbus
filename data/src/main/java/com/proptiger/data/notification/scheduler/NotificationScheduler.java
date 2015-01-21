@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.enums.notification.MediumType;
 import com.proptiger.core.util.DateUtil;
-import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.service.NotificationGeneratedService;

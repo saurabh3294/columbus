@@ -21,8 +21,13 @@ import com.proptiger.data.model.marketplace.LeadRequirement;
 public class LeadRequirementsDaoImpl {
     @Autowired
     private EntityManagerFactory emf;
-    
-    public List<LeadRequirement> fetchRequirements(Integer bedroom, Integer localityId, Integer projectId, int leadId) {
+
+    public List<LeadRequirement> fetchRequirements(
+            Integer bedroom,
+            Integer localityId,
+            Integer projectId,
+            Integer propertyTypeId,
+            int leadId) {
         EntityManager em = emf.createEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<LeadRequirement> cq = cb.createQuery(LeadRequirement.class);
@@ -49,10 +54,17 @@ public class LeadRequirementsDaoImpl {
         else {
             conditions.add(cb.equal(c.get("projectId"), projectId));
         }
-        
-        conditions.add(cb.equal(c.get("leadId"), leadId));        
+
+        if (propertyTypeId == null) {
+            conditions.add(cb.isNull(c.get("propertyTypeId")));
+        }
+        else {
+            conditions.add(cb.equal(c.get("propertyTypeId"), propertyTypeId));
+        }
+
+        conditions.add(cb.equal(c.get("leadId"), leadId));
         cq.where(conditions.toArray(new Predicate[0]));
         return em.createQuery(cq).getResultList();
     }
-    
+
 }

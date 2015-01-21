@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.core.annotations.ExcludeFromBeanCopy;
 import com.proptiger.core.model.BaseModel;
-import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.MasterLeadTask;
 import com.proptiger.data.model.MasterLeadTaskStatus;
 
@@ -71,9 +70,9 @@ public class LeadTask extends BaseModel {
     @Column(name = "updated_at")
     private Date                            updatedAt;
 
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lead_offer_id", insertable = false, updatable = false)
+    @JsonBackReference
     private LeadOffer                       leadOffer;
 
     @ManyToOne

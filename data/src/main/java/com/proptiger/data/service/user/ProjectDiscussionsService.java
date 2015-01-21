@@ -27,6 +27,8 @@ import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.service.mail.MailSender;
+import com.proptiger.core.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.core.util.Caching;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.PropertyReader;
@@ -36,8 +38,6 @@ import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.user.ProjectDiscussionsDao;
 import com.proptiger.data.repo.user.portfolio.ProjectCommentLikesDao;
 import com.proptiger.data.service.ProjectService;
-import com.proptiger.data.service.mail.MailSender;
-import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 
 @Service
 public class ProjectDiscussionsService {
@@ -68,9 +68,9 @@ public class ProjectDiscussionsService {
 
     @Autowired
     private ProjectDBDao            projectDBDao;
-
+    
     @Autowired
-    private UserService             userService;
+    private UserServiceHelper userServiceHelper;
 
     public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, ActiveUser activeUser) {
 
@@ -82,10 +82,10 @@ public class ProjectDiscussionsService {
             throw new IllegalArgumentException("Enter valid Project Id");
         }
 
-        User user = userService.getUserById(activeUser.getUserIdentifier());
+        //User user = userService.getUserById(activeUser.getUserIdentifier());
 
         projectDiscussion.setUserId(activeUser.getUserIdentifier());
-        projectDiscussion.setAdminUserName(user.getFullName());
+        projectDiscussion.setAdminUserName(activeUser.getFullName());
         projectDiscussion.setLevel(0);
         projectDiscussion.setNumLikes(0);
         projectDiscussion.setStatus("0");
@@ -230,7 +230,7 @@ public class ProjectDiscussionsService {
             for (ProjectDiscussion pd : discussions) {
                 usersIds.add(pd.getUserId());
             }
-            Map<Integer, User> userMap = userService.getUsers(usersIds);
+            Map<Integer, User> userMap = userServiceHelper.getUsersMapByUserIds_CallerNonLogin(usersIds);
             Iterator<ProjectDiscussion> it = discussions.iterator();
             while (it.hasNext()) {
                 ProjectDiscussion pd = it.next();

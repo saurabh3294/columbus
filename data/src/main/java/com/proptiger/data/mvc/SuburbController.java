@@ -6,10 +6,14 @@ package com.proptiger.data.mvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.core.model.cms.Locality;
+import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.response.APIResponse;
@@ -77,6 +81,21 @@ public class SuburbController extends BaseController {
     @ResponseBody
     public APIResponse getActiveInactiveSuburb(@PathVariable int id){
         return new APIResponse(suburbService.getActiveOrInactiveSuburbById(id));
+    }
+    
+    @RequestMapping(value = "data/v1/entity/suburb/{suburbId}", method = RequestMethod.POST)
+    @ResponseBody
+    public APIResponse updateSuburbDescriptiom(@RequestBody Suburb suburb, @RequestParam(
+            required = false,
+            value = "needUpdatedSuburb",
+            defaultValue = "false") boolean needUpdatedSuburb) {
+        Suburb updated = suburbService.updateSuburb(suburb);
+        if (needUpdatedSuburb) {
+            return new APIResponse(updated);
+        }
+        else {
+            return new APIResponse();
+        }
     }
     
 }

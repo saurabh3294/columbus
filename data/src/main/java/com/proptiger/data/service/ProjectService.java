@@ -20,18 +20,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.enums.DataVersion;
 import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.enums.MailTemplateDetail;
 import com.proptiger.core.enums.ResidentialFlag;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.enums.Status;
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.internal.dto.mail.MailBody;
+import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.ProjectDB;
@@ -43,18 +48,16 @@ import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Selector;
 import com.proptiger.core.pojo.SortBy;
 import com.proptiger.core.pojo.response.PaginatedResponse;
+import com.proptiger.core.service.mail.MailSender;
+import com.proptiger.core.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
-import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.SenderDetail;
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.repo.ProjectDao;
+import com.proptiger.data.repo.ProjectDaoNew;
 import com.proptiger.data.repo.ProjectSolrDao;
 import com.proptiger.data.repo.TableAttributesDao;
-import com.proptiger.data.service.mail.MailSender;
-import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.Serializer;
 
@@ -67,7 +70,9 @@ import com.proptiger.data.util.Serializer;
 public class ProjectService {
     @Autowired
     private ProjectDao              projectDao;
-
+    
+    @Autowired
+    private ProjectDaoNew           projectDaoNew;
     @Autowired
     private ImageEnricher           imageEnricher;
 
@@ -907,6 +912,10 @@ public class ProjectService {
 
     }
 
+    public Project getProjectWithVersion(int projectId, DataVersion version) {
+        return projectDao.getProjectWithVersion(projectId, version);
+    }
+
     public List<Integer> getProjectIdsFromLocalityId(Integer localityId) {
         Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId
                 + "}}]}}", Selector.class);
@@ -918,4 +927,18 @@ public class ProjectService {
         return projectIds;
     }
 
+    @Transactional
+    public Project updateProject(Project project) {
+        if (project.getDescription() != null && !project.getDescription().isEmpty()) {
+            Project projectActual = projectDaoNew
+                    .findByProjectIdAndVersion(project.getProjectId(), DataVersion.Website);
+            projectActual.setDescription(project.getDescription());
+            projectActual = projectDaoNew.save(projectActual);
+            return projectActual;
+        }
+        else {
+            throw new BadRequestException("Invalid project description");
+        }
+
+    }
 }
