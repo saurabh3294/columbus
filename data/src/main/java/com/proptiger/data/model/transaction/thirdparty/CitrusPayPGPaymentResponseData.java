@@ -10,7 +10,7 @@ package com.proptiger.data.model.transaction.thirdparty;
 public class CitrusPayPGPaymentResponseData {
     private int    TxId;
     private String TxRefNo;
-    private long   pgTxnNo;
+    private String pgTxnNo;
     private String transactionID;
     private String TxStatus;
     private double amount;
@@ -25,7 +25,7 @@ public class CitrusPayPGPaymentResponseData {
     private String addressCountry;
     private String mobileNo;
     private String signature;
-    private int pgRespCode;
+    private int    pgRespCode;
     private String issuerRefNo;
     private String authIdCode;
 
@@ -45,11 +45,11 @@ public class CitrusPayPGPaymentResponseData {
         TxRefNo = txRefNo;
     }
 
-    public long getPgTxnNo() {
+    public String getPgTxnNo() {
         return pgTxnNo;
     }
 
-    public void setPgTxnNo(long pgTxnNo) {
+    public void setPgTxnNo(String pgTxnNo) {
         this.pgTxnNo = pgTxnNo;
     }
 
