@@ -43,8 +43,8 @@ public class UserSubscriptionHelperService {
     @Value("${internal.api.userservice}")
     private String          userServiceModuleInternalApiHost;
 
-    private final String    URL_USERDETAILS_SUBSCRIPTION_PERMISSION = "/data/v1/entity/user/subscription/permission";
-    private final String    URL_USERDETAILS_SUBSCRIPTION_MAPPING    = "/data/v1/entity/user/subscription/mapping";
+    private final String    URL_USERDETAILS_SUBSCRIPTION_PERMISSION = "data/v1/entity/user/subscription/permission";
+    private final String    URL_USERDETAILS_SUBSCRIPTION_MAPPING    = "data/v1/entity/user/subscription/mapping";
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
