@@ -1164,11 +1164,13 @@ public class LocalityService {
     @Transactional
     public Locality updateLocality(Locality locality) {
         if(locality.getDescription() != null && !locality.getDescription().isEmpty() ){
+            
+            localityDao.updateDescriptionOfLocality(locality.getDescription(),locality.getLocalityId());
             Locality localityActual=localityDao.findOne(locality.getLocalityId());
-           
+            /*           
             localityActual.setDescription(locality.getDescription());
            
-            localityActual = localityDao.save(localityActual);
+            localityActual = localityDao.save(localityActual);*/
             return localityActual;
         }else{
             throw new BadRequestException("Invalid locality description");

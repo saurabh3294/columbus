@@ -70,7 +70,7 @@ import com.proptiger.data.util.Serializer;
 public class ProjectService {
     @Autowired
     private ProjectDao              projectDao;
-    
+
     @Autowired
     private ProjectDaoNew           projectDaoNew;
     @Autowired
@@ -930,10 +930,15 @@ public class ProjectService {
     @Transactional
     public Project updateProject(Project project) {
         if (project.getDescription() != null && !project.getDescription().isEmpty()) {
+            projectDaoNew.updateProjectDescriptionOnIdAndVersionWebsite(
+                    project.getDescription(),
+                    project.getProjectId());
             Project projectActual = projectDaoNew
                     .findByProjectIdAndVersion(project.getProjectId(), DataVersion.Website);
-            projectActual.setDescription(project.getDescription());
-            projectActual = projectDaoNew.save(projectActual);
+            /*
+             * projectActual.setDescription(project.getDescription());
+             * projectActual = projectDaoNew.save(projectActual);
+             */
             return projectActual;
         }
         else {
