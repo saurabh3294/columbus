@@ -42,11 +42,11 @@ public class UserServiceHelper {
     @Value("${internal.api.userservice}")
     private String          userServiceModuleInternalApiHost;
     
-    private static final String URL_GET_ACTIVE_USER_DETAILS    = "/app/v1/user/details";
-    private static final String URL_DATA_V1_ENTITY_USER        = "/data/v1/entity/user";
-    private static final String URL_APP_V1_USER_BY_USER_IDS      = "/app/v1/user?userId=";
-    private static final String URL_APP_V1_USER_DETAILS_BY_USER_IDS = "/app/v1/user-details?userId=";
-    private static final String URL_APP_V1_USER_DETAILS_BY_EMAIL  = "/app/v1/user-details?email=";
+    private static final String URL_GET_ACTIVE_USER_DETAILS    = "app/v1/user/details";
+    private static final String URL_DATA_V1_ENTITY_USER        = "data/v1/entity/user";
+    private static final String URL_APP_V1_USER_BY_USER_IDS      = "app/v1/user?userId=";
+    private static final String URL_APP_V1_USER_DETAILS_BY_USER_IDS = "app/v1/user-details?userId=";
+    private static final String URL_APP_V1_USER_DETAILS_BY_EMAIL  = "app/v1/user-details?email=";
 
     @Autowired
     private HttpRequestUtil     httpRequestUtil;

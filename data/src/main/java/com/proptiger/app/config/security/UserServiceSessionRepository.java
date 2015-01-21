@@ -2,13 +2,16 @@ package com.proptiger.app.config.security;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -28,23 +31,18 @@ import com.proptiger.core.util.PropertyReader;
  */
 public class UserServiceSessionRepository implements SessionRepository<MapSession> {
 
-    //private static final String ANONYMOUS_USER             = "anonymousUser";
+    private static final String ANONYMOUS_USER             = "anonymousUser";
     private static Logger       logger                     = LoggerFactory
                                                                    .getLogger(UserServiceSessionRepository.class);
     @Autowired
     private HttpRequestUtil     httpRequestUtil;
-    
-    @Value("${internal.api.userservice}")
-    private String          userServiceModuleInternalApiHost;
 
-    /*
-     * private AuthenticationTrustResolver trustResolver = new
-     * AuthenticationTrustResolverImpl(); private
-     * AuthenticationDetailsSource<HttpServletRequest, ?>
-     * authenticationDetailsSource = new WebAuthenticationDetailsSource();
-     * private String key = UUID.randomUUID() .toString();
-     */
-    private static final String URL_DATA_V1_ENTITY_SESSION = "/data/v1/entity/session";
+    @Value("${internal.api.userservice}")
+    private String              userServiceModuleInternalApiHost;
+
+    private String              key                        = UUID.randomUUID().toString();
+
+    private static final String URL_DATA_V1_ENTITY_SESSION = "data/v1/entity/session";
 
     @Override
     public MapSession createSession() {
@@ -58,11 +56,11 @@ public class UserServiceSessionRepository implements SessionRepository<MapSessio
 
     @Override
     public MapSession getSession(String jsessionId) {
-        if(jsessionId != null && !jsessionId.isEmpty()){
+        if (jsessionId != null && !jsessionId.isEmpty()) {
             HttpHeaders header = new HttpHeaders();
             header.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
-            String stringUrl = new StringBuilder(userServiceModuleInternalApiHost)
-                    .append(URL_DATA_V1_ENTITY_SESSION).toString();
+            String stringUrl = new StringBuilder(userServiceModuleInternalApiHost).append(URL_DATA_V1_ENTITY_SESSION)
+                    .toString();
             try {
                 ActiveUserCopy activeUserCopy = httpRequestUtil.getInternalApiResultAsType(
                         URI.create(stringUrl),
@@ -72,23 +70,41 @@ public class UserServiceSessionRepository implements SessionRepository<MapSessio
                     ActiveUser activeUser = activeUserCopy.toActiveUser();
                     return createSessionForActiveUser(activeUser, jsessionId);
                 }
-                /*
                 else {
-                   
-                     * AnonymousAuthenticationToken auth = new
-                     * AnonymousAuthenticationToken( key, ANONYMOUS_USER,
-                     * AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-                     * auth.setDetails
-                     * (authenticationDetailsSource.buildDetails(request));
-                     
+                    /*
+                     * return anonymous session
+                     */
+                    return createAnonymousSession(jsessionId);
                 }
-                */
             }
             catch (Exception e) {
-                logger.error("Error while getting session info from user service for {}", jsessionId);
+                logger.error("Error {} while getting session info from user service for {}", e.getMessage(), jsessionId);
+                /*
+                 * return anonymous session
+                 */
+                return createAnonymousSession(jsessionId);
             }
         }
         return null;
+    }
+
+    private MapSession createAnonymousSession(String jsessionId) {
+        AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(
+                key,
+                ANONYMOUS_USER,
+                AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+        MapSession loaded = new MapSession();
+        loaded.setId(jsessionId);
+        loaded.setCreationTime(new Date().getTime());
+        loaded.setLastAccessedTime(new Date().getTime());
+        loaded.setMaxInactiveInterval(PropertyReader.getRequiredPropertyAsType(
+                PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL,
+                Integer.class));
+        loaded.setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, ANONYMOUS_USER);
+        SecurityContext securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(auth);
+        loaded.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+        return loaded;
     }
 
     private MapSession createSessionForActiveUser(ActiveUser activeUser, String sessionId) {
