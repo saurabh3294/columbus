@@ -345,7 +345,7 @@ public class NotificationGeneratedService {
         Map<Integer, List<NotificationGenerated>> groupByMessageId = null;
 
         for (NotificationGenerated nGenerated : nGenerateds) {
-            groupByMessageId = map.get(nGenerated.getNotificationMessage().getId());
+            groupByMessageId = map.get(nGenerated.getUserId());
             if (groupByMessageId == null) {
                 groupByMessageId = new LinkedHashMap<Integer, List<NotificationGenerated>>();
                 map.put(nGenerated.getUserId(), groupByMessageId);
