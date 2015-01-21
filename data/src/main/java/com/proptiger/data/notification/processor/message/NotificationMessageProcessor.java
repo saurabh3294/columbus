@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
-import com.proptiger.data.model.WordpressPost;
+import com.proptiger.core.model.wordpress.WordpressPost;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
