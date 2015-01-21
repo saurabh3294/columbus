@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.core.event.model.payload.NewsEventTypePayload;
 import com.proptiger.core.model.event.EventGenerated;
+import com.proptiger.core.model.wordpress.WordpressTerms;
 import com.proptiger.data.event.service.EventTypeProcessorService;
-import com.proptiger.data.model.WordpressTerms;
 import com.proptiger.data.service.BlogNewsService;
 import com.proptiger.data.service.ProjectService;
 
