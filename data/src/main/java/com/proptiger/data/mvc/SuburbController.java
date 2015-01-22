@@ -83,7 +83,7 @@ public class SuburbController extends BaseController {
         return new APIResponse(suburbService.getActiveOrInactiveSuburbById(id));
     }
     
-    @RequestMapping(value = "data/v1/entity/suburb/{suburbId}", method = RequestMethod.POST)
+    @RequestMapping(value = "data/v1/entity/suburb/{suburbId}", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateSuburbDescriptiom(@RequestBody Suburb suburb, @RequestParam(
             required = false,

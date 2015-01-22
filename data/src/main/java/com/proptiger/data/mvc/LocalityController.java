@@ -354,7 +354,7 @@ public class LocalityController extends BaseController {
         return new APIResponse(localityService.getActiveOrInactiveLocalityById(id));
     }
     
-    @RequestMapping(value = "data/v1/entity/locality/{localityId}", method = RequestMethod.POST)
+    @RequestMapping(value = "data/v1/entity/locality/{localityId}", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateLocalityDescriptiom(@RequestBody Locality locality, @RequestParam(
             required = false,

@@ -234,7 +234,7 @@ public class ProjectController extends BaseController {
         return new APIResponse(projectService.getActiveOrInactiveProjectById(id));
     }
     
-    @RequestMapping(value = "data/v1/entity/project/{projectId}", method = RequestMethod.POST)
+    @RequestMapping(value = "data/v1/entity/project/{projectId}", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateProjectDescriptiom(@RequestBody Project project, @RequestParam(
             required = false,
