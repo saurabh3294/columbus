@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -35,13 +36,16 @@ public class CompanyUserServiceHelper {
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
+    
+    @Value("${internal.api.userservice}")
+    private String          userServiceModuleInternalApiHost;
 
     public List<Company> getCompaniesThatDealInOneOfLocalities(List<Integer> localityIds) {
         if (localityIds == null || localityIds.isEmpty()) {
             return new ArrayList<Company>();
         }
-        StringBuilder stringUrl = new StringBuilder(
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
+        StringBuilder stringUrl = new StringBuilder(userServiceModuleInternalApiHost +
+                PropertyReader.getRequiredPropertyAsString(PropertyKeys.USER_DETAILS_API))
                 .append(URL_GET_COMPANY_FOR_LOCALITY_IDS);
         boolean first = Boolean.TRUE;
         for (Integer id : localityIds) {
@@ -61,8 +65,7 @@ public class CompanyUserServiceHelper {
         if (userIds == null || userIds.isEmpty()) {
             return new ArrayList<Company>();
         }
-        StringBuilder stringUrl = new StringBuilder(
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
+        StringBuilder stringUrl = new StringBuilder(userServiceModuleInternalApiHost)
                 .append(URL_GET_COMPANY_FOR_LOCALITY_IDS);
         boolean first = Boolean.TRUE;
         for (Integer id : userIds) {
@@ -79,7 +82,7 @@ public class CompanyUserServiceHelper {
     }
 
     public List<CompanyUser> getCompanyUsersInCompany(int companyId) {
-        String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + URL_GET_COMPANY_USERS_IN_COMPANY
+        String stringUrl = userServiceModuleInternalApiHost + URL_GET_COMPANY_USERS_IN_COMPANY
                 .replace("{companyId}", String.valueOf(companyId));
         List<CompanyUser> list = httpRequestUtil.getInternalApiResultAsTypeList(
                 URI.create(stringUrl),
@@ -88,7 +91,7 @@ public class CompanyUserServiceHelper {
     }
 
     public CompanyUser getCompanyUserOfUserId(Integer userId) {
-        String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + URL_GET_COMANY_USER_OF_ACTIVE_USER
+        String stringUrl = userServiceModuleInternalApiHost + URL_GET_COMANY_USER_OF_ACTIVE_USER
                 .replace("{userId}", String.valueOf(userId));
         List<CompanyUser> companyUsers = httpRequestUtil.getInternalApiResultAsTypeList(
                 URI.create(stringUrl),
