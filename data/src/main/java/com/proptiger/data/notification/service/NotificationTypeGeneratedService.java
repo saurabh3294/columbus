@@ -120,6 +120,7 @@ public class NotificationTypeGeneratedService {
         NotificationTypeGenerated ntGenerated = new NotificationTypeGenerated();
         ntGenerated.setNotificationType(nMessage.getNotificationType());
         ntGenerated.setNotificationTypePayload(nMessage.getNotificationMessagePayload().getNotificationTypePayload());
+        ntGenerated.setNotificationStatus(NotificationStatus.MessageGenerated);
         /*
          * This saved one object is needed as new Type Generated Id is needed.
          */
