@@ -93,14 +93,13 @@ public class CompanyUserServiceHelper {
     public CompanyUser getCompanyUserOfUserId(Integer userId) {
         String stringUrl = userServiceModuleInternalApiHost + URL_GET_COMANY_USER_OF_ACTIVE_USER
                 .replace("{userId}", String.valueOf(userId));
-        List<CompanyUser> companyUsers = httpRequestUtil.getInternalApiResultAsTypeList(
-                URI.create(stringUrl),
+        CompanyUser companyUser = httpRequestUtil.getInternalApiResultAsType(
+                URI.create(stringUrl), null,
                 CompanyUser.class);
-        CompanyUser u = (companyUsers != null && companyUsers.isEmpty()) ? companyUsers.get(0) : null;
-        if(u == null){
+        if(companyUser == null) {
             throw new ResourceNotAvailableException(ResourceType.COMPANY_USER, ResourceTypeAction.GET);
         }
-        return u;
+        return companyUser;
     }
 
     private HttpHeaders createJsessionIdHeader() {
