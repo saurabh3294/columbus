@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.core.enums.notification.Tokens;
+import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
@@ -20,6 +21,7 @@ import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.service.BlogNewsService;
+import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
 
@@ -33,6 +35,9 @@ public abstract class NotificationMessageProcessor {
 
     @Autowired
     private PropertyService  propertyService;
+
+    @Autowired
+    private ProjectService   projectService;
 
     @Autowired
     private BlogNewsService  blogNewsService;
@@ -126,8 +131,7 @@ public abstract class NotificationMessageProcessor {
 
         for (PortfolioListing portfolioListing : portfolioListings) {
             Map<String, Object> userDataMap = new HashMap<String, Object>();
-            userDataMap.put(Tokens.PortfolioProjectUpdates.ProjectName.name(), portfolioListing.getProjectName());
-            userDataMap.put(Tokens.PortfolioProjectUpdates.PropertyName.name(), portfolioListing.getName());
+            userDataMap = populateUserDataMap(userDataMap, portfolioListing);
 
             NotificationMessagePayload nmPayload = new NotificationMessagePayload();
             nmPayload.setExtraAttributes(userDataMap);
@@ -136,6 +140,17 @@ public abstract class NotificationMessageProcessor {
             payloadMap.put(portfolioListing.getUserId(), nmPayload);
         }
         return payloadMap;
+    }
+
+    protected Map<String, Object> populateUserDataMap(Map<String, Object> userDataMap, PortfolioListing portfolioListing) {
+        if (userDataMap == null) {
+            userDataMap = new HashMap<String, Object>();
+        }
+        Integer projectId = propertyService.getProjectIdFromPropertyId(portfolioListing.getTypeId());
+        Project project = projectService.getProjectDetail(projectId);
+        userDataMap.put(Tokens.PortfolioProjectUpdates.ProjectName.name(), project.getName());
+        userDataMap.put(Tokens.PortfolioProjectUpdates.PropertyName.name(), portfolioListing.getName());
+        return userDataMap;
     }
 
     protected Map<Integer, NotificationMessagePayload> createNewsNMPayloadByPropertyListings(
