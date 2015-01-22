@@ -29,7 +29,7 @@ import com.proptiger.core.util.RequestHolderUtil;
 @Service
 public class CompanyUserServiceHelper {
 
-    private static String   URL_GET_COMPANY_FOR_LOCALITY_IDS   = "data/v1/entity/company?localityIds=";
+    private static String   URL_GET_COMPANY_FOR_LOCALITY_IDS   = "data/v1/entity/company?";
     private static String   URL_GET_COMPANY_USERS_IN_COMPANY   = "data/v1/entity/company/{companyId}/company-users";
     private static String   URL_GET_COMANY_USER_OF_ACTIVE_USER = "data/v1/entity/company-users/{userId}";
 
