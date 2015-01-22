@@ -118,9 +118,9 @@ public class NotificationProcessorDtoService {
 			nType = nGenerated.getNotificationType();
 			nKeyProcessor = nType.getNotificationTypeConfig()
 					.getPrimaryKeyProcessorObject();
-			primaryKeyValue = nKeyProcessor
+			primaryKeyValue = nGenerated.getObjectId();/*nKeyProcessor
 					.getPrimaryKeyOfNotificationMessage(nGenerated
-							.getNotificationMessagePayload());
+							.getNotificationMessagePayload());*/
 			userId = nGenerated.getUserId();
 
 			try {
