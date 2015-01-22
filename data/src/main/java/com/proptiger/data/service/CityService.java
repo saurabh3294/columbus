@@ -122,6 +122,16 @@ public class CityService {
         }
         return city;
     }
+    
+    @Cacheable(Constants.CacheName.CACHE)
+    public Map<String, Integer> getCityNameToIdMap(){
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        List<City> cityList = cityDao.findAll();
+        for(City city : cityList){
+            map.put(city.getLabel(), city.getId());
+        }
+        return map;
+    }
 
     private void updateAmenitiesAndAmenityTypeCount(City city) {
         if (city == null) {

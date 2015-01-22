@@ -1,5 +1,7 @@
 package com.proptiger.data.service;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,10 @@ import com.proptiger.data.repo.GooglePlacesAPIDao;
 public class GooglePlacesAPIService {
 
     @Autowired
-    GooglePlacesAPIDao         googlePlacesAPIDao;
+    private GooglePlacesAPIDao googlePlacesAPIDao;
+
+    @Autowired
+    private CityService        cityService;
 
     private static Logger      logger            = LoggerFactory.getLogger(GooglePlacesAPIService.class);
 
@@ -27,7 +32,21 @@ public class GooglePlacesAPIService {
         GooglePlace googlePlace = googlePlacesAPIDao.getPlaceDetails(placeId);
         long timeTaken = System.currentTimeMillis() - timeStart;
         logger.info("Google Place API call : Time Taken = " + timeTaken + " ms");
+
+        populateCityInfo(googlePlace);
+
         return googlePlace;
+    }
+
+    private void populateCityInfo(GooglePlace gp) {
+        String cityName = gp.getCityName();
+        Map<String, Integer> mapCityNameToId = cityService.getCityNameToIdMap();
+        if (mapCityNameToId.containsKey(cityName)) {
+            gp.setCityid(mapCityNameToId.get(cityName));
+        }
+        else {
+            logger.error("Could not find cityname in database = " + cityName);
+        }
     }
 
 }
