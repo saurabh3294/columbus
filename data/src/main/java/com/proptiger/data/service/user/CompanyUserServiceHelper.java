@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,9 @@ import com.proptiger.core.util.RequestHolderUtil;
 @Service
 public class CompanyUserServiceHelper {
 
-    private static String   URL_GET_COMPANY_FOR_LOCALITY_IDS   = "data/v1/entity/company?";
+    @Value("${internal.api.userservice}")
+    private String          userServiceModuleInternalApiHost;
+    private static String   URL_GET_COMPANY_FOR_LOCALITY_IDS   = "data/v1/entity/company?localityIds=";
     private static String   URL_GET_COMPANY_USERS_IN_COMPANY   = "data/v1/entity/company/{companyId}/company-users";
     private static String   URL_GET_COMANY_USER_OF_ACTIVE_USER = "data/v1/entity/company-users/{userId}";
 
@@ -40,15 +43,14 @@ public class CompanyUserServiceHelper {
         if (localityIds == null || localityIds.isEmpty()) {
             return new ArrayList<Company>();
         }
-        StringBuilder stringUrl = new StringBuilder(
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
+        StringBuilder stringUrl = new StringBuilder(userServiceModuleInternalApiHost)
                 .append(URL_GET_COMPANY_FOR_LOCALITY_IDS);
         boolean first = Boolean.TRUE;
         for (Integer id : localityIds) {
             if (!first) {
                 stringUrl.append(",");
             }
-            stringUrl.append("localityIds=" + id);
+            stringUrl.append(id);
             first = Boolean.FALSE;
         }
         List<Company> list = httpRequestUtil.getInternalApiResultAsTypeList(
@@ -61,8 +63,7 @@ public class CompanyUserServiceHelper {
         if (userIds == null || userIds.isEmpty()) {
             return new ArrayList<Company>();
         }
-        StringBuilder stringUrl = new StringBuilder(
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL))
+        StringBuilder stringUrl = new StringBuilder(userServiceModuleInternalApiHost)
                 .append(URL_GET_COMPANY_FOR_LOCALITY_IDS);
         boolean first = Boolean.TRUE;
         for (Integer id : userIds) {
@@ -79,7 +80,7 @@ public class CompanyUserServiceHelper {
     }
 
     public List<CompanyUser> getCompanyUsersInCompany(int companyId) {
-        String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + URL_GET_COMPANY_USERS_IN_COMPANY
+        String stringUrl = userServiceModuleInternalApiHost + URL_GET_COMPANY_USERS_IN_COMPANY
                 .replace("{companyId}", String.valueOf(companyId));
         List<CompanyUser> list = httpRequestUtil.getInternalApiResultAsTypeList(
                 URI.create(stringUrl),
@@ -88,16 +89,15 @@ public class CompanyUserServiceHelper {
     }
 
     public CompanyUser getCompanyUserOfUserId(Integer userId) {
-        String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + URL_GET_COMANY_USER_OF_ACTIVE_USER
+        String stringUrl = userServiceModuleInternalApiHost + URL_GET_COMANY_USER_OF_ACTIVE_USER
                 .replace("{userId}", String.valueOf(userId));
-        List<CompanyUser> companyUsers = httpRequestUtil.getInternalApiResultAsTypeList(
-                URI.create(stringUrl),
+        CompanyUser companyUser = httpRequestUtil.getInternalApiResultAsType(
+                URI.create(stringUrl), null,
                 CompanyUser.class);
-        CompanyUser u = (companyUsers != null && companyUsers.isEmpty()) ? companyUsers.get(0) : null;
-        if(u == null){
+        if(companyUser == null) {
             throw new ResourceNotAvailableException(ResourceType.COMPANY_USER, ResourceTypeAction.GET);
         }
-        return u;
+        return companyUser;
     }
 
     private HttpHeaders createJsessionIdHeader() {

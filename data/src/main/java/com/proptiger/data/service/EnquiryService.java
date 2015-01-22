@@ -501,7 +501,7 @@ public class EnquiryService {
         }
         else {
             if (project != null) {
-                if (project.isResaleEnquiry()) {
+                if (Boolean.TRUE.equals(project.isResaleEnquiry())) {
                     enquiry.setSalesType(SalesType.resale);
                 }
                 else {
