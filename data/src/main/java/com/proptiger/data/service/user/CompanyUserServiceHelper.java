@@ -30,29 +30,27 @@ import com.proptiger.core.util.RequestHolderUtil;
 @Service
 public class CompanyUserServiceHelper {
 
-    private static String   URL_GET_COMPANY_FOR_LOCALITY_IDS   = "data/v1/entity/company?";
+    @Value("${internal.api.userservice}")
+    private String          userServiceModuleInternalApiHost;
+    private static String   URL_GET_COMPANY_FOR_LOCALITY_IDS   = "data/v1/entity/company?localityIds=";
     private static String   URL_GET_COMPANY_USERS_IN_COMPANY   = "data/v1/entity/company/{companyId}/company-users";
     private static String   URL_GET_COMANY_USER_OF_ACTIVE_USER = "data/v1/entity/company-users/{userId}";
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
-    
-    @Value("${internal.api.userservice}")
-    private String          userServiceModuleInternalApiHost;
 
     public List<Company> getCompaniesThatDealInOneOfLocalities(List<Integer> localityIds) {
         if (localityIds == null || localityIds.isEmpty()) {
             return new ArrayList<Company>();
         }
-        StringBuilder stringUrl = new StringBuilder(userServiceModuleInternalApiHost +
-                PropertyReader.getRequiredPropertyAsString(PropertyKeys.USER_DETAILS_API))
+        StringBuilder stringUrl = new StringBuilder(userServiceModuleInternalApiHost)
                 .append(URL_GET_COMPANY_FOR_LOCALITY_IDS);
         boolean first = Boolean.TRUE;
         for (Integer id : localityIds) {
             if (!first) {
                 stringUrl.append(",");
             }
-            stringUrl.append("localityIds=" + id);
+            stringUrl.append(id);
             first = Boolean.FALSE;
         }
         List<Company> list = httpRequestUtil.getInternalApiResultAsTypeList(
