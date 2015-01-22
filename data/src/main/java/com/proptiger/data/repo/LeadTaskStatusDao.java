@@ -3,8 +3,8 @@ package com.proptiger.data.repo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.proptiger.data.enums.TaskStatus;
-import com.proptiger.data.model.LeadTaskStatus;
+import com.proptiger.core.enums.TaskStatus;
+import com.proptiger.data.model.marketplace.LeadTaskStatus;
 
 /**
  * 

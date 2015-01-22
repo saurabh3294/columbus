@@ -44,16 +44,20 @@ public interface LeadTaskDao extends JpaRepository<LeadTask, Integer> {
             value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.offeredListingMappings TOLM INNER JOIN FETCH TOLM.offeredListing where LT.id IN (?1)")
     public List<LeadTask> findByIdInWithLeadOfferedListing(List<Integer> ids);
 
-    @Query("select LT from LeadTask LT JOIN FETCH LT.taskStatus LTS LEFT JOIN FETCH LTS.resultingStatus INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason WHERE LT.leadOfferId in (?1) order by LT.performedAt desc")
+    @Query("select LT from LeadTask LT JOIN FETCH LT.taskStatus LTS LEFT JOIN FETCH LTS.resultingStatus INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason WHERE LT.leadOfferId in (?1) order by LT.updatedAt desc")
     public List<LeadTask> findByLeadOfferIdWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(
             int leadOfferId);
 
-    @Query("select LT from LeadTask LT JOIN FETCH LT.taskStatus LTS LEFT JOIN FETCH LTS.resultingStatus INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason WHERE LT.id in (?1) order by LT.performedAt desc")
+    @Query("select LT from LeadTask LT JOIN FETCH LT.taskStatus LTS LEFT JOIN FETCH LTS.resultingStatus INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason WHERE LT.id in (?1) order by LT.updatedAt desc")
     public List<LeadTask> findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(
             List<Integer> ids);
 
     @Query("select LT from LeadTask LT JOIN FETCH LT.leadOffer LO JOIN FETCH LO.lead L WHERE LT.id in (?1)")
     public List<LeadTask> findByIdInWithLead(List<Integer> ids);
+
+    @Query(
+            value = "SELECT LT FROM LeadTask LT JOIN FETCH LT.leadOffer LO JOIN FETCH LO.lead L JOIN FETCH LT.taskStatus LTS JOIN FETCH LTS.masterLeadTask MLT WHERE LT.id IN (?1)")
+    public List<LeadTask> findByIdInWithLeadAndMasterLeadTask(List<Integer> ids);
 
     @Query(
             value = "SELECT LT FROM LeadTask LT INNER JOIN LT.statusReason TSR WHERE LT.leadOfferId = ?1 AND TSR.reason = ?2")

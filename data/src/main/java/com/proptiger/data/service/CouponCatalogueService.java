@@ -25,16 +25,13 @@ import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.CouponCatalogueDao;
 import com.proptiger.data.service.transaction.TransactionService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 @Service
 public class CouponCatalogueService {
 
     @Autowired
     private CouponCatalogueDao         couponCatalogueDao;
-
-    @Autowired
-    private UserService                userService;
 
     @Autowired
     private ApplicationContext         applicationContext;
@@ -54,6 +51,9 @@ public class CouponCatalogueService {
    // Do not autowire them. Use getter to use them.
     private TransactionService         transactionService;
     private PropertyService            propertyService;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     /**
      * This method will return the coupon catalogue for a propertyId
@@ -159,9 +159,7 @@ public class CouponCatalogueService {
                     "Coupon Code does not exists or has been redeemed.");
         }
 
-        UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
-                transaction.getUserId(),
-                userProofId);
+        UserAttribute userAttribute = getUserAttribute(userProofId, transaction);
         if (userAttribute == null) {
             throw new BadRequestException(
                     ResponseCodes.BAD_CREDENTIAL,
@@ -201,20 +199,14 @@ public class CouponCatalogueService {
             throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
         }
 
-        UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
-                transaction.getUserId(),
-                userProofId);
+        UserAttribute userAttribute = getUserAttribute(userProofId, transaction);
         if (userAttribute == null) {
             throw new BadRequestException(
                     ResponseCodes.BAD_CREDENTIAL,
                     "User Identity for this Coupon code does not match with our records.");
         }
 
-        User user = userService.getUserById(transaction.getUserId());
-        /**
-         * Get call to get them from db as they are fetched in LAZY.
-         */
-        Hibernate.initialize(user.getAttributes());
+        User user = userServiceHelper.getUserWithCompleteDetailsById_CallerNonLogin(transaction.getUserId());
 
         return user;
     }
@@ -234,9 +226,7 @@ public class CouponCatalogueService {
         
         transaction = getTransactionService().getUpdatedTransaction(transaction.getId());
         
-        UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
-                transaction.getUserId(),
-                userProofId);
+        UserAttribute userAttribute = getUserAttribute(userProofId, transaction);
         if (userAttribute == null) {
             throw new BadRequestException(
                     ResponseCodes.BAD_CREDENTIAL,
@@ -250,9 +240,7 @@ public class CouponCatalogueService {
     public boolean cancelCoupon(String couponCode, String userProofId){
         Transaction transaction = getTransactionService().getNonRedeemTransactionByCode(couponCode);
 
-        UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
-                transaction.getUserId(),
-                userProofId);
+        UserAttribute userAttribute = getUserAttribute(userProofId, transaction);
         if (userAttribute == null) {
             throw new BadRequestException(
                     ResponseCodes.BAD_CREDENTIAL,
@@ -266,6 +254,20 @@ public class CouponCatalogueService {
         }
         
         return refundStatus;
+    }
+
+    private UserAttribute getUserAttribute(String userProofId, Transaction transaction) {
+        User u = userServiceHelper.getUserWithCompleteDetailsById_CallerNonLogin(transaction.getUserId());
+        UserAttribute userAttribute = null;
+        if(u.getAttributes() != null){
+            for(UserAttribute attribute: u.getAttributes()){
+                if(attribute.getAttributeName().equals(userProofId)){
+                    userAttribute = attribute;
+                    break;
+                }
+            }
+        }
+        return userAttribute;
     }
     
     

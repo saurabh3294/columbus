@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.core.dto.internal.ActiveUser;
@@ -46,11 +47,24 @@ public class ListingController extends BaseController {
     @RequestMapping(method = RequestMethod.GET)
     public APIResponse getListings(
             @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) List<Integer> projectId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        PaginatedResponse<List<Listing>> listings = listingService.getListings(userInfo.getUserIdentifier(), selector);
+        PaginatedResponse<List<Listing>> listings = listingService.getListings(
+                userInfo.getUserIdentifier(),
+                selector,
+                projectId);
         return new APIResponse(
                 super.filterFieldsFromSelector(listings.getResults(), selector),
                 listings.getTotalCount());
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "typeahead", method = RequestMethod.GET)
+    public APIResponse getListingsTypeahead(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam String typeAheadType) {
+        return new APIResponse(listingService.getListingTypeaheadForUser(query, typeAheadType, rows));
     }
 
     @ResponseBody

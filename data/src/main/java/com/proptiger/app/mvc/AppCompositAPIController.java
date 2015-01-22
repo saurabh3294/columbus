@@ -36,7 +36,9 @@ public class AppCompositAPIController {
     @DisableCaching
     public APIResponse getCompositeApiResult(HttpServletRequest request, HttpServletResponse response, @RequestParam(
             required = true,
-            value = "api") List<String> api) {
+            value = "api") String[] api) {
+        
+        api = request.getParameterValues("api");
         Map<String, Object> responseMap = null;
         responseMap = compositeAPIService.getResponseForApis(api, request);
         return new APIResponse(responseMap);

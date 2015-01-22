@@ -18,9 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
-import com.proptiger.data.enums.AndroidApplication;
-import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
+import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
+import com.proptiger.core.enums.AndroidApplication;
 import com.proptiger.data.model.GCMUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
@@ -185,7 +185,9 @@ public class AndroidSender implements MediumSender {
                 for (String regId : regIds) {
                     Result result = sender.send(message, regId, RETRY_COUNT);
                     if (result.getMessageId() == null) {
-                        logger.error("Unable to send android notification to regId: " + regId
+                        logger.error("Unable to send android notification with message: " + message
+                                + " to regId: "
+                                + regId
                                 + " for nGeneratedId: "
                                 + nGenerated.getId()
                                 + ". Got Result: "
@@ -216,7 +218,11 @@ public class AndroidSender implements MediumSender {
             }
         }
 
-        return isSent;
+        if (!isSent) {
+            updateStatusAsLookUpFailed(nGenerated.getId());
+        }
+
+        return true;
     }
 
     private Map<String, String> getDataMap(String template, String typeName) {

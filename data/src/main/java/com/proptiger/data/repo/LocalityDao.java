@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.jboss.logging.Param;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -60,5 +61,10 @@ public interface LocalityDao extends PagingAndSortingRepository<Locality, Intege
 
     @Query("SELECT L FROM Locality L left join fetch L.suburb S left join fetch S.city C where L.label = ?1 AND C.label = ?2")
     public Locality getLocalityOnLocAndCity(String localityName, String cityName);
+    
+    @Modifying
+    @Query("UPDATE Locality SET description=?1 WHERE localityId=?2")
+    public void updateDescriptionOfLocality(String description, int localityId);
+
 
 }

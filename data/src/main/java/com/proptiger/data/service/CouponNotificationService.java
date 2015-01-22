@@ -12,29 +12,26 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.enums.notification.MediumType;
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
+import com.proptiger.core.enums.notification.Tokens;
+import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.core.internal.dto.mail.MailDetails;
+import com.proptiger.core.internal.dto.mail.MediumDetails;
 import com.proptiger.core.model.cms.CouponCatalogue;
 import com.proptiger.core.model.cms.Property;
+import com.proptiger.core.model.notification.external.NotificationCreatorServiceRequest;
 import com.proptiger.core.model.user.User;
-import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
-import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.internal.dto.mail.MediumDetails;
 import com.proptiger.data.model.transaction.Transaction;
-import com.proptiger.data.notification.enums.MediumType;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
-import com.proptiger.data.notification.enums.Tokens;
-import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 @Service
 public class CouponNotificationService {
 
     @Autowired
     private PropertyService            propertyService;
-
-    @Autowired
-    private UserService                userService;
 
     @Autowired
     private ApplicationContext         applicationContext;
@@ -49,6 +46,9 @@ public class CouponNotificationService {
 
     @Value("${mail.from.customer}")
     private String                     fromEmail;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     @Async
     public void notifyUserOnCouponBuy(Transaction transaction, CouponCatalogue couponCatalogue) {
@@ -56,7 +56,7 @@ public class CouponNotificationService {
 
         Property property = applicationContext.getBean(PropertyService.class).getProperty(
                 couponCatalogue.getPropertyId());
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
         String dateString = new SimpleDateFormat("MMM d, yyy").format(couponCatalogue.getPurchaseExpiryAt());
 
         payloadMap.put(Tokens.CouponIssued.CouponCode.name(), transaction.getCode());
@@ -93,7 +93,7 @@ public class CouponNotificationService {
     public void notifyUserOnRefund(Transaction transaction, CouponCatalogue couponCatalogue) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
 
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
 
         String couponCode = transaction.getCode() == null ? "" : transaction.getCode();
 
@@ -128,7 +128,7 @@ public class CouponNotificationService {
         Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
 
         Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
 
         notificationPayloadMap.put(Tokens.CouponCancelled.CouponCode.name(), transaction.getCode());
         notificationPayloadMap.put(Tokens.CouponCancelled.ProjectName.name(), property.getProject().getName());
@@ -171,7 +171,7 @@ public class CouponNotificationService {
         Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
 
         Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
 
         notificationPayloadMap.put(Tokens.CouponRedeemed.RedeemedDate.name(), transaction.getUpdatedAt());
         notificationPayloadMap.put(Tokens.CouponRedeemed.ProjectName.name(), property.getProject().getName());
@@ -208,7 +208,7 @@ public class CouponNotificationService {
     public void notifyUserOnPaymentFailure(Transaction transaction) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
 
-        User user = userService.getUserById(transaction.getUserId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(transaction.getUserId());
         CouponCatalogue couponCatalogue = getCouponCatalogueService().getCouponCatalogue(transaction.getProductId());
         Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
 

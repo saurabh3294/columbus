@@ -10,6 +10,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
+import com.proptiger.core.enums.notification.Tokens;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
 import com.proptiger.core.model.cms.Property;
@@ -18,8 +20,6 @@ import com.proptiger.core.model.proptiger.PortfolioListing;
 import com.proptiger.core.model.user.User;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
-import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
@@ -27,14 +27,11 @@ import com.proptiger.data.service.EnquiryService;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.user.ProjectDiscussionsService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserServiceHelper;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
 
 @Service
 public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
-
-    @Autowired
-    private UserService               userService;
 
     @Autowired
     private PortfolioService          portfolioService;
@@ -50,6 +47,9 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
 
     @Autowired
     private EnquiryService            enquiryService;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     public Map<String, Object> fetchTemplateData(NotificationGenerated nGenerated) {
         NotificationMessagePayload payload = nGenerated.getNotificationMessagePayload();
@@ -62,7 +62,7 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
         /**
          * Populating Username
          */
-        User user = userService.getUserById(userId);
+        User user = userServiceHelper.getUserById_CallerNonLogin(userId);
         dataMap.put("username", user.getFullName());
 
         /**
@@ -213,7 +213,7 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
             List<ProjectDiscussion> discussions = projectDiscussionsService.getCommentsForProjectIdInLastMonth(project
                     .getProjectId());
             if (discussions != null && discussions.size() > 0) {
-                User commentUser = userService.getUserById(discussions.get(0).getUserId());
+                User commentUser = userServiceHelper.getUserById_CallerNonLogin(discussions.get(0).getUserId());
                 discussionPersonName.add(commentUser.getFullName());
                 discussionProjectName.add(project.getName());
                 discussionComment.add(discussions.get(0).getComment());
@@ -243,7 +243,7 @@ public class MonthlyUpdateTemplateDataFetcher extends TemplateDataFetcher {
             List<LocalityReviewComments> reviews = localityReviewService.getCommentsForLocalityIdInLastMonth(locality
                     .getLocalityId());
             if (reviews != null && reviews.size() > 0) {
-                User commentUser = userService.getUserById(reviews.get(0).getUserId());
+                User commentUser = userServiceHelper.getUserById_CallerNonLogin(reviews.get(0).getUserId());
                 reviewPersonName.add(commentUser.getFullName());
                 reviewLocalityName.add(locality.getLabel());
                 reviewComment.add(shortString(reviews.get(0).getReview()));

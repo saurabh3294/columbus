@@ -15,18 +15,18 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.core.config.scheduling.QuartzScheduledClass;
 import com.proptiger.core.config.scheduling.QuartzScheduledJob;
+import com.proptiger.core.enums.LeadOfferStatus;
+import com.proptiger.core.enums.NotificationType;
 import com.proptiger.core.exception.ConstraintViolationException;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
-import com.proptiger.data.enums.LeadOfferStatus;
-import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
-import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.service.marketplace.LeadService;
+import com.proptiger.data.service.marketplace.LeadTaskService;
 import com.proptiger.data.service.marketplace.NotificationService;
 
 /**

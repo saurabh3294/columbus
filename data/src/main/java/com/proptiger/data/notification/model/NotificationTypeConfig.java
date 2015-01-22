@@ -3,7 +3,7 @@ package com.proptiger.data.notification.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.NotificationNonPrimaryKeyProcessor;
 import com.proptiger.data.notification.processor.NotificationPrimaryKeyProcessor;

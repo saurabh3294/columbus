@@ -52,7 +52,6 @@ import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
 import com.proptiger.data.service.CitrusPayPGTransactionService;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.CouponNotificationService;
-import com.proptiger.data.service.user.UserService;
 
 /**
  * @author mandeep
@@ -112,9 +111,6 @@ public class CitrusPayPGService {
 
     @Autowired
     private NotificationMessageService    nMessageService;
-
-    @Autowired
-    private UserService                   userService;
 
     @Autowired
     private ApplicationContext            applicationContext;
@@ -338,7 +334,7 @@ public class CitrusPayPGService {
         EnquiryCollection enquiryResult = null;
         try {
             enquiryResult = com.citruspay.pg.model.Enquiry.create(map);
-            if(enquiryResult == null){
+            if (enquiryResult == null) {
                 enquiryResult = new EnquiryCollection();
             }
         }
@@ -411,9 +407,10 @@ public class CitrusPayPGService {
             }
         }
         /**
-         * There was no exception hence enquiry collection was not null. Hence cancelling the transaction.
+         * There was no exception hence enquiry collection was not null. Hence
+         * cancelling the transaction.
          */
-        else if(enquiryCollection != null){
+        else if (enquiryCollection != null) {
             handleTransactionFailure(transaction, wasPaymentDone, lastEnquiry);
         }
 
@@ -429,14 +426,16 @@ public class CitrusPayPGService {
     private void handleTransactionFailure(Transaction transaction, boolean wasPaymentDone, Enquiry lastEnquiryFound) {
         if (transaction.getStatusId() == TransactionStatus.Incomplete.getId() && !wasPaymentDone) {
             /**
-             * Transaction was not successful as no payment was done. Hence marking them as TransactionCancelled. 
+             * Transaction was not successful as no payment was done. Hence
+             * marking them as TransactionCancelled.
              */
             transactionService.updateTransactionStatusByOldStatus(
                     transaction.getId(),
                     TransactionStatus.TransactionCancelled,
                     TransactionStatus.Incomplete);
             /**
-             * If payment was failed then notifying the user that there was payment failure.
+             * If payment was failed then notifying the user that there was
+             * payment failure.
              */
             if (lastEnquiryFound != null && lastEnquiryFound.getRespCode().equalsIgnoreCase(
                     EnquiryResponseCode.FailPayment.getResponseCode())) {
@@ -603,7 +602,7 @@ public class CitrusPayPGService {
         payment.setTransactionId(transaction.getId());
         payment.setAmount(Double.valueOf(lastEnquiry.getAmount()).intValue());
         payment.setCitrusPayGatewayTransactionId(lastEnquiry.getTxnId());
-        payment.setGatewayTransactionId(Long.valueOf(lastEnquiry.getPgTxnId()));
+        payment.setGatewayTransactionId(lastEnquiry.getPgTxnId());
         payment.setPaymentGatewayResponseId(null);
         payment.setTypeId(PaymentType.Online.getId());
         return payment;

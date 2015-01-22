@@ -20,7 +20,7 @@ import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.model.marketplace.LeadTask;
-import com.proptiger.data.service.LeadTaskService;
+import com.proptiger.data.service.marketplace.LeadTaskService;
 
 /**
  * 

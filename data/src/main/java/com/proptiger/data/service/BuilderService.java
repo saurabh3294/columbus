@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.core.enums.DocumentType;
@@ -26,8 +27,10 @@ import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
 import com.proptiger.core.enums.SortOrder;
 import com.proptiger.core.enums.filter.Operator;
+import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.cms.Builder;
+import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.filter.SolrQueryBuilder;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.Paging;
@@ -264,5 +267,17 @@ public class BuilderService {
         }
         
         return builders;
+    }
+    @Transactional
+    public Builder updateBuilder(Builder builder) {
+        if(builder.getDescription() != null && !builder.getDescription().isEmpty()){
+            builderDao.updateDescriptionOfBuilder(builder.getDescription(),builder.getId());
+            Builder builderActual=builderDao.findOne(builder.getId());
+  /*          builderActual.setDescription(builder.getDescription());
+            builderActual = builderDao.save(builderActual);*/
+            return builderActual;
+        }else{
+        throw new BadRequestException("Invalid builder description");
+        }
     }
 }

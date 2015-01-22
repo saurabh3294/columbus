@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -21,32 +22,33 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.proptiger.core.enums.LeadOfferStatus;
+import com.proptiger.core.enums.LeadTaskName;
+import com.proptiger.core.enums.NotificationType;
+import com.proptiger.core.enums.notification.MediumType;
+import com.proptiger.core.enums.notification.NotificationTypeEnum;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.UnauthorizedException;
+import com.proptiger.core.internal.dto.mail.DefaultMediumDetails;
+import com.proptiger.core.internal.dto.mail.MailBody;
+import com.proptiger.core.internal.dto.mail.MailDetails;
+import com.proptiger.core.model.notification.external.NotificationCreatorServiceRequest;
 import com.proptiger.core.model.user.User;
+import com.proptiger.core.service.mail.MailSender;
 import com.proptiger.core.util.DateUtil;
 import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.data.dto.external.marketplace.GcmMessage;
-import com.proptiger.data.enums.LeadOfferStatus;
-import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.NotificationType;
-import com.proptiger.data.internal.dto.mail.DefaultMediumDetails;
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.LeadTask.AgentOverDueTaskCount;
+import com.proptiger.data.model.marketplace.LeadTaskStatus;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.model.marketplace.Notification;
-import com.proptiger.data.notification.enums.MediumType;
-import com.proptiger.data.notification.enums.NotificationTypeEnum;
-import com.proptiger.data.notification.model.external.NotificationCreatorServiceRequest;
 import com.proptiger.data.notification.service.external.NotificationCreatorService;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
@@ -54,11 +56,11 @@ import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
-import com.proptiger.data.service.companyuser.CompanyUserService;
-import com.proptiger.data.service.mail.MailSender;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.CompanyUserServiceHelper;
+import com.proptiger.data.service.user.UserServiceHelper;
 import com.proptiger.data.util.SerializationUtils;
 import com.rits.cloning.Cloner;
+import com.proptiger.data.dto.external.marketplace.TaskNotificationDetail;
 
 /**
  * 
@@ -74,7 +76,7 @@ public class NotificationService {
     private MarketplaceNotificationTypeDao    notificationTypeDao;
 
     @Autowired
-    private LeadTaskDao                       taskDao;
+    private LeadTaskDao                       leadTaskDao;
 
     @Autowired
     private LeadOfferDao                      leadOfferDao;
@@ -90,9 +92,6 @@ public class NotificationService {
     private static final NotificationTypeEnum defaultNotificationType = NotificationTypeEnum.MarketplaceDefault;
 
     @Autowired
-    UserService                               userService;
-
-    @Autowired
     LeadTaskStatusDao                         leadTaskStatusDao;
 
     @Autowired
@@ -101,7 +100,10 @@ public class NotificationService {
     private static Logger                     logger                  = LoggerFactory
                                                                               .getLogger(NotificationService.class);
     @Autowired
-    CompanyUserService                        companyUserService;
+    private CompanyUserServiceHelper companyUserServiceHelper;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     static {
         for (LeadTaskName leadTask : LeadTaskName.values()) {
@@ -114,22 +116,20 @@ public class NotificationService {
     /**
      * 
      * @param userId
-     * @return {@link List} of {@link Notification} grouped on the basis of
-     *         {@link MarketplaceNotificationType} in default order
-     */
-    public List<MarketplaceNotificationType> getNotificationsForUser(int userId) {
-        List<MarketplaceNotificationType> notificationTypes = notificationDao.getNotificationTypesForUser(userId);
-        return getFilteredAndOrderedNotificationTypes(notificationTypes);
-    }
-
-    /**
-     * 
-     * @param userId
      *            notificationTypeId
      * @return {@link List} of {@link Notification} grouped on the basis of
      *         {@link MarketplaceNotificationType} in default order
      */
     public List<MarketplaceNotificationType> getNotificationsForUser(int userId, Integer notificationTypeId) {
+        List<MarketplaceNotificationType> notificationTypes = getUnsortedNotificationsForUser(
+                userId,
+                notificationTypeId);
+        addCustomNotificationDetails(notificationTypes);
+        Collections.sort(notificationTypes, MarketplaceNotificationType.getNotificationtypereversecomparator());
+        return notificationTypes;
+    }
+
+    private List<MarketplaceNotificationType> getUnsortedNotificationsForUser(int userId, Integer notificationTypeId) {
         List<MarketplaceNotificationType> notificationTypes;
         if (notificationTypeId == null) {
             notificationTypes = notificationDao.getNotificationTypesForUser(userId);
@@ -137,10 +137,10 @@ public class NotificationService {
         else {
             notificationTypes = notificationDao.getNotificationTypesForUser(userId, notificationTypeId);
         }
-        return getFilteredAndOrderedNotificationTypes(notificationTypes);
+        return getFilteredNotificationTypes(notificationTypes);
     }
 
-    private List<MarketplaceNotificationType> getFilteredAndOrderedNotificationTypes(
+    private List<MarketplaceNotificationType> getFilteredNotificationTypes(
             List<MarketplaceNotificationType> notificationTypes) {
         List<MarketplaceNotificationType> finalNotificationTypes = new ArrayList<>();
         for (MarketplaceNotificationType notificationType : notificationTypes) {
@@ -163,8 +163,83 @@ public class NotificationService {
         }
 
         finalNotificationTypes = filterReadNotifications(finalNotificationTypes);
-        Collections.sort(finalNotificationTypes, MarketplaceNotificationType.getNotificationtypereversecomparator());
         return finalNotificationTypes;
+    }
+
+    private void addCustomNotificationDetails(List<MarketplaceNotificationType> notificationTypes) {
+        if (notificationTypes != null) {
+            notificationTypes.forEach(notificationType -> {
+                if (notificationType.getNotificationType().equals(NotificationType.TaskDue)) {
+                    updateDetailInTaskNotification(notificationType.getNotifications());
+                }
+                else if (notificationType.getNotificationType().equals(NotificationType.TaskOverDue)) {
+                    updateDetailInTaskNotification(notificationType.getNotifications());
+                }
+            });
+        }
+    }
+
+    /**
+     * updates details upto cilent object in lead task notification list
+     * 
+     * @param notifications
+     */
+    private void updateDetailInTaskNotification(List<Notification> notifications) {
+        List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
+        Map<Integer, LeadTask> tasks = getIndexedLeadTasksByIds(populateUserDetailsInLeadTasks(getLeadTaskByIdsWithLeadAndMasterTask(taskIds)));
+        for (Notification notification : notifications) {
+            LeadTask task = tasks.get(notification.getObjectId());
+            TaskNotificationDetail notificationDetail = new TaskNotificationDetail();
+            notificationDetail.setId(task.getId());
+            notificationDetail.setTaskName(task.getTaskStatus().getMasterLeadTask().getName());
+            notificationDetail.setLeadOfferId(task.getLeadOfferId());
+            notificationDetail.setScheduledFor(task.getScheduledFor());
+            notificationDetail.setClientName(task.getLeadOffer().getLead().getClient().getFullName());
+
+            notification.setDetails(SerializationUtils.objectToJson(notificationDetail));
+        }
+    }
+
+    /**
+     * method to get list of lead tasks from list of task ids... task objects
+     * will contain nested objects lead offer and lead
+     * 
+     * @param taskIds
+     * @return List LeadTask
+     */
+    public List<LeadTask> getLeadTaskByIdsWithLeadAndMasterTask(List<Integer> taskIds) {
+        List<LeadTask> tasks = new ArrayList<>();
+        if (tasks != null) {
+            tasks = leadTaskDao.findByIdInWithLeadAndMasterLeadTask(taskIds);
+        }
+        return tasks;
+    }
+
+    /**
+     * indexes list of tasks on task id.. returns a map
+     * 
+     * @param tasks
+     * @return
+     */
+    private Map<Integer, LeadTask> getIndexedLeadTasksByIds(List<LeadTask> tasks) {
+        Map<Integer, LeadTask> map = new HashMap<>();
+        tasks.forEach(task -> map.put(task.getId(), task));
+        return map;
+    }
+
+    /**
+     * assumes that task will have leads populated
+     * 
+     * @param tasks
+     * @return List LeadTask
+     */
+    private List<LeadTask> populateUserDetailsInLeadTasks(List<LeadTask> tasks) {
+        List<Integer> userIds = tasks.stream().map(t -> t.getLeadOffer().getLead().getClientId())
+                .collect(Collectors.toList());
+        Map<Integer, User> userMap = userServiceHelper.getUsersMapByUserIds_CallerNonLogin(userIds);
+        tasks.stream().forEach(
+                t -> t.getLeadOffer().getLead().setClient(userMap.get(t.getLeadOffer().getLead().getClientId())));
+        return tasks;
     }
 
     /**
@@ -174,7 +249,7 @@ public class NotificationService {
      * @return
      */
     public int getNotificationsCountForUser(int userId) {
-        List<MarketplaceNotificationType> notificationTypes = getNotificationsForUser(userId);
+        List<MarketplaceNotificationType> notificationTypes = getUnsortedNotificationsForUser(userId, null);
 
         int count = 0;
         for (MarketplaceNotificationType notificationType : notificationTypes) {
@@ -315,7 +390,7 @@ public class NotificationService {
 
     private void sendDuplicateLeadNotification(int leadOfferId) {
         LeadOffer offer = leadOfferDao.getById(leadOfferId);
-        User user = userService.getUserById(offer.getLead().getClientId());
+        User user = userServiceHelper.getUserById_CallerNonLogin(offer.getLead().getClientId());
         String message = user.getFullName() + ", "
                 + offer.getId()
                 + " has submitted another request. The new information is updated in current lead.";
@@ -475,7 +550,7 @@ public class NotificationService {
      * method to send task overdue notification to user
      */
     public void sendTaskOverDueNotification() {
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskOverDue.getId();
         List<Notification> notifications = notificationDao.findByNotificationTypeId(notificationTypeId);
         Map<Integer, List<Notification>> map = groupNotificationsByUser(notifications);
         for (Integer userId : map.keySet()) {
@@ -502,7 +577,7 @@ public class NotificationService {
      * method to send task overdue notification to user
      */
     public void sendTaskDueNotification() {
-        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        int notificationTypeId = com.proptiger.core.enums.NotificationType.TaskDue.getId();
         List<Notification> notifications = notificationDao.findByNotificationTypeIdAndMasterTaskIdIn(
                 notificationTypeId,
                 allMasterTaskIdsButCall);
@@ -519,7 +594,7 @@ public class NotificationService {
             String message = getTaskDueNotificationMessage(userNotifications);
 
             GcmMessage gcmMessage = new GcmMessage();
-            gcmMessage.setNotificationTypeId(com.proptiger.data.enums.NotificationType.TaskDue.getId());
+            gcmMessage.setNotificationTypeId(com.proptiger.core.enums.NotificationType.TaskDue.getId());
             gcmMessage.setMessage(message);
             gcmMessage.setData(getLeadOfferIdsFromTaskIds(getObjectIdsFromNotifications(userNotifications)));
             if (size == 1) {
@@ -533,7 +608,7 @@ public class NotificationService {
     }
 
     private List<Integer> getLeadOfferIdsFromTaskIds(List<Integer> taskIds) {
-        List<LeadTask> tasks = taskDao
+        List<LeadTask> tasks = leadTaskDao
                 .findByIdInWithResultingStatusAndMasterLeadTaskAndMasterLeadTaskStatusAndStatusReasonOrderByPerformedAtDesc(taskIds);
         List<Integer> leadOfferIds = new ArrayList<>();
         for (LeadTask leadTask : tasks) {
@@ -547,13 +622,13 @@ public class NotificationService {
         for (Notification notification : notifications) {
             taskIds.add(notification.getObjectId());
         }
-        List<LeadTask> tasks = taskDao.findByIdInWithLead(taskIds);
+        List<LeadTask> tasks = leadTaskDao.findByIdInWithLead(taskIds);
         String message = "";
 
         if (tasks.size() == 1) {
             LeadTask task = tasks.get(0);
             int userId = leadOfferDao.getById(task.getLeadOfferId()).getLead().getClientId();
-            User user = userService.getUserById(userId);
+            User user = userServiceHelper.getUserById_CallerNonLogin(userId);
             LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusDetail(task.getTaskStatusId());
             message = "Your " + leadTaskStatus.getMasterLeadTask().getSingularDisplayName()
                     + " with "
@@ -592,12 +667,12 @@ public class NotificationService {
 
     private String getTaskOverDueNotificationMessage(List<Notification> notifications) {
         List<Integer> taskIds = getObjectIdsFromNotifications(notifications);
-        List<LeadTask> tasks = taskDao.findByIdInWithLead(taskIds);
+        List<LeadTask> tasks = leadTaskDao.findByIdInWithLead(taskIds);
 
         String message = "";
         if (tasks.size() == 1) {
             LeadTask task = tasks.get(0);
-            User user = userService.getUserById(task.getLeadOffer().getLead().getClientId());
+            User user = userServiceHelper.getUserById_CallerNonLogin(task.getLeadOffer().getLead().getClientId());
             message = "Your " + task.getTaskStatus().getMasterLeadTask().getSingularDisplayName()
                     + " with "
                     + user.getFullName()
@@ -860,7 +935,7 @@ public class NotificationService {
             mailBody.setBody(content);
 
             MailDetails mailDetails = new MailDetails(mailBody);
-            mailDetails.setMailTo(userService.getUserById(userId).getEmail());
+            mailDetails.setMailTo(userServiceHelper.getUserById_CallerNonLogin(userId).getEmail());
             mailSender.sendMailUsingAws(mailDetails);
         }
     }
@@ -915,7 +990,7 @@ public class NotificationService {
                         new Date(),
                         -1 * PropertyReader
                                 .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_TASK_OVERDUE_DURATION_DAY_FOR_RM_NOTIFICATION));
-        List<AgentOverDueTaskCount> overDueTaskCountForUsers = taskDao.findOverDueTasksForAgents(
+        List<AgentOverDueTaskCount> overDueTaskCountForUsers = leadTaskDao.findOverDueTasksForAgents(
                 scheduledForBefore,
                 minOverDueTaskForNotification);
         for (AgentOverDueTaskCount overDueTaskCountForUser : overDueTaskCountForUsers) {
@@ -925,7 +1000,7 @@ public class NotificationService {
                         .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID);
                 createNotification(rmUserId, notificationTypeId, userId, null);
 
-                String companyname = companyUserService.getCompanyUsers(userId).get(0).getCompany().getName();
+                String companyname = companyUserServiceHelper.getCompanyUserOfUserId(userId).getCompany().getName();
                 String emailSubject = "Too Many Overdue Tasks for " + companyname;
                 String emailContent = companyname + " has not updated "
                         + overDueTaskCountForUser.getOverDueTaskCount()

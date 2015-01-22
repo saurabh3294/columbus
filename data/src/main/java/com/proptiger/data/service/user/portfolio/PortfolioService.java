@@ -23,11 +23,15 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.dto.internal.ActiveUser;
 import com.proptiger.core.dto.internal.mail.ListingAddMail;
 import com.proptiger.core.dto.internal.mail.ListingLoanRequestMail;
 import com.proptiger.core.dto.internal.mail.ListingResaleMail;
+import com.proptiger.core.dto.internal.user.CustomUser;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.enums.ListingStatus;
+import com.proptiger.core.enums.MailTemplateDetail;
+import com.proptiger.core.enums.MailType;
 import com.proptiger.core.enums.ResidentialFlag;
 import com.proptiger.core.enums.ResourceType;
 import com.proptiger.core.enums.ResourceTypeAction;
@@ -37,6 +41,8 @@ import com.proptiger.core.exception.DuplicateNameResourceException;
 import com.proptiger.core.exception.InvalidResourceException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.exception.ResourceNotAvailableException;
+import com.proptiger.core.internal.dto.mail.MailBody;
+import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.ListingPrice;
 import com.proptiger.core.model.cms.Locality;
@@ -53,14 +59,12 @@ import com.proptiger.core.model.user.UserContactNumber;
 import com.proptiger.core.model.user.portfolio.Portfolio;
 import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.LimitOffsetPageRequest;
+import com.proptiger.core.service.mail.MailSender;
+import com.proptiger.core.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.ExclusionAwareBeanUtilsBean;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
-import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.data.enums.mail.MailType;
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.PropertyDao;
@@ -72,12 +76,10 @@ import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.service.mail.MailSender;
-import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.user.LeadGenerationService;
 import com.proptiger.data.service.user.SubscriptionService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserServiceHelper;
 import com.proptiger.data.util.portfolio.PortfolioUtil;
 
 /**
@@ -140,9 +142,9 @@ public class PortfolioService {
 
     @Autowired
     private ImageEnricher             imageEnricher;
-
+    
     @Autowired
-    private UserService               userService;
+    private UserServiceHelper userServiceHelper;
 
     /**
      * Get portfolio object for a particular user id
@@ -773,19 +775,19 @@ public class PortfolioService {
     }
 
     /**
-     * @param userId
+     * @param activeUser
      * @param listingId
      * @param mailType
      * @return
      */
-    public boolean handleMailRequest(Integer userId, Integer listingId, String mailType) {
+    public boolean handleMailRequest(ActiveUser activeUser, Integer listingId, String mailType) {
         MailType mailTypeEnum = null;
         mailTypeEnum = MailType.valueOfString(mailType);
         if (mailTypeEnum == null) {
             throw new IllegalArgumentException("Invalid mail type");
         }
-        PortfolioListing listing = getPortfolioListingById(userId, listingId);
-        return sendMail(userId, listing, mailTypeEnum);
+        PortfolioListing listing = getPortfolioListingById(activeUser.getUserIdentifier(), listingId);
+        return sendMail(activeUser.getUserIdentifier(), listing, mailTypeEnum);
     }
 
     /**
@@ -798,15 +800,11 @@ public class PortfolioService {
      * @return
      */
     private boolean sendMail(Integer userId, PortfolioListing listing, MailType mailTypeEnum) {
-        User user = userService.getUserById(listing.getUserId());
+        CustomUser user = userServiceHelper.getActiveUserCustomDetails();
         String toStr = user.getEmail();
         MailBody mailBody = null;
         MailDetails mailDetails = null;
-        UserContactNumber priorityContact = userService.getTopPriorityContact(user.getId());
-        String contactNumber = null;
-        if (priorityContact != null) {
-            contactNumber = priorityContact.getContactNumber();
-        }
+        String contactNumber = user.getContactNumber();
         switch (mailTypeEnum) {
             case LISTING_ADD_MAIL_TO_USER:
                 ListingAddMail listingAddMail = listing.createListingAddMailObject(user);
@@ -860,15 +858,26 @@ public class PortfolioService {
 
     }
 
-    public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
+    public PortfolioListing sellYourPropertyForNonLoggedIn(PortfolioListing portfolioListing) {
         User user = null;
         if (portfolioListing.getUserId() != null) {
-            user = userService.getUserById(portfolioListing.getUserId());
-            if (user == null) {
-                throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
-            }
+            user = userServiceHelper.getUserById_CallerNonLogin(portfolioListing.getUserId());
         }
-
+        return sellYourProperty(portfolioListing, user);
+    } 
+    
+    public PortfolioListing sellYourProperty(PortfolioListing portfolioListing, ActiveUser activeUser) {
+        User user = null;
+        if (portfolioListing.getUserId() != null) {
+            user = userServiceHelper.getLoggedInUserObj();
+        }
+        return sellYourProperty(portfolioListing, user);
+    } 
+    
+    private PortfolioListing sellYourProperty(PortfolioListing portfolioListing, User user) {
+        if (user == null) {
+            throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
+        }
         if (portfolioListing.getTypeId() != null) {
             Property property = propertyService.getProperty(portfolioListing.getTypeId());
             if (property == null) {

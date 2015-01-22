@@ -14,6 +14,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.core.enums.LeadOfferStatus;
+import com.proptiger.core.enums.NotificationType;
 import com.proptiger.core.exception.BadRequestException;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.cms.Company;
@@ -21,8 +23,6 @@ import com.proptiger.core.model.user.User;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.UtilityClass;
-import com.proptiger.data.enums.LeadOfferStatus;
-import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
@@ -31,8 +31,8 @@ import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.CityService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
-import com.proptiger.data.service.companyuser.CompanyService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.CompanyUserServiceHelper;
+import com.proptiger.data.service.user.UserServiceHelper;
 
 /**
  * @author Anubhav
@@ -41,9 +41,6 @@ import com.proptiger.data.service.user.UserService;
  */
 @Service
 public class LeadService {
-    @Autowired
-    private UserService             userService;
-
     @Autowired
     private LeadDao                 leadDao;
 
@@ -60,9 +57,6 @@ public class LeadService {
     private ProjectService          projectService;
 
     @Autowired
-    private CompanyService          companyService;
-
-    @Autowired
     private LocalityService         localityService;
 
     @Autowired
@@ -75,6 +69,12 @@ public class LeadService {
 
     @Autowired
     private CityService             cityService;
+    
+    @Autowired
+    private CompanyUserServiceHelper companyUserServiceHelper;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
 
     public void manageLeadAuctionWithBeforeCycleForRequestBrokers(int leadId) {
         Integer maxPhaseIdForRequestMoreBrokers = leadOfferDao.getMaxPhaseIdByLeadId(leadId);
@@ -197,7 +197,7 @@ public class LeadService {
             throw new ProAPIException("No locality found in lead");
         }
         else {
-            brokers = companyService.getBrokersForLocalities(localityIds);
+            brokers = companyUserServiceHelper.getCompaniesThatDealInOneOfLocalities(localityIds);
         }
 
         List<Integer> agentIds = new ArrayList<Integer>();
@@ -215,7 +215,7 @@ public class LeadService {
         List<Company> brokerToConsider = new ArrayList<Company>();
 
         if (!agentIds.isEmpty()) {
-            List<Company> brokersToExclude = companyService.getCompanyFromUserId(agentIds);
+            List<Company> brokersToExclude = companyUserServiceHelper.getListOfCompanyOfUsersIds(agentIds);
             List<Integer> brokerIds = new ArrayList<Integer>();
 
             for (Company broker : brokersToExclude) {
@@ -305,7 +305,7 @@ public class LeadService {
         // Setting isregistered false for all such users
         lead.getClient().setRegistered(false);
 
-        User user = userService.createUser(lead.getClient());
+        User user = userServiceHelper.createOrPatchUser_CallerNonLogin(lead.getClient());
         lead.setClient(user);
         lead.setClientId(user.getId());
         Lead leadOriginal = (Lead) SerializationUtils.clone(lead);
@@ -356,6 +356,7 @@ public class LeadService {
                 leadRequirement.getBedroom(),
                 leadRequirement.getLocalityId(),
                 leadRequirement.getProjectId(),
+                leadRequirement.getPropertyTypeId(),
                 leadRequirement.getLeadId());
 
         return !leadRequirementList.isEmpty();
@@ -386,6 +387,10 @@ public class LeadService {
         existingLead.setMaxSize(UtilityClass.max(existingLead.getMaxSize(), lead.getMaxSize()));
         existingLead.setMinBudget(UtilityClass.min(existingLead.getMinBudget(), lead.getMinBudget()));
         existingLead.setMaxBudget(UtilityClass.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
+
+        if (lead.isFlexibleBudget()) {
+            existingLead.setFlexibleBudget(lead.isFlexibleBudget());
+        }
 
         leadDao.save(existingLead);
     }
@@ -435,11 +440,15 @@ public class LeadService {
         Integer otherLocalityId = otherLeadRequirement.getLocalityId();
         Integer projectId = leadRequirement.getProjectId();
         Integer otherProjectId = otherLeadRequirement.getProjectId();
+        Integer propertyTypeId = leadRequirement.getPropertyTypeId();
+        Integer otherPropertyTypeId = otherLeadRequirement.getPropertyTypeId();
 
         if (((bedroom == null && otherBedroom == null) || (otherBedroom != null && otherBedroom.equals(bedroom))) && ((localityId == null && otherLocalityId == null) || (otherLocalityId != null && otherLocalityId
                 .equals(localityId)))
                 && ((projectId == null && otherProjectId == null) || (otherProjectId != null && otherProjectId
-                        .equals(projectId)))) {
+                        .equals(projectId)))
+                && ((propertyTypeId == null && otherPropertyTypeId == null) || (otherPropertyTypeId != null && otherPropertyTypeId
+                        .equals(propertyTypeId)))) {
             return true;
         }
         else {
@@ -480,7 +489,7 @@ public class LeadService {
      * @return
      */
     public boolean exists(String email, int cityId) {
-        User user = userService.getUserByEmail(email);
+        User user = userServiceHelper.getUserByEmail_CallerNonLogin(email);
         return (user != null) && (getExistingLead(user.getId(), cityId) != null);
     }
 

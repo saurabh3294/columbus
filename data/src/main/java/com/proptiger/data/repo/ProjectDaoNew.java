@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.jboss.logging.Param;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -41,5 +42,10 @@ public interface ProjectDaoNew extends PagingAndSortingRepository<Project, Integ
     
     @Query("SELECT P FROM Project P left join fetch P.builder B where P.projectId IN ?1 AND P.version = 'Website' ")
     public List<Project> getProjectsOnId(List<Integer> projectId);
+    
+    @Modifying
+    @Query("UPDATE Project p SET description=?1 WHERE p.projectId = ?2 AND p.version = 'Website'")
+    public void updateProjectDescriptionOnIdAndVersionWebsite(String string, Integer projectId);
+    
     
 }

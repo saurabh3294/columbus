@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.Gson;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.dto.internal.ActiveUser;
+import com.proptiger.core.enums.MailTemplateDetail;
 import com.proptiger.core.enums.ProcessingStatus;
-import com.proptiger.core.enums.ProjectStatus;
 import com.proptiger.core.enums.SalesType;
 import com.proptiger.core.exception.BadRequestException;
+import com.proptiger.core.internal.dto.mail.MailBody;
+import com.proptiger.core.internal.dto.mail.MailDetails;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Project;
@@ -32,23 +36,19 @@ import com.proptiger.core.model.proptiger.Enquiry;
 import com.proptiger.core.model.proptiger.Enquiry.LeadEnquiryResponse;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.model.user.UserContactNumber;
+import com.proptiger.core.service.mail.MailSender;
+import com.proptiger.core.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.core.service.security.SecurityUtilService;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.SecurityContextUtils;
-import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.mail.LeadSubmitMail;
-import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.EnquiryAttributes;
 import com.proptiger.data.repo.EnquiryAttributesDao;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDaoNew;
-import com.proptiger.data.service.mail.MailSender;
-import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
-import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.lead.CookieConstants;
+import com.proptiger.data.service.user.UserServiceHelper;
 import com.proptiger.data.util.lead.LeadCookiesHandler;
 import com.proptiger.data.util.lead.LeadGACookiesHandler;
 import com.proptiger.data.util.lead.LeadValidator;
@@ -71,9 +71,6 @@ public class EnquiryService {
 
     @Autowired
     BeanstalkService                beanstalkService;
-
-    @Autowired
-    UserService                     userService;
 
     @Autowired
     SecurityUtilService             securityUtilService;
@@ -101,6 +98,10 @@ public class EnquiryService {
 
     @Autowired
     private PropertyReader          propertyReader;
+    
+    @Autowired
+    private UserServiceHelper userServiceHelper;
+    private static Logger                    logger = LoggerFactory.getLogger(EnquiryService.class);
 
     @Transactional
     public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, HttpServletResponse response) {
@@ -201,8 +202,13 @@ public class EnquiryService {
     }
 
     private void updateUserDetails(Enquiry enquiry) {
-
-        User user = userService.getUserByEmail(enquiry.getEmail());
+        User user = null;
+        try {
+            user = userServiceHelper.getUserByEmail_CallerNonLogin(enquiry.getEmail());
+        }
+        catch (Exception e) {
+            logger.error("User with email id {} not found from userservice", enquiry.getEmail());;
+        }
 
         if ((user != null && user.getUserAuthProviderDetails() != null) && !user.getUserAuthProviderDetails().isEmpty()) {
             User newUser = new User();
@@ -212,7 +218,8 @@ public class EnquiryService {
             contactNumbers.add(userContactNumber);
             newUser.setContactNumbers(contactNumbers);
             newUser.setId(user.getId());
-            userService.updateContactNumbers(newUser);
+            newUser.setEmail(user.getEmail());
+            userServiceHelper.createOrPatchUser_CallerNonLogin(newUser);
         }
     }
 
@@ -494,9 +501,7 @@ public class EnquiryService {
         }
         else {
             if (project != null) {
-                if (project.getForceResale() == FORCE_RESALE_VALUE || (project.getForceResale() != FORCE_PRIMARY_VALUE && (project
-                        .getProjectStatus().equals(ProjectStatus.COMPLETED.getValue()) || Integer.valueOf(0).equals(
-                        project.getDerivedAvailability())))) {
+                if (project.isResaleEnquiry()) {
                     enquiry.setSalesType(SalesType.resale);
                 }
                 else {
@@ -527,7 +532,6 @@ public class EnquiryService {
                 enquiryAttributes.setTypeId(typeId);
                 enquiryAttributesDao.saveAndFlush(enquiryAttributes);
             }
-
             savedEnquiry = enquiryDao.saveAndFlush(savedEnquiry);
 
             if (savedEnquiry.getProjectId() != 0) {

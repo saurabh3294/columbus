@@ -31,48 +31,48 @@ public class Payment extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = 1L;
+    private static final long   serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
-    
-    @Column(name="transaction_id")
-    private int transactionId;
-    
-    @Column(name="status_id")
-    private int statusId;
-    private int amount;
+    private int                 id;
 
-    @Column(name="type_id")
-    private int typeId;
-    
-    @Column(name="citrus_pay_gateway_transaction_id")
-    private String citrusPayGatewayTransactionId;
-    
-    @Column(name="gateway_transaction_id")
-    private Long gatewayTransactionId;
+    @Column(name = "transaction_id")
+    private int                 transactionId;
 
-    @Column(name="payment_gateway_response_id")
-    private Integer paymentGatewayResponseId;
-    
-    @Column(name="created_at")
-    private Date createdAt;
+    @Column(name = "status_id")
+    private int                 statusId;
+    private int                 amount;
 
-    @Column(name="updated_at")    
-    private Date updatedAt;
+    @Column(name = "type_id")
+    private int                 typeId;
 
-    @ManyToOne
-    @JoinColumn(name="type_id", insertable=false, updatable=false)
-    private MasterPaymentType masterPaymentType;
+    @Column(name = "citrus_pay_gateway_transaction_id")
+    private String              citrusPayGatewayTransactionId;
+
+    @Column(name = "gateway_transaction_id")
+    private String              gatewayTransactionId;
+
+    @Column(name = "payment_gateway_response_id")
+    private Integer             paymentGatewayResponseId;
+
+    @Column(name = "created_at")
+    private Date                createdAt;
+
+    @Column(name = "updated_at")
+    private Date                updatedAt;
 
     @ManyToOne
-    @JoinColumn(name="status_id", insertable=false, updatable=false)
+    @JoinColumn(name = "type_id", insertable = false, updatable = false)
+    private MasterPaymentType   masterPaymentType;
+
+    @ManyToOne
+    @JoinColumn(name = "status_id", insertable = false, updatable = false)
     private MasterPaymentStatus masterPaymentStatus;
 
     @ManyToOne
-    @JoinColumn(name="transaction_id", insertable=false, updatable=false)
-    private Transaction transaction;
+    @JoinColumn(name = "transaction_id", insertable = false, updatable = false)
+    private Transaction         transaction;
 
     @PreUpdate
     public void update() {
@@ -84,7 +84,7 @@ public class Payment extends BaseModel {
         updatedAt = new Date();
         createdAt = new Date();
     }
-    
+
     public int getId() {
         return id;
     }
@@ -141,11 +141,11 @@ public class Payment extends BaseModel {
         this.citrusPayGatewayTransactionId = citrusPayGatewayTransactionId;
     }
 
-    public Long getGatewayTransactionId() {
+    public String getGatewayTransactionId() {
         return gatewayTransactionId;
     }
 
-    public void setGatewayTransactionId(Long gatewayTransactionId) {
+    public void setGatewayTransactionId(String gatewayTransactionId) {
         this.gatewayTransactionId = gatewayTransactionId;
     }
 

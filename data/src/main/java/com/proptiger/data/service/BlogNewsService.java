@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.core.model.cms.City;
+import com.proptiger.core.model.wordpress.WordpressPost;
+import com.proptiger.core.model.wordpress.WordpressTerms;
 import com.proptiger.core.pojo.Paging;
 import com.proptiger.core.pojo.Selector;
-import com.proptiger.data.model.WordpressPost;
-import com.proptiger.data.model.WordpressTerms;
 import com.proptiger.data.repo.BlogNewsDao;
 
 /**
