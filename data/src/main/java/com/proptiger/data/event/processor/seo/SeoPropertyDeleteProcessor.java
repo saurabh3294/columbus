@@ -25,7 +25,7 @@ public class SeoPropertyDeleteProcessor extends DBEventProcessor {
         logger.info(" Populating the Property Delete Event Type Old data.");
         DefaultEventTypePayload payload = (DefaultEventTypePayload) event.getEventTypePayload();
         Object newValue = payload.getNewValue();
-        if (newValue.getClass().equals(String.class)) {
+        if (newValue!= null && newValue.getClass().equals(String.class)) {
             if (newValue.equals(EntityType.Actual.name()) || newValue.equals(UnitType.Apartment.name())
                     || newValue.equals(UnitType.Villa.name())
                     || newValue.equals(UnitType.Plot.name())) {
