@@ -28,8 +28,6 @@ import com.proptiger.core.exception.ResourceNotAvailableException;
 import com.proptiger.core.model.user.User;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.HttpRequestUtil;
-import com.proptiger.core.util.PropertyKeys;
-import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.RequestHolderUtil;
 
 /**
