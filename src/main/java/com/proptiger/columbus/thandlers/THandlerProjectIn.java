@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.columbus.model.Typeahead;
@@ -13,7 +15,10 @@ import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerProjectIn extends RootTHandler {
-    private String localityFilter = "locality=%s";
+
+    private static String localityFilter = "locality=%s";
+
+    private static Logger logger         = LoggerFactory.getLogger(THandlerProjectIn.class);
 
     @Override
     public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
@@ -26,6 +31,12 @@ public class THandlerProjectIn extends RootTHandler {
         results.add(getTopResult(query, typeahead, city));
 
         List<Locality> topLocalities = getTopLocalities(city);
+
+        if (topLocalities == null) {
+            logger.error("Could not fetch top localities for city " + city);
+            return results;
+        }
+
         String redirectURL, taLabel, taID;
         for (Locality locality : topLocalities) {
             redirectURL = getRedirectUrl(city);
@@ -95,9 +106,7 @@ public class THandlerProjectIn extends RootTHandler {
                                 + String.format(URLGenerationConstants.SelectorGetLocalityNamesByCityName, cityName))
                 .build().encode().toString());
 
-        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
-                uri,
-                Locality.class);
+        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, Locality.class);
         return topLocalities;
     }
 

@@ -24,15 +24,17 @@ public class NLPSuggestionHandler {
     @Autowired
     private HttpRequestUtil httpRequestUtil;
 
-    private TemplateMap     templateMap   = new TemplateMap();
+    private TemplateMap     templateMap                      = new TemplateMap();
 
-    private Logger          logger        = LoggerFactory.getLogger(NLPSuggestionHandler.class);
+    private Logger          logger                           = LoggerFactory.getLogger(NLPSuggestionHandler.class);
 
-    private float           templateScoreTheshold = 5.0f;
+    private float           templateFirstResultScoreTheshold = 20.0f;
+
+    private float           templateResultScoreTheshold      = 7.0f;
 
     public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int rows) {
 
-        if(city == null || city.isEmpty()){
+        if (city == null || city.isEmpty()) {
             city = TypeaheadConstants.defaultCityName;
         }
 
@@ -45,6 +47,11 @@ public class NLPSuggestionHandler {
 
         /* If no matching templates are found, return empty list. */
         if (templateHits.size() == 0) {
+            return results;
+        }
+
+        /* Return templates only if we have a good match. */
+        if (templateHits.get(0).getScore() < templateResultScoreTheshold) {
             return results;
         }
 
@@ -62,7 +69,7 @@ public class NLPSuggestionHandler {
             t.setScore(templateHits.get(0).getScore());
         }
 
-        if (templateHits.get(0).getScore() > templateScoreTheshold) {
+        if (templateHits.get(0).getScore() > templateFirstResultScoreTheshold) {
             return resultsFirstHandler;
         }
 

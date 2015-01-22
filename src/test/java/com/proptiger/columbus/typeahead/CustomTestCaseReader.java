@@ -78,23 +78,17 @@ public class CustomTestCaseReader {
     private TaTestCase getTestcaseObjFromLogLine(String line) {
         String[] params = StringUtils.split(line, ',');
         TaTestCase taTestCase = null;
-        String query = null;
-        String usercity = null;
         try {
-            String[] split = StringUtils.split(params[0], '@');
-            query = split[0];
-            if(split.length > 1){
-                usercity = split[1];
-            }
-            
             taTestCase = new TaTestCase(
-                    query,
+                    params[0],
                     TaTestCaseType.valueOf(params[1]),
                     Integer.parseInt(params[2]),
                     Integer.parseInt(params[3]),
                     params[4]);
-            
-            taTestCase.setUsercity(usercity);
+
+            if (params.length > 5) {
+                taTestCase.setUrlParams(parseUrlParams(params[5]));
+            }
         }
         catch (Exception e) {
             return null;
@@ -102,4 +96,17 @@ public class CustomTestCaseReader {
         return taTestCase;
     }
 
+    private Map<String, String> parseUrlParams(String phrase) {
+        String[] pairs = StringUtils.split(phrase, "|");
+        if (pairs == null || pairs.length == 0) {
+            return null;
+        }
+        Map<String, String> map = new HashMap<String, String>();
+        String[] elems;
+        for (String pair : pairs) {
+            elems = StringUtils.split(pair, ":");
+            map.put(elems[0], elems[1]);
+        }
+        return map;
+    }
 }

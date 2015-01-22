@@ -12,7 +12,6 @@ import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-
 //import com.google.common.base.Joiner;
 //import com.proptiger.core.model.cms.City;
 import com.proptiger.columbus.model.Typeahead;
@@ -31,7 +30,7 @@ import com.proptiger.core.util.UtilityClass;
 public class TypeaheadDao {
 
     @Autowired
-    private SolrDao      solrDao;
+    private SolrDao solrDao;
 
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         SolrQuery solrQuery = this.getSolrQueryV2(query, rows, filterQueries);
@@ -145,10 +144,9 @@ public class TypeaheadDao {
             List<String> filterQueries,
             String usercity) {
 
-        
         /* Fetching more results due to city-context boosting */
-        rows = (int)(rows * TypeaheadConstants.DocumentFetchMultiplier);
-        
+        rows = (int) (rows * TypeaheadConstants.DocumentFetchMultiplier);
+
         /* Fetch results for entered query first */
         SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
         List<Typeahead> resultsOriginal = new ArrayList<Typeahead>();
@@ -174,8 +172,11 @@ public class TypeaheadDao {
             resultsOriginal.addAll(resultsSuggested);
         }
 
-        /* Boost results where city is same as user's selected city if usercity is given*/
-        if(usercity != null && !usercity.isEmpty()){
+        /*
+         * Boost results where city is same as user's selected city if usercity
+         * is given
+         */
+        if (usercity != null && !usercity.isEmpty()) {
             boostByCityContext(resultsOriginal, usercity);
         }
 
