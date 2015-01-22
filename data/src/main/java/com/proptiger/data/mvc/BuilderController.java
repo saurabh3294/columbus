@@ -67,7 +67,7 @@ public class BuilderController extends BaseController {
         return new APIResponse(super.filterFields(builder, fields));
     }
     
-    @RequestMapping(value = "data/v1/entity/builder/{builderId}", method = RequestMethod.POST)
+    @RequestMapping(value = "data/v1/entity/builder/{builderId}", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateBuilderDescriptiom(@RequestBody Builder builder, @RequestParam(
             required = false,

@@ -95,7 +95,7 @@ public class CityController extends BaseController {
         return new APIResponse(cityService.getCityLandMarkImages(cityId));
     }
 
-    @RequestMapping(value = "data/v1/entity/city/{cityId}", method = RequestMethod.POST)
+    @RequestMapping(value = "data/v1/entity/city/{cityId}", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateCityDescriptiom(@RequestBody City city, @RequestParam(
             required = false,
