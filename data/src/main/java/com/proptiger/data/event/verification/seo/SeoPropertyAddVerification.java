@@ -42,6 +42,9 @@ public class SeoPropertyAddVerification extends DBEventVerification {
 				.getActivePropertyByIdFromDB(propertyId);
 		Project project = projectService.getActiveProjectByIdFromDB(property
 				.getProjectId());
+		if(project  == null ){
+		    return super.verifyEvents(eventGenerated);
+		}
 		Locality locality = localityService
 				.getActiveOrInactiveLocalityById(project.getLocalityId());
 		Suburb suburb = SuburbService.getActiveOrInactiveSuburbById(locality
