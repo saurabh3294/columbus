@@ -1485,4 +1485,9 @@ public class SolrResult extends BaseModel {
     public void setLocalityTaxonomyUrls(String localityTaxonomyUrls) {
         locality.setLocalityTaxonomyUrls(new Gson().fromJson(localityTaxonomyUrls, Map.class));
     }
+    
+    @Field(value = "FORCE_RESALE")
+    public void setForceResale(int forceResale){
+        project.setForceResale(forceResale);
+    }
 }
