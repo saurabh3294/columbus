@@ -129,7 +129,7 @@ public class CronService {
             }
 
             catch (Exception e) {
-                logger.error("Error in lead assignment: " + e);
+                logger.error("Error in lead assignment: ", e);
             }
 
         }
@@ -171,7 +171,7 @@ public class CronService {
                 leadOfferService.manageLeadOfferedNotificationDeletionForLead(lead.getId());
             }
             catch (ConstraintViolationException e) {
-                logger.error("Error while deleting lead offer notification for lead id: " + lead.getId() + e);
+                logger.error("Error while deleting lead offer notification for lead id: " + lead.getId(), e);
             }
         }
     }
@@ -191,7 +191,7 @@ public class CronService {
                 notificationService.manageLeadOfferedReminderForLead(lead.getId());
             }
             catch (ConstraintViolationException e) {
-                logger.error("Error while sending lead offer reminder to rm for lead id: " + lead.getId() + e);
+                logger.error("Error while sending lead offer reminder to rm for lead id: " + lead.getId(), e);
             }
         }
     }
