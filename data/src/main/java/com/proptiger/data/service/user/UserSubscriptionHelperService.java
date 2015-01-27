@@ -196,14 +196,16 @@ public class UserSubscriptionHelperService {
 
     private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList) {
         Set<Integer> cityIdList = new HashSet<Integer>();
-        FIQLSelector fiqlSelector = new FIQLSelector();
-        for (Integer id : localityIDList) {
-            fiqlSelector.addOrConditionToFilter("localityId==" + id);
-        }
-        fiqlSelector.setStart(0).setRows(9999);
-        List<Locality> localiltyList = localityService.getLocalities(fiqlSelector).getResults();
-        for (Locality locality : localiltyList) {
-            cityIdList.add(locality.getSuburb().getCityId());
+        if(localityIDList != null && !localityIDList.isEmpty()){
+            FIQLSelector fiqlSelector = new FIQLSelector();
+            for (Integer id : localityIDList) {
+                fiqlSelector.addOrConditionToFilter("localityId==" + id);
+            }
+            fiqlSelector.setStart(0).setRows(9999);
+            List<Locality> localiltyList = localityService.getLocalities(fiqlSelector).getResults();
+            for (Locality locality : localiltyList) {
+                cityIdList.add(locality.getSuburb().getCityId());
+            }
         }
         return cityIdList;
     }
