@@ -72,7 +72,7 @@ public class SuburbController extends BaseController {
      */
     @RequestMapping("data/v2/entity/suburb/{suburbId}")
     @ResponseBody
-    public APIResponse getV2Suburb(@PathVariable int suburbId, @RequestParam(value="selector", required = false) String selectorStr) {
+    public APIResponse getV2Suburb(@PathVariable int suburbId, @RequestParam(value="selector") String selectorStr) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         if(selector == null ){
             selector = new Selector();
