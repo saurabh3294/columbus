@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.model.cms.Property;
@@ -63,7 +63,7 @@ public class ProjectSuggestions {
             obj.setRedirectUrl(mapEntry.getValue());
             obj.setId(templateId);
             obj.setType(obj.getId());
-            obj.setIsSuggestion(true);
+            obj.setSuggestion(true);
             suggestions.add(obj);
         }
 

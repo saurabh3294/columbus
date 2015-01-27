@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.model.GooglePlace;
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.repo.GooglePlacesAPIDao;
 
 @Service
@@ -68,7 +68,7 @@ public class GooglePlacesAPIService {
         typeahead.setDisplayText(googlePlace.getDescription());
         typeahead.setLatitude(googlePlace.getLatitude());
         typeahead.setLongitude(googlePlace.getLongitude());
-        typeahead.setIsGooglePlace(true);
+        typeahead.setGooglePlace(true);
         return typeahead;
     }
 

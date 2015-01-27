@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.hadoop.util.StringUtils;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 
 public class THandlerProjectBudgetArea extends RootTHandler {
 

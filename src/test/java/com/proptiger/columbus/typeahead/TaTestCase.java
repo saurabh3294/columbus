@@ -3,7 +3,7 @@ package com.proptiger.columbus.typeahead;
 import java.util.List;
 import java.util.Map;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 
 public class TaTestCase {
 
