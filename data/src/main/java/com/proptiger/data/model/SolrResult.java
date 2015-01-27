@@ -479,6 +479,12 @@ public class SolrResult extends BaseModel {
     @Field(value = "AVAILABILITY")
     private Integer           derivedAvailability;
 
+    @Field(value = "SUBURB_LATITUDE")
+    private Double            suburbLatitude;
+
+    @Field(value = "SUBURB_LONGITUDE")
+    private Double            suburbLongitude;
+
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -982,7 +988,7 @@ public class SolrResult extends BaseModel {
     public void setPoojaRoom(int poojaRoom) {
         property.setPoojaRoom(poojaRoom);
     }
-    
+
     @Field("STUDY_ROOM")
     public void setStudyRoom(int studyRoom) {
         property.setStudyRoom(studyRoom);
@@ -1485,9 +1491,20 @@ public class SolrResult extends BaseModel {
     public void setLocalityTaxonomyUrls(String localityTaxonomyUrls) {
         locality.setLocalityTaxonomyUrls(new Gson().fromJson(localityTaxonomyUrls, Map.class));
     }
-    
+
     @Field(value = "FORCE_RESALE")
-    public void setForceResale(int forceResale){
+    public void setForceResale(int forceResale) {
         project.setForceResale(forceResale);
     }
+
+    @Field(value = "SUBURB_LATITUDE")
+    public void setSuburbLatitude(Double latitude) {
+        suburb.setLatitude(latitude);
+    }
+
+    @Field(value = "SUBURB_LONGITUDE")
+    public void setSuburbLongitude(Double longitude) {
+        suburb.setLongitude(longitude);
+    }
+
 }
