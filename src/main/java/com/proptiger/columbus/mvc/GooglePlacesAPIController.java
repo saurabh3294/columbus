@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.columbus.model.GooglePlace;
-import com.proptiger.columbus.model.Typeahead;
 import com.proptiger.columbus.service.GooglePlacesAPIService;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 

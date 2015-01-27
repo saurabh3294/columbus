@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.HttpRequestUtil;
 
 @Component
@@ -31,7 +31,7 @@ public abstract class RootTHandler {
         typeahead.setDisplayText(displayText);
         typeahead.setRedirectUrl(redirectUrl);
         typeahead.setType(typeahead.getId());
-        typeahead.setIsSuggestion(true);
+        typeahead.setSuggestion(true);
         return typeahead;
     }
 

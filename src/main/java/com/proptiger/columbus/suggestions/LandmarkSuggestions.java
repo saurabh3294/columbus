@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 
 @Component
 public class LandmarkSuggestions {
@@ -34,7 +34,7 @@ public class LandmarkSuggestions {
             obj.setRedirectUrl(String.format(template[1], defaultMapRadius, latitude, longitude));
             obj.setId(templateId);
             obj.setType(obj.getId());
-            obj.setIsSuggestion(true);
+            obj.setSuggestion(true);
             suggestions.add(obj);
         }
         return suggestions;

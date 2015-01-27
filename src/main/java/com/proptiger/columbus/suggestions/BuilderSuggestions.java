@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 
 @Component
 public class BuilderSuggestions {
@@ -38,7 +38,7 @@ public class BuilderSuggestions {
             obj.setRedirectUrl(String.format(template[1], redirectUrl));
             obj.setId(templateId + "-" + template[2]);
             obj.setType(obj.getId());
-            obj.setIsSuggestion(true);
+            obj.setSuggestion(true);
             suggestions.add(obj);
         }
         return suggestions;
@@ -58,7 +58,7 @@ public class BuilderSuggestions {
             obj.setDisplayText(String.format(template[0], name) + " in" + cityName);
             obj.setRedirectUrl(cityName.toLowerCase() + "/" + String.format(template[1], redirectUrl));
             obj.setId(templateId);
-            obj.setIsSuggestion(true);
+            obj.setSuggestion(true);
             suggestions.add(obj);
         }
         return suggestions;
