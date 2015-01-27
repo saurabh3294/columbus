@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.model.cms.Suburb;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.Selector;
@@ -56,9 +55,13 @@ public class SuburbController extends BaseController {
      */
     @RequestMapping("data/v1/entity/suburb/{suburbId}")
     @ResponseBody
-    public APIResponse getSuburb(@PathVariable int suburbId) {
-
-        return new APIResponse(super.filterFields(suburbService.getSuburb(suburbId, false, new Selector()), null));
+    public APIResponse getSuburb(@PathVariable int suburbId, @RequestParam(required = false) String selector) {
+    	Selector suburbSelector = new Selector();
+        if (selector != null) {
+            suburbSelector = super.parseJsonToObject(selector, Selector.class);
+        }
+        
+        return new APIResponse(super.filterFields(suburbService.getSuburb(suburbId, false, suburbSelector), suburbSelector.getFields()));
     }
     
     /**
@@ -69,12 +72,12 @@ public class SuburbController extends BaseController {
      */
     @RequestMapping("data/v2/entity/suburb/{suburbId}")
     @ResponseBody
-    public APIResponse getV2Suburb(@PathVariable int suburbId, @RequestParam(value="selector") String selectorStr) {
+    public APIResponse getV2Suburb(@PathVariable int suburbId, @RequestParam(value="selector", required = false) String selectorStr) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         if(selector == null ){
             selector = new Selector();
         }
-        return new APIResponse(super.filterFields(suburbService.getSuburb(suburbId, true, selector), null));
+        return new APIResponse(super.filterFields(suburbService.getSuburb(suburbId, true, selector), selector.getFields()));
     }
     
     @RequestMapping(value = "data/v1/entity/suburb/{id}/active-inactive")
