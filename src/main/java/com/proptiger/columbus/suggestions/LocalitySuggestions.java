@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
 @Component
@@ -38,7 +38,7 @@ public class LocalitySuggestions {
                     + String.format(template[1], (localityName.replace(' ', '-') + "-" + id).toLowerCase()));
             obj.setId(templateId + "-" + template[2]);
             obj.setType(obj.getId());
-            obj.setIsSuggestion(true);
+            obj.setSuggestion(true);
             suggestions.add(obj);
         }
 

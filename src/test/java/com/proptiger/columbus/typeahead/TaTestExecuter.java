@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.mvc.TypeaheadController;
 import com.proptiger.core.pojo.response.APIResponse;
 

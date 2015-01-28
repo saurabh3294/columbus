@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.model.TypeaheadConstants;
 
 @Component
@@ -46,7 +46,7 @@ public class EntitySuggestionHandler {
         Typeahead topResult = results.get(0);
 
         /* No suggestions for Google Place results or if top-result is not relevant enough */
-        if (topResult.getIsGooglePlace() || topResult.getScore() < TypeaheadConstants.SuggestionScoreThreshold) {
+        if (topResult.isGooglePlace() || topResult.getScore() < TypeaheadConstants.SuggestionScoreThreshold) {
             return suggestions;
         }
 

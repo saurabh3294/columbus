@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 
 //import com.google.common.base.Joiner;
 //import com.proptiger.core.model.cms.City;
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.UtilityClass;

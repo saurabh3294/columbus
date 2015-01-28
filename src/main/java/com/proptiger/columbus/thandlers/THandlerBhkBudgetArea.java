@@ -2,7 +2,7 @@ package com.proptiger.columbus.thandlers;
 
 import java.util.List;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 
 public class THandlerBhkBudgetArea extends RootTHandler {
 

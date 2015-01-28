@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.suggestions.NLPSuggestionHandler;
 import com.proptiger.core.util.URLUtil;
