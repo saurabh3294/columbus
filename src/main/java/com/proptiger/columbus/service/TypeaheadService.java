@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.suggestions.EntitySuggestionHandler;

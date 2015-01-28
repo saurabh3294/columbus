@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
 @Component
@@ -31,7 +31,7 @@ public class CitySuggestions {
             obj.setRedirectUrl(name.toLowerCase() + "/" + template[1]);
             obj.setId(templateId + "-" + template[2]);
             obj.setType(obj.getId());
-            obj.setIsSuggestion(true);
+            obj.setSuggestion(true);
             suggestions.add(obj);
         }
 

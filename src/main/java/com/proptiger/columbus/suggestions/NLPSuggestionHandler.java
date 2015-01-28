@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.columbus.model.Typeahead;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.thandlers.RootTHandler;
