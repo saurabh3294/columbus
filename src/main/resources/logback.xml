@@ -22,10 +22,6 @@
 			<pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
 		</encoder>
 	</appender>
-
-    <logger name="com.proptiger.columbus.service.GooglePlacesAPIService">
-        <level value="INFO" />
-    </logger>
     
 	<root level="ERROR">
 		<appender-ref ref="columbus" />
