@@ -22,7 +22,7 @@
 			<pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
 		</encoder>
 	</appender>
-
+    
 	<root level="ERROR">
 		<appender-ref ref="columbus" />
 		<appender-ref ref="STDOUT" />

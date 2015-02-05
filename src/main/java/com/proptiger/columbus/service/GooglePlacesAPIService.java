@@ -35,7 +35,11 @@ public class GooglePlacesAPIService {
             return results;
         }
 
+        long timeStart = System.currentTimeMillis();
         List<GooglePlace> googlePlaceList = googlePlacesAPIDao.getMatchingPlaces(query, rows);
+        long timeTaken = System.currentTimeMillis() - timeStart;
+        logger.info("Google Place Predictions API call (" + query + ") : Time Taken = " + timeTaken + " ms");
+
         for (GooglePlace gp : googlePlaceList) {
             results.add(getTypeaheadFromGooglePlace(gp));
         }
