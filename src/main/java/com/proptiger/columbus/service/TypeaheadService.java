@@ -171,13 +171,14 @@ public class TypeaheadService {
             populateCityNames();
         }
         String[] qterms = query.split("\\s+");
+        String city = null;
         if (qterms.length <= 1) {
-            return null;
+            city = null;
         }
         if (cityNames.contains(qterms[qterms.length - 1].toUpperCase())) {
-            return qterms[qterms.length - 1];
+            city = qterms[qterms.length - 1];
         }
-        return null;
+        return city;
     }
 
     /**
