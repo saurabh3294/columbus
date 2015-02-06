@@ -35,12 +35,17 @@ public class TaTestReport {
     public static TaTestReport getReport(TaTestCase ttc) {
         String message = "";
         int pos = getTypeaheadPosition(ttc);
-        if (pos < 0) {
+        if (pos < 0 && (!ttc.getType().equals(TaTestCaseType.Negative))) {
             message = "Test=[" + ttc.getLogString() + "] : Outcome=[INVALID TEST CASE]";
             return new TaTestReport(false, message);
         }
         
-        boolean status = (pos >= ttc.getMinRank() && pos <= ttc.getMaxRank());
+        boolean status;
+        if (ttc.getType().equals(TaTestCaseType.Negative)) {
+            status = (pos < ttc.getMinRank() || pos > ttc.getMaxRank());
+        } else {
+            status = (pos >= ttc.getMinRank() && pos <= ttc.getMaxRank());
+        }
         message = "Test=[" + ttc.getLogString() + "] : Outcome=[Position=" + pos + "]";
         TaTestReport taTestReport = new TaTestReport(status, message);
         taTestReport.position = pos;
