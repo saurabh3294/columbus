@@ -2,6 +2,9 @@ package com.proptiger.columbus.thandlers;
 
 public class URLGenerationConstants {
     public static String Selector                           = "selector=";
+    
+    public static String SelectorGetAllCities               = "{\"fields\":[\"label\"],\"paging\":{\"start\":0,\"rows\":%d}}";
+    
     public static String SelectorGetLocalityNamesByCityName = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"label\"]}";
     public static String SelectorGetBuilderNamesByCityName  = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"name\"]}";
 
@@ -18,4 +21,5 @@ public class URLGenerationConstants {
     public static String GenericUrlPreLaunchProjectsIn      = "%s-real-estate/filters?projectStatus=not launched,pre launch";
     public static String GenericUrlUnderConstProjectsIn     = "%s/under-construction-property";
     public static String GenericUrlReadyToMoveProjectsIn    = "%s/ready-to-move-property";
+     
 }
