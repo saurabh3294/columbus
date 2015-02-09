@@ -54,9 +54,9 @@ public class TypeaheadService {
     @Autowired
     private HttpRequestUtil         httpRequestUtil;
 
-    private static List<String>     cityNames;
+    private List<String>            cityNames;
 
-    private static int              MAX_CITY_COUNT = 1000;
+    private int                     MAX_CITY_COUNT = 1000;
 
     /**
      * This method will return the list of typeahead results based on the
@@ -166,8 +166,7 @@ public class TypeaheadService {
             filtersPassed = false;
         }
         else if (filterQueries.size() == 1 && filterQueries.get(0).startsWith("TYPEAHEAD_TYPE:")) {
-            // ignore the TYPEAHEAD_TYPE because it is explicitly set by
-            // frontend
+            // ignore the TYPEAHEAD_TYPE
             filtersPassed = false;
         }
         return filtersPassed;
@@ -205,16 +204,16 @@ public class TypeaheadService {
                         PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
                                 .getRequiredPropertyAsString(PropertyKeys.CITY_API_URL) + buildParams).build().encode()
                 .toString());
+        cityNames = new ArrayList<String>();
         List<City> cities = null;
         try {
-            System.out.println(uri);
             cities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, City.class);
         }
         catch (Exception e) {
             // TODO Auto-generated catch block
             logger.error("Error while getting cities", e);
+            return;
         }
-        cityNames = new ArrayList<String>();
         for (City c : cities) {
             cityNames.add(c.getLabel().toUpperCase());
         }
