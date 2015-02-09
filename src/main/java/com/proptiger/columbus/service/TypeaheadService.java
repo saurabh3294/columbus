@@ -111,7 +111,7 @@ public class TypeaheadService {
 
         String oldQuery = query;
         if (qcity != null) {
-            query = StringUtils.replaceOnce(query, qcity, "");
+            query = StringUtils.substringBeforeLast(query, qcity);
         }
 
         /* If any filters were passed in URL, return only normal results */
