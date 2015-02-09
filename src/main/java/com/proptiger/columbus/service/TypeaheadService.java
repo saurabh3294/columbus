@@ -101,6 +101,7 @@ public class TypeaheadService {
             return new ArrayList<Typeahead>();
         }
 
+        boolean fqEmpty = filterQueries.isEmpty() ? true : false;
         String qcity = null;
         try {
             qcity = parseQueryForCity(query);
@@ -112,18 +113,12 @@ public class TypeaheadService {
         String oldQuery = query;
         if (qcity != null) {
             query = StringUtils.substringBeforeLast(query, qcity);
+            filterQueries.add("TYPEAHEAD_CITY:" + qcity);
         }
 
         /* If any filters were passed in URL, return only normal results */
-        if (!filterQueries.isEmpty()) {
-            if (qcity != null) {
-                filterQueries.add("TYPEAHEAD_CITY:" + qcity);
-            }
+        if (!fqEmpty) {
             return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity));
-        }
-
-        if (qcity != null) {
-            filterQueries.add("TYPEAHEAD_CITY:" + qcity);
         }
 
         /* Get NLP based results */
