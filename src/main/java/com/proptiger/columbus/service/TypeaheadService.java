@@ -102,7 +102,7 @@ public class TypeaheadService {
         }
 
         /* If any filters were passed in URL, return only normal results */
-        if (!filterQueries.isEmpty()) {
+        if (filtersPassed(filterQueries)) {
             return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity));
         }
 
@@ -158,6 +158,19 @@ public class TypeaheadService {
         List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);
 
         return consolidatedResults;
+    }
+
+    private boolean filtersPassed(List<String> filterQueries) {
+        boolean filtersPassed = true;
+        if (filterQueries.isEmpty()) {
+            filtersPassed = false;
+        }
+        else if (filterQueries.size() == 1 && filterQueries.get(0).startsWith("TYPEAHEAD_TYPE:")) {
+            // ignore the TYPEAHEAD_TYPE because it is explicitly set by
+            // frontend
+            filtersPassed = false;
+        }
+        return filtersPassed;
     }
 
     /**
