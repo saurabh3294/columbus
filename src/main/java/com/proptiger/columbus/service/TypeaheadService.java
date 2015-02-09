@@ -101,9 +101,29 @@ public class TypeaheadService {
             return new ArrayList<Typeahead>();
         }
 
+        String qcity = null;
+        try {
+            qcity = parseQueryForCity(query);
+        }
+        catch (Exception e) {
+            logger.error("Error matching city names in query", e);
+        }
+
+        String oldQuery = query;
+        if (qcity != null) {
+            query = StringUtils.replaceOnce(query, qcity, "");
+        }
+
         /* If any filters were passed in URL, return only normal results */
-        if (filtersPassed(filterQueries)) {
+        if (!filterQueries.isEmpty()) {
+            if (qcity != null) {
+                filterQueries.add("TYPEAHEAD_CITY:" + qcity);
+            }
             return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity));
+        }
+
+        if (qcity != null) {
+            filterQueries.add("TYPEAHEAD_CITY:" + qcity);
         }
 
         /* Get NLP based results */
@@ -121,19 +141,6 @@ public class TypeaheadService {
          */
         filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
-        String qcity = null;
-        try {
-            qcity = parseQueryForCity(query);
-        }
-        catch (Exception e) {
-            logger.error("Error matching city names in query", e);
-        }
-
-        String oldQuery = query;
-        if (qcity != null) {
-            filterQueries.add("TYPEAHEAD_CITY:" + qcity);
-            query = StringUtils.replaceOnce(query, qcity, "");
-        }
 
         List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity);
 
@@ -158,18 +165,6 @@ public class TypeaheadService {
         List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);
 
         return consolidatedResults;
-    }
-
-    private boolean filtersPassed(List<String> filterQueries) {
-        boolean filtersPassed = true;
-        if (filterQueries.isEmpty()) {
-            filtersPassed = false;
-        }
-        else if (filterQueries.size() == 1 && filterQueries.get(0).startsWith("TYPEAHEAD_TYPE:")) {
-            // ignore the TYPEAHEAD_TYPE
-            filtersPassed = false;
-        }
-        return filtersPassed;
     }
 
     /**
