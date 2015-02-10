@@ -30,7 +30,7 @@ public class GooglePlacesAPIService {
 
     public static final String TypeaheadTypeGooglePlace = "GP";
 
-    @Cacheable(value = Constants.CacheName.COLUMBUS_GOOGLE)
+    @Cacheable(value = Constants.CacheName.COLUMBUS_GOOGLE, unless = "#result.isEmpty()")
     public List<Typeahead> getPlacePredictions(String query, int rows) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();

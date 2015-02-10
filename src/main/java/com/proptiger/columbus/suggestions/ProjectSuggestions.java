@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.core.model.Typeahead;
@@ -15,7 +14,6 @@ import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.core.enums.UnitType;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.pojo.FIQLSelector;
-import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
@@ -29,7 +27,6 @@ public class ProjectSuggestions {
 
     private String          templateId = "Typeahead-Suggestion-Project";
 
-    @Cacheable(value = Constants.CacheName.COLUMBUS, unless = "#result == null or #result.isEmpty()")
     public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, int count) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
