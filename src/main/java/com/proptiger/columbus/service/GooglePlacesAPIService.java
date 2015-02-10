@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.model.GooglePlace;
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.Constants;
 import com.proptiger.columbus.repo.GooglePlacesAPIDao;
@@ -25,8 +26,6 @@ public class GooglePlacesAPIService {
     private Boolean            isGooglePlaceAPIEnabled;
 
     private static Logger      logger                   = LoggerFactory.getLogger(GooglePlacesAPIService.class);
-
-    public static final String TypeaheadIdPrefix        = "TYPEAHEAD-GP-";
 
     public static final String TypeaheadTypeGooglePlace = "GP";
 
@@ -72,7 +71,7 @@ public class GooglePlacesAPIService {
         }
 
         Typeahead typeahead = new Typeahead();
-        typeahead.setId(TypeaheadIdPrefix + googlePlace.getPlaceId());
+        typeahead.setId(String.format(TypeaheadConstants.typeaheadIdPattern, TypeaheadTypeGooglePlace, googlePlace.getPlaceId()));
         typeahead.setType(TypeaheadTypeGooglePlace);
         typeahead.setGooglePlaceId(googlePlace.getPlaceId());
         typeahead.setLabel(googlePlace.getPlaceName());

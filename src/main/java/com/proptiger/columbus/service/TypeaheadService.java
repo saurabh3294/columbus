@@ -21,6 +21,7 @@ import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.suggestions.EntitySuggestionHandler;
 import com.proptiger.columbus.suggestions.NLPSuggestionHandler;
 import com.proptiger.columbus.thandlers.URLGenerationConstants;
+import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.util.Constants;
@@ -49,14 +50,16 @@ public class TypeaheadService {
     @Autowired
     private GooglePlacesAPIService  googlePlacesAPIService;
 
-    private static Logger           logger         = LoggerFactory.getLogger(TypeaheadService.class);
+    private static Logger           logger              = LoggerFactory.getLogger(TypeaheadService.class);
 
     @Autowired
     private HttpRequestUtil         httpRequestUtil;
 
     private List<String>            cityNames;
 
-    private int                     MAX_CITY_COUNT = 1000;
+    private int                     MAX_CITY_COUNT      = 1000;
+
+    private String                  domainObjectIdRegex = "^[\\d]{5,6}$";
 
     /**
      * This method will return the list of typeahead results based on the
@@ -99,6 +102,14 @@ public class TypeaheadService {
 
         if (query == null || query.isEmpty()) {
             return new ArrayList<Typeahead>();
+        }
+
+        /*
+         * If query is a number of 5 to 7 digits then fire a id-based query and
+         * return.
+         */
+        if (query.matches(domainObjectIdRegex)) {
+            return getResultsByTypeaheadID(Long.parseLong(query));
         }
 
         boolean fqEmpty = filterQueries.isEmpty() ? true : false;
@@ -160,6 +171,27 @@ public class TypeaheadService {
         List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);
 
         return consolidatedResults;
+    }
+
+    private List<Typeahead> getResultsByTypeaheadID(long domainObjectId) {
+        List<Typeahead> results = new ArrayList<Typeahead>();
+        DomainObject dObj = DomainObject.getDomainInstance(domainObjectId);
+        String typeaheadId;
+        switch (dObj) {
+            case builder:
+            case locality:
+            case project:
+            case suburb:
+                typeaheadId = String.format(
+                        TypeaheadConstants.typeaheadIdPattern,
+                        StringUtils.upperCase(dObj.name()),
+                        String.valueOf(domainObjectId));
+                results = typeaheadDao.getTypeaheadById(typeaheadId);
+                break;
+            default:
+                break;
+        }
+        return results;
     }
 
     /**
