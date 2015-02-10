@@ -279,7 +279,7 @@ public class ResponseInterceptor {
         return localities;
     }
 
-    @Cacheable(value = Constants.CacheName.CACHE)
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     private List<Integer> getSubscribedBuilderList(int userId) {
         logger.debug("xxxyyyzzz :: Inside *getSubscribedBuilderList*");
         List<Permission> permissions = getUserPermissions(userId);

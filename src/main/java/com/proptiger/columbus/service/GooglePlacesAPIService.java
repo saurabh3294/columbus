@@ -7,10 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.model.GooglePlace;
 import com.proptiger.core.model.Typeahead;
+import com.proptiger.core.util.Constants;
 import com.proptiger.columbus.repo.GooglePlacesAPIDao;
 
 @Service
@@ -22,10 +24,13 @@ public class GooglePlacesAPIService {
     @Value("${google.places.api.place.enabled}")
     private Boolean            isGooglePlaceAPIEnabled;
 
-    private static Logger      logger            = LoggerFactory.getLogger(GooglePlacesAPIService.class);
+    private static Logger      logger                   = LoggerFactory.getLogger(GooglePlacesAPIService.class);
 
-    public static final String TypeaheadIdPrefix = "TYPEAHEAD-GP-";
+    public static final String TypeaheadIdPrefix        = "TYPEAHEAD-GP-";
 
+    public static final String TypeaheadTypeGooglePlace = "GP";
+
+    @Cacheable(value = Constants.CacheName.COLUMBUS_GOOGLE)
     public List<Typeahead> getPlacePredictions(String query, int rows) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
@@ -51,6 +56,7 @@ public class GooglePlacesAPIService {
      *            google place_id for the place
      * @return a typeahead object populated with required values.
      */
+    @Cacheable(value = Constants.CacheName.COLUMBUS_GOOGLE, unless = "#result == null")
     public GooglePlace getPlaceDetails(String placeId) {
         if (!isGooglePlaceAPIEnabled) {
             logger.error("Google Places API is not enabled.");
@@ -67,6 +73,7 @@ public class GooglePlacesAPIService {
 
         Typeahead typeahead = new Typeahead();
         typeahead.setId(TypeaheadIdPrefix + googlePlace.getPlaceId());
+        typeahead.setType(TypeaheadTypeGooglePlace);
         typeahead.setGooglePlaceId(googlePlace.getPlaceId());
         typeahead.setLabel(googlePlace.getPlaceName());
         typeahead.setDisplayText(googlePlace.getDescription());
