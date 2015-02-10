@@ -54,9 +54,9 @@ public class TypeaheadService {
     @Autowired
     private HttpRequestUtil         httpRequestUtil;
 
-    private static List<String>     cityNames;
+    private List<String>            cityNames;
 
-    private static int              MAX_CITY_COUNT = 1000;
+    private int                     MAX_CITY_COUNT = 1000;
 
     /**
      * This method will return the list of typeahead results based on the
@@ -101,8 +101,23 @@ public class TypeaheadService {
             return new ArrayList<Typeahead>();
         }
 
+        boolean fqEmpty = filterQueries.isEmpty() ? true : false;
+        String qcity = null;
+        try {
+            qcity = parseQueryForCity(query);
+        }
+        catch (Exception e) {
+            logger.error("Error matching city names in query", e);
+        }
+
+        String oldQuery = query;
+        if (qcity != null) {
+            query = StringUtils.substringBeforeLast(query, qcity);
+            filterQueries.add("TYPEAHEAD_CITY:" + qcity);
+        }
+
         /* If any filters were passed in URL, return only normal results */
-        if (!filterQueries.isEmpty()) {
+        if (!fqEmpty) {
             return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity));
         }
 
@@ -121,19 +136,6 @@ public class TypeaheadService {
          */
         filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
-        String qcity = null;
-        try {
-            qcity = parseQueryForCity(query);
-        }
-        catch (Exception e) {
-            logger.error("Error matching city names in query", e);
-        }
-
-        String oldQuery = query;
-        if (qcity != null) {
-            filterQueries.add("TYPEAHEAD_CITY:" + qcity);
-            query = StringUtils.replaceOnce(query, qcity, "");
-        }
 
         List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity);
 
@@ -192,16 +194,16 @@ public class TypeaheadService {
                         PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
                                 .getRequiredPropertyAsString(PropertyKeys.CITY_API_URL) + buildParams).build().encode()
                 .toString());
+        cityNames = new ArrayList<String>();
         List<City> cities = null;
         try {
-            System.out.println(uri);
             cities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, City.class);
         }
         catch (Exception e) {
             // TODO Auto-generated catch block
             logger.error("Error while getting cities", e);
+            return;
         }
-        cityNames = new ArrayList<String>();
         for (City c : cities) {
             cityNames.add(c.getLabel().toUpperCase());
         }
