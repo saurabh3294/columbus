@@ -2,6 +2,8 @@ package com.proptiger.columbus.model;
 
 public class TypeaheadConstants {
 
+    public static final String typeaheadIdPattern            = "TYPEAHEAD-%s-%s";
+
     public static final String defaultCityName               = "Noida";
     public static final String cityCookieLabel               = "HOME_CITY";
     public static final String cityCookieSeparater           = "%2C";

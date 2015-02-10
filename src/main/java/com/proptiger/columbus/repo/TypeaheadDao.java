@@ -12,6 +12,7 @@ import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+
 //import com.google.common.base.Joiner;
 //import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.Typeahead;
@@ -132,6 +133,14 @@ public class TypeaheadDao {
         SolrQuery solrQuery = getSolrQueryV3(query, rows, filterQueries);
         QueryResponse result = solrDao.executeQuery(solrQuery);
         return result;
+    }
+    
+    public List<Typeahead> getTypeaheadById(String typeaheadId){
+        List<String> queryFilters = new ArrayList<String>();
+        queryFilters.add("id:" + typeaheadId);
+        SolrQuery solrQuery = getSolrQueryV3("", 1, queryFilters);
+        List<Typeahead> results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+        return results;
     }
 
     /**
