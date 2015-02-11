@@ -72,7 +72,7 @@ public class EntitySuggestionHandler {
         }
 
         String redirectUrl = topResult.getRedirectUrl();
-        String label = topResult.getLabel();
+        String label = topResult.getDisplayText().replaceAll(" - ", " ");
 
         switch (idTokens[1]) {
             case "PROJECT":
