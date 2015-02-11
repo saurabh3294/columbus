@@ -177,7 +177,7 @@ public class TypeaheadService {
         if (qterms.length <= 1) {
             city = null;
         }
-        if (cityNames.contains(qterms[qterms.length - 1].toUpperCase())) {
+        else if (cityNames.contains(qterms[qterms.length - 1].toUpperCase())) {
             city = qterms[qterms.length - 1];
         }
         return city;
