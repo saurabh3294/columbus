@@ -25,7 +25,6 @@ import com.proptiger.columbus.thandlers.URLGenerationConstants;
 import com.proptiger.core.enums.Application;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.cms.Locality;
-import com.proptiger.core.model.cms.Trend;
 import com.proptiger.core.model.proptiger.Permission;
 import com.proptiger.core.model.user.User.WhoAmIDetail;
 import com.proptiger.core.pojo.FIQLSelector;
@@ -40,27 +39,31 @@ import com.proptiger.core.util.RequestHolderUtil;
 @Order(1)
 @Component
 public class ResponseInterceptor {
-    private final int       objTypeIdLocality            = DomainObject.locality.getObjectTypeId();
-    private final int       objTypeIdCity                = DomainObject.city.getObjectTypeId();
-    private final int       objTypeIdBuilder             = DomainObject.builder.getObjectTypeId();
-    private final String    objTypeTextCity              = DomainObject.city.getText();
-    private final String    objTypeTextLocality          = DomainObject.locality.getText();
-    private final String    objTypeTextProject           = DomainObject.project.getText();
-    private final String    objTypeTextBuilder           = DomainObject.builder.getText();
+    private final int           objTypeIdLocality            = DomainObject.locality.getObjectTypeId();
+    private final int           objTypeIdCity                = DomainObject.city.getObjectTypeId();
+    private final int           objTypeIdBuilder             = DomainObject.builder.getObjectTypeId();
+    private final String        objTypeTextCity              = DomainObject.city.getText();
+    private final String        objTypeTextLocality          = DomainObject.locality.getText();
+    private final String        objTypeTextProject           = DomainObject.project.getText();
+    private final String        objTypeTextBuilder           = DomainObject.builder.getText();
 
-    private final String    fieldTagAuthorized           = "authorized";
-    private final String    typeAheadIdSeparator         = "-";
+    private final String        fieldTagAuthorized           = "authorized";
+    private final String        typeAheadIdSeparator         = "-";
 
-    private final int       maxLocalityIdCountForApiCall = 512;
-    private final int       maxPermissionCountForApiCall = 256;
+    private final int           maxLocalityIdCountForApiCall = 512;
+    private final int           maxPermissionCountForApiCall = 256;
 
-    private final int       maxRowsForBuilderList        = 20000;
+    private final int           maxRowsForBuilderList        = 20000;
+
+    private final static String BUILDER_ID                   = "builderId";
+    private final static String CITY_ID                      = "cityId";
+    private final static String LOCALITY_ID                  = "localityId";
+    private final static int    IDS_LIMIT_FOR_URL            = 50;
+    @Autowired
+    private HttpRequestUtil     httpRequestUtil;
 
     @Autowired
-    private HttpRequestUtil httpRequestUtil;
-
-    @Autowired
-    private static Logger   logger                       = LoggerFactory.getLogger(ResponseInterceptor.class);
+    private static Logger       logger                       = LoggerFactory.getLogger(ResponseInterceptor.class);
 
     @SuppressWarnings("unchecked")
     @AfterReturning(
@@ -72,13 +75,13 @@ public class ResponseInterceptor {
             logger.info("Not a B2B request. Skipping authorized check");
             return;
         }
-        logger.debug("TIME AT STEP 1: " + new Date().getTime());
+        logger.debug("TIME AT STEP 1: {}", new Date().getTime());
         Object data = getApiResponseData(retVal);
         MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
         if (data == null) {
             return;
         }
-        logger.debug("TIME AT STEP 17: " + new Date().getTime());
+        logger.debug("TIME AT STEP 17: {}", new Date().getTime());
         int cityId = 0, localityId = 0;
         List<Object> resultList = (List<Object>) data;
         for (Object element : resultList) {
@@ -118,7 +121,7 @@ public class ResponseInterceptor {
                 }
             }
         }
-        logger.debug("TIME AT STEP 18: " + new Date().getTime());
+        logger.debug("TIME AT STEP 18: {}", new Date().getTime());
     }
 
     private Object getApiResponseData(Object retVal) {
@@ -134,7 +137,7 @@ public class ResponseInterceptor {
 
     private MultiKeyMap getUserSubscriptionMap() {
         int userId = 0;
-        logger.debug("TIME AT STEP 2: " + new Date().getTime());
+        logger.debug("TIME AT STEP 2: {}", new Date().getTime());
         try {
             URI uri = URI.create(UriComponentsBuilder
                     .fromUriString(
@@ -143,7 +146,7 @@ public class ResponseInterceptor {
                     .toString());
             HttpHeaders requestHeaders = new HttpHeaders();
             String jsessionId = RequestHolderUtil.getJsessionIdFromRequestCookie();
-            logger.info("COOKIE FOUND: " + jsessionId);
+            logger.info("COOKIE FOUND: {}", jsessionId);
             requestHeaders.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
             WhoAmIDetail whoAmI = httpRequestUtil.getInternalApiResultAsTypeFromCache(
                     uri,
@@ -151,9 +154,9 @@ public class ResponseInterceptor {
                     WhoAmIDetail.class);
             if (whoAmI != null) {
                 userId = whoAmI.getUserId();
-                logger.info("USER ID IDENTIFIED: " + userId);
+                logger.info("USER ID IDENTIFIED: {}", userId);
             }
-            logger.debug("TIME AT STEP 3: " + new Date().getTime());
+            logger.debug("TIME AT STEP 3: {}", new Date().getTime());
         }
         catch (Exception e) {
             logger.error("Error in extracting user id", e);
@@ -196,7 +199,7 @@ public class ResponseInterceptor {
         MultiKeyMap userSubscriptionMap = new MultiKeyMap();
         int objectTypeId, objectId;
         List<Integer> localityIDList = new ArrayList<Integer>();
-        logger.debug("TIME AT STEP 6: " + new Date().getTime());
+        logger.debug("TIME AT STEP 6: {}", new Date().getTime());
         int objTypeIdLocality = DomainObject.locality.getObjectTypeId();
         int objTypeIdCity = DomainObject.city.getObjectTypeId();
         for (Permission permission : permissions) {
@@ -209,7 +212,7 @@ public class ResponseInterceptor {
                 }
             }
         }
-        logger.debug("TIME AT STEP 7: " + new Date().getTime());
+        logger.debug("TIME AT STEP 7: {}", new Date().getTime());
 
         /*
          * populating psuedo permissions for city if any locality in that city
@@ -219,36 +222,43 @@ public class ResponseInterceptor {
         for (int cityId : cityIdList) {
             userSubscriptionMap.put(objTypeIdCity, cityId, cityId);
         }
-        logger.debug("TIME AT STEP 10: " + new Date().getTime());
+        logger.debug("TIME AT STEP 10: {}", new Date().getTime());
 
-        List<Integer> subscribedBuilders = getSubscribedBuilderList(userId);
-        for (Integer builderId : subscribedBuilders) {
-            userSubscriptionMap.put(DomainObject.builder.getObjectTypeId(), builderId, builderId);
+        Set<String> subscribedBuilders = getSubscribedBuilderList(userId);
+        for (String builderId : subscribedBuilders) {
+            int bId = Integer.parseInt(builderId);
+            userSubscriptionMap.put(DomainObject.builder.getObjectTypeId(), bId, bId);
         }
-        logger.debug("TIME AT STEP 16: " + new Date().getTime());
+        logger.debug("TIME AT STEP 16: {}", new Date().getTime());
         return userSubscriptionMap;
     }
 
     private List<Permission> getUserPermissions(int userId) {
-        logger.debug("TIME AT STEP 4: " + new Date().getTime());
+        logger.debug("TIME AT STEP 4: {}", new Date().getTime());
+        HttpHeaders requestHeaders = new HttpHeaders();
+        String jsessionId = RequestHolderUtil.getJsessionIdFromRequestCookie();
+        requestHeaders.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
         URI uri = URI.create(UriComponentsBuilder
                 .fromUriString(
                         PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
                                 .getRequiredPropertyAsString(PropertyKeys.PERMISSION_API_URL) + "?userId=" + userId)
                 .build().encode().toString());
-        List<Permission> permissions = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, Permission.class);
-        logger.debug("TIME AT STEP 5: " + new Date().getTime());
+        List<Permission> permissions = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
+                uri,
+                requestHeaders,
+                Permission.class);
+        logger.debug("TIME AT STEP 5: {}", new Date().getTime());
         return permissions;
     }
 
     private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList) {
-        logger.debug("TIME AT STEP 8: " + new Date().getTime());
+        logger.debug("TIME AT STEP 8: {}", new Date().getTime());
         Set<Integer> cityIdList = new HashSet<Integer>();
         List<Locality> localiltyList = getLocalityListFromLocalityIds(localityIDList);
         for (Locality locality : localiltyList) {
             cityIdList.add(locality.getSuburb().getCityId());
         }
-        logger.debug("TIME AT STEP 9: " + new Date().getTime());
+        logger.debug("TIME AT STEP 9: {}", new Date().getTime());
         return cityIdList;
     }
 
@@ -280,49 +290,140 @@ public class ResponseInterceptor {
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    private List<Integer> getSubscribedBuilderList(int userId) {
+    private Set<String> getSubscribedBuilderList(int userId) {
         logger.debug("xxxyyyzzz :: Inside *getSubscribedBuilderList*");
         List<Permission> permissions = getUserPermissions(userId);
-        List<Integer> builderList = new ArrayList<>();
-        
+        Set<String> bIdsHash = new HashSet<>();
+
         int size = permissions.size();
-        logger.debug("xxxyyyzzz :: Permissions Size = " + size);
-        
-        logger.debug("TIME AT STEP 11: " + new Date().getTime());
+        logger.debug("xxxyyyzzz :: Permissions Size = {}", size);
+
+        logger.debug("TIME AT STEP 11: {}", new Date().getTime());
         for (int i = 0; i < size; i = i + maxPermissionCountForApiCall) {
-            logger.debug("xxxyyyzzz :: enter for loop :: i = " + i );
+            logger.debug("xxxyyyzzz :: enter for loop :: i = {}", i);
             List<Permission> partialPermissions = permissions.subList(
                     i,
                     Math.min(size, i + maxPermissionCountForApiCall));
-            FIQLSelector selector = getUserAppSubscriptionFilters(partialPermissions);
-            logger.debug("TIME AT STEP 14: " + new Date().getTime());
-            logger.debug("xxxyyyzzz :: selector.getFilters() : " + String.valueOf(selector.getFilters()));
-            if (selector.getFilters() != null) {
-                String builderId = "builderId";
-                selector.setFields(builderId);
-                selector.setGroup(builderId);
-                selector.setRows(maxRowsForBuilderList);
 
+            List<String> requests = getUserAppSubscriptionRequests(partialPermissions);
+            logger.debug("TIME AT STEP 14: {}", new Date().getTime());
+            for (String req : requests) {
                 String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                        .getRequiredPropertyAsString(PropertyKeys.TREND_API_URL) + "?" + selector.getStringFIQL();
-
-                logger.debug("xxxyyyzzz :: stringUrl : " + stringUrl);
-                
-                URI uri = URI.create(stringUrl);
-
-                logger.debug("xxxyyyzzz :: URI  : " + uri.toString());
+                        .getRequiredPropertyAsString(PropertyKeys.PROJECT_LISTING_API_URL)
+                        + "?"
+                        + URLGenerationConstants.Selector
+                        + req;
+                logger.debug("xxxyyyzzz :: stringUrl : {}", stringUrl);
+                URI uri = URI.create(UriComponentsBuilder.fromUriString(stringUrl).build().encode().toString());
+                logger.debug("xxxyyyzzz :: URI  : {}", uri.toString());
                 logger.debug("xxxyyyzzz :: Attempt list retrieval");
-                List<Trend> list = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, Trend.class);
-                logger.debug("xxxyyyzzz :: list retrieved : size = " + (list != null ? list.size() : null));
-                for (Trend inventoryPriceTrend : list) {
-                    builderList.add(inventoryPriceTrend.getBuilderId());
+                HttpHeaders requestHeaders = new HttpHeaders();
+                requestHeaders.set(Constants.APPLICATION_TYPE_HEADER, Application.B2B.name());
+                Map<String, Object> response = httpRequestUtil.getInternalApiResultAsTypeFromCache(
+                        uri,
+                        requestHeaders,
+                        Map.class);
+                Map<String, List<Map<String, Long>>> facets = (Map<String, List<Map<String, Long>>>) response
+                        .get("facets");
+                List<Map<String, Long>> builderIds = facets.get(BUILDER_ID);
+                logger.debug("xxxyyyzzz :: list retrieved : size = " + (builderIds != null ? builderIds.size() : null));
+                for (Map<String, Long> m : builderIds) {
+                    bIdsHash.addAll(m.keySet());
                 }
             }
-            logger.debug("xxxyyyzzz :: exit for loop :: i = " + i );
-            logger.debug("TIME AT STEP 15: " + new Date().getTime());
+            // FIQLSelector selector =
+            // getUserAppSubscriptionFilters(partialPermissions);
+            // logger.debug("TIME AT STEP 14: " + new Date().getTime());
+            // logger.debug("xxxyyyzzz :: selector.getFilters() : " +
+            // String.valueOf(selector.getFilters()));
+            // if (selector.getFilters() != null) {
+            // String builderId = "builderId";
+            // selector.setFields(builderId);
+            // selector.setGroup(builderId);
+            // selector.setRows(maxRowsForBuilderList);
+            //
+            // String stringUrl =
+            // PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL)
+            // +
+            // PropertyReader
+            // .getRequiredPropertyAsString(PropertyKeys.TREND_API_URL) + "?" +
+            // selector.getStringFIQL();
+            //
+            //
+            //
+            // logger.debug("xxxyyyzzz :: stringUrl : " + stringUrl);
+            //
+            // URI uri = URI.create(stringUrl);
+            //
+            // logger.debug("xxxyyyzzz :: URI  : " + uri.toString());
+            // logger.debug("xxxyyyzzz :: Attempt list retrieval");
+            // List<Trend> list =
+            // httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri,
+            // Trend.class);
+            // logger.debug("xxxyyyzzz :: list retrieved : size = " + (list !=
+            // null ? list.size() : null));
+            // for (Trend inventoryPriceTrend : list) {
+            // builderList.add(inventoryPriceTrend.getBuilderId());
+            // }
+            // }
+            logger.debug("xxxyyyzzz :: exit for loop :: i = {}", i);
+            logger.debug("TIME AT STEP 15: {}", new Date().getTime());
         }
         logger.debug("xxxyyyzzz :: Exiting *getSubscribedBuilderList*");
-        return builderList;
+
+        return bIdsHash;
+    }
+
+    private List<String> getUserAppSubscriptionRequests(List<Permission> permissions) {
+        logger.debug("TIME AT STEP 12: {}", new Date().getTime());
+        List<Integer> cityIds = new ArrayList<>();
+        List<Integer> localityIds = new ArrayList<>();
+        for (Permission permission : permissions) {
+            int objectTypeId = permission.getObjectTypeId();
+
+            switch (DomainObject.getFromObjectTypeId(objectTypeId)) {
+
+                case city:
+                    cityIds.add(permission.getObjectId());
+                    break;
+
+                case locality:
+                    localityIds.add(permission.getObjectId());
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        List<String> requests = new ArrayList<>();
+        if (!cityIds.isEmpty()) {
+            generateLimitedLengthUrls(requests, CITY_ID, cityIds);
+        }
+        if (!localityIds.isEmpty()) {
+            generateLimitedLengthUrls(requests, LOCALITY_ID, localityIds);
+        }
+        logger.debug("TIME AT STEP 13: {}", new Date().getTime());
+
+        return requests;
+    }
+
+    private void generateLimitedLengthUrls(List<String> requests, String idLabel, List<Integer> ids) {
+        int i;
+        for (i = 0; i < ids.size() - IDS_LIMIT_FOR_URL + 1; i += IDS_LIMIT_FOR_URL) {
+            requests.add(String.format(
+                    URLGenerationConstants.SelectorGetBuilderIdsAsFacet,
+                    idLabel,
+                    ids.subList(i, i + IDS_LIMIT_FOR_URL).toString(),
+                    BUILDER_ID));
+        }
+        if (i < ids.size()) {
+            requests.add(String.format(
+                    URLGenerationConstants.SelectorGetBuilderIdsAsFacet,
+                    idLabel,
+                    ids.subList(i, ids.size()).toString(),
+                    BUILDER_ID));
+        }
+
     }
 
     public FIQLSelector getUserAppSubscriptionFilters(List<Permission> permissions) {
