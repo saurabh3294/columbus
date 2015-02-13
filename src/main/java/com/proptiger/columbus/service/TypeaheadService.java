@@ -134,8 +134,10 @@ public class TypeaheadService {
 
         /* Get NLP based results */
         List<Typeahead> nlpResults = new ArrayList<Typeahead>();
+
+        String templateCity = qcity == null ? usercity : qcity;
         try {
-            nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, usercity, rows);
+            nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, templateCity, rows);
         }
         catch (Exception ex) {
             logger.error("Error while fetching templates. Query = " + query, ex);
