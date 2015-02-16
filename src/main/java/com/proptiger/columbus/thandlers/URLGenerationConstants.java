@@ -2,11 +2,13 @@ package com.proptiger.columbus.thandlers;
 
 public class URLGenerationConstants {
     public static String Selector                           = "selector=";
-    
+
     public static String SelectorGetAllCities               = "{\"fields\":[\"label\"],\"paging\":{\"start\":0,\"rows\":%d}}";
-    
+
     public static String SelectorGetLocalityNamesByCityName = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"label\"]}";
     public static String SelectorGetBuilderNamesByCityName  = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"name\"]}";
+
+    public static String SelectorGetBuilderIdsAsFacet       = "{\"paging\":{\"rows\":0},\"filters\":{\"and\":[{\"equal\":{\"%s\":%s}}]}}&facets=%s";
 
     public static String SelectorGetCityIdsByLocalityIds    = "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":[%s]}}]},\"fields\":[\"cityId\",\"suburb\",\"localityId\"],\"paging\":{\"start\":0,\"rows\":%s}}";
 
@@ -21,5 +23,5 @@ public class URLGenerationConstants {
     public static String GenericUrlPreLaunchProjectsIn      = "%s-real-estate/filters?projectStatus=not launched,pre launch";
     public static String GenericUrlUnderConstProjectsIn     = "%s/under-construction-property";
     public static String GenericUrlReadyToMoveProjectsIn    = "%s/ready-to-move-property";
-     
+
 }
