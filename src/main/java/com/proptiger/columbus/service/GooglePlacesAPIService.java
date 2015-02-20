@@ -86,7 +86,7 @@ public class GooglePlacesAPIService {
         }
 
         long timeStart = System.currentTimeMillis();
-        List<GooglePlace> googlePlaceList = googlePlacesAPIDao.getMatchingPlaces(query, rows);
+        List<GooglePlace> googlePlaceList = googlePlacesAPIDao.getMatchingPlaces(query, rows, true);
         long timeTaken = System.currentTimeMillis() - timeStart;
         logger.info("Google Place Predictions API call (" + query + ") : Time Taken = " + timeTaken + " ms");
 
