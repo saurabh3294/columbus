@@ -1,8 +1,11 @@
 package com.proptiger.columbus.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,22 +15,65 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.model.GooglePlace;
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.repo.GooglePlacesAPIDao;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.Constants;
-import com.proptiger.columbus.repo.GooglePlacesAPIDao;
 
 @Service
 public class GooglePlacesAPIService {
 
     @Autowired
-    GooglePlacesAPIDao         googlePlacesAPIDao;
+    GooglePlacesAPIDao                        googlePlacesAPIDao;
 
     @Value("${google.places.api.place.enabled}")
-    private Boolean            isGooglePlaceAPIEnabled;
+    private Boolean                           isGooglePlaceAPIEnabled;
 
-    private static Logger      logger                   = LoggerFactory.getLogger(GooglePlacesAPIService.class);
+    private static Logger                     logger                   = LoggerFactory
+                                                                               .getLogger(GooglePlacesAPIService.class);
 
-    public static final String TypeaheadTypeGooglePlace = "GP";
+    public static final String                TypeaheadTypeGooglePlace = "GP";
+
+    private final String                      googlePlaceIndicatorText = "Projects Near ";
+
+    private final String                      googlePlaceCountryString = "India";
+
+    private static final Map<String, Boolean> stateMap                 = new HashMap<>();
+
+    private final String                      googlePlaceNameSeparator = ", ";
+
+    static {
+        stateMap.put("andaman and nicobar islands", true);
+        stateMap.put("andhra pradesh", true);
+        stateMap.put("arunachal pradesh", true);
+        stateMap.put("assam", true);
+        stateMap.put("bihar", true);
+        stateMap.put("chhattisgarh", true);
+        stateMap.put("goa", true);
+        stateMap.put("gujarat", true);
+        stateMap.put("haryana", true);
+        stateMap.put("himachal pradesh", true);
+        stateMap.put("jammu and kashmir", true);
+        stateMap.put("jharkhand", true);
+        stateMap.put("karnataka", true);
+        stateMap.put("kerala", true);
+        stateMap.put("madhya pradesh", true);
+        stateMap.put("maharashtra", true);
+        stateMap.put("manipur", true);
+        stateMap.put("meghalaya", true);
+        stateMap.put("mizoram", true);
+        stateMap.put("nagaland", true);
+        stateMap.put("orissa", true);
+        stateMap.put("punjab", true);
+        stateMap.put("rajasthan", true);
+        stateMap.put("sikkim", true);
+        stateMap.put("tamil nadu", true);
+        stateMap.put("telangana", true);
+        stateMap.put("tripura", true);
+        stateMap.put("uttar pradesh", true);
+        stateMap.put("uttarakhand", true);
+        stateMap.put("west bengal", true);
+        stateMap.put("delhi", true);
+    }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS_GOOGLE, unless = "#result.isEmpty()")
     public List<Typeahead> getPlacePredictions(String query, int rows) {
@@ -71,15 +117,31 @@ public class GooglePlacesAPIService {
         }
 
         Typeahead typeahead = new Typeahead();
-        typeahead.setId(String.format(TypeaheadConstants.typeaheadIdPattern, TypeaheadTypeGooglePlace, googlePlace.getPlaceId()));
+        typeahead.setId(String.format(
+                TypeaheadConstants.typeaheadIdPattern,
+                TypeaheadTypeGooglePlace,
+                googlePlace.getPlaceId()));
         typeahead.setType(TypeaheadTypeGooglePlace);
         typeahead.setGooglePlaceId(googlePlace.getPlaceId());
         typeahead.setLabel(googlePlace.getPlaceName());
-        typeahead.setDisplayText(googlePlace.getDescription());
+        typeahead.setDisplayText(getDisplayTextFrpmGooglePlaceName(googlePlace));
         typeahead.setLatitude(googlePlace.getLatitude());
         typeahead.setLongitude(googlePlace.getLongitude());
         typeahead.setGooglePlace(true);
         return typeahead;
     }
 
+    private String getDisplayTextFrpmGooglePlaceName(GooglePlace googlePlace) {
+        String[] placeNameParts = googlePlace.getDescription().split(googlePlaceNameSeparator);
+
+        int size = placeNameParts.length;
+
+        if (size > 1 && placeNameParts[size - 1].equals(googlePlaceCountryString)) {
+            size--;
+            if (size > 1 && stateMap.containsKey(placeNameParts[size - 1].toLowerCase())) {
+                size--;
+            }
+        }
+        return googlePlaceIndicatorText + StringUtils.join(placeNameParts, googlePlaceNameSeparator, 0, size);
+    }
 }

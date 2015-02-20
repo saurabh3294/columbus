@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -60,6 +61,9 @@ public class TypeaheadService {
     private int                     MAX_CITY_COUNT      = 1000;
 
     private String                  domainObjectIdRegex = "^[\\d]{5,6}$";
+
+    @Value("${google.place.threshold.score}")
+    private int                     googlePlaceThresholdScore;
 
     /**
      * This method will return the list of typeahead results based on the
@@ -256,7 +260,7 @@ public class TypeaheadService {
 
         List<Typeahead> finalResults = new ArrayList<Typeahead>();
         for (Typeahead t : results) {
-            if (t.getScore() > TypeaheadConstants.GooglePlaceDelegationTheshold) {
+            if (t.getScore() > googlePlaceThresholdScore) {
                 finalResults.add(t);
             }
         }
