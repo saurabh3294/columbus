@@ -34,18 +34,20 @@ public class GooglePlacesAPIDao {
     @Value("${google.places.api.key}")
     private String       gpApiKey;
 
-    private Logger       logger        = LoggerFactory.getLogger(GooglePlacesAPIDao.class);
+    private Logger       logger                 = LoggerFactory.getLogger(GooglePlacesAPIDao.class);
 
-    public static String CountryFilter = "components=country:in";
-    public static String LangFilter    = "language=en";
-    public static String KeyFilter     = "key=%s";
-    public static String PlaceIdParam  = "placeid=%s";
-    public static String QueryParam    = "input=%s";
+    public static String CountryFilter          = "components=country:in";
+    public static String LangFilter             = "language=en";
+    public static String KeyFilter              = "key=%s";
+    public static String PlaceIdParam           = "placeid=%s";
+    public static String QueryParam             = "input=%s";
 
-    private RestTemplate restTemplate  = new RestTemplate();
+    private RestTemplate restTemplate           = new RestTemplate();
 
     private String       gpPlaceDetailUrl;
     private String       gpPlacePredictionUrl;
+
+    private final int    placeNameWordThreshold = 13;
 
     @PostConstruct
     private void initialize() {
@@ -62,6 +64,19 @@ public class GooglePlacesAPIDao {
                 CountryFilter,
                 LangFilter,
                 String.format(KeyFilter, gpApiKey));
+    }
+
+    public List<GooglePlace> getMatchingPlaces(String query, int rows, boolean clean) {
+        List<GooglePlace> orgPlaceList = getMatchingPlaces(query, rows * 2);
+        List<GooglePlace> newPlaceList = new ArrayList<GooglePlace>();
+        int wordCount = 0;
+        for (GooglePlace gp : orgPlaceList) {
+            wordCount = StringUtils.split(gp.getDescription(), ' ').length;
+            if(wordCount < placeNameWordThreshold){
+                newPlaceList.add(gp);
+            }
+        }
+        return newPlaceList;
     }
 
     public List<GooglePlace> getMatchingPlaces(String query, int rows) {
