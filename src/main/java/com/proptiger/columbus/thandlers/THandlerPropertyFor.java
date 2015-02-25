@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.google.common.reflect.TypeToken;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.util.PropertyKeys;

@@ -3,9 +3,7 @@ package com.proptiger.columbus.mvc;
 import java.io.File;
 import java.io.FileWriter;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.google.gson.reflect.TypeToken;
 import com.proptiger.columbus.thandlers.URLGenerationConstants;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.pojo.response.APIResponse;
