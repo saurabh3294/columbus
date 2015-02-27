@@ -73,7 +73,7 @@ public class TypeaheadController extends BaseController {
     }
 
     @Intercepted.TypeaheadListing
-    @RequestMapping(value = { "app/v3/typeahead", "app/v4/typeahead" })
+    @RequestMapping(value = {"app/v4/typeahead", "app/v3/typeahead" })
     @ResponseBody
     public APIResponse getTypeaheadsV3(HttpServletRequest request, @RequestParam String query, @RequestParam(
             defaultValue = "5") int rows, @RequestParam(required = false) String typeAheadType, @RequestParam(

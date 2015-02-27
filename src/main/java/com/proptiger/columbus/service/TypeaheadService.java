@@ -65,6 +65,12 @@ public class TypeaheadService {
     @Value("${google.place.threshold.score}")
     private int                     googlePlaceThresholdScore;
 
+    @Value("${google.place.top.threshold.score}")
+    private int                     googlePlaceTopThresholdScore;
+
+    @Value("${own.results.privileged.slots}")
+    private int                     ownResultsPrivilegedSlots;
+
     /**
      * This method will return the list of typeahead results based on the
      * params.
@@ -259,10 +265,13 @@ public class TypeaheadService {
     private List<Typeahead> incorporateGooglePlaceResults(String query, List<Typeahead> results, int totalRows) {
 
         List<Typeahead> finalResults = new ArrayList<Typeahead>();
+
+        int counter = 0;
         for (Typeahead t : results) {
-            if (t.getScore() > googlePlaceThresholdScore) {
+            if ((t.getScore() > googlePlaceThresholdScore) || (t.getScore() > googlePlaceTopThresholdScore && counter < ownResultsPrivilegedSlots)) {
                 finalResults.add(t);
             }
+            counter++;
         }
 
         /* If all results are good then google results are not needed */
