@@ -6,7 +6,10 @@ package com.proptiger.columbus.service;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -56,7 +59,7 @@ public class TypeaheadService {
     @Autowired
     private HttpRequestUtil         httpRequestUtil;
 
-    private List<String>            cityNames;
+    private Set<String>             cityNames;
 
     private int                     MAX_CITY_COUNT      = 1000;
 
@@ -100,7 +103,7 @@ public class TypeaheadService {
     public List<Typeahead> getTypeaheadsV3(
             String query,
             int rows,
-            List<String> filterQueries,
+            Map<String, String> filterQueries,
             String usercity,
             String enhance) {
 
@@ -108,75 +111,95 @@ public class TypeaheadService {
             return new ArrayList<Typeahead>();
         }
 
-        /*
-         * If query is a number of 5 to 7 digits then fire a id-based query and
-         * return.
-         */
+        /* If query is a number of 5-7 digits, return id-based results. */
         if (query.matches(domainObjectIdRegex)) {
             return getResultsByTypeaheadID(Long.parseLong(query));
         }
+        
+        /* Handling City filter : url-param-based and query-based */
 
-        boolean fqEmpty = filterQueries.isEmpty() ? true : false;
-        String qcity = null;
-        try {
-            qcity = parseQueryForCity(query);
+        String filterCity = filterQueries.get("TYPEAHEAD_CITY");
+        String queryCity = extractCityNameFromQuery(query); 
+        String templateCity = usercity;
+        
+        String newQuery = query;
+        String enhanceQuery = query;
+        
+        if(filterCity != null){
+            templateCity = filterCity;
+            enhanceQuery += (" " + filterCity);
         }
-        catch (Exception e) {
-            logger.error("Error matching city names in query", e);
+        else if(queryCity != null){
+            templateCity = queryCity;
+            newQuery = StringUtils.substringBeforeLast(query, filterCity);
+            filterQueries.put("TYPEAHEAD_CITY", queryCity);
         }
+        
+        /* Add additional filters */
+        List<String> filterQueryList = UtilityClass.convertMapToDlimSeparatedKeyValueList(filterQueries, ":");
+        filterQueryList.add("DOCUMENT_TYPE:TYPEAHEAD");
+        filterQueryList.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
 
-        String oldQuery = query;
-        if (qcity != null) {
-            query = StringUtils.substringBeforeLast(query, qcity);
-            filterQueries.add("TYPEAHEAD_CITY:" + qcity);
-        }
-
-        /* If any filters were passed in URL, return only normal results */
-        if (!fqEmpty) {
-            return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity));
-        }
-
-        /* Get NLP based results */
-        List<Typeahead> nlpResults = new ArrayList<Typeahead>();
-
-        String templateCity = qcity == null ? usercity : qcity;
-        try {
-            nlpResults = nlpSuggestionHandler.getNlpTemplateBasedResults(query, templateCity, rows);
-        }
-        catch (Exception ex) {
-            logger.error("Error while fetching templates. Query = " + query, ex);
-        }
+        /* Fetch results */
+        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(newQuery, rows, filterQueryList, usercity, filterCity);
 
         /*
-         * Get Normal Results matching the query String. filterQueries if we
-         * reach here.
-         */
-        filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
-        filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
-
-        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity);
-
-        /*
-         * Remove not-so-good results and replace them with google place
-         * landmarks.
+         * Remove not-so-good results and replace them with third party
+         * enhancements
          */
         if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.ExternalApiIdentifierGoogle)) {
-            results = incorporateGooglePlaceResults(oldQuery, results, rows);
+            results = incorporateGooglePlaceResults(enhanceQuery, results, rows);
         }
 
-        /* Get recommendations type results */
-        List<Typeahead> suggestions = new ArrayList<Typeahead>();
-        try {
-            suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
-        }
-        catch (Exception ex) {
-            logger.error("Error while fetching suggestions.", ex);
-        }
+        /* Get recommendations (suggestions and templates) */
+        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows);
 
         /* Consolidate results */
-        List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results, suggestions);
+        List<Typeahead> consolidatedResults = consolidateResults(rows, results, suggestions);
 
         return consolidatedResults;
+    }
+    
+    private String extractCityNameFromQuery(String query) {
+        if (cityNames == null || cityNames.isEmpty()) {
+            populateCityNames();
+        }
+        
+        String[] qterms = query.split("\\s+");
+        String city = null;
+        if (qterms.length > 1 && cityNames != null && cityNames.contains(qterms[qterms.length - 1].toUpperCase())) {
+            city = qterms[qterms.length - 1];
+        }
+        return city;
+    }
+    
+    /**
+     * Populate all the city names in cityNames, this should be done only once
+     */
+    private void populateCityNames() {
+        String buildParams = "?" + URLGenerationConstants.Selector + URLGenerationConstants.SelectorGetAllCities;
+        buildParams = String.format(buildParams, MAX_CITY_COUNT);
+        URI uri = URI.create(UriComponentsBuilder
+                .fromUriString(
+                        PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
+                                .getRequiredPropertyAsString(PropertyKeys.CITY_API_URL) + buildParams).build().encode()
+                .toString());
+        cityNames = new HashSet<String>();
+        List<City> cities = null;
+        try {
+            cities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, City.class);
+        }
+        catch (Exception e) {
+            logger.error("Exception while getting cities", e);
+            return;
+        }
+        if(cities == null){
+            logger.error("Error while getting cities : Null list recieved.");
+            return;
+        }
+        for (City c : cities) {
+            cityNames.add(c.getLabel().toUpperCase());
+        }
     }
 
     private List<Typeahead> getResultsByTypeaheadID(long domainObjectId) {
@@ -199,57 +222,9 @@ public class TypeaheadService {
         }
         return results;
     }
-
+    
     /**
-     * Check for city name in query
-     * 
-     * @param query
-     * @return the city name in query
-     */
-    private String parseQueryForCity(String query) {
-        if (cityNames == null || cityNames.isEmpty()) {
-            populateCityNames();
-        }
-        String[] qterms = query.split("\\s+");
-        String city = null;
-        if (qterms.length <= 1) {
-            city = null;
-        }
-        else if (cityNames.contains(qterms[qterms.length - 1].toUpperCase())) {
-            city = qterms[qterms.length - 1];
-        }
-        return city;
-    }
-
-    /**
-     * Populate all the city names in cityNames, this should be done only once
-     */
-    private void populateCityNames() {
-        String buildParams = "?" + URLGenerationConstants.Selector + URLGenerationConstants.SelectorGetAllCities;
-        buildParams = String.format(buildParams, MAX_CITY_COUNT);
-        URI uri = URI.create(UriComponentsBuilder
-                .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                .getRequiredPropertyAsString(PropertyKeys.CITY_API_URL) + buildParams).build().encode()
-                .toString());
-        cityNames = new ArrayList<String>();
-        List<City> cities = null;
-        try {
-            cities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, City.class);
-        }
-        catch (Exception e) {
-            // TODO Auto-generated catch block
-            logger.error("Error while getting cities", e);
-            return;
-        }
-        for (City c : cities) {
-            cityNames.add(c.getLabel().toUpperCase());
-        }
-
-    }
-
-    /**
-     * @param query
+     * @param queryd
      * @param results
      * @param totalRows
      *            total elements needed in final-list
@@ -275,25 +250,31 @@ public class TypeaheadService {
         finalResults.addAll(gpResults);
         return finalResults;
     }
+    
+   private List<Typeahead> getSuggestionsAndTemplates(List<Typeahead> results, String query, String templateCity, int rows) {
+        
+        List<Typeahead> suggestions = new ArrayList<Typeahead>();
+        
+        suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
+        
+        if(suggestions == null || suggestions.isEmpty()){
+            suggestions = nlpSuggestionHandler.getNlpTemplateBasedResults(query, templateCity, rows);
+        }
+        
+        return suggestions;
+    }
 
     /* Consolidate results fetched using different methods. */
     private List<Typeahead> consolidateResults(
             int rows,
-            List<Typeahead> nlpResults,
             List<Typeahead> results,
             List<Typeahead> suggestions) {
 
         List<Typeahead> consolidatedResults = new ArrayList<Typeahead>();
         consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(results, rows));
-
-        if (suggestions.isEmpty()) {
-            consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(nlpResults, rows));
-        }
-        else {
-            consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(suggestions, rows));
-        }
-
+        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(suggestions, rows));
         return (consolidatedResults);
     }
+    
 
 }

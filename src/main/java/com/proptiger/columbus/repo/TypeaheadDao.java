@@ -3,14 +3,20 @@ package com.proptiger.columbus.repo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+
+
 
 
 //import com.google.common.base.Joiner;
@@ -115,8 +121,9 @@ public class TypeaheadDao {
 
     // ******* TYPEAHEAD :: VERSION 3 ********
 
-    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
-        List<Typeahead> results = getSpellCheckedResponseV3(query, rows, filterQueries, usercity);
+    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String contextCity, String filterCity) {
+        List<Typeahead> results = getSpellCheckedResponseV3(query, rows, filterQueries, contextCity);
+        results = processSpecialRulesForBuilderResults(results, filterCity);
         return UtilityClass.getFirstNElementsOfList(results, rows);
     }
 
@@ -190,12 +197,7 @@ public class TypeaheadDao {
         }
 
         /* Sort and remove duplicates */
-        Collections.sort(resultsOriginal, new Comparator<Typeahead>() {
-            @Override
-            public int compare(Typeahead o1, Typeahead o2) {
-                return o2.getScore().compareTo(o1.getScore());
-            }
-        });
+        Collections.sort(resultsOriginal, new TypeaheadComparatorID());
 
         List<List<Typeahead>> listOfresults = new ArrayList<List<Typeahead>>();
         listOfresults.add(resultsOriginal);
@@ -210,7 +212,7 @@ public class TypeaheadDao {
 
         return results;
     }
-
+    
     /* Boost results where city is same a user's selected city */
     private void boostByCityContext(List<Typeahead> results, String city) {
         for (Typeahead t : results) {
@@ -226,6 +228,63 @@ public class TypeaheadDao {
             return oldScore;
         }
         return oldScore * TypeaheadConstants.CityBoost;
+    }
+    
+    private List<Typeahead> processSpecialRulesForBuilderResults(List<Typeahead> results, String filterCity) {
+        List<Typeahead> newResults = new ArrayList<Typeahead>();
+        Typeahead tnew;
+        Map<String, String> builderCityMap;
+        for(Typeahead t : results){
+            if(t.getType().equalsIgnoreCase("BUILDER")){
+                builderCityMap = getBuilderCityMap(t.getBuilderCityInfo());
+                if(builderCityMap.containsKey(filterCity)){
+                    tnew = makeBuilderCityDocument(t, builderCityMap.get(filterCity));
+                    newResults.add(tnew);
+                }
+            }
+            newResults.add(t);
+        }
+        return newResults;
+    }
+    
+    /**
+     * @param builderCityInfoList
+     * @return returns a map of <cityName, builder_city_info>
+     */
+    private Map<String, String> getBuilderCityMap(List<String> builderCityInfoList){
+        Map<String, String> builderCityMap = new HashMap<String, String>();
+        if(builderCityInfoList == null){
+            return builderCityMap;
+        }
+
+        String cityName;
+        for(String builderCityInfo : builderCityInfoList){
+            cityName = builderCityInfo.split(":")[1];
+            builderCityMap.put(cityName, builderCityInfo);
+        }
+        return builderCityMap;
+    }
+    
+    private Typeahead makeBuilderCityDocument(Typeahead taBuilder, String builderCityInfo){
+        String[] tokens= builderCityInfo.split(":");
+        String cityId = tokens[0];
+        String cityName = tokens[1];
+        String url = tokens[2];
+        Typeahead taBuilderCity = new Typeahead();
+        String id = StringUtils.replace(taBuilder.getId(), "BUILDER", "BUILDERCITY") + "-" + cityId;
+        String displayText= taBuilder.getDisplayText() + " - " + cityName;
+        taBuilderCity.setId(id);
+        taBuilderCity.setDisplayText(displayText);
+        taBuilderCity.setRedirectUrl(url);
+        taBuilderCity.setScore(taBuilder.getScore());
+        return taBuilderCity;
+    }
+    
+    class TypeaheadComparatorID implements Comparator<Typeahead> {
+        @Override
+        public int compare(Typeahead o1, Typeahead o2) {
+            return o2.getScore().compareTo(o1.getScore());
+        }
     }
 
     // ******* Exact Typeaheads ********
