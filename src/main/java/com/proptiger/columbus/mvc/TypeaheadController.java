@@ -90,6 +90,21 @@ public class TypeaheadController extends BaseController {
         return new APIResponse(super.filterFields(list, null), list.size());
     }
 
+    @Intercepted.TypeaheadListing
+    @RequestMapping(value = { "app/v4/typeahead"})
+    @ResponseBody
+    public APIResponse getTypeaheadsV4(HttpServletRequest request, @RequestParam String query, @RequestParam(
+            defaultValue = "5") int rows, @RequestParam(required = false) String typeAheadType, @RequestParam(
+            required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
+            required = false) String usercity, @RequestParam(required = false) String enhance) {
+
+        Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
+        usercity = getCityContext(usercity, request);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, usercity, enhance);
+
+        return new APIResponse(super.filterFields(list, null), list.size());
+    }
+    
     private String getCityContext(String city, HttpServletRequest request) {
         /* if city was explicitly set in URL use that */
         if (city != null && !city.isEmpty()) {

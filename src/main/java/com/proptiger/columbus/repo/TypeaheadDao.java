@@ -277,6 +277,7 @@ public class TypeaheadDao {
         taBuilderCity.setDisplayText(displayText);
         taBuilderCity.setRedirectUrl(url);
         taBuilderCity.setScore(taBuilder.getScore());
+        taBuilderCity.setType("BUILDERCITY");
         return taBuilderCity;
     }
     
