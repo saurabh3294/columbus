@@ -121,9 +121,8 @@ public class TypeaheadDao {
 
     // ******* TYPEAHEAD :: VERSION 3 ********
 
-    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String contextCity, String filterCity) {
-        List<Typeahead> results = getSpellCheckedResponseV3(query, rows, filterQueries, contextCity);
-        results = processSpecialRulesForBuilderResults(results, filterCity);
+    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity){
+        List<Typeahead> results = getSpellCheckedResponseV3(query, rows, filterQueries, usercity);
         return UtilityClass.getFirstNElementsOfList(results, rows);
     }
 
@@ -230,6 +229,14 @@ public class TypeaheadDao {
         return oldScore * TypeaheadConstants.CityBoost;
     }
     
+    // ******* TYPEAHEAD :: VERSION 4 ********
+    
+    public List<Typeahead> getTypeaheadsV4(String query, int rows, List<String> filterQueries, String contextCity, String filterCity) {
+        List<Typeahead> results = getSpellCheckedResponseV3(query, rows, filterQueries, contextCity);
+        results = processSpecialRulesForBuilderResults(results, filterCity);
+        return UtilityClass.getFirstNElementsOfList(results, rows);
+    }
+
     private List<Typeahead> processSpecialRulesForBuilderResults(List<Typeahead> results, String filterCity) {
         List<Typeahead> newResults = new ArrayList<Typeahead>();
         Typeahead tnew;
@@ -259,7 +266,7 @@ public class TypeaheadDao {
 
         String cityName;
         for(String builderCityInfo : builderCityInfoList){
-            cityName = builderCityInfo.split(":")[1];
+            cityName = builderCityInfo.split(":")[1].toLowerCase();
             builderCityMap.put(cityName, builderCityInfo);
         }
         return builderCityMap;

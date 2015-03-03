@@ -2,3 +2,8 @@
 metro hospital noida,Landmark,1,1,TYPEAHEAD-GP-ChIJud6fgQPlDDkRZfSvfv1nRyk,enhance:gp
 gip,Landmark,1,1,TYPEAHEAD-GP-ChIJAQAA8UjkDDkRmdprFuRlLbo,enhance:gp
 pari chowk,Landmark,1,5,TYPEAHEAD-GP-EjFQYXJpIENob3drLCBPbWVnYSBJSSwgTm9pZGEsIFV0dGFyIFByYWRlc2gsIEluZGlh,enhance:gp
+
+#====== Google Places with city filter ======#
+
+gip,Landmark,1,1,TYPEAHEAD-GP-ChIJAQAA8UjkDDkRmdprFuRlLbo,enhance:gp|city:noida
+

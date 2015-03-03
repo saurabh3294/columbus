@@ -3,7 +3,7 @@ package com.proptiger.columbus.thandlers;
 public class URLGenerationConstants {
     public static String Selector                           = "selector=";
 
-    public static String SelectorGetAllCities               = "{\"fields\":[\"label\"],\"paging\":{\"start\":0,\"rows\":%d}}";
+    public static String SelectorGetAllCities               = "{\"fields\":[\"label\", \"id\"],\"paging\":{\"start\":0,\"rows\":%d}}";
 
     public static String SelectorGetLocalityNamesByCityName = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"label\"]}";
     public static String SelectorGetBuilderNamesByCityName  = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"name\"]}";

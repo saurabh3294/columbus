@@ -83,7 +83,8 @@ public class TypeaheadController extends BaseController {
             required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
             required = false) String usercity, @RequestParam(required = false) String enhance) {
 
-        Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
+        List<String> filterQueries = new ArrayList<String>();
+        getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType);
         usercity = getCityContext(usercity, request);
         List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, usercity, enhance);
 
@@ -100,7 +101,7 @@ public class TypeaheadController extends BaseController {
 
         Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
         usercity = getCityContext(usercity, request);
-        List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, usercity, enhance);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }
