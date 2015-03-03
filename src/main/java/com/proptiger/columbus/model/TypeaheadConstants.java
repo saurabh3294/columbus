@@ -18,4 +18,6 @@ public class TypeaheadConstants {
     public static final float  DocumentFetchMultiplier     = 2.0f;
 
     public static final String ExternalApiIdentifierGoogle = "gp";
+
+    public static final String typeaheadFieldNameCity      = "TYPEAHEAD_CITY";
 }

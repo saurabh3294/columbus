@@ -76,7 +76,7 @@ public class TypeaheadController extends BaseController {
     }
 
     @Intercepted.TypeaheadListing
-    @RequestMapping(value = { "app/v3/typeahead"})
+    @RequestMapping(value = { "app/v3/typeahead" })
     @ResponseBody
     public APIResponse getTypeaheadsV3(HttpServletRequest request, @RequestParam String query, @RequestParam(
             defaultValue = "5") int rows, @RequestParam(required = false) String typeAheadType, @RequestParam(
@@ -92,7 +92,7 @@ public class TypeaheadController extends BaseController {
     }
 
     @Intercepted.TypeaheadListing
-    @RequestMapping(value = { "app/v4/typeahead"})
+    @RequestMapping(value = { "app/v4/typeahead" })
     @ResponseBody
     public APIResponse getTypeaheadsV4(HttpServletRequest request, @RequestParam String query, @RequestParam(
             defaultValue = "5") int rows, @RequestParam(required = false) String typeAheadType, @RequestParam(
@@ -105,7 +105,7 @@ public class TypeaheadController extends BaseController {
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }
-    
+
     private String getCityContext(String city, HttpServletRequest request) {
         /* if city was explicitly set in URL use that */
         if (city != null && !city.isEmpty()) {
@@ -159,23 +159,20 @@ public class TypeaheadController extends BaseController {
             String city,
             String locality,
             String typeAheadType) {
-        Map<String, String> filterQueryMap =  getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
+        Map<String, String> filterQueryMap = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
         filterQueries.addAll(UtilityClass.convertMapToDlimSeparatedKeyValueList(filterQueryMap, ":"));
     }
-    
-    private Map<String, String> getFilterQueryMapFromRequestParams(
-            String city,
-            String locality,
-            String typeAheadType) {
+
+    private Map<String, String> getFilterQueryMapFromRequestParams(String city, String locality, String typeAheadType) {
         Map<String, String> filterQueries = new HashMap<String, String>();
         if (city != null && city.trim() != "") {
-            filterQueries.put("TYPEAHEAD_CITY",city);
+            filterQueries.put("TYPEAHEAD_CITY", city);
         }
         if (locality != null && locality.trim() != "") {
             filterQueries.put("TYPEAHEAD_LOCALITY", "(\"" + locality + "\")");
         }
         if (typeAheadType != null && typeAheadType.trim() != "") {
-            filterQueries.put("TYPEAHEAD_TYPE",typeAheadType.toUpperCase());
+            filterQueries.put("TYPEAHEAD_TYPE", typeAheadType.toUpperCase());
         }
         return filterQueries;
     }

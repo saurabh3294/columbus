@@ -104,7 +104,7 @@ public class TypeaheadService {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
         return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
     }
-    
+
     @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV3(
             String query,
@@ -121,7 +121,7 @@ public class TypeaheadService {
         if (query.matches(domainObjectIdRegex)) {
             return getResultsByTypeaheadID(Long.parseLong(query));
         }
-        
+
         /* Handling City filter : url-param-based and query-based */
 
         boolean fqEmpty = filterQueries.isEmpty() ? true : false;
@@ -165,7 +165,6 @@ public class TypeaheadService {
         return consolidatedResults;
     }
 
-
     @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV4(
             String query,
@@ -182,30 +181,32 @@ public class TypeaheadService {
         if (query.matches(domainObjectIdRegex)) {
             return getResultsByTypeaheadID(Long.parseLong(query));
         }
-        
+
         /* Handling City filter : url-param-based and query-based */
 
-        String filterCity = filterQueries.get("TYPEAHEAD_CITY");
-        String queryCity = extractCityNameFromQuery(query); 
+        String filterCity = filterQueries.get(TypeaheadConstants.typeaheadFieldNameCity);
+        String queryCity = extractCityNameFromQuery(query);
         String templateCity = usercity;
-        
+
         String newQuery = query;
         String enhanceQuery = query;
-        
-        if(filterCity != null){
+
+        if (filterCity != null) {
             templateCity = filterCity;
             enhanceQuery += (" " + filterCity);
         }
-        else if(queryCity != null){
+        else if (queryCity != null) {
             templateCity = queryCity;
             newQuery = StringUtils.substringBeforeLast(query, filterCity);
-            filterQueries.put("TYPEAHEAD_CITY", queryCity);
+            filterQueries.put(TypeaheadConstants.typeaheadFieldNameCity, queryCity);
         }
-        
+
         List<String> filterQueryList = getFilterQueryListV4(filterQueries);
-        
+
         /* Fetch results */
-        List<Typeahead> results = typeaheadDao.getTypeaheadsV4(newQuery, rows, filterQueryList, usercity, filterCity);
+        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(newQuery, rows, filterQueryList, usercity);
+
+        results = processSpecialRulesForBuilderResults(results, filterCity);
 
         /*
          * Remove not-so-good results and replace them with third party
@@ -223,7 +224,7 @@ public class TypeaheadService {
 
         return consolidatedResults;
     }
-   
+
     /* Add additional filters */
     public List<String> getFilterQueryListV4(Map<String, String> fqMap) {
 
@@ -232,9 +233,15 @@ public class TypeaheadService {
         for (Map.Entry<String, String> entry : fqMap.entrySet()) {
             key = entry.getKey();
             cityName = entry.getValue();
-            if (key.equals("TYPEAHEAD_CITY") && cityNameToIdMap.containsKey(cityName)) {
+            if (key.equals(TypeaheadConstants.typeaheadFieldNameCity) && cityNameToIdMap.containsKey(cityName)) {
                 int cityId = cityNameToIdMap.get(cityName);
-                list.add("(TYPEAHEAD_CITY:" + cityName + " OR " + "BUILDER_CITY_IDS:" + cityId + ")");
+                list.add("(" + TypeaheadConstants.typeaheadFieldNameCity
+                        + ":"
+                        + cityName
+                        + " OR "
+                        + "BUILDER_CITY_IDS:"
+                        + cityId
+                        + ")");
             }
             else {
                 list.add(String.valueOf(entry.getKey() + ":" + entry.getValue()));
@@ -249,7 +256,7 @@ public class TypeaheadService {
         if (cityNameToIdMap == null || cityNameToIdMap.isEmpty()) {
             populateCityNames();
         }
-        
+
         String[] qterms = query.split("\\s+");
         String city = null;
         Set<String> cityNames = cityNameToIdMap.keySet();
@@ -258,7 +265,7 @@ public class TypeaheadService {
         }
         return city;
     }
-    
+
     /**
      * Populate all the city names in cityNames, this should be done only once
      */
@@ -279,13 +286,64 @@ public class TypeaheadService {
             logger.error("Exception while getting cities", e);
             return;
         }
-        if(cities == null){
+        if (cities == null) {
             logger.error("Error while getting cities : Null list recieved.");
             return;
         }
         for (City c : cities) {
             cityNameToIdMap.put(c.getLabel().toLowerCase(), c.getId());
         }
+    }
+
+    private List<Typeahead> processSpecialRulesForBuilderResults(List<Typeahead> results, String filterCity) {
+        List<Typeahead> newResults = new ArrayList<Typeahead>();
+        Typeahead tnew;
+        Map<String, String> builderCityMap;
+        for (Typeahead t : results) {
+            if (t.getType().equalsIgnoreCase("BUILDER")) {
+                builderCityMap = getBuilderCityMap(t.getBuilderCityInfo());
+                if (builderCityMap.containsKey(filterCity)) {
+                    tnew = makeBuilderCityDocument(t, builderCityMap.get(filterCity));
+                    newResults.add(tnew);
+                }
+            }
+            newResults.add(t);
+        }
+        return newResults;
+    }
+
+    /**
+     * @param builderCityInfoList
+     * @return returns a map of <cityName, builder_city_info>
+     */
+    private Map<String, String> getBuilderCityMap(List<String> builderCityInfoList) {
+        Map<String, String> builderCityMap = new HashMap<String, String>();
+        if (builderCityInfoList == null) {
+            return builderCityMap;
+        }
+
+        String cityName;
+        for (String builderCityInfo : builderCityInfoList) {
+            cityName = builderCityInfo.split(":")[1].toLowerCase();
+            builderCityMap.put(cityName, builderCityInfo);
+        }
+        return builderCityMap;
+    }
+
+    private Typeahead makeBuilderCityDocument(Typeahead taBuilder, String builderCityInfo) {
+        String[] tokens = builderCityInfo.split(":");
+        String cityId = tokens[0];
+        String cityName = tokens[1];
+        String url = tokens[2];
+        Typeahead taBuilderCity = new Typeahead();
+        String id = StringUtils.replace(taBuilder.getId(), "BUILDER", "BUILDERCITY") + "-" + cityId;
+        String displayText = taBuilder.getDisplayText() + " - " + cityName;
+        taBuilderCity.setId(id);
+        taBuilderCity.setDisplayText(displayText);
+        taBuilderCity.setRedirectUrl(url);
+        taBuilderCity.setScore(taBuilder.getScore());
+        taBuilderCity.setType("BUILDERCITY");
+        return taBuilderCity;
     }
 
     private List<Typeahead> getResultsByTypeaheadID(long domainObjectId) {
@@ -308,7 +366,7 @@ public class TypeaheadService {
         }
         return results;
     }
-    
+
     /**
      * @param queryd
      * @param results
@@ -339,36 +397,36 @@ public class TypeaheadService {
         finalResults.addAll(gpResults);
         return finalResults;
     }
-    
-   private List<Typeahead> getSuggestionsAndTemplates(List<Typeahead> results, String query, String templateCity, int rows) {
-        
+
+    private List<Typeahead> getSuggestionsAndTemplates(
+            List<Typeahead> results,
+            String query,
+            String templateCity,
+            int rows) {
+
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
-        
-        try{
+
+        try {
             suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
-            
-            if(suggestions == null || suggestions.isEmpty()){
+
+            if (suggestions == null || suggestions.isEmpty()) {
                 suggestions = nlpSuggestionHandler.getNlpTemplateBasedResults(query, templateCity, rows);
             }
         }
         catch (Exception ex) {
             logger.error("Error while fetching suggestions. Query = " + query, ex);
         }
-        
+
         return suggestions;
     }
 
     /* Consolidate results fetched using different methods. */
-    private List<Typeahead> consolidateResults(
-            int rows,
-            List<Typeahead> results,
-            List<Typeahead> suggestions) {
+    private List<Typeahead> consolidateResults(int rows, List<Typeahead> results, List<Typeahead> suggestions) {
 
         List<Typeahead> consolidatedResults = new ArrayList<Typeahead>();
         consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(results, rows));
         consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(suggestions, rows));
         return (consolidatedResults);
     }
-    
 
 }
