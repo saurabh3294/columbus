@@ -12,9 +12,6 @@ import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-
-//import com.google.common.base.Joiner;
-//import com.proptiger.core.model.cms.City;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.core.repo.SolrDao;
@@ -134,8 +131,8 @@ public class TypeaheadDao {
         QueryResponse result = solrDao.executeQuery(solrQuery);
         return result;
     }
-    
-    public List<Typeahead> getTypeaheadById(String typeaheadId){
+
+    public List<Typeahead> getTypeaheadById(String typeaheadId) {
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("id:" + typeaheadId);
         SolrQuery solrQuery = getSolrQueryV3("", 1, queryFilters);
@@ -190,12 +187,7 @@ public class TypeaheadDao {
         }
 
         /* Sort and remove duplicates */
-        Collections.sort(resultsOriginal, new Comparator<Typeahead>() {
-            @Override
-            public int compare(Typeahead o1, Typeahead o2) {
-                return o2.getScore().compareTo(o1.getScore());
-            }
-        });
+        Collections.sort(resultsOriginal, new TypeaheadComparatorScore());
 
         List<List<Typeahead>> listOfresults = new ArrayList<List<Typeahead>>();
         listOfresults.add(resultsOriginal);
@@ -226,6 +218,13 @@ public class TypeaheadDao {
             return oldScore;
         }
         return oldScore * TypeaheadConstants.CityBoost;
+    }
+
+    class TypeaheadComparatorScore implements Comparator<Typeahead> {
+        @Override
+        public int compare(Typeahead o1, Typeahead o2) {
+            return o2.getScore().compareTo(o1.getScore());
+        }
     }
 
     // ******* Exact Typeaheads ********

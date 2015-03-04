@@ -53,8 +53,6 @@ public class ResponseInterceptor {
     private final int           maxLocalityIdCountForApiCall = 512;
     private final int           maxPermissionCountForApiCall = 256;
 
-    private final int           maxRowsForBuilderList        = 20000;
-
     private final static String BUILDER_ID                   = "builderId";
     private final static String CITY_ID                      = "cityId";
     private final static String LOCALITY_ID                  = "localityId";
@@ -290,6 +288,7 @@ public class ResponseInterceptor {
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
+    @SuppressWarnings("unchecked")
     private Set<String> getSubscribedBuilderList(int userId) {
         logger.debug("xxxyyyzzz :: Inside *getSubscribedBuilderList*");
         List<Permission> permissions = getUserPermissions(userId);
