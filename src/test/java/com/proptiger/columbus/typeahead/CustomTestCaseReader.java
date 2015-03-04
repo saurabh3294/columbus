@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class CustomTestCaseReader {
 
     }
 
-    public Map<String, List<TaTestCase>> getCustomTestCases() {
+    public Map<String, List<TaTestCase>> getCustomTestCases(String apiVersion) {
         Map<String, List<TaTestCase>> mapTestCases = new HashMap<String, List<TaTestCase>>();
         File dir = new File(dirName);
         if (!dir.exists()) {
@@ -43,12 +44,12 @@ public class CustomTestCaseReader {
         }
 
         for (File file : fileList) {
-            mapTestCases.put(file.getName(), getCustomTestCasesFromFile(file));
+            mapTestCases.put(file.getName(), getCustomTestCasesFromFile(file, apiVersion));
         }
         return mapTestCases;
     }
 
-    public List<TaTestCase> getCustomTestCasesFromFile(File file) {
+    public List<TaTestCase> getCustomTestCasesFromFile(File file, String apiVersion) {
         List<TaTestCase> testList = new ArrayList<TaTestCase>();
         List<String> testLineList = new ArrayList<String>();
         try {
@@ -59,10 +60,15 @@ public class CustomTestCaseReader {
             return testList;
         }
 
+        if (!testLineList.isEmpty() && !isApiVersionSupported(testLineList.get(0), apiVersion)) {
+            logger.debug("Api Version not supperted for test file : " + file.getAbsolutePath());
+            return testList;
+        }
+
         TaTestCase taTestCase;
         int lineCount = 0;
         for (String testLine : testLineList) {
-            if (testLine.isEmpty() || testLine.startsWith("#")) {
+            if (testLine.isEmpty() || testLine.startsWith("#") || testLine.startsWith("!")) {
                 continue;
             }
             taTestCase = getTestcaseObjFromLogLine(testLine);
@@ -73,6 +79,19 @@ public class CustomTestCaseReader {
             lineCount++;
         }
         return testList;
+    }
+
+    private boolean isApiVersionSupported(String versionString, String apiVerion) {
+        /*
+         * If no version is explicitly specifies then all versions are
+         * supported.
+         */
+        if (!versionString.startsWith("!")) {
+            return true;
+        }
+
+        String[] versionList = StringUtils.split(StringUtils.substring(versionString, 1), ",");
+        return ArrayUtils.contains(versionList, apiVerion);
     }
 
     private TaTestCase getTestcaseObjFromLogLine(String line) {

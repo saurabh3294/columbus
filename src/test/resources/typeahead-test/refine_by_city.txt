@@ -1,5 +1,0 @@
-unnitech gardens chennai,Negative,1,5,TYPEAHEAD-PROJECT-502675
-unnitech gardens chennai,Project,1,5,TYPEAHEAD-PROJECT-501959
-kanpur road jhansi,Negative,1,5,TYPEAHEAD-PROJECT-659850
-sree Noida,Negative,1,5,TYPEAHEAD-BUILDER-104284
-chennai,Negative,2,5,TYPEAHEAD-CITY-5

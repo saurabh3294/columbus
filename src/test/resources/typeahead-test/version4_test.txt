@@ -1,0 +1,10 @@
+!v4
+
+#====== Builder city results ==========#
+
+metro,Builder,1,1,TYPEAHEAD-BUILDERCITY-104037-20,city:noida
+dlf,Builder,1,1,TYPEAHEAD-BUILDERCITY-100002-11,city:gurgaon
+
+#====== Google Places with city filter ======#
+
+gip,Landmark,1,1,TYPEAHEAD-GP-ChIJAQAA8UjkDDkRmdprFuRlLbo,enhance:gp|city:noida

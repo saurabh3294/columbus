@@ -48,7 +48,10 @@ public class TypeaheadTest extends AbstractTest {
     private String               testReportDir;
 
     @Value("${test.default.file.export.pagesize}")
-    private int                  PageSize_FileExport;
+    private int                  pageSizeFileExport;
+
+    @Value("${test.default.typeahead.version}")
+    private String               defaultApiVersion;
 
     String                       fileNameReport;
 
@@ -59,8 +62,10 @@ public class TypeaheadTest extends AbstractTest {
     }
 
     private TestMode            testMode;
+    private String              apiVersion;
 
-    private static final String OptionName_Mode = "mode";
+    private static final String OptionName_Mode    = "mode";
+    private static final String OptionName_Version = "version";
 
     @PostConstruct
     public void initialize() throws Exception {
@@ -76,21 +81,32 @@ public class TypeaheadTest extends AbstractTest {
                 "defaultEntityFetchPageSize should be greater that 0.");
 
         this.testMode = getTestMode();
+        this.apiVersion = getApiVersion();
 
         /** Use Test-Mode specific settings. **/
 
         if (testMode == TestMode.report) {
             FileUtils.forceMkdir(new File(testReportDir));
             fileNameReport = testReportDir + "test-report-"
+                    + apiVersion
+                    + "-"
                     + StringUtils.replaceChars((new Date()).toString(), ' ', '_')
                     + ".csv";
         }
     }
 
+    private String getApiVersion() {
+        String apiVersion = System.getProperty(OptionName_Version);
+        if (apiVersion == null) {
+            apiVersion = defaultApiVersion;
+        }
+        return apiVersion;
+    }
+
     private TestMode getTestMode() {
         TestMode testMode = TestMode.normal;
-        String testMode_s = System.getProperty(OptionName_Mode);
-        if (testMode_s == null) {
+        String testModeString = System.getProperty(OptionName_Mode);
+        if (testModeString == null) {
             return testMode;
         }
         else {
@@ -140,7 +156,7 @@ public class TypeaheadTest extends AbstractTest {
 
     @Test
     public void testCustom() {
-        Map<String, List<TaTestCase>> mapTestCases = customTestCaseReader.getCustomTestCases();
+        Map<String, List<TaTestCase>> mapTestCases = customTestCaseReader.getCustomTestCases(apiVersion);
         List<TaTestCase> testList;
         for (Entry<String, List<TaTestCase>> entry : mapTestCases.entrySet()) {
             testList = entry.getValue();
@@ -150,7 +166,7 @@ public class TypeaheadTest extends AbstractTest {
     }
 
     private void runTests(List<TaTestCase> testList, int testLimit, TestMode tmode) {
-        testList = taTestExecuter.executeTests(testList, testLimit);
+        testList = taTestExecuter.executeTests(testList, testLimit, apiVersion);
         if (tmode == TestMode.report) {
             try {
                 exportTestResultsToReport(testList);
@@ -182,7 +198,7 @@ public class TypeaheadTest extends AbstractTest {
         for (TaTestCase ttc : testList) {
             reportLines.add(TaTestReport.getReport(ttc).getReportLine());
             logger.debug("Test case passed : [" + ttc.getLogString() + "]");
-            if (reportLines.size() >= PageSize_FileExport) {
+            if (reportLines.size() >= pageSizeFileExport) {
                 logger.debug("Writing " + reportLines.size() + "test report-lines to file.");
                 FileUtils.writeLines(new File(fileNameReport), reportLines, true);
                 reportLines.clear();
