@@ -61,7 +61,7 @@ public class CustomTestCaseReader {
         }
 
         if (!testLineList.isEmpty() && !isApiVersionSupported(testLineList.get(0), apiVersion)) {
-            logger.debug("Api Version not supperted for test file : " + file.getAbsolutePath());
+            logger.info("Api Version not supperted for test file : " + file.getAbsolutePath());
             return testList;
         }
 

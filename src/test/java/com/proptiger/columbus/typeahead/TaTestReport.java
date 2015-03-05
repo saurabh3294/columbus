@@ -36,7 +36,7 @@ public class TaTestReport {
         String message = "";
         int pos = getTypeaheadPosition(ttc);
         if (pos < 0 && (!ttc.getType().equals(TaTestCaseType.Negative))) {
-            message = "Test=[" + ttc.getLogString() + "] : Outcome=[INVALID TEST CASE]";
+            message = "Test=[" + ttc.getLogString() + "] : Outcome=[Execution Failed]";
             return new TaTestReport(false, message);
         }
         
