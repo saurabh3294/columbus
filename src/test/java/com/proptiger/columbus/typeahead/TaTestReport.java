@@ -51,6 +51,7 @@ public class TaTestReport {
         taTestReport.position = pos;
         taTestReport.betterResults = getResultsAbovePos(ttc, pos);
         taTestReport.testCaseInfo = ttc.getLogString(); 
+        taTestReport.message += (" BetterResults=[" + taTestReport.betterResults.toString() + "]");
         return taTestReport;
     }
 
@@ -75,7 +76,8 @@ public class TaTestReport {
         List<String> betterResults = new ArrayList<String>();
         List<Typeahead> resultList = taTestCase.getResults();
         Typeahead t;
-        for (int i = 0; i < resultList.size() && i < pos - 1; i++) {
+        int endIndex = (pos == 0 ? resultList.size() : pos);
+        for (int i = 0; i < endIndex ; i++) {
             t = resultList.get(i);
             betterResults.add("(" + t.getDisplayText() + ")--(" + t.getId() + ")");
         }
