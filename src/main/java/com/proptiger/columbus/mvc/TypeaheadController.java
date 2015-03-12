@@ -99,6 +99,8 @@ public class TypeaheadController extends BaseController {
             required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
             required = false) String usercity, @RequestParam(required = false) String enhance) {
 
+        city = (city==null ? null : city.toLowerCase());
+        usercity = (usercity == null ? null : usercity.toLowerCase());
         Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
         usercity = getCityContext(usercity, request);
         List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance);
@@ -125,7 +127,7 @@ public class TypeaheadController extends BaseController {
                 if (city == null || city.isEmpty()) {
                     break;
                 }
-                return city;
+                return city.toLowerCase();
             }
         }
 
