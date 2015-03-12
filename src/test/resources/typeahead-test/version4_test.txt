@@ -4,6 +4,7 @@
 
 metro,Builder,1,1,TYPEAHEAD-BUILDERCITY-104037-20,city:noida
 dlf,Builder,1,1,TYPEAHEAD-BUILDERCITY-100002-11,city:gurgaon
+dlf,Builder,1,1,TYPEAHEAD-BUILDERCITY-100002-11,city:GuRgaOn
 
 #====== Google Places with city filter ======#
 
