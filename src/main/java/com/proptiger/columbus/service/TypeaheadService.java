@@ -295,6 +295,13 @@ public class TypeaheadService {
         }
     }
 
+    /**
+     * If city filter is applied then for builder type results these rules are
+     * followed : 1. If city is buidler's HQ, then show builder as well as
+     * builder-city result. 2. Otherwise show only builder-city result.
+     * 
+     * @return new Typeahead list containing final results
+     */
     private List<Typeahead> processSpecialRulesForBuilderResults(List<Typeahead> results, String filterCity) {
         List<Typeahead> newResults = new ArrayList<Typeahead>();
         Typeahead tnew;
@@ -302,19 +309,32 @@ public class TypeaheadService {
         for (Typeahead t : results) {
             if (t.getType().equalsIgnoreCase("BUILDER")) {
                 builderCityMap = getBuilderCityMap(t.getBuilderCityInfo());
+                /*
+                 * if builder is operational in filterCity then inject a
+                 * buidler-city result.
+                 */
                 if (builderCityMap.containsKey(filterCity)) {
                     tnew = makeBuilderCityDocument(t, builderCityMap.get(filterCity));
                     newResults.add(tnew);
                 }
+                /*
+                 * if filtercity is builder's HQ then include builder result as
+                 * well
+                 */
+                if (t.getCity().equalsIgnoreCase(filterCity)) {
+                    newResults.add(t);
+                }
             }
-            newResults.add(t);
+            else {
+                newResults.add(t);
+            }
         }
         return newResults;
     }
 
     /**
-     * @param builderCityInfoList
-     * @return returns a map of <cityName, builder_city_info>
+     * @param builderCityInfoList : (SolrField)
+     * @return returns a map of [cityName, builderCityInfo]
      */
     private Map<String, String> getBuilderCityMap(List<String> builderCityInfoList) {
         Map<String, String> builderCityMap = new HashMap<String, String>();
@@ -330,6 +350,11 @@ public class TypeaheadService {
         return builderCityMap;
     }
 
+    /**
+     * @param taBuilder : typehead object for builder result
+     * @param builderCityInfo : (SolrField) dlim separated string {cityId:cityName:builderCityUrl}
+     * @return
+     */
     private Typeahead makeBuilderCityDocument(Typeahead taBuilder, String builderCityInfo) {
         String[] tokens = builderCityInfo.split(":");
         String cityId = tokens[0];

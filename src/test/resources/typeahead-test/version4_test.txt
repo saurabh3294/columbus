@@ -5,6 +5,10 @@
 metro,Builder,1,1,TYPEAHEAD-BUILDERCITY-104037-20,city:noida
 dlf,Builder,1,1,TYPEAHEAD-BUILDERCITY-100002-11,city:gurgaon
 dlf,Builder,1,1,TYPEAHEAD-BUILDERCITY-100002-11,city:GuRgaOn
+dlf,Builder,2,2,TYPEAHEAD-BUILDER-100002,city:DeLhI
+dlf,Negative,1,5,TYPEAHEAD-BUILDER-100002,city:GuRgaOn
+dlf,Negative,1,5,TYPEAHEAD-BUILDER-100002,city:pune
+dlf,Negative,1,5,TYPEAHEAD-BUILDERCITY-100002-11,city:pune
 
 #====== Google Places with city filter ======#
 

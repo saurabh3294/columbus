@@ -91,15 +91,15 @@ public class TaTestCase {
 
     public String getLogString() {
         String logString = this.query + ","
-                + "("
+                + type
+                + ", ("
                 + this.minRank
                 + "-"
                 + this.maxRank
-                + ")"
-                + ","
+                + "), "
                 + this.expectedTypeaheadId
                 + ", [ "
-                +  String.valueOf(urlParams)
+                + String.valueOf(urlParams)
                 + " ]";
         return logString;
     }
