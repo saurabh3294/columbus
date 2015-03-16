@@ -12,7 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.proptiger.columbus.util.PropertyKeys;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
-import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerProjectIn extends RootTHandler {
@@ -100,8 +100,8 @@ public class THandlerProjectIn extends RootTHandler {
     private List<Locality> getTopLocalities(String cityName) {
         URI uri = URI.create(UriComponentsBuilder
                 .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                .getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
+                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
                                 + "?"
                                 + URLGenerationConstants.Selector
                                 + String.format(URLGenerationConstants.SelectorGetLocalityNamesByCityName, cityName))

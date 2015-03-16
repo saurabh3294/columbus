@@ -76,8 +76,8 @@ public class ProjectSuggestions {
         FIQLSelector selector = new FIQLSelector();
         selector.addAndConditionToFilter("projectId==" + projectId);
         selector.addField("bedrooms").addField("unitType").addField("URL");
-        String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                .getRequiredPropertyAsString(PropertyKeys.PROPERTY_API_URL) + "?" + selector.getStringFIQL();
+        String stringUrl = PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                .getRequiredPropertyAsString(CorePropertyKeys.PROPERTY_API_URL) + "?" + selector.getStringFIQL();
         return URI.create(stringUrl);
     }
 }

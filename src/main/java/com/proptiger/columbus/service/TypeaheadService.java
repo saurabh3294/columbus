@@ -30,7 +30,7 @@ import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.HttpRequestUtil;
-import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.UtilityClass;
 
@@ -272,8 +272,8 @@ public class TypeaheadService {
         buildParams = String.format(buildParams, MAX_CITY_COUNT);
         URI uri = URI.create(UriComponentsBuilder
                 .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                .getRequiredPropertyAsString(PropertyKeys.CITY_API_URL) + buildParams).build().encode()
+                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                .getRequiredPropertyAsString(CorePropertyKeys.CITY_API_URL) + buildParams).build().encode()
                 .toString());
         cityNameToIdMap = new HashMap<String, Integer>();
         List<City> cities = null;

@@ -15,7 +15,7 @@ import com.proptiger.columbus.thandlers.URLGenerationConstants;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.HttpRequestUtil;
-import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 @Controller
@@ -36,8 +36,8 @@ public class BenchMarkController {
             try {
                 URI uri = URI.create(UriComponentsBuilder
                         .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                        .getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
+                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
                                         + "?"
                                         + URLGenerationConstants.Selector
                                         + String.format(URLGenerationConstants.SelectorGetLocalityNamesByCityName, city))

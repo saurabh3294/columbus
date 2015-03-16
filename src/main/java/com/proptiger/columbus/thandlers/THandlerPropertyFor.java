@@ -12,7 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.proptiger.columbus.util.PropertyKeys;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
-import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerPropertyFor extends RootTHandler {
