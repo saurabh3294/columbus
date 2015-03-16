@@ -11,7 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
-import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerPropertyFor extends RootTHandler {
@@ -81,8 +81,8 @@ public class THandlerPropertyFor extends RootTHandler {
         List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(URI
                 .create(UriComponentsBuilder
                         .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                        .getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
+                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
                                         + "?"
                                         + URLGenerationConstants.Selector
                                         + String.format(

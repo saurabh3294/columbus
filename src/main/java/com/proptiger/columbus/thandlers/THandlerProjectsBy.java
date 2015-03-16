@@ -10,7 +10,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Builder;
-import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerProjectsBy extends RootTHandler {
@@ -61,8 +61,8 @@ public class THandlerProjectsBy extends RootTHandler {
         List<Builder> topBuilders = httpRequestUtil.getInternalApiResultAsTypeListFromCache(URI
                 .create(UriComponentsBuilder
                         .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                        .getRequiredPropertyAsString(PropertyKeys.BUILDER_API_URL)
+                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        .getRequiredPropertyAsString(CorePropertyKeys.BUILDER_API_URL)
                                         + "?"
                                         + URLGenerationConstants.Selector
                                         + String.format(
