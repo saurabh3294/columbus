@@ -31,8 +31,8 @@ import com.proptiger.core.pojo.response.APIResponse;
 @Component
 public class TaTestExecuter {
 
-    @Value("${typeahead.api.url}")
-    private String              TYPEAHEAD_API_URL;
+    @Value("${typeahead.api.url.pattern}")
+    private String              TYPEAHEAD_API_URL_PATTERN;
 
     @Value("${test.testcase.timeout}")
     private long                TestTimeout;
@@ -51,9 +51,10 @@ public class TaTestExecuter {
      *            list of test cases to run
      * @param limit
      *            number of test cases to run
+     * @param apiVersion
      * @return A sublist of 'testList' with results field populated
      */
-    public List<TaTestCase> executeTests(List<TaTestCase> testList, int limit) {
+    public List<TaTestCase> executeTests(List<TaTestCase> testList, int limit, String apiVersion) {
         logger.info(testList.size() + " tests recieved for execution with limit = " + limit);
         limit = Math.min(limit, testList.size());
         List<TaTestCase> testListLimited = testList.subList(0, limit);
@@ -61,7 +62,7 @@ public class TaTestExecuter {
         ExecutorService executerService = Executors.newFixedThreadPool(20);
         List<Future<TaTestCase>> futureList = new ArrayList<Future<TaTestCase>>();
         for (TaTestCase ttc : testListLimited) {
-            ttc.setTestUrl(getTypeaheadTestUrl(ttc));
+            ttc.setTestUrl(getTypeaheadTestUrl(ttc, apiVersion));
             futureList.add(executerService.submit(new CustomCallable(ttc)));
         }
 
@@ -82,8 +83,8 @@ public class TaTestExecuter {
         return testListLimited;
     }
 
-    private String getTypeaheadTestUrl(TaTestCase ttc) {
-        String testCaseUrl = TYPEAHEAD_API_URL + "?query=" + ttc.getQuery();
+    private String getTypeaheadTestUrl(TaTestCase ttc, String apiVersion) {
+        String testCaseUrl = String.format(TYPEAHEAD_API_URL_PATTERN, apiVersion) + "?query=" + ttc.getQuery();
         Map<String, String> urlParams = ttc.getUrlParams();
         if (urlParams == null || urlParams.size() == 0) {
             return testCaseUrl;

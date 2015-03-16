@@ -197,7 +197,7 @@ public class TypeaheadService {
         }
         else if (queryCity != null) {
             templateCity = queryCity;
-            newQuery = StringUtils.substringBeforeLast(query, filterCity);
+            newQuery = StringUtils.substringBeforeLast(query, queryCity);
             filterQueries.put(TypeaheadConstants.typeaheadFieldNameCity, queryCity);
         }
 
@@ -337,7 +337,7 @@ public class TypeaheadService {
         String url = tokens[2];
         Typeahead taBuilderCity = new Typeahead();
         String id = StringUtils.replace(taBuilder.getId(), "BUILDER", "BUILDERCITY") + "-" + cityId;
-        String displayText = taBuilder.getDisplayText() + " - " + cityName;
+        String displayText = taBuilder.getDisplayText() + " - " + StringUtils.capitalize(cityName);
         taBuilderCity.setId(id);
         taBuilderCity.setDisplayText(displayText);
         taBuilderCity.setRedirectUrl(url);
