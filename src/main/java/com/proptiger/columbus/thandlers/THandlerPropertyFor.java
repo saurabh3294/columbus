@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.proptiger.columbus.util.PropertyKeys;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.util.CorePropertyKeys;
@@ -78,16 +79,19 @@ public class THandlerPropertyFor extends RootTHandler {
     }
 
     private List<Locality> getTopLocalities(String cityName) {
-        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(URI
-                .create(UriComponentsBuilder
-                        .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
-                                        .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
-                                        + "?"
-                                        + URLGenerationConstants.Selector
-                                        + String.format(
-                                                URLGenerationConstants.SelectorGetLocalityNamesByCityName,
-                                                cityName)).build().encode().toString()), Locality.class);
+        List<Locality> topLocalities = httpRequestUtil
+                .getInternalApiResultAsTypeListFromCache(
+                        URI.create(UriComponentsBuilder
+                                .fromUriString(
+                                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                                .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
+                                                + "?"
+                                                + URLGenerationConstants.Selector
+                                                + String.format(
+                                                        URLGenerationConstants.SelectorGetLocalityNamesByCityName,
+                                                        cityName)).build().encode().toString()),
+                        PropertyReader.getRequiredPropertyAsInt(PropertyKeys.INTERNAL_API_SLA_MS),
+                        Locality.class);
         return topLocalities;
     }
 
