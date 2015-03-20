@@ -105,7 +105,6 @@ public class TypeaheadService {
         return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
     }
 
-    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV3(
             String query,
             int rows,
@@ -165,7 +164,6 @@ public class TypeaheadService {
         return consolidatedResults;
     }
 
-    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV4(
             String query,
             int rows,
