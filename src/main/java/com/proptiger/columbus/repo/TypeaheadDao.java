@@ -10,11 +10,13 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
+import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
 
 /**
@@ -112,6 +114,7 @@ public class TypeaheadDao {
 
     // ******* TYPEAHEAD :: VERSION 3 ********
 
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
         List<Typeahead> results = getSpellCheckedResponseV3(query, rows, filterQueries, usercity);
         return UtilityClass.getFirstNElementsOfList(results, rows);
@@ -132,6 +135,7 @@ public class TypeaheadDao {
         return result;
     }
 
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadById(String typeaheadId) {
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("id:" + typeaheadId);

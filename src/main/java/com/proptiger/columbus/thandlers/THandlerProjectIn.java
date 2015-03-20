@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.proptiger.columbus.util.PropertyKeys;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.util.PropertyKeys;
@@ -106,7 +107,10 @@ public class THandlerProjectIn extends RootTHandler {
                                 + String.format(URLGenerationConstants.SelectorGetLocalityNamesByCityName, cityName))
                 .build().encode().toString());
 
-        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, Locality.class);
+        List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
+                uri,
+                PropertyReader.getRequiredPropertyAsInt(PropertyKeys.INTERNAL_API_SLA_MS),
+                Locality.class);
         return topLocalities;
     }
 

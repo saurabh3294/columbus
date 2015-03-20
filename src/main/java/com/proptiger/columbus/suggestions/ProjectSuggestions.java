@@ -9,13 +9,14 @@ import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.repo.TypeaheadDao;
+import com.proptiger.columbus.util.PropertyKeys;
 import com.proptiger.core.enums.UnitType;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Property;
 import com.proptiger.core.pojo.FIQLSelector;
+import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.HttpRequestUtil;
-import com.proptiger.core.util.PropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 @Component
@@ -33,6 +34,7 @@ public class ProjectSuggestions {
 
         List<Property> propertyList = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 getURIForPropertyAPI(id),
+                PropertyReader.getRequiredPropertyAsInt(PropertyKeys.INTERNAL_API_SLA_MS),
                 Property.class);
         if (propertyList == null || propertyList.isEmpty()) {
             return suggestions;
