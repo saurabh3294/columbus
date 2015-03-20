@@ -6,7 +6,7 @@ public class URLGenerationConstants {
     public static String SelectorGetAllCities               = "{\"fields\":[\"label\", \"id\"],\"paging\":{\"start\":0,\"rows\":%d}}";
 
     public static String SelectorGetLocalityNamesByCityName = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"label\"]}";
-    public static String SelectorGetBuilderNamesByCityName  = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"name\"]}";
+    public static String SelectorGetBuilderNamesByCityName  = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"name\",\"url\"]}";
 
     public static String SelectorGetBuilderIdsAsFacet       = "{\"paging\":{\"rows\":0},\"filters\":{\"and\":[{\"equal\":{\"%s\":%s}}]}}&facets=%s";
 
