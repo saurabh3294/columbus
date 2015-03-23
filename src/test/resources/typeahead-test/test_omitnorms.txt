@@ -23,8 +23,3 @@ romano,Project,1,1,TYPEAHEAD-PROJECT-652425
 guardian developers,Builder,1,1,TYPEAHEAD-BUILDER-103849
 guardian dev,Builder,1,1,TYPEAHEAD-BUILDER-103849
 
-#======== GP (gp thresholds were changes) ========
-
-india gate,Landmark,1,5,TYPEAHEAD-GP-ChIJC03rqdriDDkRXT6SJRGXFwc,enhance:gp
-noida city center,Landmark,1,5,TYPEAHEAD-GP-ChIJh1VQZ5blDDkRfqfT6r9dOO0,enhance:gp
-
