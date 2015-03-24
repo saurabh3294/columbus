@@ -1,0 +1,21 @@
+#xrbi,Builder,1,1,TYPEAHEAD-BUILDER-102595
+#Lok upvan 2,1,1,TYPEAHEAD-PROJECT-644032
+#a&o realty,1,1,TYPEAHEAD-BUILDER-106936
+#gcorp icon,1,1,TYPEAHEAD-PROJECT-501851
+
+#====== Spellcheck  ======
+
+#armani,BUILDER,1,1,TYPEAHEAD-BUILDER-101761
+#wine,PROJECT,1,2,TYPEAHEAD-PROJECT-662636
+
+#====== Spellcheck causing bad results ======
+
+#roman,PROJECT,1,2,TYPEAHEAD-PROJECT-652425
+
+#====== Very Less score for single word match =======
+
+#nook,PROJECT,1,2,TYPEAHEAD-PROJECT-650302
+#nook,PROJECT,1,1,TYPEAHEAD-PROJECT-503662
+
+# caroline(14.41) = caro+line(20.0)
+#caroline,PROJECT,1,1,TYPEAHEAD-PROJECT-641941
