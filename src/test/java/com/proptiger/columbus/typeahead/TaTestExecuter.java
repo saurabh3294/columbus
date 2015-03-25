@@ -12,6 +12,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import junit.framework.Assert;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.mvc.TypeaheadController;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.pojo.response.APIResponse;
 
 @Component
@@ -43,6 +45,9 @@ public class TaTestExecuter {
     private static Logger       logger           = LoggerFactory.getLogger(TaTestExecuter.class);
 
     private final String        URL_PARAM_FORMAT = "&%s=%s";
+
+    @Value("${test.default.typeahead.version}")
+    private String              defaultVersion;
 
     /**
      * Runs top 'limit' number of test-cases from 'testList'.
@@ -77,14 +82,17 @@ public class TaTestExecuter {
                 logger.error("Some test case execution failed or was interrupted. Moving On.", e2);
             }
         }
-
         executerService.shutdown();
-
         return testListLimited;
     }
 
+    public void assertNonNullResponse(String query) {
+        List<Typeahead> typeaheads = getTestResult(getTypeAheadTestUrl(query, defaultVersion));
+        Assert.assertNotNull(typeaheads);
+    }
+
     private String getTypeaheadTestUrl(TaTestCase ttc, String apiVersion) {
-        String testCaseUrl = String.format(TYPEAHEAD_API_URL_PATTERN, apiVersion) + "?query=" + ttc.getQuery();
+        String testCaseUrl = getTypeAheadTestUrl(ttc.getQuery(), apiVersion);
         Map<String, String> urlParams = ttc.getUrlParams();
         if (urlParams == null || urlParams.size() == 0) {
             return testCaseUrl;
@@ -93,6 +101,10 @@ public class TaTestExecuter {
             testCaseUrl += String.format(URL_PARAM_FORMAT, entry.getKey(), entry.getValue());
         }
         return testCaseUrl;
+    }
+
+    private String getTypeAheadTestUrl(String testQuery, String apiVersion) {
+        return String.format(TYPEAHEAD_API_URL_PATTERN, apiVersion) + "?query=" + testQuery;
     }
 
     class CustomCallable implements Callable<TaTestCase> {
@@ -106,33 +118,33 @@ public class TaTestExecuter {
 
         @Override
         public TaTestCase call() {
-            List<Typeahead> resultList = null;
-            MockHttpServletResponse mhsr = null;
-            String response = null;
-            String url = taTestCase.getTestUrl();
-            try {
-                MockMvc mockMvc = MockMvcBuilders.standaloneSetup(typeaheadController).build();
-                mhsr = mockMvc.perform(MockMvcRequestBuilders.get(url)).andReturn().getResponse();
-                response = mhsr.getContentAsString();
-            }
-            catch (Exception ex) {
-                logger.error("Exception while executing testcase callable : " + taTestCase.getLogString()
-                        + " Moving On.", ex);
-            }
-            if (mhsr.getStatus() == 404) {
-                logger.error("Problem executing testcase : " + taTestCase.getLogString(), "Invalid Url : Status = 404");
-            }
-            if (response == null || response.isEmpty()) {
-                return taTestCase;
-            }
+            taTestCase.setResults(getTestResult(taTestCase.getTestUrl()));
+            return taTestCase;
+        }
+    }
+
+    public List<Typeahead> getTestResult(String url) {
+        List<Typeahead> resultList = null;
+        MockHttpServletResponse mhsr = null;
+        String response = null;
+        try {
+            MockMvc mockMvc = MockMvcBuilders.standaloneSetup(typeaheadController).build();
+            mhsr = mockMvc.perform(MockMvcRequestBuilders.get(url)).andReturn().getResponse();
+            response = mhsr.getContentAsString();
+        }
+        catch (Exception ex) {
+            logger.error("Exception while executing testcase callable : " + " Moving On.", ex);
+        }
+        if (mhsr.getStatus() == 404) {
+            logger.error("Problem executing testcase : ", "Invalid Url : Status = 404");
+        }
+        if (response != null && !response.isEmpty()) {
             /* Parsing Json Response */
             Gson gson = new Gson();
             APIResponse apiResponse = gson.fromJson(response, APIResponse.class);
             Object data = apiResponse.getData();
             resultList = gson.fromJson(gson.toJson(data), new TypeToken<List<Typeahead>>() {}.getType());
-            taTestCase.setResults(resultList);
-            return taTestCase;
         }
+        return resultList;
     }
-
 }
