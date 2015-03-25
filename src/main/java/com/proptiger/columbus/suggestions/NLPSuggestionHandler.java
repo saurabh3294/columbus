@@ -3,18 +3,17 @@ package com.proptiger.columbus.suggestions;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.core.model.Typeahead;
 import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.thandlers.RootTHandler;
 import com.proptiger.columbus.thandlers.TemplateMap;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.HttpRequestUtil;
 
@@ -34,7 +33,6 @@ public class NLPSuggestionHandler {
 
     private float           templateResultScoreTheshold      = 7.0f;
 
-    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int rows) {
 
         if (city == null || city.isEmpty()) {
@@ -43,8 +41,7 @@ public class NLPSuggestionHandler {
 
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
-        QueryResponse response = typeaheadDao.getResponseV3(query, rows, queryFilters);
-        List<Typeahead> templateHits = response.getBeans(Typeahead.class);
+        List<Typeahead> templateHits = typeaheadDao.getResponseV3(query, rows, queryFilters);
 
         List<Typeahead> results = new ArrayList<Typeahead>();
 

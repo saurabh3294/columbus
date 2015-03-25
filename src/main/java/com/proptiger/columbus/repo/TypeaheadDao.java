@@ -4,14 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.impl.HttpSolrServer.RemoteSolrException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.Constants;
@@ -29,6 +34,8 @@ public class TypeaheadDao {
 
     @Autowired
     private SolrDao solrDao;
+
+    private Logger  logger = LoggerFactory.getLogger(TypeaheadDao.class);
 
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         SolrQuery solrQuery = this.getSolrQueryV2(query, rows, filterQueries);
@@ -76,8 +83,7 @@ public class TypeaheadDao {
     }
 
     private SolrQuery getSimpleSolrQuery(String query, int rows, List<String> filterQueries) {
-        SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(query);
+        SolrQuery solrQuery = new SolrQuery(QueryParserUtil.escape(query.toLowerCase()));
         for (String fq : filterQueries) {
             solrQuery.addFilterQuery(fq);
         }
@@ -111,10 +117,20 @@ public class TypeaheadDao {
     }
 
     // ******* TYPEAHEAD :: VERSION 3 ********
-
     @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
-        List<Typeahead> results = getSpellCheckedResponseV3(query, rows, filterQueries, usercity);
+        List<Typeahead> results = new ArrayList<Typeahead>();
+        try {
+            results = getSpellCheckedResponseV3(query, rows, filterQueries, usercity);
+        }
+        catch (ProAPIException e) {
+            if (e.getCause() instanceof RemoteSolrException) {
+                logger.warn("Error in solr query:", e);
+            }
+            else {
+                throw e;
+            }
+        }
         return UtilityClass.getFirstNElementsOfList(results, rows);
     }
 
@@ -127,10 +143,21 @@ public class TypeaheadDao {
         return solrQuery;
     }
 
-    public QueryResponse getResponseV3(String query, int rows, List<String> filterQueries) {
+    public List<Typeahead> getResponseV3(String query, int rows, List<String> filterQueries) {
+        List<Typeahead> results = new ArrayList<Typeahead>();
         SolrQuery solrQuery = getSolrQueryV3(query, rows, filterQueries);
-        QueryResponse result = solrDao.executeQuery(solrQuery);
-        return result;
+        try {
+            results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+        }
+        catch (ProAPIException e) {
+            if (e.getCause() instanceof RemoteSolrException) {
+                logger.warn("Error in solr query:", e);
+            }
+            else {
+                throw e;
+            }
+        }
+        return results;
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
@@ -207,5 +234,4 @@ public class TypeaheadDao {
         solrQuery.setRows(rows);
         return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
     }
-
 }

@@ -156,6 +156,8 @@ public class TypeaheadTest extends AbstractTest {
 
     @Test
     public void testCustom() {
+        taTestExecuter.assertNonNullResponse("AND");
+        taTestExecuter.assertNonNullResponse("upto 50/- lacs in sahakar nagar");
         Map<String, List<TaTestCase>> mapTestCases = customTestCaseReader.getCustomTestCases(apiVersion);
         List<TaTestCase> testList;
         for (Entry<String, List<TaTestCase>> entry : mapTestCases.entrySet()) {
