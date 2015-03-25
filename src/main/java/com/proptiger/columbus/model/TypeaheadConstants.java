@@ -20,4 +20,7 @@ public class TypeaheadConstants {
     public static final String ExternalApiIdentifierGoogle = "gp";
 
     public static final String typeaheadFieldNameCity      = "TYPEAHEAD_CITY";
+
+    public static final String typeaheadTypeBuilder        = "BUILDER";
+
 }

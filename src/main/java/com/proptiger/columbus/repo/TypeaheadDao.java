@@ -1,8 +1,6 @@
 package com.proptiger.columbus.repo;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -154,9 +152,6 @@ public class TypeaheadDao {
             List<String> filterQueries,
             String usercity) {
 
-        /* Fetching more results due to city-context boosting */
-        rows = (int) (rows * TypeaheadConstants.DocumentFetchMultiplier);
-
         /* Fetch results for entered query first */
         SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
         List<Typeahead> resultsOriginal = new ArrayList<Typeahead>();
@@ -182,54 +177,10 @@ public class TypeaheadDao {
             resultsOriginal.addAll(resultsSuggested);
         }
 
-        /*
-         * Boost results where city is same as user's selected city if usercity
-         * is given
-         */
-        if (usercity != null && !usercity.isEmpty()) {
-            boostByCityContext(resultsOriginal, usercity);
-        }
-
-        /* Sort and remove duplicates */
-        Collections.sort(resultsOriginal, new TypeaheadComparatorScore());
-
-        List<List<Typeahead>> listOfresults = new ArrayList<List<Typeahead>>();
-        listOfresults.add(resultsOriginal);
-        List<Typeahead> results = UtilityClass.getMergedListRemoveDuplicates(
-                listOfresults,
-                new Comparator<Typeahead>() {
-                    @Override
-                    public int compare(Typeahead o1, Typeahead o2) {
-                        return o1.getId().compareTo(o2.getId());
-                    }
-                });
-
-        return results;
+        return resultsOriginal;
     }
+    
 
-    /* Boost results where city is same a user's selected city */
-    private void boostByCityContext(List<Typeahead> results, String city) {
-        for (Typeahead t : results) {
-            if (t.getCity().equalsIgnoreCase(city)) {
-                t.setScore(getCityBoostedScore(t.getScore()));
-            }
-        }
-    }
-
-    private float getCityBoostedScore(float oldScore) {
-        /* Don't boost irrelevant documents */
-        if (oldScore <= TypeaheadConstants.CityBoostMinScore) {
-            return oldScore;
-        }
-        return oldScore * TypeaheadConstants.CityBoost;
-    }
-
-    class TypeaheadComparatorScore implements Comparator<Typeahead> {
-        @Override
-        public int compare(Typeahead o1, Typeahead o2) {
-            return o2.getScore().compareTo(o1.getScore());
-        }
-    }
 
     // ******* Exact Typeaheads ********
 
