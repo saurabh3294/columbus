@@ -110,10 +110,10 @@ public class TypeaheadController extends BaseController {
         return new APIResponse(super.filterFields(list, null), list.size());
     }
 
-    private String getCityContext(String city, HttpServletRequest request) {
+    private String getCityContext(String usercity, HttpServletRequest request) {
         /* if city was explicitly set in URL use that */
-        if (city != null && !city.isEmpty()) {
-            return city;
+        if (usercity != null && !usercity.isEmpty()) {
+            return usercity;
         }
 
         /* fall back to city extraction form cookie */
@@ -125,11 +125,11 @@ public class TypeaheadController extends BaseController {
 
         for (Cookie c : cookies) {
             if (c.getName().equals(TypeaheadConstants.cityCookieLabel)) {
-                city = StringUtils.substringAfter(c.getValue(), TypeaheadConstants.cityCookieSeparater);
-                if (city == null || city.isEmpty()) {
+                usercity = StringUtils.substringAfter(c.getValue(), TypeaheadConstants.cityCookieSeparater);
+                if (usercity == null || usercity.isEmpty()) {
                     break;
                 }
-                return city.toLowerCase();
+                return usercity.toLowerCase();
             }
         }
 

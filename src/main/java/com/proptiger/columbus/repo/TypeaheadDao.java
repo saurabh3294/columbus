@@ -67,11 +67,11 @@ public class TypeaheadDao {
             return boostQuery;
         }
 
-        float boost = TypeaheadConstants.QueryTimeBoostStart;
+        float boost = TypeaheadConstants.queryTimeBoostStart;
         /* Boost all-but-last query strings as core-texts */
         for (int i = 0; i < count - 1; i++) {
             boostQuery += "Core_text:" + st.nextToken() + "^" + Math.max(1, boost) + " ";
-            boost *= TypeaheadConstants.QueryTimeBoostMultiplier;
+            boost *= TypeaheadConstants.queryTimeBoostMultiplier;
         }
 
         /* Boost last query string as an edgeNGram */
@@ -131,7 +131,7 @@ public class TypeaheadDao {
                 throw e;
             }
         }
-        return UtilityClass.getFirstNElementsOfList(results, rows);
+        return results;
     }
 
     private SolrQuery getSolrQueryV3(String query, int rows, List<String> filterQueries) {
@@ -207,8 +207,6 @@ public class TypeaheadDao {
         return resultsOriginal;
     }
     
-
-
     // ******* Exact Typeaheads ********
 
     public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {

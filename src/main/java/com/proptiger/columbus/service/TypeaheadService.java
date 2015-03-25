@@ -149,11 +149,19 @@ public class TypeaheadService {
 
         List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity);
 
+        /* Sort and remove duplicates */
+        results = sortAndRemoveDuplicates(results);
+
+        /* City Context based tweaking. */
+        boostByCityContext(results, usercity);
+
+        results = sortAndRemoveDuplicates(results);
+
         /*
          * Remove not-so-good results and replace them with google place
          * landmarks.
          */
-        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.ExternalApiIdentifierGoogle)) {
+        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.externalApiIdentifierGoogle)) {
             results = incorporateGooglePlaceResults(oldQuery, results, rows);
         }
 
@@ -204,26 +212,33 @@ public class TypeaheadService {
         List<String> filterQueryList = getFilterQueryListV4(filterQueries);
 
         /*
-         * Fetching more results due to city-context boosting 
-         * Fetched results (maybe unsorted and can contain duplicates.)
+         * Fetching more results due to city-context boosting Fetched results
+         * (maybe unsorted and can contain duplicates.)
          */
-        int newRows = (int) (rows * TypeaheadConstants.DocumentFetchMultiplier);
+        int newRows = (int) (Math.min(
+                rows * TypeaheadConstants.documentFetchMultiplier,
+                TypeaheadConstants.documentFetchLimit));
+
         List<Typeahead> results = typeaheadDao.getTypeaheadsV3(newQuery, newRows, filterQueryList, usercity);
 
         /* Sort and remove duplicates */
         results = sortAndRemoveDuplicates(results);
 
-        /* Builder-City based tweaking */
-        results = processSpecialRulesForBuilderResults(results, filterCity);
-
-        /* City Context based tweaking.*/
+        /* City Context based tweaking. */
         boostByCityContext(results, usercity);
+
+        results = sortAndRemoveDuplicates(results);
+
+        /* Builder-City based tweaking */
+        if (filterCity != null && !filterCity.isEmpty()) {
+            results = processSpecialRulesForBuilderResults(results, filterCity);
+        }
 
         /*
          * Remove not-so-good results and replace them with third party
          * enhancements
          */
-        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.ExternalApiIdentifierGoogle)) {
+        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.externalApiIdentifierGoogle)) {
             results = incorporateGooglePlaceResults(enhanceQuery, results, rows);
         }
 
@@ -318,20 +333,21 @@ public class TypeaheadService {
      * 
      */
     private void boostByCityContext(List<Typeahead> results, String usercity) {
-        if (usercity == null || usercity.isEmpty()){
+
+        if (usercity == null || usercity.isEmpty()) {
             return;
         }
-        
-        if(!cityNameToIdMap.containsKey(usercity)){
+
+        if (!cityNameToIdMap.containsKey(usercity)) {
             logger.error("Invalid usercity recieved : " + usercity);
             return;
         }
-        
+
         int cityId = cityNameToIdMap.get(usercity);
-        
+
         for (Typeahead t : results) {
             if (t.getType().equalsIgnoreCase(TypeaheadConstants.typeaheadTypeBuilder)) {
-                if(t.getBuilderCityIds().contains(cityId)){
+                if (t.getBuilderCityIds().contains(cityId)) {
                     t.setScore(getCityBoostedScore(t.getScore()));
                 }
             }
@@ -343,20 +359,22 @@ public class TypeaheadService {
 
     private float getCityBoostedScore(float oldScore) {
         /* Don't boost irrelevant documents */
-        if (oldScore <= TypeaheadConstants.CityBoostMinScore) {
+        if (oldScore <= TypeaheadConstants.cityBoostMinScore) {
             return oldScore;
         }
-        return oldScore * TypeaheadConstants.CityBoost;
+        return oldScore * TypeaheadConstants.cityBoost;
     }
-    
+
     /**
      * If city filter is applied then for builder type results these rules are
      * followed : 1. If city is buidler's HQ, then show builder as well as
      * builder-city result. 2. Otherwise show only builder-city result.
      * 
+     * 
      * @return new Typeahead list containing final results
      */
     private List<Typeahead> processSpecialRulesForBuilderResults(List<Typeahead> results, String filterCity) {
+
         List<Typeahead> newResults = new ArrayList<Typeahead>();
         Typeahead tnew;
         Map<String, String> builderCityMap;
@@ -364,18 +382,15 @@ public class TypeaheadService {
             if (t.getType().equalsIgnoreCase(TypeaheadConstants.typeaheadTypeBuilder)) {
                 builderCityMap = getBuilderCityMap(t.getBuilderCityInfo());
                 /*
-                 * if builder is operational in filterCity then inject a
-                 * buidler-city result.
+                 * if builder is operational in filterCity then add only
+                 * builder-city buidler-city result otherwise add only builder
+                 * document
                  */
                 if (builderCityMap.containsKey(filterCity)) {
                     tnew = makeBuilderCityDocument(t, builderCityMap.get(filterCity));
                     newResults.add(tnew);
                 }
-                /*
-                 * if filtercity is builder's HQ then include builder result as
-                 * well
-                 */
-                if (t.getCity().equalsIgnoreCase(filterCity)) {
+                else {
                     newResults.add(t);
                 }
             }
@@ -414,7 +429,7 @@ public class TypeaheadService {
      * @return Builder-City type typeahead object derived from the given
      *         typeahead object (taBuidler)
      */
-   private Typeahead makeBuilderCityDocument(Typeahead taBuilder, String builderCityInfo) {
+    private Typeahead makeBuilderCityDocument(Typeahead taBuilder, String builderCityInfo) {
         String[] tokens = builderCityInfo.split(":");
         String cityId = tokens[0];
         String cityName = tokens[1];
@@ -463,8 +478,8 @@ public class TypeaheadService {
      *            : original results that need to be enhanced.
      * @param totalRows
      *            : total elements needed in final-list
-     * @return A new list of typeaheads having sub-par elements of original results
-     *         replaced with google-place results
+     * @return A new list of typeaheads having sub-par elements of original
+     *         results replaced with google-place results
      */
     private List<Typeahead> incorporateGooglePlaceResults(String query, List<Typeahead> results, int totalRows) {
 
