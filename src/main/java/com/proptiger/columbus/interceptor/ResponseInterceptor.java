@@ -31,7 +31,7 @@ import com.proptiger.core.pojo.FIQLSelector;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.HttpRequestUtil;
-import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.RequestHolderUtil;
 
@@ -139,8 +139,8 @@ public class ResponseInterceptor {
         try {
             URI uri = URI.create(UriComponentsBuilder
                     .fromUriString(
-                            PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                    .getRequiredPropertyAsString(PropertyKeys.WHO_AM_I_URL)).build().encode()
+                            PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                    .getRequiredPropertyAsString(CorePropertyKeys.WHO_AM_I_URL)).build().encode()
                     .toString());
             HttpHeaders requestHeaders = new HttpHeaders();
             String jsessionId = RequestHolderUtil.getJsessionIdFromRequestCookie();
@@ -238,8 +238,8 @@ public class ResponseInterceptor {
         requestHeaders.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
         URI uri = URI.create(UriComponentsBuilder
                 .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                .getRequiredPropertyAsString(PropertyKeys.PERMISSION_API_URL) + "?userId=" + userId)
+                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                .getRequiredPropertyAsString(CorePropertyKeys.PERMISSION_API_URL) + "?userId=" + userId)
                 .build().encode().toString());
         List<Permission> permissions = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 uri,
@@ -270,8 +270,8 @@ public class ResponseInterceptor {
                         Math.min(size, i + maxLocalityIdCountForApiCall));
                 URI uri = URI.create(UriComponentsBuilder
                         .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                        .getRequiredPropertyAsString(PropertyKeys.LOCALITY_API_URL)
+                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
                                         + "?"
                                         + URLGenerationConstants.Selector
                                         + String.format(
@@ -307,8 +307,8 @@ public class ResponseInterceptor {
             List<String> requests = getUserAppSubscriptionRequests(partialPermissions);
             logger.debug("TIME AT STEP 14: {}", new Date().getTime());
             for (String req : requests) {
-                String stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                        .getRequiredPropertyAsString(PropertyKeys.PROJECT_LISTING_API_URL)
+                String stringUrl = PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                        .getRequiredPropertyAsString(CorePropertyKeys.PROJECT_LISTING_API_URL)
                         + "?"
                         + URLGenerationConstants.Selector
                         + req;

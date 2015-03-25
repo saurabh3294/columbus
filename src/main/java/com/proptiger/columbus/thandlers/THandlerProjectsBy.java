@@ -8,9 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.proptiger.columbus.util.PropertyKeys;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Builder;
-import com.proptiger.core.util.PropertyKeys;
+import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
 public class THandlerProjectsBy extends RootTHandler {
@@ -58,16 +59,19 @@ public class THandlerProjectsBy extends RootTHandler {
     }
 
     private List<Builder> getTopBuilders(String cityName) {
-        List<Builder> topBuilders = httpRequestUtil.getInternalApiResultAsTypeListFromCache(URI
-                .create(UriComponentsBuilder
-                        .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(PropertyKeys.PROPTIGER_URL) + PropertyReader
-                                        .getRequiredPropertyAsString(PropertyKeys.BUILDER_API_URL)
-                                        + "?"
-                                        + URLGenerationConstants.Selector
-                                        + String.format(
-                                                URLGenerationConstants.SelectorGetBuilderNamesByCityName,
-                                                cityName)).build().encode().toString()), Builder.class);
+        List<Builder> topBuilders = httpRequestUtil
+                .getInternalApiResultAsTypeListFromCache(
+                        URI.create(UriComponentsBuilder
+                                .fromUriString(
+                                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                                .getRequiredPropertyAsString(CorePropertyKeys.BUILDER_API_URL)
+                                                + "?"
+                                                + URLGenerationConstants.Selector
+                                                + String.format(
+                                                        URLGenerationConstants.SelectorGetBuilderNamesByCityName,
+                                                        cityName)).build().encode().toString()),
+                        PropertyReader.getRequiredPropertyAsInt(PropertyKeys.INTERNAL_API_SLA_MS),
+                        Builder.class);
         return topBuilders;
     }
 
