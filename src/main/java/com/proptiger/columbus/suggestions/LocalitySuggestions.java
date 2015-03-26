@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
@@ -15,20 +16,30 @@ public class LocalitySuggestions {
 
     private String     templateId          = "Typeahead-Suggestion-Locality";
 
-    private String[][] suggestionTemplates = {
+    private String[][] suggestionTemplatesPrimary = {
             { "Affordable apartments in %s", "affordable-flats-in-%s", "affordable-flats" },
-            { "Resale property in %s", "resale-property-in-%s", "resale-property" },
             { "Luxury projects in %s", "luxury-projects-in-%s", "luxury-projects" },
             { "Ready to move apartments in %s", "ready-to-move-flats-in-%s", "ready-to-move-flats" },
             { "Under construction property in %s", "under-construction-property-in-%s", "under-construction-property" } };
 
-    public List<Typeahead> getSuggestions(
-            int id,
-            String name,
-            String redirectUrl,
-            String cityName,
-            String localityName,
-            int count) {
+    private String[][] suggestionTemplatesResale = {
+            { "Resale property in %s", "resale-property-in-%s", "resale-property" } };
+
+    public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
+        
+        String name = topResult.getLabel();
+        String cityName = topResult.getCity();
+        String localityName = topResult.getLocality();
+
+        String[][] suggestionTemplates; 
+        Float localitySoldPerc = topResult.getLocalitySoldPercentage();
+        if(localitySoldPerc != null && localitySoldPerc.intValue() > TypeaheadConstants.localityResaleThreshold){
+            suggestionTemplates = suggestionTemplatesResale;
+        }
+        else{
+            suggestionTemplates = suggestionTemplatesPrimary;
+        }
+
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
         Typeahead obj;
         for (String[] template : suggestionTemplates) {
@@ -42,17 +53,12 @@ public class LocalitySuggestions {
             suggestions.add(obj);
         }
 
-        return filterByCustomRules(suggestions);
+        return filterByCustomRules(suggestions, topResult);
     }
 
-    private List<Typeahead> filterByCustomRules(List<Typeahead> suggestions) {
+    private List<Typeahead> filterByCustomRules(List<Typeahead> suggestions, Typeahead topResult) {
+        
         Collections.shuffle(suggestions);
-        String temp = (suggestions.get(0).getDisplayText() + " " + suggestions.get(1).getDisplayText());
-        if (StringUtils.containsIgnoreCase(temp, "Resale property") && StringUtils.containsIgnoreCase(
-                temp,
-                "Ready to move")) {
-            suggestions.remove(0);
-        }
         return UtilityClass.getFirstNElementsOfList(suggestions, 2);
     }
 

@@ -22,7 +22,12 @@ public class SuburbSuggestions {
             { "Ready to move apartments in %s", "ready-to-move-flats-in-%s", "ready-to-move-flats" },
             { "Under construction property in %s", "under-construction-property-in-%s", "under-construction-property" } };
 
-    public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, String cityName, int count) {
+    public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
+        
+        String name = topResult.getLabel();
+        String redirectUrl = topResult.getRedirectUrl();
+        String cityName = topResult.getCity();
+
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
         Typeahead obj;
         for (String[] template : suggestionTemplates) {
