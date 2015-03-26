@@ -155,7 +155,7 @@ public class TypeaheadService {
         /* City Context based tweaking. */
         boostByCityContext(results, usercity);
 
-        results = sortAndRemoveDuplicates(results);
+        Collections.sort(results, new TypeaheadComparatorScore());
 
         /*
          * Remove not-so-good results and replace them with google place
@@ -227,7 +227,7 @@ public class TypeaheadService {
         /* City Context based tweaking. */
         boostByCityContext(results, usercity);
 
-        results = sortAndRemoveDuplicates(results);
+        Collections.sort(results, new TypeaheadComparatorScore());
 
         /* Builder-City based tweaking */
         if (filterCity != null && !filterCity.isEmpty()) {
@@ -475,7 +475,7 @@ public class TypeaheadService {
      * @param query
      *            : search query tobe fired at gp-api
      * @param results
-     *            : original results that need to be enhanced.
+     *            : original results that need to be enhanced sorted by score.
      * @param totalRows
      *            : total elements needed in final-list
      * @return A new list of typeaheads having sub-par elements of original
@@ -507,7 +507,7 @@ public class TypeaheadService {
     /**
      * 
      * @param results
-     *            : results on which suggestion are required.
+     *            : results on which suggestion are required sorted by score.
      * @param query
      *            : search query to be fired for template-type-suggestions
      * @param templateCity
