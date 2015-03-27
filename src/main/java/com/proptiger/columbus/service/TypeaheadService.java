@@ -6,6 +6,8 @@ package com.proptiger.columbus.service;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,11 +149,19 @@ public class TypeaheadService {
 
         List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity);
 
+        /* Sort and remove duplicates */
+        results = sortAndRemoveDuplicates(results);
+
+        /* City Context based tweaking. */
+        boostByCityContext(results, usercity);
+
+        Collections.sort(results, new TypeaheadComparatorScore());
+
         /*
          * Remove not-so-good results and replace them with google place
          * landmarks.
          */
-        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.ExternalApiIdentifierGoogle)) {
+        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.externalApiIdentifierGoogle)) {
             results = incorporateGooglePlaceResults(oldQuery, results, rows);
         }
 
@@ -201,16 +211,34 @@ public class TypeaheadService {
 
         List<String> filterQueryList = getFilterQueryListV4(filterQueries);
 
-        /* Fetch results */
-        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(newQuery, rows, filterQueryList, usercity);
+        /*
+         * Fetching more results due to city-context boosting Fetched results
+         * (maybe unsorted and can contain duplicates.)
+         */
+        int newRows = (int) (Math.min(
+                rows * TypeaheadConstants.documentFetchMultiplier,
+                TypeaheadConstants.documentFetchLimit));
 
-        results = processSpecialRulesForBuilderResults(results, filterCity);
+        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(newQuery, newRows, filterQueryList, usercity);
+
+        /* Sort and remove duplicates */
+        results = sortAndRemoveDuplicates(results);
+
+        /* City Context based tweaking. */
+        boostByCityContext(results, usercity);
+
+        Collections.sort(results, new TypeaheadComparatorScore());
+
+        /* Builder-City based tweaking */
+        if (filterCity != null && !filterCity.isEmpty()) {
+            results = processSpecialRulesForBuilderResults(results, filterCity);
+        }
 
         /*
          * Remove not-so-good results and replace them with third party
          * enhancements
          */
-        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.ExternalApiIdentifierGoogle)) {
+        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.externalApiIdentifierGoogle)) {
             results = incorporateGooglePlaceResults(enhanceQuery, results, rows);
         }
 
@@ -273,8 +301,8 @@ public class TypeaheadService {
         URI uri = URI.create(UriComponentsBuilder
                 .fromUriString(
                         PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
-                                .getRequiredPropertyAsString(CorePropertyKeys.CITY_API_URL) + buildParams).build().encode()
-                .toString());
+                                .getRequiredPropertyAsString(CorePropertyKeys.CITY_API_URL) + buildParams).build()
+                .encode().toString());
         cityNameToIdMap = new HashMap<String, Integer>();
         List<City> cities = null;
         try {
@@ -293,26 +321,90 @@ public class TypeaheadService {
         }
     }
 
+    /**
+     * Boost result score where city is same as user's selected city. Performs
+     * in-place boosting in same list. Sort order may get disrupted as scores of
+     * only some objects are boosted.
+     * 
+     * @param results
+     *            : list of typeaheads in which some results will be boosted
+     * @param usercity
+     *            : cityname to boost typeaheads on.
+     * 
+     */
+    private void boostByCityContext(List<Typeahead> results, String usercity) {
+
+        if (usercity == null || usercity.isEmpty()) {
+            return;
+        }
+
+        if (!cityNameToIdMap.containsKey(usercity)) {
+            logger.error("Invalid usercity recieved : " + usercity);
+            return;
+        }
+
+        int cityId = cityNameToIdMap.get(usercity);
+
+        for (Typeahead t : results) {
+            if (t.getType().equalsIgnoreCase(TypeaheadConstants.typeaheadTypeBuilder)) {
+                if (t.getBuilderCityIds().contains(cityId)) {
+                    t.setScore(getCityBoostedScore(t.getScore()));
+                }
+            }
+            else if (t.getCity().equalsIgnoreCase(usercity)) {
+                t.setScore(getCityBoostedScore(t.getScore()));
+            }
+        }
+    }
+
+    private float getCityBoostedScore(float oldScore) {
+        /* Don't boost irrelevant documents */
+        if (oldScore <= TypeaheadConstants.cityBoostMinScore) {
+            return oldScore;
+        }
+        return oldScore * TypeaheadConstants.cityBoost;
+    }
+
+    /**
+     * If city filter is applied then for builder type results these rules are
+     * followed : 1. If city is buidler's HQ, then show builder as well as
+     * builder-city result. 2. Otherwise show only builder-city result.
+     * 
+     * 
+     * @return new Typeahead list containing final results
+     */
     private List<Typeahead> processSpecialRulesForBuilderResults(List<Typeahead> results, String filterCity) {
+
         List<Typeahead> newResults = new ArrayList<Typeahead>();
         Typeahead tnew;
         Map<String, String> builderCityMap;
         for (Typeahead t : results) {
-            if (t.getType().equalsIgnoreCase("BUILDER")) {
+            if (t.getType().equalsIgnoreCase(TypeaheadConstants.typeaheadTypeBuilder)) {
                 builderCityMap = getBuilderCityMap(t.getBuilderCityInfo());
+                /*
+                 * if builder is operational in filterCity then add only
+                 * builder-city buidler-city result otherwise add only builder
+                 * document
+                 */
                 if (builderCityMap.containsKey(filterCity)) {
                     tnew = makeBuilderCityDocument(t, builderCityMap.get(filterCity));
                     newResults.add(tnew);
                 }
+                else {
+                    newResults.add(t);
+                }
             }
-            newResults.add(t);
+            else {
+                newResults.add(t);
+            }
         }
         return newResults;
     }
 
     /**
      * @param builderCityInfoList
-     * @return returns a map of <cityName, builder_city_info>
+     *            : (SolrField)
+     * @return returns a map of [cityName, builderCityInfo]
      */
     private Map<String, String> getBuilderCityMap(List<String> builderCityInfoList) {
         Map<String, String> builderCityMap = new HashMap<String, String>();
@@ -328,6 +420,15 @@ public class TypeaheadService {
         return builderCityMap;
     }
 
+    /**
+     * @param taBuilder
+     *            : typehead object for builder result
+     * @param builderCityInfo
+     *            : (SolrField) dlim separated string
+     *            {cityId:cityName:builderCityUrl}
+     * @return Builder-City type typeahead object derived from the given
+     *         typeahead object (taBuidler)
+     */
     private Typeahead makeBuilderCityDocument(Typeahead taBuilder, String builderCityInfo) {
         String[] tokens = builderCityInfo.split(":");
         String cityId = tokens[0];
@@ -344,6 +445,11 @@ public class TypeaheadService {
         return taBuilderCity;
     }
 
+    /**
+     * @param domainObjectId
+     *            : domain-object-id for (suburb, locality, builder or project)
+     * @return The corresponding unique typeahead-object.
+     */
     private List<Typeahead> getResultsByTypeaheadID(long domainObjectId) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         DomainObject dObj = DomainObject.getDomainInstance(domainObjectId);
@@ -366,12 +472,14 @@ public class TypeaheadService {
     }
 
     /**
-     * @param queryd
+     * @param query
+     *            : search query tobe fired at gp-api
      * @param results
+     *            : original results that need to be enhanced sorted by score.
      * @param totalRows
-     *            total elements needed in final-list
-     * @return A new List<Typeahead> having sub-par elements of results replaced
-     *         with google-place results
+     *            : total elements needed in final-list
+     * @return A new list of typeaheads having sub-par elements of original
+     *         results replaced with google-place results
      */
     private List<Typeahead> incorporateGooglePlaceResults(String query, List<Typeahead> results, int totalRows) {
 
@@ -396,6 +504,18 @@ public class TypeaheadService {
         return finalResults;
     }
 
+    /**
+     * 
+     * @param results
+     *            : results on which suggestion are required sorted by score.
+     * @param query
+     *            : search query to be fired for template-type-suggestions
+     * @param templateCity
+     *            : city to be used for template generation
+     * @param rows
+     *            : limit to number of total suggestions
+     * @return A new typeahead List containing suggestions.
+     */
     private List<Typeahead> getSuggestionsAndTemplates(
             List<Typeahead> results,
             String query,
@@ -425,6 +545,40 @@ public class TypeaheadService {
         consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(results, rows));
         consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(suggestions, rows));
         return (consolidatedResults);
+    }
+
+    /**
+     * @param resultsOriginal
+     *            : typeahead results
+     * @return The same list sorted by score and duplicates removed.
+     */
+    private List<Typeahead> sortAndRemoveDuplicates(List<Typeahead> resultsOriginal) {
+        Collections.sort(resultsOriginal, new TypeaheadComparatorScore());
+
+        List<List<Typeahead>> listOfresults = new ArrayList<List<Typeahead>>();
+        listOfresults.add(resultsOriginal);
+        List<Typeahead> resultsFinal = UtilityClass.getMergedListRemoveDuplicates(
+                listOfresults,
+                new TypeaheadComparatorId());
+
+        return resultsFinal;
+
+    }
+
+    /** Inner classes : Comparators for Typeahead objects **/
+
+    class TypeaheadComparatorScore implements Comparator<Typeahead> {
+        @Override
+        public int compare(Typeahead o1, Typeahead o2) {
+            return o2.getScore().compareTo(o1.getScore());
+        }
+    }
+
+    class TypeaheadComparatorId implements Comparator<Typeahead> {
+        @Override
+        public int compare(Typeahead o1, Typeahead o2) {
+            return o1.getId().compareTo(o2.getId());
+        }
     }
 
 }

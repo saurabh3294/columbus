@@ -46,7 +46,7 @@ public class EntitySuggestionHandler {
         Typeahead topResult = results.get(0);
 
         /* No suggestions for Google Place results or if top-result is not relevant enough */
-        if (topResult.isGooglePlace() || topResult.getScore() < TypeaheadConstants.SuggestionScoreThreshold) {
+        if (topResult.isGooglePlace() || topResult.getScore() < TypeaheadConstants.suggestionScoreThreshold) {
             return suggestions;
         }
 
