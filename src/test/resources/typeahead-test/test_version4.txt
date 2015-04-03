@@ -5,7 +5,22 @@
 metro,Builder,1,1,TYPEAHEAD-BUILDERCITY-104037-20,city:noida
 dlf,Builder,1,1,TYPEAHEAD-BUILDERCITY-100002-11,city:gurgaon
 dlf,Builder,1,1,TYPEAHEAD-BUILDERCITY-100002-11,city:GuRgaOn
+dlf,Negative,1,5,TYPEAHEAD-BUILDER-100002,city:DeLhI
+dlf,Negative,1,5,TYPEAHEAD-BUILDER-100002,city:GuRgaOn
+dlf,Negative,1,5,TYPEAHEAD-BUILDER-100002,city:pune
+dlf,Negative,1,5,TYPEAHEAD-BUILDERCITY-100002-11,city:pune
 
 #====== Google Places with city filter ======#
 
 gip,Landmark,1,1,TYPEAHEAD-GP-ChIJAQAA8UjkDDkRmdprFuRlLbo,enhance:gp|city:noida
+
+#======== City context for builder-city Documents  ============#
+
+#usercity=HQ, filtercity = HQ, 
+supertech,Builder,1,1,TYPEAHEAD-BUILDERCITY-100039-20,enhance:gp|usercity:noida|city:noida
+
+#usercity=HQ, filtercity = Non-HQ, 
+supertech,Builder,1,1,TYPEAHEAD-BUILDERCITY-100039-11,enhance:gp|usercity:noida|city:gurgaon
+
+#usercity=Non-HQ, filtercity = Non-HQ, 
+supertech,Builder,1,1,TYPEAHEAD-BUILDERCITY-100039-11,enhance:gp|usercity:pune|city:gurgaon

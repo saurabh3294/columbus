@@ -10,3 +10,8 @@ chennai,Negative,2,5,TYPEAHEAD-CITY-5
 
 dlf,Project,2,5,TYPEAHEAD-PROJECT-501454,usercity:gurgaon
 mansion,Project,1,2,TYPEAHEAD-PROJECT-654663,usercity:kolkata
+
+#======== City context for builder Documents  ============#
+
+#builder document should be boosted even if usercity is not HQ 
+supertech,Builder,1,1,TYPEAHEAD-BUILDER-100039,enhance:gp|usercity:gurgaon
