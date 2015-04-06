@@ -28,7 +28,9 @@ public class ProjectSuggestions {
 
     private String          templateId = "Typeahead-Suggestion-Project";
 
-    public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, int count) {
+    public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
+
+        String name = topResult.getLabel();
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 

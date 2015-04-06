@@ -45,10 +45,16 @@ public class EntitySuggestionHandler {
 
         Typeahead topResult = results.get(0);
 
-        /* No suggestions for Google Place results or if top-result is not relevant enough */
+        /*
+         * No suggestions for Google Place results or if top-result is not
+         * relevant enough
+         */
         if (topResult.isGooglePlace() || topResult.getScore() < TypeaheadConstants.suggestionScoreThreshold) {
             return suggestions;
         }
+
+        /* Restrict suggestion count */
+        count = Math.min(count, TypeaheadConstants.maxSuggestionCount);
 
         /*
          * Should be of the form TYPEAHEAD-<entity>-<entity-id> if an entity is
@@ -71,33 +77,21 @@ public class EntitySuggestionHandler {
             return suggestions;
         }
 
-        String redirectUrl = topResult.getRedirectUrl();
-        String label = topResult.getLabel();
-
         switch (idTokens[1]) {
             case "PROJECT":
-                suggestions = projectSuggestions.getSuggestions(entityId, label, redirectUrl, count);
+                suggestions = projectSuggestions.getSuggestions(entityId, topResult, count);
                 break;
             case "CITY":
-                suggestions = citySuggestions.getSuggestions(entityId, label, redirectUrl, count);
+                suggestions = citySuggestions.getSuggestions(entityId, topResult, count);
                 break;
             case "BUILDER":
-                suggestions = builderSuggestions.getSuggestions(entityId, label, redirectUrl, count);
+                suggestions = builderSuggestions.getSuggestions(entityId, topResult, count);
                 break;
             case "SUBURB":
-                suggestions = suburbSuggestions
-                        .getSuggestions(entityId, label, redirectUrl, topResult.getCity(), count);
+                suggestions = suburbSuggestions.getSuggestions(entityId, topResult, count);
                 break;
             case "LOCALITY":
-                String cityName = topResult.getCity();
-                String localityName = topResult.getLocality();
-                suggestions = localitySuggestions.getSuggestions(
-                        entityId,
-                        label,
-                        redirectUrl,
-                        cityName,
-                        localityName,
-                        count);
+                suggestions = localitySuggestions.getSuggestions(entityId, topResult, count);
                 break;
             case "LANDMARK":
                 // suggestions = landmarkSuggestions.getSuggestions(entityId,

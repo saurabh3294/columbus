@@ -29,7 +29,11 @@ public class BuilderSuggestions {
             { "Completed properties by %s", "completed-property-by-%s", "completed-property" },
             { "Ongoing projects by %s", "ongoing-project-by-%s", "ongoing-project" } };
 
-    public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, int count) {
+    public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
+        
+        String name = topResult.getLabel();
+        String redirectUrl = topResult.getRedirectUrl();
+        
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
         Typeahead obj;
         for (String[] template : suggestionTemplates) {
