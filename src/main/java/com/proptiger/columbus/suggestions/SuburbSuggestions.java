@@ -52,28 +52,28 @@ public class SuburbSuggestions {
 
     private List<SuggestionType> getRelevantSuggestionTypes(Typeahead topResult, int count) {
         List<SuggestionType> suggestionList = new ArrayList<SuggestionType>();
-        
+
         int projectCountNewLaunch = UtilityClass.safeUnbox(topResult.getEntityProjectCountNewLaunch(), 0);
         projectCountNewLaunch *= (TypeaheadConstants.suggestionNewLaunchMultiplier);
-        
+
         int projectCountUnderConst = UtilityClass.safeUnbox(topResult.getEntityProjectCountUnderConstruction(), 0);
         int projectCountAffordable = UtilityClass.safeUnbox(topResult.getEntityProjectCountAffordable(), 0);
         int projectCountLuxury = UtilityClass.safeUnbox(topResult.getEntityProjectCountLuxury(), 0);
         int projectCountCompleted = UtilityClass.safeUnbox(topResult.getEntityProjectCountCompleted(), 0);
-        
+
         Map<Integer, SuggestionType> map = new TreeMap<Integer, SuggestionType>(Collections.reverseOrder());
         map.put(projectCountNewLaunch, SuggestionType.NewLaunch);
         map.put(projectCountUnderConst, SuggestionType.UnderConstruction);
         map.put(projectCountAffordable, SuggestionType.Affordable);
         map.put(projectCountLuxury, SuggestionType.Luxury);
         map.put(projectCountCompleted, SuggestionType.Resale);
-        
-        for(Entry<Integer, SuggestionType> entry : map.entrySet()){
-            if(entry.getKey() > TypeaheadConstants.suggestionProjectCountTheshold){
+
+        for (Entry<Integer, SuggestionType> entry : map.entrySet()) {
+            if (entry.getKey() > TypeaheadConstants.suggestionProjectCountTheshold) {
                 suggestionList.add(entry.getValue());
             }
         }
-        
+
         return UtilityClass.getFirstNElementsOfList(suggestionList, count);
     }
 
@@ -87,11 +87,12 @@ public class SuburbSuggestions {
         typeahead.setId(templateId + "-" + st.typeaheadIdFormat);
         typeahead.setType(typeahead.getId());
         typeahead.setDisplayText(String.format(st.displayTextFormat, resultlabel));
-        typeahead.setRedirectUrl(String.format(st.redirectUrlFormat, cityName, makeSuburbRedirectUrl(redirectUrl)).toLowerCase());
+        typeahead.setRedirectUrl(String.format(st.redirectUrlFormat, cityName, makeSuburbRedirectUrl(redirectUrl))
+                .toLowerCase());
         typeahead.setSuggestion(true);
         return typeahead;
     }
-    
+
     /*
      * Hardcoded URL generation here. extracting form format ::
      * noida/property-sale-noida-expressway-10049
@@ -100,5 +101,5 @@ public class SuburbSuggestions {
     private String makeSuburbRedirectUrl(String redirectUrl) {
         return (StringUtils.split(redirectUrl, '/')[1].substring("property-sale-".length()));
     }
-    
+
 }

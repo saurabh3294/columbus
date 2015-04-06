@@ -36,7 +36,7 @@ public class EntitySuggestionHandler {
     private LandmarkSuggestions landmarkSuggestions;
 
     public List<Typeahead> getEntityBasedSuggestions(List<Typeahead> results, int count) {
-        
+
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
         if (results == null || results.isEmpty()) {
@@ -45,11 +45,14 @@ public class EntitySuggestionHandler {
 
         Typeahead topResult = results.get(0);
 
-        /* No suggestions for Google Place results or if top-result is not relevant enough */
+        /*
+         * No suggestions for Google Place results or if top-result is not
+         * relevant enough
+         */
         if (topResult.isGooglePlace() || topResult.getScore() < TypeaheadConstants.suggestionScoreThreshold) {
             return suggestions;
         }
-        
+
         /* Restrict suggestion count */
         count = Math.min(count, TypeaheadConstants.maxSuggestionCount);
 
