@@ -31,7 +31,7 @@ public class LocalitySuggestions {
 
         SuggestionType(String displayTextFormat, String redirectUrlFormat, String typeaheadIdFormat) {
             this.displayTextFormat = displayTextFormat;
-            this.redirectUrlFormat = displayTextFormat;
+            this.redirectUrlFormat = redirectUrlFormat;
             this.typeaheadIdFormat = typeaheadIdFormat;
         }
     }
@@ -58,14 +58,14 @@ public class LocalitySuggestions {
         int projectCountUnderConst = UtilityClass.safeUnbox(topResult.getEntityProjectCountUnderConstruction(), 0);
         int projectCountAffordable = UtilityClass.safeUnbox(topResult.getEntityProjectCountAffordable(), 0);
         int projectCountLuxury = UtilityClass.safeUnbox(topResult.getEntityProjectCountLuxury(), 0);
-        int projectCountCompleted = UtilityClass.safeUnbox(topResult.getEntityProjectCountCompleted(), 0);
+        int projectCountResale = UtilityClass.safeUnbox(topResult.getEntityProjectCountResale(), 0);
 
         Map<Integer, SuggestionType> map = new TreeMap<Integer, SuggestionType>(Collections.reverseOrder());
         map.put(projectCountNewLaunch, SuggestionType.NewLaunch);
         map.put(projectCountUnderConst, SuggestionType.UnderConstruction);
         map.put(projectCountAffordable, SuggestionType.Affordable);
         map.put(projectCountLuxury, SuggestionType.Luxury);
-        map.put(projectCountCompleted, SuggestionType.Resale);
+        map.put(projectCountResale, SuggestionType.Resale);
 
         for (Entry<Integer, SuggestionType> entry : map.entrySet()) {
             if (entry.getKey() > TypeaheadConstants.suggestionProjectCountTheshold) {
