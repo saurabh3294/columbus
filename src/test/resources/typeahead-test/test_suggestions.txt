@@ -1,10 +1,10 @@
 yamuna expressway,Suggestion,1,7,Typeahead-Suggestion-Suburb-under-construction-property
-yamuna expressway,Suggestion,1,7,Typeahead-Suggestion-Suburb-affordable-property
+yamuna expressway,Suggestion,1,7,Typeahead-Suggestion-Suburb-affordable-flats
 noida expressway,Suggestion,1,7,Typeahead-Suggestion-Suburb-resale-property
 noida expressway,Suggestion,1,7,Typeahead-Suggestion-Suburb-under-construction-property
 electronics city,Suggestion,1,7,Typeahead-Suggestion-Locality-resale-property,city:bangalore
-electronics city,Suggestion,1,7,Typeahead-Suggestion-Locality-affordable,city:bangalore
+electronics city,Suggestion,1,7,Typeahead-Suggestion-Locality-affordable-flats,city:bangalore
 whitefield,Suggestion,1,7,Typeahead-Suggestion-Suburb-resale-property,city:bangalore
 whitefield,Suggestion,1,7,Typeahead-Suggestion-Suburb-resale-property,city:bangalore
-sector 83 gurgaon,Suggestion,1,7,Typeahead-Suggestion-Locality-luxury-property,city:gurgaon
-bandra east,Suggestion,1,7,Typeahead-Suggestion-Locality-luxury-property,city:mumbai
+sector 83 gurgaon,Suggestion,1,7,Typeahead-Suggestion-Locality-luxury-projects,city:gurgaon
+bandra east,Suggestion,1,7,Typeahead-Suggestion-Locality-luxury-projects,city:mumbai
