@@ -26,6 +26,10 @@ import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.service.ApiVersionService;
+import com.proptiger.core.service.ApiVersionService.ApiVersion;
+import com.proptiger.core.service.ConfigService.ConfigGroupName;
+import com.proptiger.core.util.RequestHolderUtil;
 import com.proptiger.core.util.UtilityClass;
 
 /**
@@ -39,7 +43,10 @@ import com.proptiger.core.util.UtilityClass;
 public class TypeaheadController extends BaseController {
 
     @Autowired
-    private TypeaheadService typeaheadService;
+    private TypeaheadService  typeaheadService;
+
+    @Autowired
+    private ApiVersionService apiVersionService;
 
     @Intercepted.TypeaheadListing
     @RequestMapping(value = "app/v1/typeahead")
@@ -101,13 +108,15 @@ public class TypeaheadController extends BaseController {
             required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
             required = false) String usercity, @RequestParam(required = false) String enhance) {
 
-        city = (city==null ? null : city.toLowerCase());
+        ApiVersion version = getApiVersion();
+
+        city = (city == null ? null : city.toLowerCase());
         usercity = (usercity == null ? null : usercity.toLowerCase());
         Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
         usercity = getCityContext(usercity, request);
         List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance);
 
-        return new APIResponse(super.filterFields(list, null), list.size());
+        return new APIResponse(super.filterFields(list, null), (long) (list.size()), version);
     }
 
     private String getCityContext(String usercity, HttpServletRequest request) {
@@ -180,4 +189,12 @@ public class TypeaheadController extends BaseController {
         }
         return filterQueries;
     }
+
+    private ApiVersion getApiVersion() {
+        ApiVersion version = apiVersionService.getVersion(
+                ConfigGroupName.Search,
+                RequestHolderUtil.getMixpanelDistinctIdFromRequestCookie());
+        return version;
+    }
+
 }
