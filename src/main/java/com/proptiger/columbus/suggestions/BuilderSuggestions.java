@@ -21,9 +21,9 @@ public class BuilderSuggestions {
 
     private enum SuggestionType {
 
-        Upcoming("Upcoming projects by %s", "%s/upcoming-project-by-%s", "upcoming-project"), Completed(
-                "Completed properties by %s", "%s/completed-property-by-%s", "completed-property"), Ongoing(
-                "Ongoing projects by %s", "%s/ongoing-project-by-%s", "ongoing-project");
+        Upcoming("Upcoming projects by %s", "upcoming-project-by-%s-%s", "upcoming-project"), Completed(
+                "Completed properties by %s", "completed-property-by-%s-%s", "completed-property"), UnderConstruction(
+                "Under Construction projects by %s", "under-construction-property-by-%s-%s", "under-construction-property");
 
         String displayTextFormat, redirectUrlFormat, typeaheadIdFormat;
 
@@ -51,12 +51,12 @@ public class BuilderSuggestions {
         List<SuggestionType> suggestionList = new ArrayList<SuggestionType>();
 
         int projectCountUpcoming = UtilityClass.safeUnbox(topResult.getEntityProjectCountNewLaunch(), 0);
-        int projectCountOngoing = UtilityClass.safeUnbox(topResult.getEntityProjectCountUnderConstruction(), 0);
+        int projectCountUnderConst = UtilityClass.safeUnbox(topResult.getEntityProjectCountUnderConstruction(), 0);
         int projectCountUpCompleted = UtilityClass.safeUnbox(topResult.getEntityProjectCountCompleted(), 0);
 
         Map<Integer, SuggestionType> map = new TreeMap<Integer, SuggestionType>(Collections.reverseOrder());
         map.put(projectCountUpcoming, SuggestionType.Upcoming);
-        map.put(projectCountOngoing, SuggestionType.Ongoing);
+        map.put(projectCountUnderConst, SuggestionType.UnderConstruction);
         map.put(projectCountUpCompleted, SuggestionType.Completed);
 
         for (Entry<Integer, SuggestionType> entry : map.entrySet()) {
@@ -72,14 +72,12 @@ public class BuilderSuggestions {
 
         String builderName = topResult.getLabel();
         String builderIdString = TypeaheadUtils.parseEntityIdAsString(topResult);
-        String cityName = topResult.getCity();
 
         Typeahead typeahead = new Typeahead();
         typeahead = new Typeahead();
         typeahead.setId(templateId + "-" + st.typeaheadIdFormat);
         typeahead.setDisplayText(String.format(st.displayTextFormat, builderName));
-        typeahead.setRedirectUrl(String.format(st.redirectUrlFormat, cityName, builderName, builderIdString)
-                .toLowerCase());
+        typeahead.setRedirectUrl(String.format(st.redirectUrlFormat, builderName, builderIdString).toLowerCase());
         typeahead.setSuggestion(true);
         return typeahead;
     }

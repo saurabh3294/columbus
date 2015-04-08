@@ -53,9 +53,6 @@ public class EntitySuggestionHandler {
             return suggestions;
         }
 
-        /* Restrict suggestion count */
-        count = Math.min(count, TypeaheadConstants.maxSuggestionCount);
-
         /*
          * Should be of the form TYPEAHEAD-<entity>-<entity-id> if an entity is
          * hit.

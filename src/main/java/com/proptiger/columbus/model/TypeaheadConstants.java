@@ -26,7 +26,7 @@ public class TypeaheadConstants {
 
     /** Used while creating suggestions **/
 
-    public static final int    maxSuggestionCount             = 2;
+    public static final int    maxSuggestionCount             = 3;
     public static final int    suggestionNewLaunchMultiplier  = 3;
     public static final int    suggestionProjectCountTheshold = 0;
 
