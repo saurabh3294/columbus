@@ -1,71 +1,86 @@
 package com.proptiger.columbus.suggestions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.springframework.stereotype.Component;
 
+import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.util.TypeaheadUtils;
 import com.proptiger.core.model.Typeahead;
+import com.proptiger.core.util.UtilityClass;
 
 @Component
 public class BuilderSuggestions {
 
-    private String templateId          = "Typeahead-Suggestion-Builder";
+    private String templateId = "Typeahead-Suggestion-Builder";
 
-    /* Assumptions */
-    /* 1. projects-by-builder URL has the following format : /dlf-100002 */
-    /*
-     * 2. projects-by-builder-in-city URL has the following format :
-     * /gurgaon/dlf-100002
-     */
+    private enum SuggestionType {
 
-    /* TODO :: Discuss picking these from DB table seo-footer directly. */
-    String[][]     suggestionTemplates = {
-                                       // { "New launches by %s",
-                                       // "new-launch-project-by-%s",
-                                       // "new-launch-project" },
-            { "Upcoming projects by %s", "upcoming-project-by-%s", "upcoming-project" },
-            // { "New projects by %s", "new-project-by-%s", "new-project" },
-            { "Completed properties by %s", "completed-property-by-%s", "completed-property" },
-            { "Ongoing projects by %s", "ongoing-project-by-%s", "ongoing-project" } };
+        Upcoming("Upcoming projects by %s", "%s/upcoming-project-by-%s", "upcoming-project"), Completed(
+                "Completed properties by %s", "%s/completed-property-by-%s", "completed-property"), Ongoing(
+                "Ongoing projects by %s", "%s/ongoing-project-by-%s", "ongoing-project");
+
+        String displayTextFormat, redirectUrlFormat, typeaheadIdFormat;
+
+        SuggestionType(String displayTextFormat, String redirectUrlFormat, String typeaheadIdFormat) {
+            this.displayTextFormat = displayTextFormat;
+            this.redirectUrlFormat = redirectUrlFormat;
+            this.typeaheadIdFormat = typeaheadIdFormat;
+        }
+    }
 
     public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
-        
-        String name = topResult.getLabel();
-        String redirectUrl = topResult.getRedirectUrl();
-        
+
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
-        Typeahead obj;
-        for (String[] template : suggestionTemplates) {
-            obj = new Typeahead();
-            obj.setDisplayText(String.format(template[0], name));
-            obj.setRedirectUrl(String.format(template[1], redirectUrl));
-            obj.setId(templateId + "-" + template[2]);
-            obj.setType(obj.getId());
-            obj.setSuggestion(true);
-            suggestions.add(obj);
+
+        List<SuggestionType> suggestionTypeList = getRelevantSuggestionTypes(topResult, count);
+
+        for (SuggestionType st : suggestionTypeList) {
+            suggestions.add(makeTypeaheadObjectForSuggestionType(st, id, topResult));
         }
+
         return suggestions;
     }
 
-    public List<Typeahead> getSuggestionsByCity(
-            int id,
-            String name,
-            String redirectUrl,
-            String cityName,
-            String cityUrlPrefix,
-            int count) {
-        List<Typeahead> suggestions = new ArrayList<Typeahead>();
-        Typeahead obj;
-        for (String[] template : suggestionTemplates) {
-            obj = new Typeahead();
-            obj.setDisplayText(String.format(template[0], name) + " in" + cityName);
-            obj.setRedirectUrl(cityName.toLowerCase() + "/" + String.format(template[1], redirectUrl));
-            obj.setId(templateId);
-            obj.setSuggestion(true);
-            suggestions.add(obj);
+    private List<SuggestionType> getRelevantSuggestionTypes(Typeahead topResult, int count) {
+        List<SuggestionType> suggestionList = new ArrayList<SuggestionType>();
+
+        int projectCountUpcoming = UtilityClass.safeUnbox(topResult.getEntityProjectCountNewLaunch(), 0);
+        int projectCountOngoing = UtilityClass.safeUnbox(topResult.getEntityProjectCountUnderConstruction(), 0);
+        int projectCountUpCompleted = UtilityClass.safeUnbox(topResult.getEntityProjectCountCompleted(), 0);
+
+        Map<Integer, SuggestionType> map = new TreeMap<Integer, SuggestionType>(Collections.reverseOrder());
+        map.put(projectCountUpcoming, SuggestionType.Upcoming);
+        map.put(projectCountOngoing, SuggestionType.Ongoing);
+        map.put(projectCountUpCompleted, SuggestionType.Completed);
+
+        for (Entry<Integer, SuggestionType> entry : map.entrySet()) {
+            if (entry.getKey() > TypeaheadConstants.suggestionProjectCountTheshold) {
+                suggestionList.add(entry.getValue());
+            }
         }
-        return suggestions;
+
+        return UtilityClass.getFirstNElementsOfList(suggestionList, count);
     }
 
+    private Typeahead makeTypeaheadObjectForSuggestionType(SuggestionType st, int localityId, Typeahead topResult) {
+
+        String builderName = topResult.getLabel();
+        String builderIdString = TypeaheadUtils.parseEntityIdAsString(topResult);
+        String cityName = topResult.getCity();
+
+        Typeahead typeahead = new Typeahead();
+        typeahead = new Typeahead();
+        typeahead.setId(templateId + "-" + st.typeaheadIdFormat);
+        typeahead.setDisplayText(String.format(st.displayTextFormat, builderName));
+        typeahead.setRedirectUrl(String.format(st.redirectUrlFormat, cityName, builderName, builderIdString)
+                .toLowerCase());
+        typeahead.setSuggestion(true);
+        return typeahead;
+    }
 }
