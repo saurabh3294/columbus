@@ -523,6 +523,9 @@ public class TypeaheadService {
             int rows) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
+        
+        /* Restrict suggestion count */
+        rows = Math.min(rows, TypeaheadConstants.maxSuggestionCount);
 
         try {
             suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
