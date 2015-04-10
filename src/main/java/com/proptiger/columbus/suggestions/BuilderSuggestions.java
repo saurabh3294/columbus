@@ -76,6 +76,7 @@ public class BuilderSuggestions {
         Typeahead typeahead = new Typeahead();
         typeahead = new Typeahead();
         typeahead.setId(templateId + "-" + st.typeaheadIdFormat);
+        typeahead.setType(typeahead.getId());
         typeahead.setDisplayText(String.format(st.displayTextFormat, builderName));
         typeahead.setRedirectUrl(String.format(st.redirectUrlFormat, builderName, builderIdString).toLowerCase());
         typeahead.setSuggestion(true);
