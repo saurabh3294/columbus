@@ -22,7 +22,10 @@ public class CitySuggestions {
             { "Ready to move apartments in %s", "ready-to-move-flats", "ready-to-move-flats" },
             { "Under construction property in %s", "under-construction-property", "under-construction-property" } };
 
-    public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, int count) {
+    public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
+        
+        String name = topResult.getLabel();
+        
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
         Typeahead obj;
         for (String[] template : suggestionTemplates) {
