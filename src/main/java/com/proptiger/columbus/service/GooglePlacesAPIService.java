@@ -76,7 +76,7 @@ public class GooglePlacesAPIService {
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS_GOOGLE, unless = "#result.isEmpty()")
-    public List<Typeahead> getPlacePredictions(String query, int rows) {
+    public List<Typeahead> getPlacePredictions(String query, int rows, double[] geoCenter, int radius) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
 
@@ -86,7 +86,7 @@ public class GooglePlacesAPIService {
         }
 
         long timeStart = System.currentTimeMillis();
-        List<GooglePlace> googlePlaceList = googlePlacesAPIDao.getMatchingPlaces(query, rows, true);
+        List<GooglePlace> googlePlaceList = googlePlacesAPIDao.getMatchingPlaces(query, rows, geoCenter, radius, true);
         long timeTaken = System.currentTimeMillis() - timeStart;
         logger.info("Google Place Predictions API call (" + query + ") : Time Taken = " + timeTaken + " ms");
 
@@ -124,14 +124,14 @@ public class GooglePlacesAPIService {
         typeahead.setType(TypeaheadTypeGooglePlace);
         typeahead.setGooglePlaceId(googlePlace.getPlaceId());
         typeahead.setLabel(googlePlace.getPlaceName());
-        typeahead.setDisplayText(getDisplayTextFrpmGooglePlaceName(googlePlace));
+        typeahead.setDisplayText(getDisplayTextFromGooglePlaceName(googlePlace));
         typeahead.setLatitude(googlePlace.getLatitude());
         typeahead.setLongitude(googlePlace.getLongitude());
         typeahead.setGooglePlace(true);
         return typeahead;
     }
 
-    private String getDisplayTextFrpmGooglePlaceName(GooglePlace googlePlace) {
+    private String getDisplayTextFromGooglePlaceName(GooglePlace googlePlace) {
         String[] placeNameParts = googlePlace.getDescription().split(googlePlaceNameSeparator);
 
         int size = placeNameParts.length;

@@ -9,21 +9,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.core.meta.DisableCaching;
-import com.proptiger.core.model.Typeahead;
-import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.core.annotations.Intercepted;
+import com.proptiger.core.meta.DisableCaching;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.service.ApiVersionService;
@@ -123,23 +120,6 @@ public class TypeaheadController extends BaseController {
         /* if city was explicitly set in URL use that */
         if (usercity != null && !usercity.isEmpty()) {
             return usercity;
-        }
-
-        /* fall back to city extraction form cookie */
-        HttpServletRequest httpRequest = ((HttpServletRequest) request);
-        Cookie[] cookies = httpRequest.getCookies();
-        if (cookies == null) {
-            return null;
-        }
-
-        for (Cookie c : cookies) {
-            if (c.getName().equals(TypeaheadConstants.cityCookieLabel)) {
-                usercity = StringUtils.substringAfter(c.getValue(), TypeaheadConstants.cityCookieSeparater);
-                if (usercity == null || usercity.isEmpty()) {
-                    break;
-                }
-                return usercity.toLowerCase();
-            }
         }
 
         /*

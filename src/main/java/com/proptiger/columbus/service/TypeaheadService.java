@@ -61,7 +61,7 @@ public class TypeaheadService {
     @Autowired
     private HttpRequestUtil         httpRequestUtil;
 
-    private Map<String, Integer>    cityNameToIdMap;
+    private Map<String, City>       cityNameToIdMap;
 
     private int                     MAX_CITY_COUNT      = 1000;
 
@@ -162,7 +162,7 @@ public class TypeaheadService {
          * landmarks.
          */
         if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.externalApiIdentifierGoogle)) {
-            results = incorporateGooglePlaceResults(oldQuery, results, rows);
+            results = incorporateGooglePlaceResults(oldQuery, null, results, rows);
         }
 
         /* Get recommendations (suggestions and templates) */
@@ -195,13 +195,15 @@ public class TypeaheadService {
         String filterCity = filterQueries.get(TypeaheadConstants.typeaheadFieldNameCity);
         String queryCity = extractCityNameFromQuery(query);
         String templateCity = usercity;
+        City filterCityObject = null;
 
         String newQuery = query;
         String enhanceQuery = query;
 
         if (filterCity != null) {
             templateCity = filterCity;
-            enhanceQuery += (" " + filterCity);
+            enhanceQuery = filterCity + " " + enhanceQuery;
+            filterCityObject = cityNameToIdMap.get(filterCity);
         }
         else if (queryCity != null) {
             templateCity = queryCity;
@@ -239,7 +241,7 @@ public class TypeaheadService {
          * enhancements
          */
         if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.externalApiIdentifierGoogle)) {
-            results = incorporateGooglePlaceResults(enhanceQuery, results, rows);
+            results = incorporateGooglePlaceResults(enhanceQuery, filterCityObject, results, rows);
         }
 
         /* Get recommendations (suggestions and templates) */
@@ -260,7 +262,7 @@ public class TypeaheadService {
             key = entry.getKey();
             cityName = entry.getValue();
             if (key.equals(TypeaheadConstants.typeaheadFieldNameCity) && cityNameToIdMap.containsKey(cityName)) {
-                int cityId = cityNameToIdMap.get(cityName);
+                int cityId = cityNameToIdMap.get(cityName).getId();
                 list.add("(" + TypeaheadConstants.typeaheadFieldNameCity
                         + ":"
                         + cityName
@@ -303,7 +305,7 @@ public class TypeaheadService {
                         PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
                                 .getRequiredPropertyAsString(CorePropertyKeys.CITY_API_URL) + buildParams).build()
                 .encode().toString());
-        cityNameToIdMap = new HashMap<String, Integer>();
+        cityNameToIdMap = new HashMap<String, City>();
         List<City> cities = null;
         try {
             cities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, City.class);
@@ -317,7 +319,7 @@ public class TypeaheadService {
             return;
         }
         for (City c : cities) {
-            cityNameToIdMap.put(c.getLabel().toLowerCase(), c.getId());
+            cityNameToIdMap.put(c.getLabel().toLowerCase(), c);
         }
     }
 
@@ -339,11 +341,11 @@ public class TypeaheadService {
         }
 
         if (!cityNameToIdMap.containsKey(usercity)) {
-            logger.error("Invalid usercity recieved : " + usercity);
+            logger.warn("Invalid usercity recieved : " + usercity);
             return;
         }
 
-        int cityId = cityNameToIdMap.get(usercity);
+        int cityId = cityNameToIdMap.get(usercity).getId();
 
         for (Typeahead t : results) {
             if (t.getType().equalsIgnoreCase(TypeaheadConstants.typeaheadTypeBuilder)) {
@@ -481,7 +483,11 @@ public class TypeaheadService {
      * @return A new list of typeaheads having sub-par elements of original
      *         results replaced with google-place results
      */
-    private List<Typeahead> incorporateGooglePlaceResults(String query, List<Typeahead> results, int totalRows) {
+    private List<Typeahead> incorporateGooglePlaceResults(
+            String query,
+            City city,
+            List<Typeahead> results,
+            int totalRows) {
 
         List<Typeahead> finalResults = new ArrayList<Typeahead>();
 
@@ -499,7 +505,13 @@ public class TypeaheadService {
         }
 
         int gpRows = totalRows - finalResults.size();
-        List<Typeahead> gpResults = googlePlacesAPIService.getPlacePredictions(query, gpRows);
+
+        double[] geoCenter = null;
+        if (city != null && city.getCenterLatitude() != null && city.getCenterLongitude() != null) {
+            geoCenter = new double[] { city.getCenterLatitude(), city.getCenterLongitude() };
+        }
+        int radius = TypeaheadConstants.cityRadius;
+        List<Typeahead> gpResults = googlePlacesAPIService.getPlacePredictions(query, gpRows, geoCenter, radius);
         finalResults.addAll(gpResults);
         return finalResults;
     }
@@ -523,7 +535,7 @@ public class TypeaheadService {
             int rows) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
-        
+
         /* Restrict suggestion count */
         rows = Math.min(rows, TypeaheadConstants.maxSuggestionCount);
 
