@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.columbus.suggestions.EntitySuggestionHandler;
@@ -134,7 +135,7 @@ public class TypeaheadSuggestionObjectTest extends AbstractTest {
     }
 
     private void setDummyProjectCounts(Typeahead topResult) {
-        topResult.setScore(100f);
+        topResult.setScore(TypeaheadConstants.suggestionScoreThreshold);
         topResult.setEntityProjectCountTotal(500);
         topResult.setEntityProjectCountAffordable(100);
         topResult.setEntityProjectCountLuxury(100);
