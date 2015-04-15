@@ -23,9 +23,9 @@ public class CitySuggestions {
             { "Under construction property in %s", "under-construction-property", "under-construction-property" } };
 
     public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
-        
+
         String name = topResult.getLabel();
-        
+
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
         Typeahead obj;
         for (String[] template : suggestionTemplates) {
@@ -38,10 +38,10 @@ public class CitySuggestions {
             suggestions.add(obj);
         }
 
-        return filterByCustomRules(suggestions);
+        return filterByCustomRules(suggestions, count);
     }
 
-    private List<Typeahead> filterByCustomRules(List<Typeahead> suggestions) {
+    private List<Typeahead> filterByCustomRules(List<Typeahead> suggestions, int count) {
         Collections.shuffle(suggestions);
         String temp = (suggestions.get(0).getDisplayText() + " " + suggestions.get(1).getDisplayText());
         if (StringUtils.containsIgnoreCase(temp, "Resale property") && StringUtils.containsIgnoreCase(
@@ -49,7 +49,7 @@ public class CitySuggestions {
                 "Ready to move")) {
             suggestions.remove(0);
         }
-        return UtilityClass.getFirstNElementsOfList(suggestions, 2);
+        return UtilityClass.getFirstNElementsOfList(suggestions, count);
     }
 
 }

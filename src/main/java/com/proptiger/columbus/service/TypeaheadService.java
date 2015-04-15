@@ -174,6 +174,19 @@ public class TypeaheadService {
         return consolidatedResults;
     }
 
+    /**
+     * @param query
+     *            : search query string
+     * @param rows
+     *            : max number of results needed
+     * @param filterQueries
+     *            : map of filter params (should not be null)
+     * @param usercity
+     *            : user context city
+     * @param enhance
+     *            : external enhancements to be used
+     * @return : List of Typeahead objects matching this query
+     */
     public List<Typeahead> getTypeaheadsV4(
             String query,
             int rows,
