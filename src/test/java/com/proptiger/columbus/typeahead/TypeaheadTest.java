@@ -95,6 +95,65 @@ public class TypeaheadTest extends AbstractTest {
         }
     }
 
+    @Test(enabled = false)
+    public void testAllCity() {
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.City, defaultEntityFetchLimit),
+                defaultTestExecutionLimit,
+                testMode);
+    }
+
+    @Test(enabled = false)
+    public void testAllLocality() {
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.Locality, defaultEntityFetchLimit),
+                defaultTestExecutionLimit,
+                testMode);
+    }
+
+    @Test(enabled = false)
+    public void testAllProject() {
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.Project, defaultEntityFetchLimit),
+                defaultTestExecutionLimit,
+                testMode);
+    }
+
+    @Test(enabled = false)
+    public void testAllSuburb() {
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.Suburb, defaultEntityFetchLimit),
+                defaultTestExecutionLimit,
+                testMode);
+    }
+
+    @Test(enabled = false)
+    public void testAllBuilder() {
+        runTests(
+                taTestGenerator.getTestCasesByType(TaTestCaseType.Builder, defaultEntityFetchLimit),
+                defaultTestExecutionLimit,
+                testMode);
+    }
+
+    @Test(enabled = true)
+    public void testSpecialCharInQuery() {
+        logger.info("TEST NAME = SPECIAL CHARACTERS");
+        taTestExecuter.assertNonNullResponse("AND");
+        taTestExecuter.assertNonNullResponse("upto 50/- lacs in sahakar nagar");
+    }
+
+    @Test(enabled = true)
+    public void testCustom() {
+        logger.info("TEST NAME = CUSTOM");
+        Map<String, List<TaTestCase>> mapTestCases = customTestCaseReader.getCustomTestCases(apiVersion);
+        List<TaTestCase> testList;
+        for (Entry<String, List<TaTestCase>> entry : mapTestCases.entrySet()) {
+            testList = entry.getValue();
+            logger.info("Runnig custom test cases from file : " + entry.getKey());
+            runTests(testList, defaultTestExecutionLimit, testMode);
+        }
+    }
+
     private String getApiVersion() {
         String apiVersion = System.getProperty(OptionName_Version);
         if (apiVersion == null) {
@@ -111,59 +170,6 @@ public class TypeaheadTest extends AbstractTest {
         }
         else {
             return (TestMode.valueOf(System.getProperty(OptionName_Mode)));
-        }
-    }
-
-    @Test
-    public void testCity() {
-        runTests(
-                taTestGenerator.getTestCasesByType(TaTestCaseType.City, defaultEntityFetchLimit),
-                defaultTestExecutionLimit,
-                testMode);
-    }
-
-    @Test
-    public void testLocality() {
-        runTests(
-                taTestGenerator.getTestCasesByType(TaTestCaseType.Locality, defaultEntityFetchLimit),
-                defaultTestExecutionLimit,
-                testMode);
-    }
-
-    @Test
-    public void testProject() {
-        runTests(
-                taTestGenerator.getTestCasesByType(TaTestCaseType.Project, defaultEntityFetchLimit),
-                defaultTestExecutionLimit,
-                testMode);
-    }
-
-    @Test
-    public void testSuburb() {
-        runTests(
-                taTestGenerator.getTestCasesByType(TaTestCaseType.Suburb, defaultEntityFetchLimit),
-                defaultTestExecutionLimit,
-                testMode);
-    }
-
-    @Test
-    public void testBuilder() {
-        runTests(
-                taTestGenerator.getTestCasesByType(TaTestCaseType.Builder, defaultEntityFetchLimit),
-                defaultTestExecutionLimit,
-                testMode);
-    }
-
-    @Test
-    public void testCustom() {
-        taTestExecuter.assertNonNullResponse("AND");
-        taTestExecuter.assertNonNullResponse("upto 50/- lacs in sahakar nagar");
-        Map<String, List<TaTestCase>> mapTestCases = customTestCaseReader.getCustomTestCases(apiVersion);
-        List<TaTestCase> testList;
-        for (Entry<String, List<TaTestCase>> entry : mapTestCases.entrySet()) {
-            testList = entry.getValue();
-            logger.info("Runnig custom test cases from file : " + entry.getKey());
-            runTests(testList, defaultTestExecutionLimit, testMode);
         }
     }
 

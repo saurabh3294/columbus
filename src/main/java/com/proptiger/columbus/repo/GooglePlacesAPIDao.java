@@ -41,6 +41,8 @@ public class GooglePlacesAPIDao {
     public static String KeyFilter              = "key=%s";
     public static String PlaceIdParam           = "placeid=%s";
     public static String QueryParam             = "input=%s";
+    public static String BoundsFilter           = "location=%s,%s";
+    public static String RadiusFilter           = "radius=%s";
 
     private RestTemplate restTemplate           = new RestTemplate();
 
@@ -66,20 +68,23 @@ public class GooglePlacesAPIDao {
                 String.format(KeyFilter, gpApiKey));
     }
 
-    public List<GooglePlace> getMatchingPlaces(String query, int rows, boolean clean) {
-        List<GooglePlace> orgPlaceList = getMatchingPlaces(query, rows * 2);
+    public List<GooglePlace> getMatchingPlaces(String query, int rows, double[] geoCenter, int radius, boolean clean) {
+        List<GooglePlace> orgPlaceList = getMatchingPlaces(query, rows, geoCenter, radius);
+        if (!clean) {
+            return orgPlaceList;
+        }
         List<GooglePlace> newPlaceList = new ArrayList<GooglePlace>();
         int wordCount = 0;
         for (GooglePlace gp : orgPlaceList) {
             wordCount = StringUtils.split(gp.getDescription(), ' ').length;
-            if(wordCount < placeNameWordThreshold){
+            if (wordCount < placeNameWordThreshold) {
                 newPlaceList.add(gp);
             }
         }
         return newPlaceList;
     }
 
-    public List<GooglePlace> getMatchingPlaces(String query, int rows) {
+    private List<GooglePlace> getMatchingPlaces(String query, int rows, double[] geoCenter, int radius) {
         try {
             query = URLEncoder.encode(query, "UTF-8");
         }
@@ -87,7 +92,8 @@ public class GooglePlacesAPIDao {
             logger.error("Unsupported Encoding UTF-8.");
         }
 
-        String apiUrl = String.format(gpPlacePredictionUrl, StringUtils.replace(query, " ", "+"));
+        String gpPlacePredictionUrlBounded = getGpPlacePredictionUrlBounded(geoCenter, radius);
+        String apiUrl = String.format(gpPlacePredictionUrlBounded, StringUtils.replace(query, " ", "+"));
         String apiResponse = getResponse(apiUrl);
 
         List<GooglePlace> placelist = new ArrayList<GooglePlace>();
@@ -98,6 +104,17 @@ public class GooglePlacesAPIDao {
             logger.error("Exception while fetching place list from Google Places API. Query= " + query, ex);
         }
         return UtilityClass.getFirstNElementsOfList(placelist, rows);
+    }
+
+    private String getGpPlacePredictionUrlBounded(double[] bounds, int radius) {
+        String gpPlacePredictionUrlBounded = gpPlacePredictionUrl;
+        if (bounds != null && bounds.length >= 2 && radius > 0) {
+            gpPlacePredictionUrlBounded = addParamsToURL(
+                    gpPlacePredictionUrl,
+                    String.format(BoundsFilter, bounds[0], bounds[1]),
+                    String.format(RadiusFilter, String.valueOf(radius)));
+        }
+        return gpPlacePredictionUrlBounded;
     }
 
     public GooglePlace getPlaceDetails(String placeId) {

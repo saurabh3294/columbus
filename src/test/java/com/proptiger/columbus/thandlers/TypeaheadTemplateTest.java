@@ -15,6 +15,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.proptiger.core.model.Typeahead;
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.suggestions.NLPSuggestionHandler;
 import com.proptiger.core.util.URLUtil;
@@ -38,9 +40,10 @@ public class TypeaheadTemplateTest extends AbstractTest {
 
     private long                 UrlResponseTimeout = 30000l;
 
-    /* TODO :: Pick this up from config file */
-    private String               BASE_URL           = "http://beta.proptiger-ws.com/";
-    private String               testCity           = "Noida";
+    @Value("${proptiger.url}")
+    private String               BASE_URL;
+    
+    private String               testCity           = TypeaheadConstants.defaultCityName;
 
     @Test(enabled = false)
     public void TypeaheadTemplateValidURLTest() {

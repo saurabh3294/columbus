@@ -3,13 +3,12 @@ package com.proptiger.columbus.suggestions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Map.Entry;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.util.Pair;
 import com.proptiger.columbus.util.TypeaheadUtils;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
@@ -17,13 +16,17 @@ import com.proptiger.core.util.UtilityClass;
 @Component
 public class BuilderSuggestions {
 
-    private String templateId = "Typeahead-Suggestion-Builder";
+    private String                                           templateId = "Typeahead-Suggestion-Builder";
+
+    @Autowired
+    private CustomPairComparatorIntToGeneric<SuggestionType> pairComparator;
 
     private enum SuggestionType {
 
         Upcoming("Upcoming projects by %s", "upcoming-project-by-%s-%s", "upcoming-project"), Completed(
                 "Completed properties by %s", "completed-property-by-%s-%s", "completed-property"), UnderConstruction(
-                "Under Construction projects by %s", "under-construction-property-by-%s-%s", "under-construction-property");
+                "Under Construction projects by %s", "under-construction-property-by-%s-%s",
+                "under-construction-property");
 
         String displayTextFormat, redirectUrlFormat, typeaheadIdFormat;
 
@@ -54,14 +57,16 @@ public class BuilderSuggestions {
         int projectCountUnderConst = UtilityClass.safeUnbox(topResult.getEntityProjectCountUnderConstruction(), 0);
         int projectCountUpCompleted = UtilityClass.safeUnbox(topResult.getEntityProjectCountCompleted(), 0);
 
-        Map<Integer, SuggestionType> map = new TreeMap<Integer, SuggestionType>(Collections.reverseOrder());
-        map.put(projectCountUpcoming, SuggestionType.Upcoming);
-        map.put(projectCountUnderConst, SuggestionType.UnderConstruction);
-        map.put(projectCountUpCompleted, SuggestionType.Completed);
+        List<Pair<Integer, SuggestionType>> pairList = new ArrayList<Pair<Integer, SuggestionType>>();
+        pairList.add(new Pair<Integer, SuggestionType>(projectCountUpcoming, SuggestionType.Upcoming));
+        pairList.add(new Pair<Integer, SuggestionType>(projectCountUnderConst, SuggestionType.UnderConstruction));
+        pairList.add(new Pair<Integer, SuggestionType>(projectCountUpCompleted, SuggestionType.Completed));
 
-        for (Entry<Integer, SuggestionType> entry : map.entrySet()) {
-            if (entry.getKey() > TypeaheadConstants.suggestionProjectCountTheshold) {
-                suggestionList.add(entry.getValue());
+        Collections.sort(pairList, pairComparator);
+
+        for (Pair<Integer, SuggestionType> pair : pairList) {
+            if (pair.getFirst() > TypeaheadConstants.suggestionProjectCountTheshold) {
+                suggestionList.add(pair.getSecond());
             }
         }
 

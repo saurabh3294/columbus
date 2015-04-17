@@ -70,7 +70,7 @@ public class ResponseInterceptor {
     public void filterTypeAhead(Object retVal) throws Throwable {
         if (RequestHolderUtil.getApplicationTypeFromRequest() == null || !RequestHolderUtil
                 .getApplicationTypeFromRequest().equals(Application.B2B)) {
-            logger.info("Not a B2B request. Skipping authorized check");
+            logger.debug("Not a B2B request. Skipping authorized check");
             return;
         }
         logger.debug("TIME AT STEP 1: {}", new Date().getTime());

@@ -30,4 +30,6 @@ public class TypeaheadConstants {
     public static final int    suggestionNewLaunchMultiplier  = 3;
     public static final int    suggestionProjectCountTheshold = 0;
 
+    public static final int    cityRadius                     = 50;
+
 }

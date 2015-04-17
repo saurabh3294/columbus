@@ -3,13 +3,12 @@ package com.proptiger.columbus.suggestions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Map.Entry;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.util.Pair;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
@@ -17,7 +16,10 @@ import com.proptiger.core.util.UtilityClass;
 public class LocalitySuggestions {
 
     private String templateId = "Typeahead-Suggestion-Locality";
-
+    
+    @Autowired
+    private CustomPairComparatorIntToGeneric<SuggestionType> pairComparator;
+    
     private enum SuggestionType {
 
         Affordable("Affordable apartments in %s", "%s/affordable-flats-in-%s", "affordable-flats"), Luxury(
@@ -60,16 +62,18 @@ public class LocalitySuggestions {
         int projectCountLuxury = UtilityClass.safeUnbox(topResult.getEntityProjectCountLuxury(), 0);
         int projectCountResale = UtilityClass.safeUnbox(topResult.getEntityProjectCountResale(), 0);
 
-        Map<Integer, SuggestionType> map = new TreeMap<Integer, SuggestionType>(Collections.reverseOrder());
-        map.put(projectCountNewLaunch, SuggestionType.NewLaunch);
-        map.put(projectCountUnderConst, SuggestionType.UnderConstruction);
-        map.put(projectCountAffordable, SuggestionType.Affordable);
-        map.put(projectCountLuxury, SuggestionType.Luxury);
-        map.put(projectCountResale, SuggestionType.Resale);
-
-        for (Entry<Integer, SuggestionType> entry : map.entrySet()) {
-            if (entry.getKey() > TypeaheadConstants.suggestionProjectCountTheshold) {
-                suggestionList.add(entry.getValue());
+        List<Pair<Integer, SuggestionType>> pairList = new ArrayList<Pair<Integer, SuggestionType>>();
+        pairList.add(new Pair<Integer, SuggestionType>(projectCountNewLaunch, SuggestionType.NewLaunch));
+        pairList.add(new Pair<Integer, SuggestionType>(projectCountUnderConst, SuggestionType.UnderConstruction));
+        pairList.add(new Pair<Integer, SuggestionType>(projectCountAffordable, SuggestionType.Affordable));
+        pairList.add(new Pair<Integer, SuggestionType>(projectCountLuxury, SuggestionType.Luxury));
+        pairList.add(new Pair<Integer, SuggestionType>(projectCountResale, SuggestionType.Resale));
+        
+        Collections.sort(pairList, pairComparator);
+        
+        for (Pair<Integer, SuggestionType> pair : pairList){
+            if (pair.getFirst() > TypeaheadConstants.suggestionProjectCountTheshold) {
+                suggestionList.add(pair.getSecond());
             }
         }
 
@@ -91,5 +95,7 @@ public class LocalitySuggestions {
         typeahead.setSuggestion(true);
         return typeahead;
     }
+    
+    
 
 }
