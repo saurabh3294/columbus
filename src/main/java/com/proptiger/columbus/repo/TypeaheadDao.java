@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.impl.HttpSolrServer.RemoteSolrException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
@@ -36,7 +40,151 @@ public class TypeaheadDao {
     private SolrDao solrDao;
 
     private Logger  logger = LoggerFactory.getLogger(TypeaheadDao.class);
+    
+    private List<SortClause> sortClauseList;
+    
+    @PostConstruct
+    private void initialize() {
+        sortClauseList = getCustomSortOrderV4();
+    }
 
+    // ******* TYPEAHEAD :: VERSION 3 ********
+
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
+    public List<Typeahead> getTypeaheadById(String typeaheadId) {
+        List<String> queryFilters = new ArrayList<String>();
+        queryFilters.add("id:" + typeaheadId);
+        SolrQuery solrQuery = getSolrQueryV3("", 1, queryFilters);
+        List<Typeahead> results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+        return results;
+    }
+
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
+    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
+        List<Typeahead> results = new ArrayList<Typeahead>();
+        try {
+            results = getSpellCheckedResponseV3(query, rows, filterQueries, usercity);
+        }
+        catch (ProAPIException e) {
+            if (e.getCause() instanceof RemoteSolrException) {
+                logger.warn("Error in solr query:", e);
+            }
+            else {
+                throw e;
+            }
+        }
+        return results;
+    }
+    
+    public List<Typeahead> getResponseV3(String query, int rows, List<String> filterQueries) {
+        List<Typeahead> results = new ArrayList<Typeahead>();
+        SolrQuery solrQuery = getSolrQueryV3(query, rows, filterQueries);
+        try {
+            results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+        }
+        catch (ProAPIException e) {
+            if (e.getCause() instanceof RemoteSolrException) {
+                logger.warn("Error in solr query:", e);
+            }
+            else {
+                throw e;
+            }
+        }
+        return results;
+    }
+
+    /**
+     * If the query has a typo and can be corrected then new query is generated
+     * using the suggestions and executed automatically
+     */
+    private List<Typeahead> getSpellCheckedResponseV3(
+            String query,
+            int rows,
+            List<String> filterQueries,
+            String usercity) {
+
+        /* Fetch results for entered query first */
+        SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
+        solrQuery.setSorts(sortClauseList);
+        List<Typeahead> resultsOriginal = new ArrayList<Typeahead>();
+        QueryResponse response = solrDao.executeQuery(solrQuery);
+        resultsOriginal = response.getBeans(Typeahead.class);
+
+        SpellCheckResponse scr = response.getSpellCheckResponse();
+        if (scr == null) {
+            return resultsOriginal;
+        }
+
+        /* If spell-check suggestions are there, get those results as well */
+
+        String spellsuggestion = scr.getCollatedResult();
+        List<Typeahead> resultsSuggested = new ArrayList<Typeahead>();
+        if (spellsuggestion != null && !spellsuggestion.isEmpty()) {
+            SolrQuery newQuery = this.getSolrQueryV3(spellsuggestion.toString(), rows, filterQueries);
+            newQuery.setSorts(sortClauseList);
+            resultsSuggested = solrDao.executeQuery(newQuery).getBeans(Typeahead.class);
+        }
+
+        /* Merge results */
+        if (!resultsSuggested.isEmpty()) {
+            resultsOriginal.addAll(resultsSuggested);
+        }
+
+        return resultsOriginal;
+    }
+    
+    private SolrQuery getSimpleSolrQuery(String query, int rows, List<String> filterQueries) {
+        SolrQuery solrQuery = new SolrQuery(QueryParserUtil.escape(query.toLowerCase()));
+        for (String fq : filterQueries) {
+            solrQuery.addFilterQuery(fq);
+        }
+
+        solrQuery.setRows(rows);
+        return solrQuery;
+    }
+
+    private SolrQuery getSolrQueryV3(String query, int rows, List<String> filterQueries) {
+
+        SolrQuery solrQuery = getSimpleSolrQuery(query, rows, filterQueries);
+        solrQuery.setParam("qt", "/payload_v4");
+        solrQuery.setParam("defType", "payload");
+        solrQuery.setParam("fl", "*,score");
+        return solrQuery;
+    }
+
+    private List<SortClause> getCustomSortOrderV4(){
+        List<SortClause> sortClauseList = new ArrayList<SortClause>();
+        sortClauseList.add(new SortClause("score", ORDER.desc));
+        sortClauseList.add(new SortClause("TYPEAHEAD_ENTITY_POPULARITY", ORDER.desc));
+        return sortClauseList;
+    }
+
+    /******************* Legacy Methods ****************************************/
+
+    public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
+        String[] multiWords = query.split("\\s+");
+        int wordsCounter = 0;
+        StringBuilder queryStringBuilder = new StringBuilder();
+        for (String word : multiWords) {
+            if (++wordsCounter < multiWords.length) {
+                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*" + " AND ");
+            }
+            else {
+                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*");
+            }
+        }
+
+        String exactMatchQuery = queryStringBuilder.toString();
+
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery(exactMatchQuery);
+        for (String fq : filterQueries) {
+            solrQuery.addFilterQuery(fq);
+        }
+        solrQuery.setRows(rows);
+        return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+    }
+    
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         SolrQuery solrQuery = this.getSolrQueryV2(query, rows, filterQueries);
         List<Typeahead> results = getSpellCheckedResponseV2(solrQuery, rows, filterQueries);
@@ -81,17 +229,7 @@ public class TypeaheadDao {
         // + "]");
         return boostQuery;
     }
-
-    private SolrQuery getSimpleSolrQuery(String query, int rows, List<String> filterQueries) {
-        SolrQuery solrQuery = new SolrQuery(QueryParserUtil.escape(query.toLowerCase()));
-        for (String fq : filterQueries) {
-            solrQuery.addFilterQuery(fq);
-        }
-
-        solrQuery.setRows(rows);
-        return solrQuery;
-    }
-
+    
     /**
      * If the query has a typo and can be corrected then new query is generated
      * using the suggestions and executed automatically
@@ -116,120 +254,5 @@ public class TypeaheadDao {
         }
     }
 
-    // ******* TYPEAHEAD :: VERSION 3 ********
-    @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
-        List<Typeahead> results = new ArrayList<Typeahead>();
-        try {
-            results = getSpellCheckedResponseV3(query, rows, filterQueries, usercity);
-        }
-        catch (ProAPIException e) {
-            if (e.getCause() instanceof RemoteSolrException) {
-                logger.warn("Error in solr query:", e);
-            }
-            else {
-                throw e;
-            }
-        }
-        return results;
-    }
 
-    private SolrQuery getSolrQueryV3(String query, int rows, List<String> filterQueries) {
-
-        SolrQuery solrQuery = getSimpleSolrQuery(query, rows, filterQueries);
-        solrQuery.setParam("qt", "/payload_v4");
-        solrQuery.setParam("defType", "payload");
-        solrQuery.setParam("fl", "*,score");
-        return solrQuery;
-    }
-
-    public List<Typeahead> getResponseV3(String query, int rows, List<String> filterQueries) {
-        List<Typeahead> results = new ArrayList<Typeahead>();
-        SolrQuery solrQuery = getSolrQueryV3(query, rows, filterQueries);
-        try {
-            results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
-        }
-        catch (ProAPIException e) {
-            if (e.getCause() instanceof RemoteSolrException) {
-                logger.warn("Error in solr query:", e);
-            }
-            else {
-                throw e;
-            }
-        }
-        return results;
-    }
-
-    @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadById(String typeaheadId) {
-        List<String> queryFilters = new ArrayList<String>();
-        queryFilters.add("id:" + typeaheadId);
-        SolrQuery solrQuery = getSolrQueryV3("", 1, queryFilters);
-        List<Typeahead> results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
-        return results;
-    }
-
-    /**
-     * If the query has a typo and can be corrected then new query is generated
-     * using the suggestions and executed automatically
-     */
-    private List<Typeahead> getSpellCheckedResponseV3(
-            String query,
-            int rows,
-            List<String> filterQueries,
-            String usercity) {
-
-        /* Fetch results for entered query first */
-        SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
-        List<Typeahead> resultsOriginal = new ArrayList<Typeahead>();
-        QueryResponse response = solrDao.executeQuery(solrQuery);
-        resultsOriginal = response.getBeans(Typeahead.class);
-
-        SpellCheckResponse scr = response.getSpellCheckResponse();
-        if (scr == null) {
-            return resultsOriginal;
-        }
-
-        /* If spell-check suggestions are there, get those results as well */
-
-        String spellsuggestion = scr.getCollatedResult();
-        List<Typeahead> resultsSuggested = new ArrayList<Typeahead>();
-        if (spellsuggestion != null && !spellsuggestion.isEmpty()) {
-            SolrQuery newQuery = this.getSolrQueryV3(spellsuggestion.toString(), rows, filterQueries);
-            resultsSuggested = solrDao.executeQuery(newQuery).getBeans(Typeahead.class);
-        }
-
-        /* Merge results */
-        if (!resultsSuggested.isEmpty()) {
-            resultsOriginal.addAll(resultsSuggested);
-        }
-
-        return resultsOriginal;
-    }
-    
-    // ******* Exact Typeaheads ********
-
-    public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
-        String[] multiWords = query.split("\\s+");
-        int wordsCounter = 0;
-        StringBuilder queryStringBuilder = new StringBuilder();
-        for (String word : multiWords) {
-            if (++wordsCounter < multiWords.length) {
-                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*" + " AND ");
-            }
-            else {
-                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*");
-            }
-        }
-
-        String exactMatchQuery = queryStringBuilder.toString();
-
-        SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(exactMatchQuery);
-        for (String fq : filterQueries) {
-            solrQuery.addFilterQuery(fq);
-        }
-        solrQuery.setRows(rows);
-        return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
-    }
 }
