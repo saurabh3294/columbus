@@ -8,22 +8,19 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.proptiger.columbus.service.AbstractTest;
+import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.core.model.Typeahead;
 
 public class TypeaheadEqualScoreTieBreakTest extends AbstractTest {
 
     @Autowired
-    private TaTestExecuter taTestExecuter;
+    TypeaheadService      typeaheadService;
 
-    @Value("${test.default.typeahead.version}")
-    private String         defaultApiVersion;
-
-    private static Logger  logger = LoggerFactory.getLogger(TypeaheadEqualScoreTieBreakTest.class);
+    private static Logger logger = LoggerFactory.getLogger(TypeaheadEqualScoreTieBreakTest.class);
 
     @Test(enabled = true)
     public void testEqualScoringBuilderProjects() {
@@ -35,6 +32,16 @@ public class TypeaheadEqualScoreTieBreakTest extends AbstractTest {
     public void testTieBreakBuilderProjects() {
         testTieBreak("prestige", 10, 2, 9);
         testTieBreak("dlf", 10, 1, 9);
+    }
+
+    @Test(enabled = true)
+    public void testEqualScoringLocality() {
+        testEqualScoring("sector", 10, 0, 9);
+    }
+
+    @Test(enabled = false)
+    public void testTieBreakLocality() {
+        testEqualScoring("sector", 10, 0, 9);
     }
 
     /**
@@ -88,15 +95,8 @@ public class TypeaheadEqualScoreTieBreakTest extends AbstractTest {
 
         Assert.assertTrue((endIndex < rows), "Invalid test case : end index >= rows");
 
-        TaTestCase taTestCase = new TaTestCase(query, null, 1, 1, "");
-        Map<String, String> urlParams = new HashMap<String, String>();
-        urlParams.put("rows", String.valueOf(rows));
-        taTestCase.setUrlParams(urlParams);
-
-        String testUrl = taTestExecuter.getTypeaheadTestUrl(taTestCase, defaultApiVersion);
-        taTestCase.setTestUrl(testUrl);
-
-        List<Typeahead> results = taTestExecuter.getTestResult(taTestCase.getTestUrl());
+        Map<String, String> filterQueries = new HashMap<String, String>();
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, null, null);
 
         Assert.assertNotNull(results);
         Assert.assertTrue(results.size() > endIndex, "Result-Count should be greater then endIndex(" + endIndex + ")");
