@@ -91,7 +91,7 @@ public class TaTestExecuter {
         Assert.assertNotNull(typeaheads);
     }
 
-    private String getTypeaheadTestUrl(TaTestCase ttc, String apiVersion) {
+    public String getTypeaheadTestUrl(TaTestCase ttc, String apiVersion) {
         String testCaseUrl = getTypeAheadTestUrl(ttc.getQuery(), apiVersion);
         Map<String, String> urlParams = ttc.getUrlParams();
         if (urlParams == null || urlParams.size() == 0) {
@@ -103,7 +103,7 @@ public class TaTestExecuter {
         return testCaseUrl;
     }
 
-    private String getTypeAheadTestUrl(String testQuery, String apiVersion) {
+    public String getTypeAheadTestUrl(String testQuery, String apiVersion) {
         return String.format(TYPEAHEAD_API_URL_PATTERN, apiVersion) + "?query=" + testQuery;
     }
 
