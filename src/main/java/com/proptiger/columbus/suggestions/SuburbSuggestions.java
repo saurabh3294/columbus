@@ -26,7 +26,7 @@ public class SuburbSuggestions {
         Affordable("Affordable apartments in %s", "%s/affordable-flats-in-%s", "affordable-flats"), Luxury(
                 "Luxury projects in %s", "%s/luxury-projects-in-%s", "luxury-projects"), NewLaunch(
                 "New apartments in %s", "%s/new-apartments-for-sale-in-%s", "new-apartments"), UnderConstruction(
-                "Under construction projects in %s", "%s/under-construction-property-in-%s",
+                "Under construction property in %s", "%s/under-construction-property-in-%s",
                 "under-construction-property"), Resale("Resale property in %s", "%s/resale-property-in-%s",
                 "resale-property");
 
