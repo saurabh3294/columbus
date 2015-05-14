@@ -2,6 +2,7 @@ package com.proptiger.columbus.util;
 
 import org.apache.commons.lang.StringUtils;
 
+
 import com.proptiger.core.model.Typeahead;
 
 public class TypeaheadUtils {
@@ -22,6 +23,23 @@ public class TypeaheadUtils {
             return null;
         }
     }
+    
+    
+    /**
+     * @param t
+     *            typeaheadId String
+     * @return entity id extracted from typeaheadId
+     */
+    public static String parseEntityIdAsString(String t) {
+        String[] tokens = StringUtils.split(t, '-');
+        if (tokens.length > 2) {
+            return tokens[2];
+        }
+        else {
+            return null;
+        }
+    }
+    
 
     /**
      * @param t
