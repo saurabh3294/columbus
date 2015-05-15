@@ -25,7 +25,7 @@ public class BuilderSuggestions {
 
         Upcoming("Upcoming projects by %s", "upcoming-project-by-%s-%s", "upcoming-project"), Completed(
                 "Completed properties by %s", "completed-property-by-%s-%s", "completed-property"), UnderConstruction(
-                "Under Construction projects by %s", "under-construction-property-by-%s-%s",
+                "Under construction property by %s", "under-construction-property-by-%s-%s",
                 "under-construction-property");
 
         String displayTextFormat, redirectUrlFormat, typeaheadIdFormat;

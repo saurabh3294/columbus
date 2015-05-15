@@ -42,6 +42,8 @@ public class TypeaheadSuggestionURLTest extends AbstractTest {
     @Value("${url.validation.api.url}")
     private String          urlValidationApiURL;
 
+    private String          assertMsgTemplateSuggCount = "Suggestion count mismatch for %s suggestions. ID = %s";
+
     private static int      suggCount = 10;
 
     @Test(enabled = true)
@@ -62,48 +64,56 @@ public class TypeaheadSuggestionURLTest extends AbstractTest {
     @Test(enabled = true)
     public void testURLLocalitySuggestion() {
 
+        String entityId = "50186";
         logger.info("TEST NAME = URL LOCALITY SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4("50186", 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
-        Assert.assertEquals(suggestions.size(), 5);
+        String message = String.format(assertMsgTemplateSuggCount, "locality", entityId);
+        Assert.assertEquals(suggestions.size(), 5, message);
         testRedirectUrlsValidity(suggestions);
     }
 
     @Test(enabled = true)
     public void testURLSuburbSuggestion() {
 
+        String entityId = "10512";
         logger.info("TEST NAME = URL SUBURB SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4("10512", 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
-        Assert.assertEquals(suggestions.size(), 5);
+        String message = String.format(assertMsgTemplateSuggCount, "suburb", entityId);
+        Assert.assertEquals(suggestions.size(), 5, message);
         testRedirectUrlsValidity(suggestions);
     }
 
     @Test(enabled = true)
     public void testURLBuilderSuggestion() {
-
+        
+        String entityId = "100002";
         logger.info("TEST NAME = URL BUILDER SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4("100002", 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
-        Assert.assertEquals(suggestions.size(), 3);
+        String message = String.format(assertMsgTemplateSuggCount, "builder", entityId);
+        Assert.assertEquals(suggestions.size(), 3, message);
         testRedirectUrlsValidity(suggestions);
     }
 
     @Test(enabled = true)
     public void testURLProjectSuggestion() {
 
+        String entityId = "501421";
         logger.info("TEST NAME = URL PROJECT SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4("501421", 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
         results.get(0).setScore(100f);
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
-        Assert.assertEquals(suggestions.size(), 3);
+        String message = String.format(assertMsgTemplateSuggCount, "project", entityId);
+        Assert.assertEquals(suggestions.size(), 3, message);
         testRedirectUrlsValidity(suggestions);
     }
 
