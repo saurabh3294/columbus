@@ -40,6 +40,8 @@ public class TypeaheadSuggestionObjectTest extends AbstractTest {
     @Value("${url.validation.api.url}")
     private String          urlValidationApiURL;
 
+    private String          assertMsgTemplateSuggCount = "Suggestion count mismatch for %s suggestions. ID = %s";
+
     private static int      suggCount = 10;
 
     @Test(enabled = true)
@@ -58,49 +60,57 @@ public class TypeaheadSuggestionObjectTest extends AbstractTest {
 
     @Test(enabled = true)
     public void testObjectLocalitySuggestion() {
-
+        
+        String entityId = "50186";
         logger.info("TEST NAME = TYPEAHEAD OBJECT LOCALITY SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4("50186", 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
-        Assert.assertEquals(suggestions.size(), 5);
+        String message = String.format(assertMsgTemplateSuggCount, "locality", entityId);
+        Assert.assertEquals(suggestions.size(), 5, message);
         testObjectValidity(suggestions);
     }
 
     @Test(enabled = true)
     public void testObjectSuburbSuggestion() {
 
+        String entityId = "10512";
         logger.info("TEST NAME = TYPEAHEAD OBJECT SUBURB SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4("10512", 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
-        Assert.assertEquals(suggestions.size(), 5);
+        String message = String.format(assertMsgTemplateSuggCount, "suburb", entityId);
+        Assert.assertEquals(suggestions.size(), 5, message);
         testObjectValidity(suggestions);
     }
 
     @Test(enabled = true)
     public void testObjectBuilderSuggestion() {
 
+        String entityId = "100002";
         logger.info("TEST NAME = TYPEAHEAD OBJECT BUILDER SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4("100002", 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
-        Assert.assertEquals(suggestions.size(), 3);
+        String message = String.format(assertMsgTemplateSuggCount, "builder", entityId);
+        Assert.assertEquals(suggestions.size(), 3, message);
         testObjectValidity(suggestions);
     }
 
     @Test(enabled = true)
     public void testObjectProjectSuggestion() {
 
+        String entityId = "501421";
         logger.info("TEST NAME = TYPEAHEAD OBJECT PROJECT SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4("501421", 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
         results.get(0).setScore(100f);
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
-        Assert.assertEquals(suggestions.size(), 3);
+        String message = String.format(assertMsgTemplateSuggCount, "project", entityId);
+        Assert.assertEquals(suggestions.size(), 3, message);
         testObjectValidity(suggestions);
     }
 

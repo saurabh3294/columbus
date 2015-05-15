@@ -19,7 +19,6 @@ public class CitySuggestions {
             { "Affordable apartments in %s", "affordable-flats", "affordable-flats" },
             { "Resale property in %s", "resale-property", "resale-property" },
             { "Luxury projects in %s", "luxury-projects", "luxury-projects" },
-            { "Ready to move apartments in %s", "ready-to-move-flats", "ready-to-move-flats" },
             { "Under construction property in %s", "under-construction-property", "under-construction-property" } };
 
     public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
