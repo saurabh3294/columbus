@@ -70,36 +70,7 @@ public class TopsearchDao {
         reqField = reqField.replaceAll("^[,]+|[,]+$", "");
         reqField = reqField+",id,TYPEAHEAD_TYPE";
         solrQuery.setParam("fl", reqField);
-
-        /* Query time boosting */
-        /*String boostQuery = getBoostQuery(query);
-        if (!boostQuery.isEmpty()) {
-            solrQuery.setParam("bq", boostQuery);
-        }*/
         return solrQuery;
-    }
-
-    private String getBoostQuery(String query) {
-        String boostQuery = "";
-        StringTokenizer st = new StringTokenizer(query.trim());
-        int count = st.countTokens();
-        if (count < 2) {
-            return boostQuery;
-        }
-
-        float boost = TypeaheadConstants.queryTimeBoostStart;
-        /* Boost all-but-last query strings as core-texts */
-        for (int i = 0; i < count - 1; i++) {
-            boostQuery += "Core_text:" + st.nextToken() + "^" + Math.max(1, boost) + " ";
-            boost *= TypeaheadConstants.queryTimeBoostMultiplier;
-        }
-
-        /* Boost last query string as an edgeNGram */
-        boostQuery += ("ENGram:" + st.nextToken() + "^" + Math.max(1, boost) + " ");
-
-        // System.out.println("=====>> Q = [" + query + "], BQ = [" + boostQuery
-        // + "]");
-        return boostQuery;
     }
 
     private SolrQuery getSimpleSolrQuery(String query, int rows, List<String> filterQueries) {

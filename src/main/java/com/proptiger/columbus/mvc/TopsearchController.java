@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,13 +19,9 @@ import com.proptiger.columbus.model.Topsearch;
 import com.proptiger.columbus.service.TopsearchService;
 import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.meta.DisableCaching;
-import com.proptiger.core.model.cms.City;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.service.ApiVersionService;
-import com.proptiger.core.service.ApiVersionService.ApiVersion;
-import com.proptiger.core.service.ConfigService.ConfigGroupName;
-import com.proptiger.core.util.RequestHolderUtil;
 import com.proptiger.core.util.UtilityClass;
 
 /**
@@ -65,9 +59,6 @@ public class TopsearchController extends BaseController {
 
    
 
-
-   
-
     private void getFilterQueryListFromRequestParams(
             List<String> filterQueries,
             String entityType,
@@ -100,13 +91,6 @@ public class TopsearchController extends BaseController {
             filterQueries.put("TYPEAHEAD_TYPE", entityType.toUpperCase());
         }
         return filterQueries;
-    }
-
-    private ApiVersion getApiVersion() {
-        ApiVersion version = apiVersionService.getVersion(
-                ConfigGroupName.Search,
-                RequestHolderUtil.getMixpanelDistinctIdFromRequestCookie());
-        return version;
     }
 
 }
