@@ -2,7 +2,6 @@ package com.proptiger.columbus.util;
 
 import org.apache.commons.lang.StringUtils;
 
-
 import com.proptiger.core.model.Typeahead;
 
 public class TypeaheadUtils {
@@ -23,10 +22,7 @@ public class TypeaheadUtils {
             return null;
         }
     }
-    
-    
-    
-
+ 
     /**
      * @param t
      *            Typeahead object
