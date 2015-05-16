@@ -1,46 +1,45 @@
 package com.proptiger.columbus.util;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class TopsearchObjectField {
-	@JsonProperty("ID")
+	
 	private String id;
     
-	@JsonProperty("TYPEAHEAD_LABEL")
-	private String typeahead_label;
+	
+	private String typeaheadLabel;
     
-	@JsonProperty("TYPEAHEAD_REDIRECT_URL")
-	private String typeahead_redirect_url;
+	
+	private String typeaheadRedirectUrl;
     
-	@JsonProperty("ID")
+	
     public String getId() {
         return id;
     }
 	
-	@JsonProperty("ID")
+	
     public void setId(String id) {
         this.id = id;
     }
     
-	@JsonProperty("TYPEAHEAD_LABEL")
+	
     public String getTypeaheadLabel() {
-        return typeahead_label;
+        return typeaheadLabel;
     }
 	
-	@JsonProperty("TYPEAHEAD_LABEL")
-    public void setTypeaheadLabel(String typeahead_label) {
-        this.typeahead_label = typeahead_label;
+	
+    public void setTypeaheadLabel(String typeaheadLabel) {
+        this.typeaheadLabel = typeaheadLabel;
     }
     
-	@JsonProperty("TYPEAHEAD_REDIRECT_URL")
+	
     public String getRedirectUrl() {
-        return typeahead_redirect_url;
+        return typeaheadRedirectUrl;
     }
 	
-	@JsonProperty("TYPEAHEAD_REDIRECT_URL")
-    public void setRedirectUrl(String typeahead_redirect_url) {
-        this.typeahead_redirect_url = typeahead_redirect_url;
+	
+    public void setRedirectUrl(String typeaheadRedirectUrl) {
+        this.typeaheadRedirectUrl = typeaheadRedirectUrl;
     }
     
     
@@ -51,7 +50,7 @@ public class TopsearchObjectField {
     }*/
 	@Override
     public String toString() {
-		return id+":"+typeahead_label+":"+typeahead_redirect_url;
+		return id+":"+typeaheadLabel+":"+typeaheadRedirectUrl;
     }
 
 }

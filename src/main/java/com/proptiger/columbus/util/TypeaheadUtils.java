@@ -25,20 +25,6 @@ public class TypeaheadUtils {
     }
     
     
-    /**
-     * @param t
-     *            typeaheadId String
-     * @return entity id extracted from typeaheadId
-     */
-    public static String parseEntityIdAsString(String t) {
-        String[] tokens = StringUtils.split(t, '-');
-        if (tokens.length > 2) {
-            return tokens[2];
-        }
-        else {
-            return null;
-        }
-    }
     
 
     /**

@@ -1,28 +1,22 @@
 package com.proptiger.columbus.repo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.StringTokenizer;
-
-import javassist.expr.NewArray;
+import java.util.Map;
 
 import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.HttpSolrServer.RemoteSolrException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.SpellCheckResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.columbus.model.TypeaheadConstants;
-import com.proptiger.core.exception.ProAPIException;
-import com.proptiger.columbus.model.Topsearch;
+import com.proptiger.columbus.util.TopsearchUtils;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
-import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
+
 
 /**
  * 
@@ -35,19 +29,27 @@ public class TopsearchDao {
 
     @Autowired
     private SolrDao solrDao;
+    
 
     /*private Logger  logger = LoggerFactory.getLogger(TypeaheadDao.class);*/
 
-    public List<Topsearch> getTopsearches(String requiredEntities, int rows, List<String> filterQueries) {
-        SolrQuery solrQuery = this.getSolrQuery(requiredEntities, rows, filterQueries);
-        List<Topsearch> results = getSpellCheckedResponse(solrQuery, rows, filterQueries);
-        return UtilityClass.getFirstNElementsOfList(results, rows);
+    public List<com.proptiger.columbus.util.Topsearch> getTopsearchess(int entityId, String requiredEntities ) {
+        SolrQuery solrQuery = this.getSolrQuery(entityId, requiredEntities);
+        List<Typeahead> results = executeSolrQuery(solrQuery);
+        List<com.proptiger.columbus.util.Topsearch> topsearchResults = TopsearchUtils.typeaheadToTopsearchConverter(results);
+        return topsearchResults;
+        //return UtilityClass.getFirstNElementsOfList(topsarchResults, rows);
     }
 
     // Add parameters to use the custom requestHandler
-    private SolrQuery getSolrQuery(String requiredEntities, int rows, List<String> filterQueries) {
+    private SolrQuery getSolrQuery(int entityId, String requiredEntities) {
+    	DomainObject dObj = DomainObject.getDomainInstance(Long.parseLong(String.valueOf(entityId)));
+   	   	List<String> filterQueries = new ArrayList<String>();
+        getFilterQueryListFromRequestParams(filterQueries, dObj.getText(), entityId);
+        filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
+    	
     	String query = "";
-        SolrQuery solrQuery = getSimpleSolrQuery(query, rows, filterQueries);
+        SolrQuery solrQuery = getSimpleSolrQuery(query, filterQueries);
         
         solrQuery.setParam("qt", "/payload");
         solrQuery.setParam("defType", "payload");
@@ -73,13 +75,13 @@ public class TopsearchDao {
         return solrQuery;
     }
 
-    private SolrQuery getSimpleSolrQuery(String query, int rows, List<String> filterQueries) {
+    private SolrQuery getSimpleSolrQuery(String query, List<String> filterQueries) {
         SolrQuery solrQuery = new SolrQuery(QueryParserUtil.escape(query.toLowerCase()));
         for (String fq : filterQueries) {
             solrQuery.addFilterQuery(fq);
         }
 
-        solrQuery.setRows(rows);
+        //solrQuery.setRows(rows);
         return solrQuery;
     }
 
@@ -87,16 +89,32 @@ public class TopsearchDao {
      * If the query has a typo and can be corrected then new query is generated
      * using the suggestions and executed automatically
      */
-    private List<Topsearch> getSpellCheckedResponse(SolrQuery solrQuery, int rows, List<String> filterQueries) {
+    private List<Typeahead> executeSolrQuery(SolrQuery solrQuery) {
 
-        List<Topsearch> results = new ArrayList<Topsearch>();
+        List<Typeahead> results = new ArrayList<Typeahead>();
         QueryResponse response = solrDao.executeQuery(solrQuery);        
-        results = response.getBeans(Topsearch.class);
+        results = response.getBeans(Typeahead.class);
         return results;
        
     }
-  
     
-    
+    private void getFilterQueryListFromRequestParams(
+            List<String> filterQueries,
+            String entityType,
+            int entityId) {
+       
+        Map<String, String> filterQueryMap = new HashMap<String, String>();
+        
+        if (entityType == null || entityType.trim() == "" || entityId == 0) {
+        	return ;
+        }
+        
+        String str = "TYPEAHEAD-"+entityType.toUpperCase()+"-"+String.valueOf(entityId);
+        filterQueryMap.put("id", str);
+        	     
+        filterQueryMap.put("TYPEAHEAD_TYPE", entityType.toUpperCase());
+        
+        filterQueries.addAll(UtilityClass.convertMapToDlimSeparatedKeyValueList(filterQueryMap, ":"));
+    }
   
 }
