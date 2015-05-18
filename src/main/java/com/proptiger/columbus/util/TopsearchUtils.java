@@ -4,61 +4,53 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
+import com.proptiger.core.util.UtilityClass;
 
-public class TopsearchUtils<T extends Object> {
+public class TopsearchUtils {
 
-    private static Gson gson = new Gson();
+    private static Type type = new TypeToken<List<TopsearchObjectField>>() {}.getType();
 
-    public static List<Topsearch> typeaheadToTopsearchConverter(List<Typeahead> thList) {
+    public static List<Topsearch> typeaheadToTopsearchConverter(List<Typeahead> thList, String requiredEntities) {
         List<Topsearch> tsList = new ArrayList<Topsearch>();
         int rows = PropertyKeys.TOPSEARCH_ROW_COUNTS;
+        Topsearch topsearch;
+        requiredEntities = requiredEntities.toLowerCase();
         for (Typeahead th : thList) {
-            Topsearch topsearch = new Topsearch();
+            topsearch = new Topsearch();
             topsearch.setEntityId(TypeaheadUtils.parseEntityIdAsString(th));
             topsearch.setEntityType(th.getType());
-            if (th.getTopSearchedSuburb() != null && th.getTopSearchedSuburb().trim() != "") {
-                topsearch.setSuburb(stringToList(th.getTopSearchedSuburb(), "TopsearchObjectField".getClass()));
-                if (topsearch.getSuburb().size() > 3) {
-                    topsearch.setSuburb(new ArrayList<TopsearchObjectField>(topsearch.getSuburb().subList(0, rows)));
-                }
+
+            if (StringUtils.contains(requiredEntities, DomainObject.suburb.getText())) {
+                topsearch.setSuburb(getTopsearchObjectFieldFromString(th.getTopSearchedSuburb(), rows));
             }
-            if (th.getTopSearchedLocality() != null && th.getTopSearchedLocality().trim() != "") {
-                topsearch.setLocality(stringToList(th.getTopSearchedLocality(), "TopsearchObjectField".getClass()));
-                if (topsearch.getLocality().size() > 3) {
-                    topsearch
-                            .setLocality(new ArrayList<TopsearchObjectField>(topsearch.getLocality().subList(0, rows)));
-                }
+            if (StringUtils.contains(requiredEntities, DomainObject.locality.getText())) {
+                topsearch.setLocality(getTopsearchObjectFieldFromString(th.getTopSearchedLocality(), rows));
             }
-            if (th.getTopSearchedBuilder() != null && th.getTopSearchedBuilder().trim() != "") {
-                topsearch.setBuilder(stringToList(th.getTopSearchedBuilder(), "TopsearchObjectField".getClass()));
-                if (topsearch.getBuilder().size() > 3) {
-                    topsearch.setBuilder(new ArrayList<TopsearchObjectField>(topsearch.getBuilder().subList(0, rows)));
-                }
+            if (StringUtils.contains(requiredEntities, DomainObject.builder.getText())) {
+                topsearch.setBuilder(getTopsearchObjectFieldFromString(th.getTopSearchedBuilder(), rows));
             }
-            if (th.getTopSearchedProject() != null && th.getTopSearchedProject().trim() != "") {
-                topsearch.setProject(stringToList(th.getTopSearchedProject(), "TopsearchObjectField".getClass()));
-                if (topsearch.getProject().size() > 3) {
-                    topsearch.setProject(new ArrayList<TopsearchObjectField>(topsearch.getProject().subList(0, rows)));
-                }
+            if (StringUtils.contains(requiredEntities, DomainObject.project.getText())) {
+                topsearch.setProject(getTopsearchObjectFieldFromString(th.getTopSearchedProject(), rows));
             }
 
             tsList.add(topsearch);
         }
-
         return tsList;
-
     }
 
-    public static List<TopsearchObjectField> stringToList(String str, Class<?> var) {
-        /*
-         * Type type = new TypeToken<List<TopsearchObjectField>>() {}.getType();
-         * List<TopsearchObjectField> navigation = gson.fromJson(str, type);
-         */
-        Type type = new TypeToken<List<TopsearchObjectField>>() {}.getType();
-        List<TopsearchObjectField> navigation = gson.fromJson(str, type);
-        return navigation;
+    public static List<TopsearchObjectField> getTopsearchObjectFieldFromString(String line, int rows) {
+        if (line == null || line.trim().isEmpty()) {
+            return null;
+        }
+        List<TopsearchObjectField> objList = new Gson().fromJson(line, type);
+        objList = UtilityClass.getFirstNElementsOfList(objList, rows);
+        return objList;
     }
+
 }

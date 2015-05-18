@@ -1,56 +1,40 @@
 package com.proptiger.columbus.util;
 
-
-
 public class TopsearchObjectField {
-	
-	private String id;
-    
-	
-	private String typeaheadLabel;
-    
-	
-	private String typeaheadRedirectUrl;
-    
-	
+
+    private String id;
+
+    private String typeaheadLabel;
+
+    private String typeaheadRedirectUrl;
+
     public String getId() {
         return id;
     }
-	
-	
+
     public void setId(String id) {
         this.id = id;
     }
-    
-	
+
     public String getTypeaheadLabel() {
         return typeaheadLabel;
     }
-	
-	
+
     public void setTypeaheadLabel(String typeaheadLabel) {
         this.typeaheadLabel = typeaheadLabel;
     }
-    
-	
+
     public String getRedirectUrl() {
         return typeaheadRedirectUrl;
     }
-	
-	
+
     public void setRedirectUrl(String typeaheadRedirectUrl) {
         this.typeaheadRedirectUrl = typeaheadRedirectUrl;
     }
-    
-    
-    /*@Override
+
+    @Override
     public String toString() {
-		return "Field [ID=" + getId() + ", TYPEAHEAD_LABEL=" + getTypeaheadLabel() + ", TYPEAHEAD_REDIRECT_URL="
-                + getRedirectUrl() + "]";
-    }*/
-	@Override
-    public String toString() {
-		return id+":"+typeaheadLabel+":"+typeaheadRedirectUrl;
+        return id + ":" + typeaheadLabel + ":" + typeaheadRedirectUrl;
     }
 
 }

@@ -27,10 +27,6 @@ public class TopsearchService {
     /**
      * This method will return the list of topsearch results based on the
      * params.
-     * 
-     * @param entityId
-     * 
-     * @param requiredEntities
      */
     @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Topsearch> getTopsearches(int entityId, String requiredEntities) {
