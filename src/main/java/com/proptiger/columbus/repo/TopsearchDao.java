@@ -1,9 +1,7 @@
 package com.proptiger.columbus.repo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -11,12 +9,11 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.columbus.util.Topsearch;
 import com.proptiger.columbus.util.TopsearchUtils;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
-import com.proptiger.core.util.UtilityClass;
-
 
 /**
  * 
@@ -29,60 +26,63 @@ public class TopsearchDao {
 
     @Autowired
     private SolrDao solrDao;
-    
 
-    /*private Logger  logger = LoggerFactory.getLogger(TypeaheadDao.class);*/
+    public List<Topsearch> getTopsearchess(int entityId, String requiredEntities) {
+        List<Topsearch> topsearchResults = new ArrayList<Topsearch>();
+        if (requiredEntities == null || requiredEntities.trim() == "" || entityId == 0) {
+            return topsearchResults;
+        }
+        String entityType = getEntityTypeFromEntityId(entityId);
+        SolrQuery solrQuery = this.getSolrQuery(entityType, entityId, requiredEntities);
 
-    public List<com.proptiger.columbus.util.Topsearch> getTopsearchess(int entityId, String requiredEntities ) {
-        SolrQuery solrQuery = this.getSolrQuery(entityId, requiredEntities);
         List<Typeahead> results = executeSolrQuery(solrQuery);
-        List<com.proptiger.columbus.util.Topsearch> topsearchResults = TopsearchUtils.typeaheadToTopsearchConverter(results);
+
+        topsearchResults = TopsearchUtils.typeaheadToTopsearchConverter(results);
         return topsearchResults;
-        //return UtilityClass.getFirstNElementsOfList(topsarchResults, rows);
+
     }
 
-    // Add parameters to use the custom requestHandler
-    private SolrQuery getSolrQuery(int entityId, String requiredEntities) {
-    	DomainObject dObj = DomainObject.getDomainInstance(Long.parseLong(String.valueOf(entityId)));
-   	   	List<String> filterQueries = new ArrayList<String>();
-        getFilterQueryListFromRequestParams(filterQueries, dObj.getText(), entityId);
-        filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
-    	
-    	String query = "";
-        SolrQuery solrQuery = getSimpleSolrQuery(query, filterQueries);
-        
+    private String getEntityTypeFromEntityId(int entityId) {
+        DomainObject dObj = DomainObject.getDomainInstance(Long.parseLong(String.valueOf(entityId)));
+        return dObj.getText();
+    }
+
+    private SolrQuery getSolrQuery(String entityType, int entityId, String requiredEntities) {
+        String typeaheadId = "TYPEAHEAD-" + entityType.toUpperCase() + "-" + String.valueOf(entityId);
+
+        SolrQuery solrQuery = new SolrQuery(QueryParserUtil.escape(""));
+        solrQuery.addFilterQuery("id:" + typeaheadId);
+        solrQuery.addFilterQuery("TYPEAHEAD_TYPE:" + entityType.toUpperCase());
+        solrQuery.addFilterQuery("DOCUMENT_TYPE:TYPEAHEAD");
+
         solrQuery.setParam("qt", "/payload");
         solrQuery.setParam("defType", "payload");
-        //solrQuery.setParam("fl", "*,score");
-        
-        String[] entityArr =  requiredEntities.split(","); 
-        String reqField = "";
-        for (String entity : entityArr) {
-        	String str = entity.trim().toUpperCase();
-			if (str.equals("SUBURB"))
-				reqField += "TYPEAHEAD_TOP_SEARCHED_SUBURB";
-			if (str.equals("LOCALITY"))
-				reqField += "TYPEAHEAD_TOP_SEARCHED_LOCALITY";
-			if (str.equals("BUILDER"))
-				reqField += "TYPEAHEAD_TOP_SEARCHED_BUILDER";
-			if (str.equals("PROJECT"))
-				reqField += "TYPEAHEAD_TOP_SEARCHED_PROJECT";
-			reqField += ",";			
-		}
-        reqField = reqField.replaceAll("^[,]+|[,]+$", "");
-        reqField = reqField+",id,TYPEAHEAD_TYPE";
+
+        String reqField = getRequiredFields(requiredEntities);
         solrQuery.setParam("fl", reqField);
+
         return solrQuery;
     }
 
-    private SolrQuery getSimpleSolrQuery(String query, List<String> filterQueries) {
-        SolrQuery solrQuery = new SolrQuery(QueryParserUtil.escape(query.toLowerCase()));
-        for (String fq : filterQueries) {
-            solrQuery.addFilterQuery(fq);
+    private String getRequiredFields(String requiredEntities) {
+        String[] entityArr = requiredEntities.split(",");
+        String reqField = "";
+        for (String entity : entityArr) {
+            String str = entity.trim().toUpperCase();
+            if (str.equals("SUBURB"))
+                reqField += "TYPEAHEAD_TOP_SEARCHED_SUBURB";
+            if (str.equals("LOCALITY"))
+                reqField += "TYPEAHEAD_TOP_SEARCHED_LOCALITY";
+            if (str.equals("BUILDER"))
+                reqField += "TYPEAHEAD_TOP_SEARCHED_BUILDER";
+            if (str.equals("PROJECT"))
+                reqField += "TYPEAHEAD_TOP_SEARCHED_PROJECT";
+            reqField += ",";
         }
+        reqField = reqField.replaceAll("^[,]+|[,]+$", "");
+        reqField = reqField + ",id,TYPEAHEAD_TYPE";
 
-        //solrQuery.setRows(rows);
-        return solrQuery;
+        return reqField;
     }
 
     /**
@@ -92,29 +92,10 @@ public class TopsearchDao {
     private List<Typeahead> executeSolrQuery(SolrQuery solrQuery) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
-        QueryResponse response = solrDao.executeQuery(solrQuery);        
+        QueryResponse response = solrDao.executeQuery(solrQuery);
         results = response.getBeans(Typeahead.class);
         return results;
-       
+
     }
-    
-    private void getFilterQueryListFromRequestParams(
-            List<String> filterQueries,
-            String entityType,
-            int entityId) {
-       
-        Map<String, String> filterQueryMap = new HashMap<String, String>();
-        
-        if (entityType == null || entityType.trim() == "" || entityId == 0) {
-        	return ;
-        }
-        
-        String str = "TYPEAHEAD-"+entityType.toUpperCase()+"-"+String.valueOf(entityId);
-        filterQueryMap.put("id", str);
-        	     
-        filterQueryMap.put("TYPEAHEAD_TYPE", entityType.toUpperCase());
-        
-        filterQueries.addAll(UtilityClass.convertMapToDlimSeparatedKeyValueList(filterQueryMap, ":"));
-    }
-  
+
 }
