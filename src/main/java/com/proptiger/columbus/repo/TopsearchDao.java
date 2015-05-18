@@ -85,10 +85,6 @@ public class TopsearchDao {
         return reqField;
     }
 
-    /**
-     * If the query has a typo and can be corrected then new query is generated
-     * using the suggestions and executed automatically
-     */
     private List<Typeahead> executeSolrQuery(SolrQuery solrQuery) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();

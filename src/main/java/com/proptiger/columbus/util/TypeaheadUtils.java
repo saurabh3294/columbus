@@ -22,7 +22,6 @@ public class TypeaheadUtils {
             return null;
         }
     }
-    
     /**
      * @param t
      *            Typeahead object
