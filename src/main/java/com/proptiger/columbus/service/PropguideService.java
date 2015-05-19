@@ -21,7 +21,6 @@ public class PropguideService {
      * This method will return the list of typeahead results based on the
      * params.
      */
-    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<PropguideDocument> getDocumentsV1(String query, int rows) {
         List<PropguideDocument> results = propguideDao.getDocumentsV1(query, rows);
         return results;
