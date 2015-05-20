@@ -4,37 +4,81 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.columbus.model.SuggestionInfo;
+import com.proptiger.columbus.repo.SuggestionInfoDao;
+import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
 @Component
 public class CitySuggestions {
 
-    private String     templateId          = "Typeahead-Suggestion-City";
+    private String               templateId           = "Typeahead-Suggestion-City";
 
-    private String[][] suggestionTemplates = {
-            { "Affordable apartments in %s", "affordable-flats", "affordable-flats" },
-            { "Resale property in %s", "resale-property", "resale-property" },
-            { "Luxury projects in %s", "luxury-projects", "luxury-projects" },
-            { "Under construction property in %s", "under-construction-property", "under-construction-property" } };
+    private static String        suggestionEntityType = DomainObject.city.getText();
+
+    private static String        entityIdFilterFormat = "{\"equal\":{\"cityId\":%s}}\"";
+
+    @Autowired
+    private SuggestionInfoDao    suggestionInfoDao;
+
+    private SuggestionInfo       suggestionInfoAffordable;
+
+    private SuggestionInfo       suggestionInfoLuxury;
+
+    private SuggestionInfo       suggestionInfoUnderConstruction;
+
+    private SuggestionInfo       suggestionInfoResale;
+
+    private List<SuggestionInfo> suggestionInfoList;
+
+    @PostConstruct
+    private void initialize() {
+
+        suggestionInfoList = new ArrayList<SuggestionInfo>();
+
+        suggestionInfoAffordable = suggestionInfoDao.findByEntityTypeAndSuggestionType(
+                suggestionEntityType,
+                "affordable");
+        suggestionInfoList.add(suggestionInfoAffordable);
+
+        suggestionInfoLuxury = suggestionInfoDao.findByEntityTypeAndSuggestionType(suggestionEntityType, "luxury");
+        suggestionInfoList.add(suggestionInfoLuxury);
+
+        suggestionInfoUnderConstruction = suggestionInfoDao.findByEntityTypeAndSuggestionType(
+                suggestionEntityType,
+                "underConst");
+        suggestionInfoList.add(suggestionInfoUnderConstruction);
+
+        suggestionInfoResale = suggestionInfoDao.findByEntityTypeAndSuggestionType(suggestionEntityType, "resale");
+        suggestionInfoList.add(suggestionInfoResale);
+
+    }
 
     public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
 
         String name = topResult.getLabel();
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
-        Typeahead obj;
-        for (String[] template : suggestionTemplates) {
-            obj = new Typeahead();
-            obj.setDisplayText(String.format(template[0], name));
-            obj.setRedirectUrl(name.toLowerCase() + "/" + template[1]);
-            obj.setId(templateId + "-" + template[2]);
-            obj.setType(obj.getId());
-            obj.setSuggestion(true);
-            suggestions.add(obj);
+        Typeahead typeahead;
+        for (SuggestionInfo st : suggestionInfoList) {
+            typeahead = new Typeahead();
+            typeahead.setDisplayText(String.format(st.getDisplayTextFormat(), name));
+            typeahead.setRedirectUrl(name.toLowerCase() + "/" + st.getRedirectUrlFormat());
+
+            String entityIdFilter = String.format(entityIdFilterFormat, String.valueOf(id));
+            typeahead.setRedirectUrlFilters(String.format(st.getRedirectUrlFilters(), entityIdFilter));
+            
+            typeahead.setId(templateId + "-" + st.getTypeaheadIdFormat());
+            typeahead.setType(typeahead.getId());
+            typeahead.setSuggestion(true);
+            suggestions.add(typeahead);
         }
 
         return filterByCustomRules(suggestions, count);

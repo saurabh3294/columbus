@@ -4,55 +4,79 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.columbus.model.SuggestionInfo;
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.repo.SuggestionInfoDao;
 import com.proptiger.columbus.util.Pair;
+import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
 @Component
 public class LocalitySuggestions {
 
-    private String templateId = "Typeahead-Suggestion-Locality";
-    
+    private String                                           templateId           = "Typeahead-Suggestion-Locality";
+
+    private static String                                    suggestionEntityType = DomainObject.locality.getText();
+
+    private static String                                    entityIdFilterFormat = "{\"equal\":{\"localityId\":%s}}\"";
+
     @Autowired
-    private CustomPairComparatorIntToGeneric<SuggestionType> pairComparator;
-    
-    private enum SuggestionType {
+    private CustomPairComparatorIntToGeneric<SuggestionInfo> pairComparator;
 
-        Affordable("Affordable apartments in %s", "%s/affordable-flats-in-%s", "affordable-flats"), Luxury(
-                "Luxury projects in %s", "%s/luxury-projects-in-%s", "luxury-projects"), NewLaunch(
-                "New apartments in %s", "%s/new-apartments-for-sale-in-%s", "new-apartments"), UnderConstruction(
-                "Under construction property in %s", "%s/under-construction-property-in-%s",
-                "under-construction-property"), Resale("Resale property in %s", "%s/resale-property-in-%s",
-                "resale-property");
+    @Autowired
+    private SuggestionInfoDao                                suggestionInfoDao;
 
-        String displayTextFormat, redirectUrlFormat, typeaheadIdFormat;
+    private SuggestionInfo                                   suggestionInfoAffordable;
 
-        SuggestionType(String displayTextFormat, String redirectUrlFormat, String typeaheadIdFormat) {
-            this.displayTextFormat = displayTextFormat;
-            this.redirectUrlFormat = redirectUrlFormat;
-            this.typeaheadIdFormat = typeaheadIdFormat;
-        }
+    private SuggestionInfo                                   suggestionInfoLuxury;
+
+    private SuggestionInfo                                   suggestionInfoNewLaunch;
+
+    private SuggestionInfo                                   suggestionInfoUnderConstruction;
+
+    private SuggestionInfo                                   suggestionInfoResale;
+
+    @PostConstruct
+    private void initialize() {
+
+        suggestionInfoAffordable = suggestionInfoDao.findByEntityTypeAndSuggestionType(
+                suggestionEntityType,
+                "affordable");
+
+        suggestionInfoLuxury = suggestionInfoDao.findByEntityTypeAndSuggestionType(suggestionEntityType, "luxury");
+
+        suggestionInfoNewLaunch = suggestionInfoDao
+                .findByEntityTypeAndSuggestionType(suggestionEntityType, "newLaunch");
+
+        suggestionInfoUnderConstruction = suggestionInfoDao.findByEntityTypeAndSuggestionType(
+                suggestionEntityType,
+                "underConst");
+
+        suggestionInfoResale = suggestionInfoDao.findByEntityTypeAndSuggestionType(suggestionEntityType, "resale");
+
     }
 
     public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
-        List<SuggestionType> suggestionTypeList = getRelevantSuggestionTypes(topResult, count);
+        List<SuggestionInfo> suggestionTypeList = getRelevantSuggestionTypes(topResult, count);
 
-        for (SuggestionType st : suggestionTypeList) {
+        for (SuggestionInfo st : suggestionTypeList) {
             suggestions.add(makeTypeaheadObjectForSuggestionType(st, id, topResult));
         }
 
         return suggestions;
     }
 
-    private List<SuggestionType> getRelevantSuggestionTypes(Typeahead topResult, int count) {
-        List<SuggestionType> suggestionList = new ArrayList<SuggestionType>();
+    private List<SuggestionInfo> getRelevantSuggestionTypes(Typeahead topResult, int count) {
+        List<SuggestionInfo> suggestionList = new ArrayList<SuggestionInfo>();
 
         int projectCountNewLaunch = UtilityClass.safeUnbox(topResult.getEntityProjectCountNewLaunch(), 0);
         projectCountNewLaunch *= (TypeaheadConstants.suggestionNewLaunchMultiplier);
@@ -62,16 +86,16 @@ public class LocalitySuggestions {
         int projectCountLuxury = UtilityClass.safeUnbox(topResult.getEntityProjectCountLuxury(), 0);
         int projectCountResale = UtilityClass.safeUnbox(topResult.getEntityProjectCountResale(), 0);
 
-        List<Pair<Integer, SuggestionType>> pairList = new ArrayList<Pair<Integer, SuggestionType>>();
-        pairList.add(new Pair<Integer, SuggestionType>(projectCountNewLaunch, SuggestionType.NewLaunch));
-        pairList.add(new Pair<Integer, SuggestionType>(projectCountUnderConst, SuggestionType.UnderConstruction));
-        pairList.add(new Pair<Integer, SuggestionType>(projectCountAffordable, SuggestionType.Affordable));
-        pairList.add(new Pair<Integer, SuggestionType>(projectCountLuxury, SuggestionType.Luxury));
-        pairList.add(new Pair<Integer, SuggestionType>(projectCountResale, SuggestionType.Resale));
-        
+        List<Pair<Integer, SuggestionInfo>> pairList = new ArrayList<Pair<Integer, SuggestionInfo>>();
+        pairList.add(new Pair<Integer, SuggestionInfo>(projectCountNewLaunch, suggestionInfoNewLaunch));
+        pairList.add(new Pair<Integer, SuggestionInfo>(projectCountUnderConst, suggestionInfoUnderConstruction));
+        pairList.add(new Pair<Integer, SuggestionInfo>(projectCountAffordable, suggestionInfoAffordable));
+        pairList.add(new Pair<Integer, SuggestionInfo>(projectCountLuxury, suggestionInfoLuxury));
+        pairList.add(new Pair<Integer, SuggestionInfo>(projectCountResale, suggestionInfoResale));
+
         Collections.sort(pairList, pairComparator);
-        
-        for (Pair<Integer, SuggestionType> pair : pairList){
+
+        for (Pair<Integer, SuggestionInfo> pair : pairList) {
             if (pair.getFirst() > TypeaheadConstants.suggestionProjectCountTheshold) {
                 suggestionList.add(pair.getSecond());
             }
@@ -80,7 +104,7 @@ public class LocalitySuggestions {
         return UtilityClass.getFirstNElementsOfList(suggestionList, count);
     }
 
-    private Typeahead makeTypeaheadObjectForSuggestionType(SuggestionType st, int localityId, Typeahead topResult) {
+    private Typeahead makeTypeaheadObjectForSuggestionType(SuggestionInfo st, int localityId, Typeahead topResult) {
 
         String resultlabel = topResult.getLabel();
         String cityName = topResult.getCity();
@@ -88,14 +112,16 @@ public class LocalitySuggestions {
 
         Typeahead typeahead = new Typeahead();
         String localityNameProcessed = (localityName.replace(' ', '-') + "-" + localityId);
-        typeahead.setId(templateId + "-" + st.typeaheadIdFormat);
+        typeahead.setId(templateId + "-" + st.getTypeaheadIdFormat());
         typeahead.setType(typeahead.getId());
-        typeahead.setDisplayText(String.format(st.displayTextFormat, resultlabel));
-        typeahead.setRedirectUrl(String.format(st.redirectUrlFormat, cityName, localityNameProcessed).toLowerCase());
+        typeahead.setDisplayText(String.format(st.getDisplayTextFormat(), resultlabel));
+        typeahead.setRedirectUrl(String.format(st.getRedirectUrlFormat(), cityName, localityNameProcessed)
+                .toLowerCase());
+
+        String entityIdFilter = String.format(entityIdFilterFormat, String.valueOf(localityId));
+        typeahead.setRedirectUrlFilters(String.format(st.getRedirectUrlFilters(), entityIdFilter));
+
         typeahead.setSuggestion(true);
         return typeahead;
     }
-    
-    
-
 }
