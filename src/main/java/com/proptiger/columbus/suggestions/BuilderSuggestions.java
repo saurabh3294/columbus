@@ -23,7 +23,10 @@ public class BuilderSuggestions {
 
     private String                                           templateId           = "Typeahead-Suggestion-Builder";
 
-    private static String                                    suggestionEntityType = DomainObject.builder.getText();
+    private static int                                       suggestionEntityType = DomainObject.builder
+                                                                                          .getObjectTypeId();
+
+    private static String                                    entityIdFilterFormat = "{\"equal\":{\"builderId\":%s}},";
 
     @Autowired
     private CustomPairComparatorIntToGeneric<SuggestionInfo> pairComparator;
@@ -41,12 +44,13 @@ public class BuilderSuggestions {
     private void initialize() {
 
         suggestionTypeUpcoming = suggestionInfoDao
-                .findByEntityTypeAndSuggestionType(suggestionEntityType, "upcoming");
+                .findByEntityTypeIdAndSuggestionType(suggestionEntityType, "upcoming");
 
-        suggestionTypeCompleted = suggestionInfoDao
-                .findByEntityTypeAndSuggestionType(suggestionEntityType, "completed");
+        suggestionTypeCompleted = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(
+                suggestionEntityType,
+                "completed");
 
-        suggestionTypeUnderConstruction = suggestionInfoDao.findByEntityTypeAndSuggestionType(
+        suggestionTypeUnderConstruction = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(
                 suggestionEntityType,
                 "underConst");
     }
@@ -87,7 +91,7 @@ public class BuilderSuggestions {
         return UtilityClass.getFirstNElementsOfList(suggestionList, count);
     }
 
-    private Typeahead makeTypeaheadObjectForSuggestionType(SuggestionInfo st, int localityId, Typeahead topResult) {
+    private Typeahead makeTypeaheadObjectForSuggestionType(SuggestionInfo st, int builderId, Typeahead topResult) {
 
         String builderName = topResult.getLabel();
         String builderIdString = TypeaheadUtils.parseEntityIdAsString(topResult);
@@ -98,7 +102,10 @@ public class BuilderSuggestions {
         typeahead.setType(typeahead.getId());
         typeahead.setDisplayText(String.format(st.getDisplayTextFormat(), builderName));
         typeahead.setRedirectUrl(String.format(st.getRedirectUrlFormat(), builderName, builderIdString).toLowerCase());
-        typeahead.setRedirectUrlFilters(st.getRedirectUrlFilters());
+
+        String entityIdFilter = String.format(entityIdFilterFormat, String.valueOf(builderId));
+        typeahead.setRedirectUrlFilters(String.format(st.getRedirectUrlFilters(), entityIdFilter));
+
         typeahead.setSuggestion(true);
         return typeahead;
     }

@@ -21,9 +21,9 @@ public class CitySuggestions {
 
     private String               templateId           = "Typeahead-Suggestion-City";
 
-    private static String        suggestionEntityType = DomainObject.city.getText();
+    private static int           suggestionEntityType = DomainObject.city.getObjectTypeId();
 
-    private static String        entityIdFilterFormat = "{\"equal\":{\"cityId\":%s}}\"";
+    private static String        entityIdFilterFormat = "{\"equal\":{\"cityId\":%s}},";
 
     @Autowired
     private SuggestionInfoDao    suggestionInfoDao;
@@ -43,20 +43,20 @@ public class CitySuggestions {
 
         suggestionInfoList = new ArrayList<SuggestionInfo>();
 
-        suggestionInfoAffordable = suggestionInfoDao.findByEntityTypeAndSuggestionType(
+        suggestionInfoAffordable = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(
                 suggestionEntityType,
                 "affordable");
         suggestionInfoList.add(suggestionInfoAffordable);
 
-        suggestionInfoLuxury = suggestionInfoDao.findByEntityTypeAndSuggestionType(suggestionEntityType, "luxury");
+        suggestionInfoLuxury = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(suggestionEntityType, "luxury");
         suggestionInfoList.add(suggestionInfoLuxury);
 
-        suggestionInfoUnderConstruction = suggestionInfoDao.findByEntityTypeAndSuggestionType(
+        suggestionInfoUnderConstruction = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(
                 suggestionEntityType,
                 "underConst");
         suggestionInfoList.add(suggestionInfoUnderConstruction);
 
-        suggestionInfoResale = suggestionInfoDao.findByEntityTypeAndSuggestionType(suggestionEntityType, "resale");
+        suggestionInfoResale = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(suggestionEntityType, "resale");
         suggestionInfoList.add(suggestionInfoResale);
 
     }
@@ -74,7 +74,7 @@ public class CitySuggestions {
 
             String entityIdFilter = String.format(entityIdFilterFormat, String.valueOf(id));
             typeahead.setRedirectUrlFilters(String.format(st.getRedirectUrlFilters(), entityIdFilter));
-            
+
             typeahead.setId(templateId + "-" + st.getTypeaheadIdFormat());
             typeahead.setType(typeahead.getId());
             typeahead.setSuggestion(true);

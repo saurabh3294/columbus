@@ -22,9 +22,10 @@ public class LocalitySuggestions {
 
     private String                                           templateId           = "Typeahead-Suggestion-Locality";
 
-    private static String                                    suggestionEntityType = DomainObject.locality.getText();
+    private static int                                       suggestionEntityType = DomainObject.locality
+                                                                                          .getObjectTypeId();
 
-    private static String                                    entityIdFilterFormat = "{\"equal\":{\"localityId\":%s}}\"";
+    private static String                                    entityIdFilterFormat = "{\"equal\":{\"localityId\":%s}},";
 
     @Autowired
     private CustomPairComparatorIntToGeneric<SuggestionInfo> pairComparator;
@@ -45,20 +46,21 @@ public class LocalitySuggestions {
     @PostConstruct
     private void initialize() {
 
-        suggestionInfoAffordable = suggestionInfoDao.findByEntityTypeAndSuggestionType(
+        suggestionInfoAffordable = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(
                 suggestionEntityType,
                 "affordable");
 
-        suggestionInfoLuxury = suggestionInfoDao.findByEntityTypeAndSuggestionType(suggestionEntityType, "luxury");
+        suggestionInfoLuxury = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(suggestionEntityType, "luxury");
 
-        suggestionInfoNewLaunch = suggestionInfoDao
-                .findByEntityTypeAndSuggestionType(suggestionEntityType, "newLaunch");
+        suggestionInfoNewLaunch = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(
+                suggestionEntityType,
+                "newLaunch");
 
-        suggestionInfoUnderConstruction = suggestionInfoDao.findByEntityTypeAndSuggestionType(
+        suggestionInfoUnderConstruction = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(
                 suggestionEntityType,
                 "underConst");
 
-        suggestionInfoResale = suggestionInfoDao.findByEntityTypeAndSuggestionType(suggestionEntityType, "resale");
+        suggestionInfoResale = suggestionInfoDao.findByEntityTypeIdAndSuggestionType(suggestionEntityType, "resale");
 
     }
 
