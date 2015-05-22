@@ -21,9 +21,9 @@ import com.proptiger.core.model.Typeahead;
 @JsonFilter("fieldFilter")
 public class Topsearch {
 
-    private String                     entityId;
+    private String          entityId;
 
-    private String                     entityType;
+    private String          entityType;
 
     private List<Typeahead> builder;
 
