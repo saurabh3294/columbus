@@ -14,7 +14,7 @@ import com.proptiger.core.util.UtilityClass;
 
 public class TopsearchUtils {
 
-    private static Type type = new TypeToken<List<TopsearchObjectField>>() {}.getType();
+    private static Type type = new TypeToken<List<Typeahead>>() {}.getType();
 
     public static List<Topsearch> typeaheadToTopsearchConverter(List<Typeahead> thList, String requiredEntities) {
         List<Topsearch> tsList = new ArrayList<Topsearch>();
@@ -44,11 +44,11 @@ public class TopsearchUtils {
         return tsList;
     }
 
-    public static List<TopsearchObjectField> getTopsearchObjectFieldFromString(String line, int rows) {
+    public static List<Typeahead> getTopsearchObjectFieldFromString(String line, int rows) {
         if (line == null || line.trim().isEmpty()) {
             return null;
         }
-        List<TopsearchObjectField> objList = new Gson().fromJson(line, type);
+        List<Typeahead> objList = new Gson().fromJson(line, type);
         objList = UtilityClass.getFirstNElementsOfList(objList, rows);
         return objList;
     }
