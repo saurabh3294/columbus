@@ -38,8 +38,12 @@ public class TopsearchDao {
                 StringUtils.upperCase(entityType),
                 String.valueOf(entityId));
 
+        List<Typeahead> typeaheadList = typeaheadDao.getTypeaheadById(typeaheadId);
+        if (typeaheadList == null) {
+            return topsearchResults;
+        }
         List<Typeahead> results = new ArrayList<Typeahead>();
-        results.addAll(typeaheadDao.getTypeaheadById(typeaheadId));
+        results.addAll(typeaheadList);
 
         topsearchResults = TopsearchUtils.typeaheadToTopsearchConverter(results, requiredEntities);
         return topsearchResults;
