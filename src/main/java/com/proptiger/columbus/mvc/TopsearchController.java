@@ -13,8 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.columbus.service.TopsearchService;
-import com.proptiger.columbus.util.Topsearch;
+import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.constants.ResponseErrorMessages;
+import com.proptiger.core.enums.DomainObject;
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.meta.DisableCaching;
+import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
 
@@ -31,11 +35,19 @@ public class TopsearchController extends BaseController {
 
     @RequestMapping(value = "app/v1/topsearch")
     @ResponseBody
-    public APIResponse getTopsearches(@RequestParam int entityId, @RequestParam String requiredEntities) {
-
-        List<Topsearch> list = topsearchService.getTopsearches(entityId, requiredEntities);
+    public APIResponse getTopsearches(@RequestParam int entityId, @RequestParam String entityType, @RequestParam String requiredEntities, @RequestParam(defaultValue = "5") int rows) {
+        
+        if(!entityType.equalsIgnoreCase(getEntityTypeFromEntityId(entityId))) {
+            throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid entityId for the given entityType"); 
+        }
+        List<Typeahead> list = topsearchService.getTopsearches(entityId, entityType, requiredEntities, rows);
 
         return new APIResponse(super.filterFields(list, null), list.size());
+    }
+    
+    private String getEntityTypeFromEntityId(int entityId) {
+        DomainObject dObj = DomainObject.getDomainInstance((long) entityId);
+        return dObj.getText();
     }
 
 }
