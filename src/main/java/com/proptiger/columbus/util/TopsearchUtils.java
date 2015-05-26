@@ -16,39 +16,39 @@ public class TopsearchUtils {
 
     private static Type type = new TypeToken<List<Typeahead>>() {}.getType();
 
-    public static List<Topsearch> typeaheadToTopsearchConverter(List<Typeahead> thList, String requiredEntities) {
-        List<Topsearch> tsList = new ArrayList<Topsearch>();
+    public static List<Typeahead> typeaheadToTopsearchConverter(List<Typeahead> thList, String requiredEntities) {
+        List<Typeahead> tsList = new ArrayList<Typeahead>();
         int rows = PropertyKeys.TOPSEARCH_ROW_COUNTS;
-        Topsearch topsearch;
         requiredEntities = requiredEntities.toLowerCase();
         for (Typeahead th : thList) {
-            topsearch = new Topsearch();
-            topsearch.setEntityId(TypeaheadUtils.parseEntityIdAsString(th));
-            topsearch.setEntityType(th.getType());
 
             if (StringUtils.contains(requiredEntities, DomainObject.suburb.getText())) {
-                topsearch.setSuburb(getTopsearchObjectFieldFromString(th.getTopSearchedSuburb(), rows));
+
+                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedSuburb(), rows));
             }
             if (StringUtils.contains(requiredEntities, DomainObject.locality.getText())) {
-                topsearch.setLocality(getTopsearchObjectFieldFromString(th.getTopSearchedLocality(), rows));
+
+                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedLocality(), rows));
             }
             if (StringUtils.contains(requiredEntities, DomainObject.builder.getText())) {
-                topsearch.setBuilder(getTopsearchObjectFieldFromString(th.getTopSearchedBuilder(), rows));
+
+                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedBuilder(), rows));
             }
             if (StringUtils.contains(requiredEntities, DomainObject.project.getText())) {
-                topsearch.setProject(getTopsearchObjectFieldFromString(th.getTopSearchedProject(), rows));
-            }
 
-            tsList.add(topsearch);
+                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedProject(), rows));
+            }
         }
+
         return tsList;
     }
 
     public static List<Typeahead> getTopsearchObjectFieldFromString(String line, int rows) {
+        List<Typeahead> objList = new ArrayList<Typeahead>();
         if (line == null || line.trim().isEmpty()) {
-            return null;
+            return objList;
         }
-        List<Typeahead> objList = new Gson().fromJson(line, type);
+        objList = new Gson().fromJson(line, type);
         objList = UtilityClass.getFirstNElementsOfList(objList, rows);
         return objList;
     }

@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.columbus.model.TypeaheadConstants;
-import com.proptiger.columbus.util.Topsearch;
 import com.proptiger.columbus.util.TopsearchUtils;
-import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
 
@@ -29,12 +27,11 @@ public class TopsearchDao {
     @Autowired
     private TypeaheadDao typeaheadDao;
 
-    public List<Topsearch> getTopsearchess(int entityId, String requiredEntities) {
-        List<Topsearch> topsearchResults = new ArrayList<Topsearch>();
+    public List<Typeahead> getTopsearchess(int entityId, String entityType, String requiredEntities) {
+        List<Typeahead> topsearchResults = new ArrayList<Typeahead>();
         if (requiredEntities == null || requiredEntities.trim().isEmpty() || entityId == 0) {
             return topsearchResults;
         }
-        String entityType = getEntityTypeFromEntityId(entityId);
 
         String typeaheadId = String.format(
                 TypeaheadConstants.typeaheadIdPattern,
@@ -47,11 +44,6 @@ public class TopsearchDao {
         topsearchResults = TopsearchUtils.typeaheadToTopsearchConverter(results, requiredEntities);
         return topsearchResults;
 
-    }
-
-    private String getEntityTypeFromEntityId(int entityId) {
-        DomainObject dObj = DomainObject.getDomainInstance((long) entityId);
-        return dObj.getText();
     }
 
 }
