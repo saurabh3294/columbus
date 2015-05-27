@@ -557,13 +557,13 @@ public class TypeaheadService {
             suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
 
             if (suggestions == null || suggestions.isEmpty()) {
-                templateCityId = cityNameToCityObjectMap.get(templateCity).getId();
+                templateCityId = ((templateCity == null) ? 0 : cityNameToCityObjectMap.get(templateCity).getId());
                 suggestions = nlpSuggestionHandler
                         .getNlpTemplateBasedResults(query, templateCity, templateCityId, rows);
             }
         }
         catch (Exception ex) {
-            logger.error("Error while fetching suggestions. Query = " + query, ex);
+            logger.error("Error while fetching suggestions. Query = " + query + ", templateCity = " + templateCity, ex);
         }
 
         return suggestions;

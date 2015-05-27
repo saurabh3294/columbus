@@ -10,7 +10,7 @@ public class URLGenerationConstants {
     public static String SelectorGetAllCities               = "{\"fields\":[\"label\", \"id\",\"centerLatitude\",\"centerLongitude\"],\"paging\":{\"start\":0,\"rows\":%d}}";
 
     public static String SelectorGetLocalityNamesByCityName = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"label\"]}";
-    public static String SelectorGetBuilderNamesByCityName  = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"name\",\"url\"]}";
+    public static String SelectorGetBuilderNamesByCityName  = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":\"%s\"}}]},\"fields\":[\"id\",\"name\",\"url\",\"projectCount\"]}";
 
     public static String SelectorGetBuilderIdsAsFacet       = "{\"paging\":{\"rows\":0},\"filters\":{\"and\":[{\"equal\":{\"%s\":%s}}]}}&facets=%s";
 
@@ -22,7 +22,7 @@ public class URLGenerationConstants {
 
     public static String cityIdFilterFormat                 = "{\"equal\":{\"cityId\":%s}}";
     public static String localityIdFilterFormat             = "{\"equal\":{\"localityId\":%s}}";
-    public static String builderIdFilterFormat              = "{\"equal\":{\"buidlerId\":%s}}";
+    public static String builderIdFilterFormat              = "{\"equal\":{\"builderId\":%s}}";
 
     public static String addLocalityFilterToRedirectURL(String redirectUrl, Locality locality) {
         if (locality == null) {

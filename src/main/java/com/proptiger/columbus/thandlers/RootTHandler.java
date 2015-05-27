@@ -2,6 +2,7 @@ package com.proptiger.columbus.thandlers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.columbus.repo.TemplateInfoDao;
@@ -11,26 +12,14 @@ import com.proptiger.core.util.HttpRequestUtil;
 @Component
 public abstract class RootTHandler {
 
-
-    protected TemplateTypes   type;
+    @Autowired
     protected HttpRequestUtil httpRequestUtil;
+
+    @Autowired
     protected TemplateInfoDao templateInfoDao;
 
-    public TemplateTypes getType() {
-        return type;
-    }
-
-    public void setType(TemplateTypes type) {
-        this.type = type;
-    }
-
-    public void setHttpRequestUtil(HttpRequestUtil httpRequestUtil) {
-        this.httpRequestUtil = httpRequestUtil;
-    }
-
-    public void setTemplateInfoDao(TemplateInfoDao templateInfoDao) {
-        this.templateInfoDao = templateInfoDao;
-    }
+    @Autowired
+    private TemplateMap       templateMap;
 
     protected Typeahead getTypeaheadObjectByIdTextAndURL(
             String id,
@@ -45,6 +34,14 @@ public abstract class RootTHandler {
         typeahead.setType(typeahead.getId());
         typeahead.setSuggestion(true);
         return typeahead;
+    }
+
+    protected TemplateTypes getTemplateType(Typeahead template) {
+        return templateMap.get(template.getTemplateText().toLowerCase().trim());
+    }
+
+    protected TemplateTypes getTemplateType(String templateText) {
+        return templateMap.get(templateText.toLowerCase().trim());
     }
 
     /* Abstract Methods */

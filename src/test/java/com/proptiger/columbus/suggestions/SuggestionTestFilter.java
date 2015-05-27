@@ -19,7 +19,7 @@ import com.proptiger.core.util.URLUtil;
 @Component
 public class SuggestionTestFilter implements SuggestionTest {
 
-    private static Logger   logger = LoggerFactory.getLogger(SuggestionTestFilter.class);
+    private static Logger   logger           = LoggerFactory.getLogger(SuggestionTestFilter.class);
 
     @Autowired
     private HttpRequestUtil httpRequestUtil;
@@ -29,26 +29,34 @@ public class SuggestionTestFilter implements SuggestionTest {
 
     @Value("${project.listing.api.url}")
     private String          projectListingApiUrl;
-    
-    private String selecterTemplate = "selector={\"filters\":%s,\"paging\":{\"start\":0,\"rows\":0}}";
+
+    private String          selecterTemplate = "selector={\"filters\":{\"and\":[%s]},\"paging\":{\"start\":0,\"rows\":0}}";
 
     public void test(List<Typeahead> suggestions) {
         String filter;
+        APIResponse apiResponse;
         for (Typeahead suggestion : suggestions) {
             filter = suggestion.getRedirectUrlFilters();
-            Assert.assertTrue(isFilterValid(filter), ("test failed for " + suggestion.toString()));
+            apiResponse = getApiResponse(filter);
+            Assert.assertNotNull(apiResponse, "Null APIResponse recieved. Template = " + suggestion.toString());
+            String statusCode = apiResponse.getStatusCode();
+            logger.info("Validator response : " + statusCode);
+            Assert.assertTrue((statusCode == "2XX"), ("test failed for " + suggestion.toString()));
         }
     }
 
-    private boolean isFilterValid(String filter) {
+    private APIResponse getApiResponse(String filter) {
         String url = projectListingApiUrl + "?" + String.format(selecterTemplate, filter);
-        URI uri = URLUtil.getEncodedURIObject(url, BASE_URL);
-        logger.info("Testing url : " + uri.toString());
-        APIResponse apiResponse = httpRequestUtil.getInternalApiResultAsTypeFromCache(
-                uri,
-                APIResponse.class);
-        logger.info("Validator response : " + apiResponse.getStatusCode());
-        return (apiResponse.getStatusCode() == "2XX");
+        URI uri = null;
+        try {
+            uri = URLUtil.getEncodedURIObject(url, BASE_URL);
+            logger.info("Testing url : " + uri.toString());
+        }
+        catch (Exception ex) {
+            Assert.assertTrue(false, "Error encoding url : filter = " + filter);
+        }
+        APIResponse apiResponse = httpRequestUtil.getInternalApiResultAsTypeFromCache(uri, APIResponse.class);
+        return apiResponse;
     }
 
 }

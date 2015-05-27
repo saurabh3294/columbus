@@ -4,8 +4,12 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.columbus.model.TemplateInfo;
@@ -15,6 +19,7 @@ import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
+@Component
 public class THandlerProjectIn extends RootTHandler {
 
     private static Logger logger = LoggerFactory.getLogger(THandlerProjectIn.class);
@@ -29,18 +34,18 @@ public class THandlerProjectIn extends RootTHandler {
     private TemplateInfo  templateInfoSale;
     private TemplateInfo  templateInfoResale;
 
-    @Override
+    @PostConstruct
     public void initialize() {
 
-        templateInfoProjectsIn = templateInfoDao.findByTemplateType(TemplateTypes.ProjectsIn.getText());
-        templateInfoUpcoming = templateInfoDao.findByTemplateType(TemplateTypes.UpcomingProjectsIn.getText());
-        templateInfoNew = templateInfoDao.findByTemplateType(TemplateTypes.NewProjectsIn.getText());
-        templateInfoUnderConst = templateInfoDao.findByTemplateType(TemplateTypes.UnderConstProjectsIn.getText());
-        templateInfoReadyToMove = templateInfoDao.findByTemplateType(TemplateTypes.ReadyToMoveProjectsIn.getText());
-        templateInfoAffordable = templateInfoDao.findByTemplateType(TemplateTypes.AffordableProjectsIn.getText());
-        templateInfoLuxury = templateInfoDao.findByTemplateType(TemplateTypes.LuxuryProjectsIn.getText());
-        templateInfoSale = templateInfoDao.findByTemplateType(TemplateTypes.PropertyForSaleIn.getText());
-        templateInfoResale = templateInfoDao.findByTemplateType(TemplateTypes.PropertyForResaleIn.getText());
+        templateInfoProjectsIn = templateInfoDao.findByTemplateType(TemplateTypes.ProjectsIn.name());
+        templateInfoUpcoming = templateInfoDao.findByTemplateType(TemplateTypes.UpcomingProjectsIn.name());
+        templateInfoNew = templateInfoDao.findByTemplateType(TemplateTypes.NewProjectsIn.name());
+        templateInfoUnderConst = templateInfoDao.findByTemplateType(TemplateTypes.UnderConstProjectsIn.name());
+        templateInfoReadyToMove = templateInfoDao.findByTemplateType(TemplateTypes.ReadyToMoveProjectsIn.name());
+        templateInfoAffordable = templateInfoDao.findByTemplateType(TemplateTypes.AffordableProjectsIn.name());
+        templateInfoLuxury = templateInfoDao.findByTemplateType(TemplateTypes.LuxuryProjectsIn.name());
+        templateInfoSale = templateInfoDao.findByTemplateType(TemplateTypes.PropertyForSaleIn.name());
+        templateInfoResale = templateInfoDao.findByTemplateType(TemplateTypes.PropertyForResaleIn.name());
     }
 
     @Override
@@ -62,7 +67,7 @@ public class THandlerProjectIn extends RootTHandler {
 
         Typeahead t;
         for (Locality locality : topLocalities) {
-            t = getTypeaheadObject(city, cityId, locality);
+            t = getTypeaheadObject(template, city, cityId, locality);
             if (t != null) {
                 results.add(t);
             }
@@ -76,14 +81,14 @@ public class THandlerProjectIn extends RootTHandler {
 
     @Override
     public Typeahead getTopResult(String query, Typeahead template, String city, int cityId) {
-        return getTypeaheadObject(city, cityId, null);
+        return getTypeaheadObject(template, city, cityId, null);
     }
 
-    private Typeahead getTypeaheadObject(String city, int cityId, Locality locality) {
+    private Typeahead getTypeaheadObject(Typeahead template, String city, int cityId, Locality locality) {
 
-        TemplateInfo templateInfo = getTemplateInfo();
+        TemplateInfo templateInfo = getTemplateInfo(template);
 
-        String typeaheadId = this.getType().toString();
+        String typeaheadId = getTemplateType(template).toString();
         String entityName = getEntityName(city, cityId, locality);
         String typeaheadDisplayText = String.format(templateInfo.getDisplayTextFormat() + " " + entityName);
 
@@ -100,14 +105,13 @@ public class THandlerProjectIn extends RootTHandler {
                 typeaheadDisplayText,
                 redirectUrl,
                 redirectUrlFilters);
-        typeaheadDisplayText = (this.getType().getText());
         t.setRedirectUrl(redirectUrl);
         t.setRedirectUrlFilters(redirectUrlFilters);
         return t;
     }
 
-    private TemplateInfo getTemplateInfo() {
-        TemplateTypes templateType = this.getType();
+    private TemplateInfo getTemplateInfo(Typeahead template) {
+        TemplateTypes templateType = getTemplateType(template);
         TemplateInfo templateInfo = null;
         switch (templateType) {
             case ProjectsIn:
@@ -162,7 +166,7 @@ public class THandlerProjectIn extends RootTHandler {
 
     private String getEntityName(String city, int cityId, Locality locality) {
         if (locality == null) {
-            return city;
+            return StringUtils.capitalize(city);
         }
         return locality.getLabel();
     }

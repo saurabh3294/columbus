@@ -6,10 +6,13 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -22,9 +25,12 @@ import com.proptiger.columbus.suggestions.SuggestionTestStructure;
 import com.proptiger.columbus.suggestions.SuggestionTestURL;
 import com.proptiger.columbus.thandlers.RootTHandler;
 import com.proptiger.columbus.thandlers.TemplateMap;
+import com.proptiger.columbus.thandlers.TemplateTypes;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
 
+@Component
+@Test(singleThreaded = true)
 public class TypeaheadTemplateTests extends AbstractTest {
 
     @Autowired
@@ -43,10 +49,14 @@ public class TypeaheadTemplateTests extends AbstractTest {
 
     private List<SuggestionTest> testList;
 
-    private TemplateMap          templateMap        = new TemplateMap();
+    @Autowired
+    private TemplateMap          templateMap;
 
     @Autowired
     private SolrDao              solrDao;
+
+    @Autowired
+    private ApplicationContext   applicationContext;
 
     @Autowired
     SuggestionTestStructure      suggestionTestStructure;
@@ -75,27 +85,37 @@ public class TypeaheadTemplateTests extends AbstractTest {
         Assert.assertTrue(allTemplates.size() > 0, "0 templates recieved.");
 
         logger.info("Total Templates recieved = " + allTemplates.size());
-        
+
         RootTHandler thandler;
         List<Typeahead> results;
         String message;
+        TemplateTypes ttype;
         for (Typeahead t : allTemplates) {
             logger.info("Testing template : " + t.getId());
-            thandler = templateMap.getTemplateHandler(t.getTemplateText().trim());
+            t.setScore(100f);
+            ttype = templateMap.get(t.getTemplateText().trim());
+            Assert.assertNotNull(ttype, "Template type not found.");
+            thandler = applicationContext.getBean(ttype.getClazz());
+            Assert.assertNotNull(thandler, "Template handler not found.");
             results = thandler.getResults("", t, testCityName, testCityId, 5);
             message = String.format(assertMsgNoResults, t.getId(), testCityName);
-            Assert.assertEquals(results.size(), 5, message);
+            Assert.assertTrue(results.size() > 0, message);
             executeAllTestTypes(results);
         }
     }
-  
+
     /********** Internal Methods **********/
 
     private List<Typeahead> getAllTemplates() {
 
         SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setParam("qt", "/payload_v4");
+        solrQuery.setParam("defType", "payload");
+        solrQuery.setParam("fl", "*,score");
         solrQuery.setFilterQueries("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
-        List<Typeahead> results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+        System.out.println(solrQuery);
+        QueryResponse qr = solrDao.executeQuery(solrQuery);
+        List<Typeahead> results = qr.getBeans(Typeahead.class);
         return results;
     }
 

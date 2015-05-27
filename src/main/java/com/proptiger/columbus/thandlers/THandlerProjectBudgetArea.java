@@ -3,11 +3,15 @@ package com.proptiger.columbus.thandlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.hadoop.util.StringUtils;
+import org.springframework.stereotype.Component;
 
 import com.proptiger.columbus.model.TemplateInfo;
 import com.proptiger.core.model.Typeahead;
 
+@Component
 public class THandlerProjectBudgetArea extends RootTHandler {
 
     /* BUDGET related fields */
@@ -50,7 +54,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
 
     private TemplateInfo templateInfo;
 
-    @Override
+    @PostConstruct
     public void initialize() {
         /* TODO :: remove hardcoded string from here. */
         templateInfo = templateInfoDao.findByTemplateType("ProjectBudgetArea");
@@ -106,7 +110,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     minBudget,
                     x);
             results.add(getTypeaheadObjectByIdTextAndURL(
-                    this.getType().toString(),
+                    getTemplateType(templateText).toString(),
                     displayText,
                     redirectUrl,
                     redirectUrlFilters));
@@ -137,7 +141,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     x,
                     maxBudget);
             results.add(getTypeaheadObjectByIdTextAndURL(
-                    this.getType().toString(),
+                    getTemplateType(templateText).toString(),
                     displayText,
                     redirectUrl,
                     redirectUrlFilters));
@@ -169,7 +173,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     x[0],
                     x[1]);
             results.add(getTypeaheadObjectByIdTextAndURL(
-                    this.getType().toString(),
+                    getTemplateType(templateText).toString(),
                     displayText,
                     redirectUrl,
                     redirectUrlFilters));
@@ -197,7 +201,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     minArea,
                     x);
             results.add(getTypeaheadObjectByIdTextAndURL(
-                    this.getType().toString(),
+                    getTemplateType(templateText).toString(),
                     displayText,
                     redirectUrl,
                     redirectUrlFilters));
@@ -223,7 +227,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     x,
                     maxArea);
             results.add(getTypeaheadObjectByIdTextAndURL(
-                    this.getType().toString(),
+                    getTemplateType(templateText).toString(),
                     displayText,
                     redirectUrl,
                     redirectUrlFilters));
@@ -249,7 +253,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     x[0],
                     x[1]);
             results.add(getTypeaheadObjectByIdTextAndURL(
-                    this.getType().toString(),
+                    getTemplateType(templateText).toString(),
                     displayText,
                     redirectUrl,
                     redirectUrlFilters));

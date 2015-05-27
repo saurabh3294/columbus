@@ -24,7 +24,7 @@ public class SuggestionTestStructure implements SuggestionTest {
         String typeaheadId = typeahead.getId();
         Assert.assertNotNull(typeaheadId, "Typeahead ID is null");
         Assert.assertFalse(typeaheadId.isEmpty(), "Typeahead ID is empty");
-        Assert.assertTrue(StringUtils.contains(typeaheadId, "Typeahead-Suggestion"));
+        Assert.assertTrue(StringUtils.contains(typeaheadId, "Typeahead-"));
 
         String typeaheadType = typeahead.getType();
         Assert.assertNotNull(typeaheadType, "Typeahead Type is null");
