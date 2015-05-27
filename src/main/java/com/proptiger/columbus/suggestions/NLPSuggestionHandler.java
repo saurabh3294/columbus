@@ -31,35 +31,29 @@ public class NLPSuggestionHandler {
 
     private float           templateResultScoreTheshold      = 7.0f;
 
-    public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int rows) {
+    public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows) {
 
         if (city == null || city.isEmpty()) {
             city = TypeaheadConstants.defaultCityName;
+            cityId = TypeaheadConstants.defaultCityId;
         }
-
-        List<String> queryFilters = new ArrayList<String>();
-        queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
-        List<Typeahead> templateHits = typeaheadDao.getResponseV3(query, rows, queryFilters);
 
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        /* If no matching templates are found, return empty list. */
-        if (templateHits.size() == 0) {
-            return results;
-        }
-
-        /* Return templates only if we have a good match. */
-        if (templateHits.get(0).getScore() < templateResultScoreTheshold) {
+        List<Typeahead> templateHits = getTemplateHits(query, rows);
+        
+        /* If no good-matching templates are found, return empty list. */
+        if (templateHits.size() == 0 || templateHits.get(0).getScore() < templateResultScoreTheshold) {
             return results;
         }
 
         /* Get All results for first template. */
-        RootTHandler thandler = templateMap.getTemplate(templateHits.get(0).getTemplateText().trim());
+        RootTHandler thandler = templateMap.getTemplateHandler(templateHits.get(0).getTemplateText().trim());
 
         List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
         if (thandler != null) {
             thandler.setHttpRequestUtil(httpRequestUtil);
-            resultsFirstHandler = thandler.getResults(query, templateHits.get(0), city, rows);
+            resultsFirstHandler = thandler.getResults(query, templateHits.get(0), city, cityId, rows);
         }
 
         /* Populating template score as the score for all suggestions */
@@ -80,11 +74,11 @@ public class NLPSuggestionHandler {
         Typeahead topResult;
         for (Typeahead t : templateHits) {
             templateText = t.getTemplateText().trim();
-            rootTaTemplate = templateMap.getTemplate(templateText);
+            rootTaTemplate = templateMap.getTemplateHandler(templateText);
 
             if (rootTaTemplate != null) {
                 rootTaTemplate.setHttpRequestUtil(httpRequestUtil);
-                topResult = rootTaTemplate.getTopResult(query, t, city);
+                topResult = rootTaTemplate.getTopResult(query, t, city, cityId);
                 topResult.setScore(t.getScore());
                 results.add(topResult);
             }
@@ -107,5 +101,13 @@ public class NLPSuggestionHandler {
         }
 
         return results;
+    }
+    
+    
+    private List<Typeahead> getTemplateHits(String query, int rows){
+        List<String> queryFilters = new ArrayList<String>();
+        queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
+        List<Typeahead> templateHits = typeaheadDao.getResponseV3(query, rows, queryFilters);
+        return templateHits;
     }
 }

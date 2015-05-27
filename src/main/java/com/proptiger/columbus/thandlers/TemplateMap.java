@@ -15,13 +15,14 @@ public class TemplateMap extends HashMap<String, TemplateTypes> {
         fillMap();
     }
 
-    public RootTHandler getTemplate(String text) {
+    public RootTHandler getTemplateHandler(String text) {
         TemplateTypes ttype;
         try {
             if (this.containsKey(text)) {
                 ttype = this.get(text);
                 RootTHandler rtt = ttype.getClazz().newInstance();
                 rtt.setType(ttype);
+                rtt.initialize();
                 return rtt;
             }
             else {

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.proptiger.columbus.model.TemplateInfo;
 import com.proptiger.columbus.util.PropertyKeys;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Builder;
@@ -18,8 +19,15 @@ public class THandlerProjectsBy extends RootTHandler {
 
     private static Logger logger = LoggerFactory.getLogger(THandlerProjectsBy.class);
 
+    private TemplateInfo          templateInfo;
+
     @Override
-    public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
+    public void initialize() {
+        templateInfo = templateInfoDao.findByTemplateType(TemplateTypes.PropertyBy.getText());
+    }
+
+    @Override
+    public List<Typeahead> getResults(String query, Typeahead template, String city, int cityId, int rows) {
 
         /* restrict results to top 2 builders for now */
         rows = Math.min(rows, 2);
@@ -32,13 +40,15 @@ public class THandlerProjectsBy extends RootTHandler {
             return results;
         }
 
-        String redirectURL;
+        String id, displayText, redirectUrl;
+        String redirectUrlFilters = templateInfo.getRedirectUrlFilters();
+        Typeahead t;
         for (Builder builder : topBuilders) {
-            redirectURL = builder.getUrl();
-            results.add(getTypeaheadObjectByIdTextAndURL(
-                    this.getType().toString(),
-                    (this.getType().getText() + " " + builder.getName()),
-                    redirectURL));
+            id = this.getType().toString();
+            displayText = templateInfo.getDisplayTextFormat() + builder.getName();
+            redirectUrl = String.format(templateInfo.getRedirectUrlFormat(), city, builder.getUrl());
+            t = getTypeaheadObjectByIdTextAndURL(id, displayText, redirectUrl, redirectUrlFilters);
+            results.add(t);
             if (results.size() == rows) {
                 break;
             }
@@ -48,9 +58,9 @@ public class THandlerProjectsBy extends RootTHandler {
     }
 
     @Override
-    public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
+    public Typeahead getTopResult(String query, Typeahead template, String city, int cityId) {
 
-        List<Typeahead> results = getResults(query, typeahead, city, 1);
+        List<Typeahead> results = getResults(query, template, city, cityId, 1);
         if (results != null && !results.isEmpty()) {
             return results.get(0);
         }
@@ -74,5 +84,4 @@ public class THandlerProjectsBy extends RootTHandler {
                         Builder.class);
         return topBuilders;
     }
-
 }
