@@ -62,15 +62,16 @@ public class TypeaheadDao {
     @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadById(List<String> typeaheadIds) {
         List<Typeahead> results = new ArrayList<Typeahead>();
-        if(typeaheadIds == null || typeaheadIds.isEmpty()){
+        if (typeaheadIds == null || typeaheadIds.isEmpty()) {
             return results;
         }
         List<String> queryFilters = new ArrayList<String>();
         String filterIds = "";
         for (String id : typeaheadIds) {
-            filterIds = filterIds.concat("id:" + id + " or ");
+            filterIds = filterIds.concat("id:" + id + " OR ");
         }
-
+        filterIds = filterIds.substring(0, filterIds.length() - 3);
+        filterIds = "(" + filterIds + ")";
         queryFilters.add(filterIds);
         SolrQuery solrQuery = getSolrQueryV3("", typeaheadIds.size(), queryFilters);
         results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
