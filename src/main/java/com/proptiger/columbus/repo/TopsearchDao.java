@@ -54,18 +54,14 @@ public class TopsearchDao {
             typeaheadIds.add(th.getId());
         }
 
-        if (!typeaheadIds.isEmpty()) {
+        List<Typeahead> topsearchList = typeaheadDao.getTypeaheadById(typeaheadIds);
 
-            List<Typeahead> topsearchList = typeaheadDao.getTypeaheadById(typeaheadIds);
-            if (topsearchList == null) {
-                return topsearchResults;
-            }
-            else {
-                return topsearchList;
-            }
+        if (topsearchList == null) {
+            return topsearchResults;
         }
-
-        return topsearchResults;
+        else {
+            return topsearchList;
+        }
 
     }
 
