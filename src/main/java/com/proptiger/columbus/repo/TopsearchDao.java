@@ -45,8 +45,23 @@ public class TopsearchDao {
         List<Typeahead> results = new ArrayList<Typeahead>();
         results.addAll(typeaheadList);
 
-        topsearchResults = TopsearchUtils.typeaheadToTopsearchConverter(results, requiredEntities);
-        return topsearchResults;
+        List<Typeahead> topsearchIncompleteResults = new ArrayList<Typeahead>();
+        topsearchIncompleteResults = TopsearchUtils.typeaheadToTopsearchConverter(results, requiredEntities);
+
+        List<String> typeaheadIds = new ArrayList<String>();
+
+        for (Typeahead th : topsearchIncompleteResults) {
+            typeaheadIds.add(th.getId());
+        }
+
+        List<Typeahead> topsearchList = typeaheadDao.getTypeaheadById(typeaheadIds);
+
+        if (topsearchList == null) {
+            return topsearchResults;
+        }
+        else {
+            return topsearchList;
+        }
 
     }
 
