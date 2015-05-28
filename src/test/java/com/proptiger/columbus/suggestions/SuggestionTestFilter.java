@@ -30,7 +30,7 @@ public class SuggestionTestFilter implements SuggestionTest {
     @Value("${project.listing.api.url}")
     private String          projectListingApiUrl;
 
-    private String          selecterTemplate = "selector={\"filters\":{\"and\":[%s]},\"paging\":{\"start\":0,\"rows\":0}}";
+    private String          selecterTemplate = "selector={\"filters\":%s,\"paging\":{\"start\":0,\"rows\":0}}";
 
     public void test(List<Typeahead> suggestions) {
         String filter;
