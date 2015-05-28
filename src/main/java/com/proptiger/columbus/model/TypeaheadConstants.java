@@ -5,6 +5,7 @@ public class TypeaheadConstants {
     public static final String typeaheadIdPattern             = "TYPEAHEAD-%s-%s";
 
     public static final String defaultCityName                = "Noida";
+    public static final int    defaultCityId                  = 20;
     public static final String cityCookieLabel                = "HOME_CITY";
     public static final String cityCookieSeparater            = "%2C";
 

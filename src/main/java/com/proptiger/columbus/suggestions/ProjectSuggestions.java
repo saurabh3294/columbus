@@ -22,7 +22,7 @@ public class ProjectSuggestions {
 
     private static String   templateId           = "Typeahead-Suggestion-Project";
 
-    private static String   entityIdFilterFormat = "{\"equal\":{\"propertyId\":%s}}";
+    private static String   entityIdFilterFormat = "{\"and\":{\"equal\":{\"propertyId\":%s}}}";
 
     public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
 

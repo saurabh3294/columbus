@@ -86,7 +86,7 @@ public class TypeaheadDao {
         }
         catch (ProAPIException e) {
             if (e.getCause() instanceof RemoteSolrException) {
-                logger.warn("Error in solr query:", e);
+                logger.warn("Error executing solr query. QueryString = " + query + ", userCity = " + usercity);
             }
             else {
                 throw e;
@@ -103,7 +103,9 @@ public class TypeaheadDao {
         }
         catch (ProAPIException e) {
             if (e.getCause() instanceof RemoteSolrException) {
-                logger.warn("Error in solr query:", e);
+                logger.warn("Error executing solr query. QueryString = " + query
+                        + ", SolrQuery = "
+                        + String.valueOf(solrQuery));
             }
             else {
                 throw e;
