@@ -112,6 +112,7 @@ public class TypeaheadTemplateTests extends AbstractTest {
         solrQuery.setParam("qt", "/payload_v4");
         solrQuery.setParam("defType", "payload");
         solrQuery.setParam("fl", "*,score");
+        solrQuery.setParam("rows", "100");
         solrQuery.setFilterQueries("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
         System.out.println(solrQuery);
         QueryResponse qr = solrDao.executeQuery(solrQuery);

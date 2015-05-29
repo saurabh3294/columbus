@@ -97,11 +97,6 @@ public class TypeaheadService {
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
-        return typeaheadDao.getExactTypeaheads(query, rows, filterQueries);
-    }
-
-    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
         return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
