@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.columbus.service.TopsearchService;
 import com.proptiger.core.constants.ResponseCodes;
-import com.proptiger.core.constants.ResponseErrorMessages;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.meta.DisableCaching;

@@ -32,9 +32,6 @@ public class EntitySuggestionHandler {
     @Autowired
     private SuburbSuggestions   suburbSuggestions;
 
-    @Autowired
-    private LandmarkSuggestions landmarkSuggestions;
-
     public List<Typeahead> getEntityBasedSuggestions(List<Typeahead> results, int count) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
@@ -89,10 +86,6 @@ public class EntitySuggestionHandler {
                 break;
             case "LOCALITY":
                 suggestions = localitySuggestions.getSuggestions(entityId, topResult, count);
-                break;
-            case "LANDMARK":
-                // suggestions = landmarkSuggestions.getSuggestions(entityId,
-                // topResult, count);
                 break;
             default:
                 break;
