@@ -6,62 +6,76 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.repo.TemplateInfoDao;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.thandlers.RootTHandler;
 import com.proptiger.columbus.thandlers.TemplateMap;
+import com.proptiger.columbus.thandlers.TemplateTypes;
 import com.proptiger.core.model.Typeahead;
-import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.HttpRequestUtil;
 
 @Component
 public class NLPSuggestionHandler {
     @Autowired
-    private TypeaheadDao    typeaheadDao;
+    private TypeaheadDao       typeaheadDao;
 
     @Autowired
-    private HttpRequestUtil httpRequestUtil;
+    private HttpRequestUtil    httpRequestUtil;
 
-    private TemplateMap     templateMap                      = new TemplateMap();
+    @Autowired
+    private TemplateInfoDao    templateInfoDao;
 
-    private Logger          logger                           = LoggerFactory.getLogger(NLPSuggestionHandler.class);
+    @Autowired
+    private TemplateMap        templateMap;
 
-    private float           templateFirstResultScoreTheshold = 20.0f;
+    private Logger             logger                           = LoggerFactory.getLogger(NLPSuggestionHandler.class);
 
-    private float           templateResultScoreTheshold      = 7.0f;
+    @Autowired
+    private ApplicationContext applicationContext;
 
-    public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int rows) {
+    private float              templateFirstResultScoreTheshold = 20.0f;
+
+    private float              templateResultScoreTheshold      = 7.0f;
+
+    private RootTHandler getTemplateHandler(Typeahead template) {
+        String templateText = template.getTemplateText().trim();
+        TemplateTypes ttype = templateMap.get(templateText);
+        RootTHandler thandler = null;
+        try {
+            thandler = applicationContext.getBean(ttype.getClazz());
+        }
+        catch (Exception e) {
+            logger.error("No template handler found for template = " + template.getId());
+        }
+        return thandler;
+    }
+
+    public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows) {
 
         if (city == null || city.isEmpty()) {
             city = TypeaheadConstants.defaultCityName;
+            cityId = TypeaheadConstants.defaultCityId;
         }
-
-        List<String> queryFilters = new ArrayList<String>();
-        queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
-        List<Typeahead> templateHits = typeaheadDao.getResponseV3(query, rows, queryFilters);
 
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        /* If no matching templates are found, return empty list. */
-        if (templateHits.size() == 0) {
-            return results;
-        }
+        List<Typeahead> templateHits = getTemplateHits(query, rows);
 
-        /* Return templates only if we have a good match. */
-        if (templateHits.get(0).getScore() < templateResultScoreTheshold) {
+        /* If no good-matching templates are found, return empty list. */
+        if (templateHits.size() == 0 || templateHits.get(0).getScore() < templateResultScoreTheshold) {
             return results;
         }
 
         /* Get All results for first template. */
-        RootTHandler thandler = templateMap.getTemplate(templateHits.get(0).getTemplateText().trim());
 
+        RootTHandler thandlerFirst = getTemplateHandler(templateHits.get(0));
         List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
-        if (thandler != null) {
-            thandler.setHttpRequestUtil(httpRequestUtil);
-            resultsFirstHandler = thandler.getResults(query, templateHits.get(0), city, rows);
+        if (thandlerFirst != null) {
+            resultsFirstHandler = thandlerFirst.getResults(query, templateHits.get(0), city, cityId, rows);
         }
 
         /* Populating template score as the score for all suggestions */
@@ -78,15 +92,14 @@ public class NLPSuggestionHandler {
          * multiple template hits)
          */
         String templateText;
-        RootTHandler rootTaTemplate;
+        RootTHandler thandler;
         Typeahead topResult;
         for (Typeahead t : templateHits) {
             templateText = t.getTemplateText().trim();
-            rootTaTemplate = templateMap.getTemplate(templateText);
+            thandler = getTemplateHandler(t);
 
-            if (rootTaTemplate != null) {
-                rootTaTemplate.setHttpRequestUtil(httpRequestUtil);
-                topResult = rootTaTemplate.getTopResult(query, t, city);
+            if (thandler != null) {
+                topResult = thandler.getTopResult(query, t, city, cityId);
                 topResult.setScore(t.getScore());
                 results.add(topResult);
             }
@@ -109,5 +122,12 @@ public class NLPSuggestionHandler {
         }
 
         return results;
+    }
+
+    private List<Typeahead> getTemplateHits(String query, int rows) {
+        List<String> queryFilters = new ArrayList<String>();
+        queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
+        List<Typeahead> templateHits = typeaheadDao.getResponseV3(query, rows, queryFilters);
+        return templateHits;
     }
 }

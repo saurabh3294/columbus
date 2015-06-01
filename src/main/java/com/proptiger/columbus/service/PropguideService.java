@@ -4,12 +4,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.repo.PropguideDao;
-import com.proptiger.core.util.Constants;
 
 @Service
 public class PropguideService {

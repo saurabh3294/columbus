@@ -61,7 +61,7 @@ public class TypeaheadService {
     @Autowired
     private HttpRequestUtil         httpRequestUtil;
 
-    private Map<String, City>       cityNameToIdMap;
+    private Map<String, City>       cityNameToCityObjectMap;
 
     private int                     MAX_CITY_COUNT      = 1000;
 
@@ -96,11 +96,6 @@ public class TypeaheadService {
             }
         }
         return typeaheads;
-    }
-
-    @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
-        return typeaheadDao.getExactTypeaheads(query, rows, filterQueries);
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
@@ -218,7 +213,7 @@ public class TypeaheadService {
         if (filterCity != null) {
             templateCity = filterCity;
             enhanceQuery = filterCity + " " + enhanceQuery;
-            filterCityObject = cityNameToIdMap.get(filterCity);
+            filterCityObject = cityNameToCityObjectMap.get(filterCity);
         }
         else if (queryCity != null) {
             templateCity = queryCity;
@@ -276,8 +271,8 @@ public class TypeaheadService {
         for (Map.Entry<String, String> entry : fqMap.entrySet()) {
             key = entry.getKey();
             cityName = entry.getValue();
-            if (key.equals(TypeaheadConstants.typeaheadFieldNameCity) && cityNameToIdMap.containsKey(cityName)) {
-                int cityId = cityNameToIdMap.get(cityName).getId();
+            if (key.equals(TypeaheadConstants.typeaheadFieldNameCity) && cityNameToCityObjectMap.containsKey(cityName)) {
+                int cityId = cityNameToCityObjectMap.get(cityName).getId();
                 list.add("(" + TypeaheadConstants.typeaheadFieldNameCity
                         + ":"
                         + cityName
@@ -296,13 +291,13 @@ public class TypeaheadService {
     }
 
     private String extractCityNameFromQuery(String query) {
-        if (cityNameToIdMap == null || cityNameToIdMap.isEmpty()) {
+        if (cityNameToCityObjectMap == null || cityNameToCityObjectMap.isEmpty()) {
             populateCityNames();
         }
 
         String[] qterms = query.split("\\s+");
         String city = null;
-        Set<String> cityNames = cityNameToIdMap.keySet();
+        Set<String> cityNames = cityNameToCityObjectMap.keySet();
         if (qterms.length > 1 && cityNames != null && cityNames.contains(qterms[qterms.length - 1].toLowerCase())) {
             city = qterms[qterms.length - 1].toLowerCase();
         }
@@ -320,7 +315,7 @@ public class TypeaheadService {
                         PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
                                 .getRequiredPropertyAsString(CorePropertyKeys.CITY_API_URL) + buildParams).build()
                 .encode().toString());
-        cityNameToIdMap = new HashMap<String, City>();
+        cityNameToCityObjectMap = new HashMap<String, City>();
         List<City> cities = null;
         try {
             cities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, City.class);
@@ -334,7 +329,7 @@ public class TypeaheadService {
             return;
         }
         for (City c : cities) {
-            cityNameToIdMap.put(c.getLabel().toLowerCase(), c);
+            cityNameToCityObjectMap.put(c.getLabel().toLowerCase(), c);
         }
     }
 
@@ -355,12 +350,12 @@ public class TypeaheadService {
             return;
         }
 
-        if (!cityNameToIdMap.containsKey(usercity)) {
+        if (!cityNameToCityObjectMap.containsKey(usercity)) {
             logger.warn("Invalid usercity recieved : " + usercity);
             return;
         }
 
-        int cityId = cityNameToIdMap.get(usercity).getId();
+        int cityId = cityNameToCityObjectMap.get(usercity).getId();
 
         for (Typeahead t : results) {
             if (t.getType().equalsIgnoreCase(TypeaheadConstants.typeaheadTypeBuilder)) {
@@ -554,15 +549,18 @@ public class TypeaheadService {
         /* Restrict suggestion count */
         rows = Math.min(rows, TypeaheadConstants.maxSuggestionCount);
 
+        int templateCityId;
         try {
             suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
 
             if (suggestions == null || suggestions.isEmpty()) {
-                suggestions = nlpSuggestionHandler.getNlpTemplateBasedResults(query, templateCity, rows);
+                templateCityId = ((templateCity == null) ? 0 : cityNameToCityObjectMap.get(templateCity).getId());
+                suggestions = nlpSuggestionHandler
+                        .getNlpTemplateBasedResults(query, templateCity, templateCityId, rows);
             }
         }
         catch (Exception ex) {
-            logger.error("Error while fetching suggestions. Query = " + query, ex);
+            logger.error("Error while fetching suggestions. Query = " + query + ", templateCity = " + templateCity, ex);
         }
 
         return suggestions;

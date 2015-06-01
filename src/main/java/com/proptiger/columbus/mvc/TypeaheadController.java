@@ -130,23 +130,6 @@ public class TypeaheadController extends BaseController {
         return null;
     }
 
-    @Intercepted.TypeaheadListing
-    @RequestMapping("app/v1/typeahead/exact")
-    @ResponseBody
-    public APIResponse getExactTypeaheads(
-            @RequestParam String query,
-            @RequestParam(defaultValue = "5") int rows,
-            @RequestParam(required = false) String typeAheadType,
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String locality) {
-
-        List<String> filterQueries = new ArrayList<String>();
-        getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType);
-
-        List<Typeahead> list = typeaheadService.getExactTypeaheads(query, rows, filterQueries);
-        return new APIResponse(super.filterFields(list, null), list.size());
-    }
-
     private void getFilterQueryListFromRequestParams(
             List<String> filterQueries,
             String city,
