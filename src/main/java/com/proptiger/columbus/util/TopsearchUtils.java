@@ -16,27 +16,31 @@ public class TopsearchUtils {
 
     private static Type type = new TypeToken<List<Typeahead>>() {}.getType();
 
-    public static List<Typeahead> typeaheadToTopsearchConverter(List<Typeahead> thList, String requiredEntities) {
+    public static List<Typeahead> typeaheadToTopsearchConverter(
+            List<Typeahead> thList,
+            String requiredEntities,
+            Boolean isGroup,
+            int inputRows) {
         List<Typeahead> tsList = new ArrayList<Typeahead>();
-        int rows = PropertyKeys.TOPSEARCH_ROW_COUNTS;
-        requiredEntities = requiredEntities.toLowerCase();
-        for (Typeahead th : thList) {
 
+        requiredEntities = requiredEntities.toLowerCase();
+
+        for (Typeahead th : thList) {
             if (StringUtils.contains(requiredEntities, DomainObject.suburb.getText())) {
 
-                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedSuburb(), rows));
+                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedSuburb(), inputRows));
             }
             if (StringUtils.contains(requiredEntities, DomainObject.locality.getText())) {
 
-                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedLocality(), rows));
+                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedLocality(), inputRows));
             }
             if (StringUtils.contains(requiredEntities, DomainObject.builder.getText())) {
 
-                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedBuilder(), rows));
+                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedBuilder(), inputRows));
             }
             if (StringUtils.contains(requiredEntities, DomainObject.project.getText())) {
 
-                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedProject(), rows));
+                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedProject(), inputRows));
             }
         }
 

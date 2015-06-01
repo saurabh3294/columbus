@@ -1,5 +1,7 @@
 package com.proptiger.columbus.util;
 
+import java.util.Comparator;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.proptiger.core.model.Typeahead;
@@ -35,6 +37,29 @@ public class TypeaheadUtils {
         }
         catch (Exception ex) {
             return 0;
+        }
+    }
+
+    /** Inner classes : Comparators for Typeahead objects **/
+
+    public static class TypeaheadComparatorTypeaheadType implements Comparator<Typeahead> {
+        @Override
+        public int compare(Typeahead o1, Typeahead o2) {
+            return o2.getType().compareTo(o1.getType());
+        }
+    }
+
+    public static class TypeaheadComparatorScore implements Comparator<Typeahead> {
+        @Override
+        public int compare(Typeahead o1, Typeahead o2) {
+            return o2.getScore().compareTo(o1.getScore());
+        }
+    }
+
+    public static class TypeaheadComparatorId implements Comparator<Typeahead> {
+        @Override
+        public int compare(Typeahead o1, Typeahead o2) {
+            return o1.getId().compareTo(o2.getId());
         }
     }
 
