@@ -42,17 +42,6 @@ public class TopsearchService {
                 requiredEntities,
                 isGroup,
                 rows);
-        /*
-         * if (isGroup) { List<Typeahead> topsearches =
-         * topsearchDao.getGroupedTopsearchess(entityId, entityType,
-         * requiredEntities, isGroup, rows); } else{ List<Typeahead> topsearches
-         * = topsearchDao.getTopsearchess(entityId, entityType,
-         * requiredEntities, rows); }
-         */
-
-        // topsearches = UtilityClass.getFirstNElementsOfList(topsearches,
-        // rows);
-
         return topsearches;
     }
 

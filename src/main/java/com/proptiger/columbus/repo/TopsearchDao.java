@@ -80,7 +80,6 @@ public class TopsearchDao {
             return topsearchResults;
         }
         else {
-
             return sortTopsearch(topsearchList, map, isGroup, rows);
         }
 
