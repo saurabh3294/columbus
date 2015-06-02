@@ -37,12 +37,12 @@ import com.proptiger.core.util.UtilityClass;
 public class TypeaheadDao {
 
     @Autowired
-    private SolrDao solrDao;
+    private SolrDao          solrDao;
 
-    private Logger  logger = LoggerFactory.getLogger(TypeaheadDao.class);
-    
+    private Logger           logger = LoggerFactory.getLogger(TypeaheadDao.class);
+
     private List<SortClause> sortClauseList;
-    
+
     @PostConstruct
     private void initialize() {
         sortClauseList = getCustomSortOrderV4();
@@ -60,6 +60,25 @@ public class TypeaheadDao {
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
+    public List<Typeahead> getTypeaheadById(List<String> typeaheadIds) {
+        List<Typeahead> results = new ArrayList<Typeahead>();
+        if (typeaheadIds == null || typeaheadIds.isEmpty()) {
+            return results;
+        }
+        List<String> queryFilters = new ArrayList<String>();
+        String filterIds = "";
+        for (String id : typeaheadIds) {
+            filterIds = filterIds.concat("id:" + id + " OR ");
+        }
+        filterIds = filterIds.substring(0, filterIds.length() - 3);
+        filterIds = "(" + filterIds + ")";
+        queryFilters.add(filterIds);
+        SolrQuery solrQuery = getSolrQueryV3("", typeaheadIds.size(), queryFilters);
+        results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+        return results;
+    }
+
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         try {
@@ -67,7 +86,7 @@ public class TypeaheadDao {
         }
         catch (ProAPIException e) {
             if (e.getCause() instanceof RemoteSolrException) {
-                logger.warn("Error in solr query:", e);
+                logger.warn("Error executing solr query. QueryString = " + query + ", userCity = " + usercity);
             }
             else {
                 throw e;
@@ -75,7 +94,7 @@ public class TypeaheadDao {
         }
         return results;
     }
-    
+
     public List<Typeahead> getResponseV3(String query, int rows, List<String> filterQueries) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         SolrQuery solrQuery = getSolrQueryV3(query, rows, filterQueries);
@@ -84,7 +103,9 @@ public class TypeaheadDao {
         }
         catch (ProAPIException e) {
             if (e.getCause() instanceof RemoteSolrException) {
-                logger.warn("Error in solr query:", e);
+                logger.warn("Error executing solr query. QueryString = " + query
+                        + ", SolrQuery = "
+                        + String.valueOf(solrQuery));
             }
             else {
                 throw e;
@@ -132,7 +153,7 @@ public class TypeaheadDao {
 
         return resultsOriginal;
     }
-    
+
     private SolrQuery getSimpleSolrQuery(String query, int rows, List<String> filterQueries) {
         SolrQuery solrQuery = new SolrQuery(QueryParserUtil.escape(query.toLowerCase()));
         for (String fq : filterQueries) {
@@ -152,7 +173,7 @@ public class TypeaheadDao {
         return solrQuery;
     }
 
-    private List<SortClause> getCustomSortOrderV4(){
+    private List<SortClause> getCustomSortOrderV4() {
         List<SortClause> sortClauseList = new ArrayList<SortClause>();
         sortClauseList.add(new SortClause("score", ORDER.desc));
         sortClauseList.add(new SortClause("TYPEAHEAD_ENTITY_POPULARITY", ORDER.desc));
@@ -161,30 +182,6 @@ public class TypeaheadDao {
 
     /******************* Legacy Methods ****************************************/
 
-    public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
-        String[] multiWords = query.split("\\s+");
-        int wordsCounter = 0;
-        StringBuilder queryStringBuilder = new StringBuilder();
-        for (String word : multiWords) {
-            if (++wordsCounter < multiWords.length) {
-                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*" + " AND ");
-            }
-            else {
-                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*");
-            }
-        }
-
-        String exactMatchQuery = queryStringBuilder.toString();
-
-        SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(exactMatchQuery);
-        for (String fq : filterQueries) {
-            solrQuery.addFilterQuery(fq);
-        }
-        solrQuery.setRows(rows);
-        return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
-    }
-    
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         SolrQuery solrQuery = this.getSolrQueryV2(query, rows, filterQueries);
         List<Typeahead> results = getSpellCheckedResponseV2(solrQuery, rows, filterQueries);
@@ -229,7 +226,7 @@ public class TypeaheadDao {
         // + "]");
         return boostQuery;
     }
-    
+
     /**
      * If the query has a typo and can be corrected then new query is generated
      * using the suggestions and executed automatically
@@ -253,6 +250,5 @@ public class TypeaheadDao {
             return results;
         }
     }
-
 
 }
