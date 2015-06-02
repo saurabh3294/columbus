@@ -31,12 +31,12 @@ import com.proptiger.core.repo.SolrDao;
 
 @Component
 @Test(singleThreaded = true)
-public class TypeaheadTemplateTests extends AbstractTest {
+public class TypeaheadTemplateTest extends AbstractTest {
 
     @Autowired
     private NLPSuggestionHandler nlpSuggestionHandler;
 
-    private static Logger        logger             = LoggerFactory.getLogger(TypeaheadTemplateTests.class);
+    private static Logger        logger             = LoggerFactory.getLogger(TypeaheadTemplateTest.class);
 
     private String               assertMsgNoResults = "No results recieved for temptate = %s, city = %s";
 

@@ -21,9 +21,9 @@ import com.proptiger.core.model.Typeahead;
 
 @Component
 @Test(singleThreaded = true)
-public class TypeaheadSuggestionTests extends AbstractTest {
+public class TypeaheadSuggestionTest extends AbstractTest {
 
-    private static Logger        logger                     = LoggerFactory.getLogger(TypeaheadSuggestionTests.class);
+    private static Logger        logger                     = LoggerFactory.getLogger(TypeaheadSuggestionTest.class);
 
     private String               assertMsgTemplateSuggCount = "Suggestion count mismatch for %s suggestions. ID = %s";
 
