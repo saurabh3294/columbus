@@ -18,9 +18,15 @@ public class PropguideService {
     /**
      * This method will return the list of typeahead results based on the
      * params.
+     * 
+     * @param query
+     *            : Search query
+     * @param categories
+     *            : Categories to be used to filter results.
+     * @param rows
      */
-    public List<PropguideDocument> getDocumentsV1(String query, int rows) {
-        List<PropguideDocument> results = propguideDao.getDocumentsV1(query, rows);
+    public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows) {
+        List<PropguideDocument> results = propguideDao.getDocumentsV1(query, categories, rows);
         return results;
     }
 

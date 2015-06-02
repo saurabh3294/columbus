@@ -8,6 +8,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.core.model.AbstractTypeahead;
@@ -34,6 +35,7 @@ public class PropguideDocument extends AbstractTypeahead {
     @Field(value = "PGD_EXCERPT")
     private String            pgdExcerpt;
 
+    @JsonIgnore
     @Field(value = "PGD_CONTENT")
     private String            pgdContent;
 
@@ -51,6 +53,10 @@ public class PropguideDocument extends AbstractTypeahead {
 
     @Field(value = "PGD_CATEGORY")
     private List<String>      pgdCategory;
+
+    @JsonIgnore
+    @Field(value = "PGD_ROOT_CATEGORY_ID")
+    private List<Integer>     pgdRootCategoryId;
 
     public String getPgdType() {
         return pgdType;
@@ -130,6 +136,14 @@ public class PropguideDocument extends AbstractTypeahead {
 
     public void setPgdCategory(List<String> pgdCategory) {
         this.pgdCategory = pgdCategory;
+    }
+
+    public List<Integer> getPgdRootCategoryId() {
+        return pgdRootCategoryId;
+    }
+
+    public void setPgdRootCategoryId(List<Integer> pgdRootCategoryId) {
+        this.pgdRootCategoryId = pgdRootCategoryId;
     }
 
     @Override
