@@ -4,32 +4,59 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.proptiger.columbus.model.TemplateInfo;
 import com.proptiger.columbus.util.PropertyKeys;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Locality;
 import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
+@Component
 public class THandlerProjectIn extends RootTHandler {
 
-    private static String localityFilter = "locality=%s";
+    private static Logger logger = LoggerFactory.getLogger(THandlerProjectIn.class);
 
-    private static Logger logger         = LoggerFactory.getLogger(THandlerProjectIn.class);
+    private TemplateInfo  templateInfoProjectsIn;
+    private TemplateInfo  templateInfoUpcoming;
+    private TemplateInfo  templateInfoNew;
+    private TemplateInfo  templateInfoUnderConst;
+    private TemplateInfo  templateInfoReadyToMove;
+    private TemplateInfo  templateInfoAffordable;
+    private TemplateInfo  templateInfoLuxury;
+    private TemplateInfo  templateInfoSale;
+    private TemplateInfo  templateInfoResale;
+
+    @PostConstruct
+    public void initialize() {
+
+        templateInfoProjectsIn = templateInfoDao.findByTemplateType(TemplateTypes.ProjectsIn.name());
+        templateInfoUpcoming = templateInfoDao.findByTemplateType(TemplateTypes.UpcomingProjectsIn.name());
+        templateInfoNew = templateInfoDao.findByTemplateType(TemplateTypes.NewProjectsIn.name());
+        templateInfoUnderConst = templateInfoDao.findByTemplateType(TemplateTypes.UnderConstProjectsIn.name());
+        templateInfoReadyToMove = templateInfoDao.findByTemplateType(TemplateTypes.ReadyToMoveProjectsIn.name());
+        templateInfoAffordable = templateInfoDao.findByTemplateType(TemplateTypes.AffordableProjectsIn.name());
+        templateInfoLuxury = templateInfoDao.findByTemplateType(TemplateTypes.LuxuryProjectsIn.name());
+        templateInfoSale = templateInfoDao.findByTemplateType(TemplateTypes.PropertyForSaleIn.name());
+        templateInfoResale = templateInfoDao.findByTemplateType(TemplateTypes.PropertyForResaleIn.name());
+    }
 
     @Override
-    public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
+    public List<Typeahead> getResults(String query, Typeahead template, String city, int cityId, int rows) {
 
         /* restrict results to top 2 localities for now */
         rows = Math.min(rows, 3);
 
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        results.add(getTopResult(query, typeahead, city));
+        results.add(getTopResult(query, template, city, cityId));
 
         List<Locality> topLocalities = getTopLocalities(city);
 
@@ -38,13 +65,12 @@ public class THandlerProjectIn extends RootTHandler {
             return results;
         }
 
-        String redirectURL, taLabel, taID;
+        Typeahead t;
         for (Locality locality : topLocalities) {
-            redirectURL = getRedirectUrl(city);
-            redirectURL = addLocalityFilterToRedirectURL(redirectURL, locality.getLabel());
-            taID = this.getType().toString();
-            taLabel = (this.getType().getText() + " " + locality.getLabel());
-            results.add(getTypeaheadObjectByIdTextAndURL(taID, taLabel, redirectURL));
+            t = getTypeaheadObject(template, city, cityId, locality);
+            if (t != null) {
+                results.add(t);
+            }
             if (results.size() == rows) {
                 break;
             }
@@ -53,48 +79,72 @@ public class THandlerProjectIn extends RootTHandler {
         return results;
     }
 
-    private String getRedirectUrl(String city) {
-        String redirectUrl = "";
-        TemplateTypes templateType = this.getType();
+    @Override
+    public Typeahead getTopResult(String query, Typeahead template, String city, int cityId) {
+        return getTypeaheadObject(template, city, cityId, null);
+    }
+
+    private Typeahead getTypeaheadObject(Typeahead template, String city, int cityId, Locality locality) {
+
+        TemplateInfo templateInfo = getTemplateInfo(template);
+
+        String typeaheadId = getTemplateType(template).toString();
+        String entityName = getEntityName(city, cityId, locality);
+        String typeaheadDisplayText = String.format(templateInfo.getDisplayTextFormat() + " " + entityName);
+
+        String redirectUrl = String.format(templateInfo.getRedirectUrlFormat(), city.toLowerCase());
+
+        String entityFilter = URLGenerationConstants.getCityLocalityFilter(cityId, locality);
+        String redirectUrlFilters = String.format(templateInfo.getRedirectUrlFilters(), entityFilter);
+
+        if (locality != null) {
+            redirectUrl = URLGenerationConstants.addLocalityFilterToRedirectURL(redirectUrl, locality);
+        }
+        Typeahead t = getTypeaheadObjectByIdTextAndURL(
+                typeaheadId,
+                typeaheadDisplayText,
+                redirectUrl,
+                redirectUrlFilters);
+        t.setRedirectUrl(redirectUrl);
+        t.setRedirectUrlFilters(redirectUrlFilters);
+        return t;
+    }
+
+    private TemplateInfo getTemplateInfo(Typeahead template) {
+        TemplateTypes templateType = getTemplateType(template);
+        TemplateInfo templateInfo = null;
         switch (templateType) {
             case ProjectsIn:
-                redirectUrl = String.format(URLGenerationConstants.GenericUrlProjectsIn, city.toLowerCase());
-                break;
-            case NewProjectsIn:
-                redirectUrl = String.format(URLGenerationConstants.GenericUrlNewProjectsIn, city.toLowerCase()); /* TODO */
+                templateInfo = templateInfoProjectsIn;
                 break;
             case UpcomingProjectsIn:
-                redirectUrl = String.format(URLGenerationConstants.GenericUrlUpcomingProjectsIn, city.toLowerCase());
+                templateInfo = templateInfoUpcoming;
                 break;
-            case PreLaunchProjectsIn:
-                redirectUrl = String.format(URLGenerationConstants.GenericUrlPreLaunchProjectsIn, city.toLowerCase());
+            case NewProjectsIn:
+                templateInfo = templateInfoNew;
                 break;
             case UnderConstProjectsIn:
-                redirectUrl = String.format(URLGenerationConstants.GenericUrlUnderConstProjectsIn, city.toLowerCase());
+                templateInfo = templateInfoUnderConst;
                 break;
             case ReadyToMoveProjectsIn:
-                redirectUrl = String.format(URLGenerationConstants.GenericUrlReadyToMoveProjectsIn, city.toLowerCase());
+                templateInfo = templateInfoReadyToMove;
                 break;
             case AffordableProjectsIn:
-                redirectUrl = String.format(URLGenerationConstants.GenericUrlAffordableProjectsIn, city.toLowerCase());
+                templateInfo = templateInfoAffordable;
                 break;
             case LuxuryProjectsIn:
-                redirectUrl = String.format(URLGenerationConstants.GenericUrlLuxuryProjectsIn, city.toLowerCase());
+                templateInfo = templateInfoLuxury;
                 break;
-            case TopProjectsIn:
-                redirectUrl = String.format(URLGenerationConstants.GenericUrlProjectsIn, city.toLowerCase());
+            case PropertyForSaleIn:
+                templateInfo = templateInfoSale;
+                break;
+            case PropertyForResaleIn:
+                templateInfo = templateInfoResale;
                 break;
             default:
                 break;
         }
-
-        return redirectUrl;
-    }
-
-    public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
-        String displayText = (this.getType().getText() + " " + city);
-        String redirectUrl = getRedirectUrl(city);
-        return (getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
+        return templateInfo;
     }
 
     private List<Locality> getTopLocalities(String cityName) {
@@ -114,13 +164,10 @@ public class THandlerProjectIn extends RootTHandler {
         return topLocalities;
     }
 
-    private String addLocalityFilterToRedirectURL(String redirectUrl, String localityLabel) {
-        if (StringUtils.contains(redirectUrl, "?")) {
-            redirectUrl += ("&" + String.format(localityFilter, localityLabel));
+    private String getEntityName(String city, int cityId, Locality locality) {
+        if (locality == null) {
+            return StringUtils.capitalize(city);
         }
-        else {
-            redirectUrl += ("?" + String.format(localityFilter, localityLabel));
-        }
-        return redirectUrl;
+        return locality.getLabel();
     }
 }

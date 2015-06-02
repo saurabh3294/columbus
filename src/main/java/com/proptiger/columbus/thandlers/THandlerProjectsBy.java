@@ -2,24 +2,38 @@ package com.proptiger.columbus.thandlers;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.proptiger.columbus.model.TemplateInfo;
 import com.proptiger.columbus.util.PropertyKeys;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.Builder;
 import com.proptiger.core.util.CorePropertyKeys;
 import com.proptiger.core.util.PropertyReader;
 
+@Component
 public class THandlerProjectsBy extends RootTHandler {
 
     private static Logger logger = LoggerFactory.getLogger(THandlerProjectsBy.class);
 
+    private TemplateInfo  templateInfo;
+
+    @PostConstruct
+    public void initialize() {
+        templateInfo = templateInfoDao.findByTemplateType(TemplateTypes.PropertyBy.name());
+    }
+
     @Override
-    public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
+    public List<Typeahead> getResults(String query, Typeahead template, String city, int cityId, int rows) {
 
         /* restrict results to top 2 builders for now */
         rows = Math.min(rows, 2);
@@ -32,13 +46,16 @@ public class THandlerProjectsBy extends RootTHandler {
             return results;
         }
 
-        String redirectURL;
+        String id, displayText, redirectUrl;
+        String redirectUrlFilters = templateInfo.getRedirectUrlFilters();
+        Typeahead t;
         for (Builder builder : topBuilders) {
-            redirectURL = builder.getUrl();
-            results.add(getTypeaheadObjectByIdTextAndURL(
-                    this.getType().toString(),
-                    (this.getType().getText() + " " + builder.getName()),
-                    redirectURL));
+            id = getTemplateType(template).toString();
+            displayText = templateInfo.getDisplayTextFormat() + " " + builder.getName();
+            redirectUrl = String.format(templateInfo.getRedirectUrlFormat(), city.toLowerCase(), builder.getUrl());
+            redirectUrlFilters = String.format(redirectUrlFilters, getBuilderCityFilter(cityId, builder.getId()));
+            t = getTypeaheadObjectByIdTextAndURL(id, displayText, redirectUrl, redirectUrlFilters);
+            results.add(t);
             if (results.size() == rows) {
                 break;
             }
@@ -48,9 +65,9 @@ public class THandlerProjectsBy extends RootTHandler {
     }
 
     @Override
-    public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
+    public Typeahead getTopResult(String query, Typeahead template, String city, int cityId) {
 
-        List<Typeahead> results = getResults(query, typeahead, city, 1);
+        List<Typeahead> results = getResults(query, template, city, cityId, 1);
         if (results != null && !results.isEmpty()) {
             return results.get(0);
         }
@@ -72,7 +89,19 @@ public class THandlerProjectsBy extends RootTHandler {
                                                         cityName)).build().encode().toString()),
                         PropertyReader.getRequiredPropertyAsInt(PropertyKeys.INTERNAL_API_SLA_MS),
                         Builder.class);
+
+        Collections.sort(topBuilders, new Comparator<Builder>() {
+            @Override
+            public int compare(Builder o1, Builder o2) {
+                return o2.getProjectCount() - o1.getProjectCount();
+            }
+        });
         return topBuilders;
     }
 
+    private String getBuilderCityFilter(int cityId, int builderId) {
+        String builderFilter = String.format(URLGenerationConstants.builderIdFilterFormat, builderId);
+        String cityFilter = String.format(URLGenerationConstants.cityIdFilterFormat, cityId);
+        return String.format(cityFilter + "," + builderFilter);
+    }
 }
