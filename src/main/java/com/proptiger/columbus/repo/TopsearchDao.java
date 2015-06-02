@@ -2,11 +2,11 @@ package com.proptiger.columbus.repo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.comparators.ComparatorChain;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -34,6 +34,19 @@ public class TopsearchDao {
     private TypeaheadDao    typeaheadDao;
 
     private ComparatorChain chain;
+    
+    /**
+     * 
+     * This method will return the list of topsearch results based on the
+     * params.
+     * 
+     * @param entityId (cityId, suburbId, localityId, builderId)
+     * @param entityType (type of entity whose id is given in entityId, city|suburb|locality|builder)
+     * @param requiredEntities (geographically lower order entity types compare to entity given in entityType param for which top searches are required, in comma separated string format, eg. if entity type is city than requiredEntities can be  'locality,project')
+     * @param isGroup (true if topsearch results required in entity groups)
+     * @param rows (no of rows, if isGroup is true than its the result count of individual entity types, if false than its the total count of results)
+     * @return
+     */
 
     public List<Typeahead> getTopsearchess(
             int entityId,
@@ -67,11 +80,11 @@ public class TopsearchDao {
 
         List<String> typeaheadIds = new ArrayList<String>();
 
-        Map<String, Float> map = new HashedMap();
+        Map<String, Float> typeaheadIdScoreMap = new HashMap<String, Float>();
 
         for (Typeahead th : topsearchIncompleteResults) {
             typeaheadIds.add(th.getId());
-            map.put(th.getId(), th.getScore());
+            typeaheadIdScoreMap.put(th.getId(), th.getScore());
         }
 
         List<Typeahead> topsearchList = typeaheadDao.getTypeaheadById(typeaheadIds);
@@ -80,19 +93,19 @@ public class TopsearchDao {
             return topsearchResults;
         }
         else {
-            return sortTopsearch(topsearchList, map, isGroup, rows);
+            return sortTopsearchByTypeAndScore(topsearchList, typeaheadIdScoreMap, isGroup, rows);
         }
 
     }
 
-    public List<Typeahead> sortTopsearch(
+    private List<Typeahead> sortTopsearchByTypeAndScore(
             List<Typeahead> topsearchList,
-            Map<String, Float> map,
+            Map<String, Float> typeaheadIdScoreMap,
             Boolean isGroup,
             int rows) {
 
         for (Typeahead th : topsearchList) {
-            th.setScore(map.get(th.getId()));
+            th.setScore(typeaheadIdScoreMap.get(th.getId()));
         }
         if (isGroup) {
             chain = new ComparatorChain();
