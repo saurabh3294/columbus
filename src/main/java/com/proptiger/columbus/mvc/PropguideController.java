@@ -3,6 +3,7 @@ package com.proptiger.columbus.mvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,15 +22,17 @@ public class PropguideController extends BaseController {
 
     @Autowired
     private PropguideService propguideService;
-    
+
     @RequestMapping(value = "app/v1/propguide")
     @ResponseBody
     public APIResponse getDocumentsV1(
             @RequestParam String query,
-            @RequestParam(defaultValue = "5") int rows){
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "5") int rows) {
 
+        String[] categories = StringUtils.split(category, ',');
         List<PropguideDocument> results = new ArrayList<PropguideDocument>();
-        results = propguideService.getDocumentsV1(query, rows);
+        results = propguideService.getDocumentsV1(query, categories, rows);
         return new APIResponse(super.filterFields(results, null), results.size());
     }
 }
