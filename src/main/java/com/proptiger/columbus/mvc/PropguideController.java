@@ -35,4 +35,18 @@ public class PropguideController extends BaseController {
         results = propguideService.getDocumentsV1(query, categories, rows);
         return new APIResponse(super.filterFields(results, null), results.size());
     }
+
+    @RequestMapping(value = "app/v1/propguideListing")
+    @ResponseBody
+    public APIResponse getListingDocumentsV1(
+            @RequestParam String query,
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "0") int start,
+            @RequestParam(defaultValue = "5") int rows) {
+
+        String[] categories = StringUtils.split(category, ',');
+        List<PropguideDocument> results = new ArrayList<PropguideDocument>();
+        results = propguideService.getListingDocumentsV1(query, categories, start, rows);
+        return new APIResponse(super.filterFields(results, null), results.size());
+    }
 }
