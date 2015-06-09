@@ -13,7 +13,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.columbus.model.PropguideDocument;
-import com.proptiger.columbus.util.PropertyKeys;
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
@@ -21,16 +21,14 @@ import com.proptiger.core.util.UtilityClass;
 @Repository
 public class PropguideDao {
 
-    public static String FQ_PGD_CATEGORY        = "PGD_ROOT_CATEGORY_ID:(%s)";
+    public static String FQ_PGD_CATEGORY = "PGD_ROOT_CATEGORY_ID:(%s)";
 
     @Autowired
     private SolrDao      solrDao;
-    private int          tagPostCountMultiplier = PropertyKeys.PROPGUIDE_POST_TAGS_MULTIPLIER;
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows) {
         List<PropguideDocument> results = new ArrayList<PropguideDocument>();
-        rows = rows * tagPostCountMultiplier;
         results = getResponseV1(query, categories, rows);
         return results;
     }
@@ -42,19 +40,19 @@ public class PropguideDao {
      * @param categories
      */
     private List<PropguideDocument> getResponseV1(String query, String[] categories, int rows) {
-
-        QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponse(query, categories, rows);
+        int enlargedRows = rows * TypeaheadConstants.PROPGUIDE_POST_TAGS_MULTIPLIER;
+        QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponse(query, categories, enlargedRows);
         List<PropguideDocument> resultsOriginal = solrResponseOriginal.getBeans(PropguideDocument.class);
 
         SpellCheckResponse scr = solrResponseOriginal.getSpellCheckResponse();
         String querySuggested = getSuggestedQuery(scr);
         if (querySuggested != null) {
-            QueryResponse solrResponseSpellcheck = makeSolrQueryAndGetResponse(querySuggested, categories, rows);
+            QueryResponse solrResponseSpellcheck = makeSolrQueryAndGetResponse(querySuggested, categories, enlargedRows);
             List<PropguideDocument> resultsSpellcheck = solrResponseSpellcheck.getBeans(PropguideDocument.class);
             resultsOriginal = combineOriginalAndSpellcheckResults(resultsOriginal, resultsSpellcheck);
         }
 
-        List<PropguideDocument> resultsFinal = divideResultInTagsPosts(resultsOriginal, rows / tagPostCountMultiplier);
+        List<PropguideDocument> resultsFinal = divideResultInTagsPosts(resultsOriginal, rows);
 
         return resultsFinal;
     }

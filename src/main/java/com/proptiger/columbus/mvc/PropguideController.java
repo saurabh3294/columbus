@@ -36,7 +36,7 @@ public class PropguideController extends BaseController {
         return new APIResponse(super.filterFields(results, null), results.size());
     }
 
-    @RequestMapping(value = "app/v1/propguideListing")
+    @RequestMapping(value = "app/v1/propguide/listing")
     @ResponseBody
     public APIResponse getListingDocumentsV1(
             @RequestParam String query,
