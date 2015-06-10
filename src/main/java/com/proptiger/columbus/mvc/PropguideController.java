@@ -15,6 +15,7 @@ import com.proptiger.columbus.service.PropguideService;
 import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 
 @Controller
 @DisableCaching
@@ -45,8 +46,11 @@ public class PropguideController extends BaseController {
             @RequestParam(defaultValue = "5") int rows) {
 
         String[] categories = StringUtils.split(category, ',');
-        List<PropguideDocument> results = new ArrayList<PropguideDocument>();
-        results = propguideService.getListingDocumentsV1(query, categories, start, rows);
-        return new APIResponse(super.filterFields(results, null), results.size());
+        PaginatedResponse<List<PropguideDocument>> paginatedReponse = propguideService.getListingDocumentsV1(
+                query,
+                categories,
+                start,
+                rows);
+        return new APIResponse(paginatedReponse);
     }
 }

@@ -1,7 +1,10 @@
 package com.proptiger.columbus.util;
 
+import java.util.Comparator;
+
 import org.apache.commons.lang.StringUtils;
 
+import com.proptiger.core.model.AbstractTypeahead;
 import com.proptiger.core.model.Typeahead;
 
 public class TypeaheadUtils {
@@ -38,4 +41,17 @@ public class TypeaheadUtils {
         }
     }
 
+    public static class AbstractTypeaheadComparatorScore implements Comparator<AbstractTypeahead> {
+        @Override
+        public int compare(AbstractTypeahead o1, AbstractTypeahead o2) {
+            return o2.getScore().compareTo(o1.getScore());
+        }
+    }
+
+    public static class AbstractTypeaheadComparatorId implements Comparator<AbstractTypeahead> {
+        @Override
+        public int compare(AbstractTypeahead o1, AbstractTypeahead o2) {
+            return o1.getId().compareTo(o2.getId());
+        }
+    }
 }

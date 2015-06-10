@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.repo.PropguideDao;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 
 @Service
 public class PropguideService {
@@ -40,9 +41,17 @@ public class PropguideService {
      *            : Categories used to filter results.
      * @param rows
      */
-    public List<PropguideDocument> getListingDocumentsV1(String query, String[] categories, int start, int rows) {
-        List<PropguideDocument> results = propguideDao.getListingDocumentsV1(query, categories, start, rows);
-        return results;
+    public PaginatedResponse<List<PropguideDocument>> getListingDocumentsV1(
+            String query,
+            String[] categories,
+            int start,
+            int rows) {
+        PaginatedResponse<List<PropguideDocument>> paginatedResponse = propguideDao.getListingDocumentsV1(
+                query,
+                categories,
+                start,
+                rows);
+        return paginatedResponse;
     }
 
     /** Inner classes : Comparators for Propguide objects **/
