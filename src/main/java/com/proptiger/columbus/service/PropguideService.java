@@ -30,6 +30,21 @@ public class PropguideService {
         return results;
     }
 
+    /**
+     * This method will return the list of typeahead results based on the
+     * params.
+     * 
+     * @param query
+     *            : Search query
+     * @param types
+     *            : Categories used to filter results.
+     * @param rows
+     */
+    public List<PropguideDocument> getListingDocumentsV1(String query, String[] categories, int start, int rows) {
+        List<PropguideDocument> results = propguideDao.getListingDocumentsV1(query, categories, start, rows);
+        return results;
+    }
+
     /** Inner classes : Comparators for Propguide objects **/
 
     class PropguideComparatorScore implements Comparator<PropguideDocument> {
