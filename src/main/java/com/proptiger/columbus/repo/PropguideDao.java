@@ -1,6 +1,7 @@
 package com.proptiger.columbus.repo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.util.TypeaheadUtils;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
@@ -68,7 +71,16 @@ public class PropguideDao {
         if (resultsSuggested != null) {
             results.addAll(resultsSuggested);
         }
-        return results;
+
+        /* Sort and remove duplicates */
+        Collections.sort(results, new TypeaheadUtils.AbstractTypeaheadComparatorScore());
+        List<List<PropguideDocument>> listOfresults = new ArrayList<List<PropguideDocument>>();
+        listOfresults.add(results);
+        List<PropguideDocument> resultsFinal = UtilityClass.getMergedListRemoveDuplicates(
+                listOfresults,
+                new TypeaheadUtils.AbstractTypeaheadComparatorId());
+
+        return resultsFinal;
     }
 
     private List<PropguideDocument> divideResultInTagsPosts(List<PropguideDocument> resultsOriginal, int rows) {
@@ -155,44 +167,22 @@ public class PropguideDao {
     }
 
     /**
-     * Propguide Listing related methods
-     */
-
-    @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<PropguideDocument> getListingDocumentsV1(String query, String[] categories, int start, int rows) {
-        List<PropguideDocument> results = new ArrayList<PropguideDocument>();
-        results = getListingResponseV1(query, categories, start, rows);
-        return results;
-    }
-
-    /**
      * If the query has a typo and can be corrected then new query is generated
      * using the suggestions and executed automatically
      * 
      * @param types
      */
-    private List<PropguideDocument> getListingResponseV1(String query, String[] categories, int start, int rows) {
-        // propguideListingType = PropguideListingType.getTypeInstance();
-        // String[] categoryIdStrings = propguideListingType.
+
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
+    public PaginatedResponse<List<PropguideDocument>> getListingDocumentsV1(
+            String query,
+            String[] categories,
+            int start,
+            int rows) {
         QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponseForListing(query, categories, start, rows);
         List<PropguideDocument> resultsOriginal = solrResponseOriginal.getBeans(PropguideDocument.class);
-
-        SpellCheckResponse scr = solrResponseOriginal.getSpellCheckResponse();
-        String querySuggested = getSuggestedQuery(scr);
-        if (querySuggested == null) {
-            return resultsOriginal;
-        }
-
-        QueryResponse solrResponseSpellcheck = makeSolrQueryAndGetResponseForListing(
-                querySuggested,
-                categories,
-                start,
-                rows);
-        List<PropguideDocument> resultsSpellcheck = solrResponseSpellcheck.getBeans(PropguideDocument.class);
-        List<PropguideDocument> combinedResults = combineOriginalAndSpellcheckResults(
-                resultsOriginal,
-                resultsSpellcheck);
-        return combinedResults;
+        long totalDocs = solrResponseOriginal.getResults().getNumFound();
+        return new PaginatedResponse<List<PropguideDocument>>(resultsOriginal, totalDocs);
     }
 
     private QueryResponse makeSolrQueryAndGetResponseForListing(String query, String[] categories, int start, int rows) {
