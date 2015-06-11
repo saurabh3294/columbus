@@ -7,7 +7,6 @@ package com.proptiger.columbus.service;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +26,13 @@ import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.suggestions.EntitySuggestionHandler;
 import com.proptiger.columbus.suggestions.NLPSuggestionHandler;
 import com.proptiger.columbus.thandlers.URLGenerationConstants;
+import com.proptiger.columbus.util.TypeaheadUtils;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.City;
 import com.proptiger.core.util.Constants;
-import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.CorePropertyKeys;
+import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.UtilityClass;
 
@@ -75,6 +75,8 @@ public class TypeaheadService {
 
     @Value("${own.results.privileged.slots}")
     private int                     ownResultsPrivilegedSlots;
+
+    public TypeaheadUtils           typeaheadUtils      = new TypeaheadUtils();
 
     /**
      * This method will return the list of typeahead results based on the
@@ -150,7 +152,7 @@ public class TypeaheadService {
         /* City Context based tweaking. */
         boostByCityContext(results, usercity);
 
-        Collections.sort(results, new TypeaheadComparatorScore());
+        Collections.sort(results, new TypeaheadUtils.AbstractTypeaheadComparatorScore());
 
         /*
          * Remove not-so-good results and replace them with google place
@@ -237,7 +239,7 @@ public class TypeaheadService {
         /* City Context based tweaking. */
         boostByCityContext(results, usercity);
 
-        Collections.sort(results, new TypeaheadComparatorScore());
+        Collections.sort(results, new TypeaheadUtils.AbstractTypeaheadComparatorScore());
 
         /* Builder-City based tweaking */
         if (filterCity != null && !filterCity.isEmpty()) {
@@ -579,32 +581,16 @@ public class TypeaheadService {
      * @return The same list sorted by score and duplicates removed.
      */
     private List<Typeahead> sortAndRemoveDuplicates(List<Typeahead> resultsOriginal) {
-        Collections.sort(resultsOriginal, new TypeaheadComparatorScore());
+        Collections.sort(resultsOriginal, new TypeaheadUtils.AbstractTypeaheadComparatorScore());
 
         List<List<Typeahead>> listOfresults = new ArrayList<List<Typeahead>>();
         listOfresults.add(resultsOriginal);
         List<Typeahead> resultsFinal = UtilityClass.getMergedListRemoveDuplicates(
                 listOfresults,
-                new TypeaheadComparatorId());
+                new TypeaheadUtils.AbstractTypeaheadComparatorId());
 
         return resultsFinal;
 
-    }
-
-    /** Inner classes : Comparators for Typeahead objects **/
-
-    class TypeaheadComparatorScore implements Comparator<Typeahead> {
-        @Override
-        public int compare(Typeahead o1, Typeahead o2) {
-            return o2.getScore().compareTo(o1.getScore());
-        }
-    }
-
-    class TypeaheadComparatorId implements Comparator<Typeahead> {
-        @Override
-        public int compare(Typeahead o1, Typeahead o2) {
-            return o1.getId().compareTo(o2.getId());
-        }
     }
 
 }

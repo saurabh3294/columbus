@@ -48,10 +48,20 @@ public class TypeaheadUtils {
         }
     }
 
+    /** Inner classes : Comparators for Typeahead objects **/
+
+    public static class TypeaheadComparatorTypeaheadType implements Comparator<Typeahead> {
+        @Override
+        public int compare(Typeahead o1, Typeahead o2) {
+            return o2.getType().compareTo(o1.getType());
+        }
+    }
+
     public static class AbstractTypeaheadComparatorId implements Comparator<AbstractTypeahead> {
         @Override
         public int compare(AbstractTypeahead o1, AbstractTypeahead o2) {
             return o1.getId().compareTo(o2.getId());
         }
     }
+
 }
