@@ -1,9 +1,9 @@
 package com.proptiger.columbus.topsearch;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +13,11 @@ import org.springframework.stereotype.Component;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import antlr.StringUtils;
-import bsh.StringUtil;
-
+import com.google.common.collect.Ordering;
 import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.mvc.TopsearchController;
 import com.proptiger.columbus.service.AbstractTest;
+import com.proptiger.columbus.util.TypeaheadUtils;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.pojo.response.APIResponse;
 
@@ -145,7 +144,9 @@ public class TopsearchTest extends AbstractTest {
         String recievedCity;
         for (Typeahead t : results) {
             recievedCity = String.valueOf(t.getCity());
-            Assert.assertEquals(recievedCity.toLowerCase(), defaultEntityName);
+            Assert.assertEquals(recievedCity.toLowerCase(), defaultEntityName, "Expected city " + defaultEntityName
+                    + "Received city "
+                    + recievedCity.toLowerCase());
         }
     }
 
@@ -156,7 +157,8 @@ public class TopsearchTest extends AbstractTest {
         APIResponse apiResponse = null;
         int rows = 40;
 
-        String requiredEntities = "locality,project";
+        List<String> requiredEntitiesList = Arrays.asList(new String[] { "locality", "project" });
+        String requiredEntities = StringUtils.join(requiredEntitiesList, ',');
         url = TOP_SEARCH_URL + "?"
                 + String.format(
                         URL_PARAM_TEMPLATE_TOPSEARCH,
@@ -173,12 +175,13 @@ public class TopsearchTest extends AbstractTest {
         List<Typeahead> results = getDataAsObjectList(
                 apiResponse.getData(),
                 TypeaheadConstants.GSON_TOKEN_TYPE_TYPEAHEAD_LIST);
-        String[] requiredEntitiesList = { "locality", "project" };
+        String type = "";
+
         for (Typeahead typeahead : results) {
-            Assert.assertTrue(
-                    Arrays.asList(requiredEntitiesList).contains(typeahead.getType().toLowerCase()),
-                    "Validate-required-entities failed. Required entity recieved = " + typeahead.getType()
-                            .toLowerCase() + " .Expected  " + String.valueOf(requiredEntitiesList));
+            type = typeahead.getType().toLowerCase();
+            Assert.assertTrue(requiredEntitiesList.contains(type), "Expected Required Entities- " + requiredEntities
+                    + " Received "
+                    + type);
         }
 
     }
@@ -232,18 +235,9 @@ public class TopsearchTest extends AbstractTest {
         List<Typeahead> results = getDataAsObjectList(
                 apiResponse.getData(),
                 TypeaheadConstants.GSON_TOKEN_TYPE_TYPEAHEAD_LIST);
-        float prevScore = 0;
-        for (Typeahead typeahead : results) {
-            if (prevScore != 0) {
-                Assert.assertTrue(
-                        typeahead.getScore() <= prevScore,
-                        "Validate-sorting failed. Current Entity score recieved = " + typeahead.getScore()
-                                + " . Previous Entity Score was  "
-                                + prevScore);
-            }
-            prevScore = typeahead.getScore();
-        }
-
+        Assert.assertTrue(
+                Ordering.from(new TypeaheadUtils.AbstractTypeaheadComparatorScore()).isOrdered(results),
+                "Result set Not sorted by score.");
     }
 
     @Test(enabled = true)
@@ -266,24 +260,10 @@ public class TopsearchTest extends AbstractTest {
         List<Typeahead> results = getDataAsObjectList(
                 apiResponse.getData(),
                 TypeaheadConstants.GSON_TOKEN_TYPE_TYPEAHEAD_LIST);
-        List<String> prevType = new ArrayList<String>();
-        String currentType = "";
-        Boolean validType;
-        for (Typeahead typeahead : results) {
-            if (currentType != null && prevType != null) {
-                validType = typeahead.getType().equalsIgnoreCase(currentType) || !prevType.contains(typeahead.getType());
-                Assert.assertTrue(validType, "Validate-grouping failed. Entity Type recieved = " + typeahead.getType()
-                        + " . Current group type is "
-                        + currentType
-                        + " previous groups were "
-                        + String.valueOf(prevType));
-            }
-            currentType = typeahead.getType();
-            if (!prevType.contains(currentType)) {
-                prevType.add(currentType);
-            }
-        }
 
+        Assert.assertTrue(
+                Ordering.from(new TypeaheadUtils.TypeaheadComparatorTypeaheadType()).isOrdered(results),
+                "Required Entities are Not Grouped.");
     }
 
     @Test(enabled = true)

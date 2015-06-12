@@ -76,8 +76,6 @@ public class TypeaheadService {
     @Value("${own.results.privileged.slots}")
     private int                     ownResultsPrivilegedSlots;
 
-    public TypeaheadUtils           typeaheadUtils      = new TypeaheadUtils();
-
     /**
      * This method will return the list of typeahead results based on the
      * params.

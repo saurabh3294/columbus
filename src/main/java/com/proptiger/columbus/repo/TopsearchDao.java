@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections.comparators.ComparatorChain;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,13 @@ public class TopsearchDao {
     private TypeaheadDao    typeaheadDao;
 
     private ComparatorChain chain;
+
+    @PostConstruct
+    private void initialize() {
+        chain = new ComparatorChain();
+        chain.addComparator(new TypeaheadUtils.TypeaheadComparatorTypeaheadType());
+        chain.addComparator(new TypeaheadUtils.AbstractTypeaheadComparatorScore());
+    }
 
     /**
      * 
@@ -119,9 +128,6 @@ public class TopsearchDao {
             th.setScore(typeaheadIdScoreMap.get(th.getId()));
         }
         if (isGroup) {
-            chain = new ComparatorChain();
-            chain.addComparator(new TypeaheadUtils.TypeaheadComparatorTypeaheadType());
-            chain.addComparator(new TypeaheadUtils.AbstractTypeaheadComparatorScore());
             Collections.sort(topsearchList, chain);
         }
         else {
