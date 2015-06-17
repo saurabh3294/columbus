@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,7 +189,9 @@ public class PropguideDao {
 
     private QueryResponse makeSolrQueryAndGetResponseForListing(String query, String[] categories, int start, int rows) {
         List<String> filterQueries = new ArrayList<String>();
+
         filterQueries.add("DOCUMENT_TYPE:PROPGUIDE");
+        filterQueries.add("!PGD_TYPE:Suggestion");
         if (categories != null) {
             String fq = StringUtils.join(categories, " OR ");
             fq = String.format(FQ_PGD_CATEGORY, fq);
@@ -196,6 +200,9 @@ public class PropguideDao {
 
         SolrQuery solrQuery = getSolrQueryV1(query, filterQueries, rows);
         solrQuery.setStart(start);
+        if (StringUtils.trim(query) == "") {
+            solrQuery.setSort(new SortClause("PGD_DATE", ORDER.desc));
+        }
         QueryResponse response = solrDao.executeQuery(solrQuery);
         return response;
     }
