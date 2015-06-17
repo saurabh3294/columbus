@@ -187,7 +187,11 @@ public class PropguideDao {
 
     private QueryResponse makeSolrQueryAndGetResponseForListing(String query, String[] categories, int start, int rows) {
         List<String> filterQueries = new ArrayList<String>();
+        if (query == null) {
+            query = "";
+        }
         filterQueries.add("DOCUMENT_TYPE:PROPGUIDE");
+        filterQueries.add("!PGD_TYPE:Suggestion");
         if (categories != null) {
             String fq = StringUtils.join(categories, " OR ");
             fq = String.format(FQ_PGD_CATEGORY, fq);

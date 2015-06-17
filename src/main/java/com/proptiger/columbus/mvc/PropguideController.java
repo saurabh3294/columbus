@@ -39,11 +39,9 @@ public class PropguideController extends BaseController {
 
     @RequestMapping(value = "app/v1/propguide/listing")
     @ResponseBody
-    public APIResponse getListingDocumentsV1(
-            @RequestParam String query,
-            @RequestParam(required = false) String category,
-            @RequestParam(defaultValue = "0") int start,
-            @RequestParam(defaultValue = "5") int rows) {
+    public APIResponse getListingDocumentsV1(@RequestParam(required = false) String query, @RequestParam(
+            required = false) String category, @RequestParam(defaultValue = "0") int start, @RequestParam(
+            defaultValue = "5") int rows) {
 
         String[] categories = StringUtils.split(category, ',');
         PaginatedResponse<List<PropguideDocument>> paginatedReponse = propguideService.getListingDocumentsV1(
