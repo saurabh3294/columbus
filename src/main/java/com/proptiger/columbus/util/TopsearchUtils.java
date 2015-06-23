@@ -16,34 +16,50 @@ public class TopsearchUtils {
 
     private static Type type = new TypeToken<List<Typeahead>>() {}.getType();
 
-    public static List<Typeahead> typeaheadToTopsearchConverter(List<Typeahead> thList, String requiredEntities) {
-        List<Typeahead> tsList = new ArrayList<Typeahead>();
-        int rows = PropertyKeys.TOPSEARCH_ROW_COUNTS;
-        requiredEntities = requiredEntities.toLowerCase();
-        for (Typeahead th : thList) {
+    /**
+     * takes typeahead object list as input and converts topsearch string fields
+     * (topsearchedSuburb,topsearchedLocality...) into typeahead object
+     * 
+     * @param thList
+     * @param requiredEntities
+     *            (topsearchEntity string fields in typeahead object which
+     *            require to be converted to typeahead object)
+     * @param isGroup
+     * @param inputRows
+     * @return
+     */
+    public static List<Typeahead> typeaheadToTopsearchConverter(
+            List<Typeahead> typeaheadList,
+            String requiredEntities,
+            Boolean isGroup,
+            int inputRows) {
+        List<Typeahead> topsearchList = new ArrayList<Typeahead>();
 
+        requiredEntities = requiredEntities.toLowerCase();
+
+        for (Typeahead th : typeaheadList) {
             if (StringUtils.contains(requiredEntities, DomainObject.suburb.getText())) {
 
-                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedSuburb(), rows));
+                topsearchList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedSuburb(), inputRows));
             }
             if (StringUtils.contains(requiredEntities, DomainObject.locality.getText())) {
 
-                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedLocality(), rows));
+                topsearchList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedLocality(), inputRows));
             }
             if (StringUtils.contains(requiredEntities, DomainObject.builder.getText())) {
 
-                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedBuilder(), rows));
+                topsearchList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedBuilder(), inputRows));
             }
             if (StringUtils.contains(requiredEntities, DomainObject.project.getText())) {
 
-                tsList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedProject(), rows));
+                topsearchList.addAll(getTopsearchObjectFieldFromString(th.getTopSearchedProject(), inputRows));
             }
         }
 
-        return tsList;
+        return topsearchList;
     }
 
-    public static List<Typeahead> getTopsearchObjectFieldFromString(String line, int rows) {
+    private static List<Typeahead> getTopsearchObjectFieldFromString(String line, int rows) {
         List<Typeahead> objList = new ArrayList<Typeahead>();
         if (line == null || line.trim().isEmpty()) {
             return objList;

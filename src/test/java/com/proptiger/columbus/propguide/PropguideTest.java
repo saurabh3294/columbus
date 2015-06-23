@@ -74,7 +74,7 @@ public class PropguideTest extends AbstractTest {
 
         String url;
         APIResponse apiResponse = null;
-        int rows = 1;
+        int rows = 5;
         String query = "property";
         url = PROPGUIDE_URL + "?" + String.format(URL_PARAM_TEMPLATE_PROPGUDE, query, rows);
         logger.info("RUNNING TEST (propguide-object). Url = " + url);
@@ -90,7 +90,7 @@ public class PropguideTest extends AbstractTest {
         PropguideDocument pd = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
-            pd = mapper.readValue(mapper.writer().writeValueAsString(results.get(0)), PropguideDocument.class);
+            pd = mapper.readValue(mapper.writer().writeValueAsString(results.get(rows-1)), PropguideDocument.class);
         }
         catch (IOException e) {
             Assert.assertTrue(false, "Error mapping response to PropguideDocument.");

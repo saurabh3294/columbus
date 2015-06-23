@@ -45,6 +45,9 @@ public class PropguideDocument extends AbstractTypeahead {
     @Field(value = "PGD_POST_NAME")
     private String            pgdPostName;
 
+    @Field(value = "PGD_GUID")
+    private String            pgdGuid;
+
     @Field(value = "PGD_DATE")
     private Date              pgdDate;
 
@@ -112,6 +115,14 @@ public class PropguideDocument extends AbstractTypeahead {
 
     public void setPgdPostName(String pgdPostName) {
         this.pgdPostName = pgdPostName;
+    }
+
+    public String getPgdGuid() {
+        return pgdGuid;
+    }
+
+    public void setPgdGuid(String pgdGuid) {
+        this.pgdGuid = pgdGuid;
     }
 
     public Date getPgdDate() {

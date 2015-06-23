@@ -43,4 +43,5 @@ public class TypeaheadConstants {
     public static Type         GSON_TOKEN_TYPE_PROPGUIDE_DOC_LIST = new TypeToken<List<PropguideDocument>>() {}
                                                                           .getType();
 
+    public static final int   PROPGUIDE_POST_TAGS_MULTIPLIER     = 40;
 }
