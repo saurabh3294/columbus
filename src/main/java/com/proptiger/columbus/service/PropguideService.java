@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.repo.PropguideDao;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 
 @Service
 public class PropguideService {
@@ -28,6 +29,29 @@ public class PropguideService {
     public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows) {
         List<PropguideDocument> results = propguideDao.getDocumentsV1(query, categories, rows);
         return results;
+    }
+
+    /**
+     * This method will return the list of typeahead results based on the
+     * params.
+     * 
+     * @param query
+     *            : Search query
+     * @param types
+     *            : Categories used to filter results.
+     * @param rows
+     */
+    public PaginatedResponse<List<PropguideDocument>> getListingDocumentsV1(
+            String query,
+            String[] categories,
+            int start,
+            int rows) {
+        PaginatedResponse<List<PropguideDocument>> paginatedResponse = propguideDao.getListingDocumentsV1(
+                query,
+                categories,
+                start,
+                rows);
+        return paginatedResponse;
     }
 
     /** Inner classes : Comparators for Propguide objects **/

@@ -34,16 +34,21 @@ public class TopsearchController extends BaseController {
 
     @RequestMapping(value = "app/v1/topsearch")
     @ResponseBody
-    public APIResponse getTopsearches(@RequestParam int entityId, @RequestParam String entityType, @RequestParam String requiredEntities, @RequestParam(defaultValue = "5") int rows) {
-        
-        if(!entityType.equalsIgnoreCase(getEntityTypeFromEntityId(entityId))) {
-            throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid entityId for the given entityType"); 
+    public APIResponse getTopsearches(
+            @RequestParam int entityId,
+            @RequestParam String entityType,
+            @RequestParam String requiredEntities,
+            @RequestParam(defaultValue = "false") Boolean group,
+            @RequestParam(defaultValue = "5") int rows) {
+
+        if (!entityType.equalsIgnoreCase(getEntityTypeFromEntityId(entityId))) {
+            throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid entityId for the given entityType");
         }
-        List<Typeahead> list = topsearchService.getTopsearches(entityId, entityType, requiredEntities, rows);
+        List<Typeahead> list = topsearchService.getTopsearches(entityId, entityType, requiredEntities, group, rows);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }
-    
+
     private String getEntityTypeFromEntityId(int entityId) {
         DomainObject dObj = DomainObject.getDomainInstance((long) entityId);
         return dObj.getText();

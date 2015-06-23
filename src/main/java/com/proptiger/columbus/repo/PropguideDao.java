@@ -1,11 +1,14 @@
 package com.proptiger.columbus.repo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.columbus.model.PropguideDocument;
+import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.util.TypeaheadUtils;
+import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
@@ -39,22 +45,21 @@ public class PropguideDao {
      * @param categories
      */
     private List<PropguideDocument> getResponseV1(String query, String[] categories, int rows) {
-
-        QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponse(query, categories, rows);
+        int enlargedRows = rows * TypeaheadConstants.PROPGUIDE_POST_TAGS_MULTIPLIER;
+        QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponse(query, categories, enlargedRows);
         List<PropguideDocument> resultsOriginal = solrResponseOriginal.getBeans(PropguideDocument.class);
 
         SpellCheckResponse scr = solrResponseOriginal.getSpellCheckResponse();
         String querySuggested = getSuggestedQuery(scr);
-        if (querySuggested == null) {
-            return resultsOriginal;
+        if (querySuggested != null) {
+            QueryResponse solrResponseSpellcheck = makeSolrQueryAndGetResponse(querySuggested, categories, enlargedRows);
+            List<PropguideDocument> resultsSpellcheck = solrResponseSpellcheck.getBeans(PropguideDocument.class);
+            resultsOriginal = combineOriginalAndSpellcheckResults(resultsOriginal, resultsSpellcheck);
         }
 
-        QueryResponse solrResponseSpellcheck = makeSolrQueryAndGetResponse(querySuggested, categories, rows);
-        List<PropguideDocument> resultsSpellcheck = solrResponseSpellcheck.getBeans(PropguideDocument.class);
+        List<PropguideDocument> resultsFinal = divideResultInTagsPosts(resultsOriginal, rows);
 
-        List<PropguideDocument> resultsFinal = combineOriginalAndSpellcheckResults(resultsOriginal, resultsSpellcheck);
-
-        return UtilityClass.getFirstNElementsOfList(resultsFinal, rows);
+        return resultsFinal;
     }
 
     private List<PropguideDocument> combineOriginalAndSpellcheckResults(
@@ -68,6 +73,59 @@ public class PropguideDao {
         if (resultsSuggested != null) {
             results.addAll(resultsSuggested);
         }
+
+        /* Sort and remove duplicates */
+        Collections.sort(results, new TypeaheadUtils.AbstractTypeaheadComparatorScore());
+        List<List<PropguideDocument>> listOfresults = new ArrayList<List<PropguideDocument>>();
+        listOfresults.add(results);
+        List<PropguideDocument> resultsFinal = UtilityClass.getMergedListRemoveDuplicates(
+                listOfresults,
+                new TypeaheadUtils.AbstractTypeaheadComparatorId());
+
+        return resultsFinal;
+    }
+
+    private List<PropguideDocument> divideResultInTagsPosts(List<PropguideDocument> resultsOriginal, int rows) {
+
+        List<PropguideDocument> results = new ArrayList<PropguideDocument>();
+        if (resultsOriginal == null) {
+            return results;
+        }
+
+        List<PropguideDocument> tagList = new ArrayList<PropguideDocument>();
+        List<PropguideDocument> postList = new ArrayList<PropguideDocument>();
+
+        for (PropguideDocument pgd : resultsOriginal) {
+            if (pgd.getPgdType().equals("Suggestion")) {
+                tagList.add(pgd);
+            }
+            else {
+                postList.add(pgd);
+            }
+        }
+        int tagCount, postCount;
+        if (rows % 2 == 1) {
+            tagCount = rows / 2 + 1;
+        }
+        else {
+            tagCount = rows / 2;
+        }
+        postCount = rows / 2;
+
+        if (tagList.size() < tagCount) {
+            postList = UtilityClass.getFirstNElementsOfList(postList, rows - tagList.size());
+
+        }
+        else if (postList.size() < postCount) {
+            tagList = UtilityClass.getFirstNElementsOfList(tagList, rows - postList.size());
+        }
+        else {
+            postList = UtilityClass.getFirstNElementsOfList(postList, postCount);
+            tagList = UtilityClass.getFirstNElementsOfList(tagList, tagCount);
+        }
+        results.addAll(tagList);
+        results.addAll(postList);
+
         return results;
     }
 
@@ -87,9 +145,10 @@ public class PropguideDao {
         filterQueries.add("DOCUMENT_TYPE:PROPGUIDE");
         if (categories != null) {
             String fq = StringUtils.join(categories, " OR ");
-            fq = String.format(FQ_PGD_CATEGORY, fq);
+            fq = "(" + String.format(FQ_PGD_CATEGORY, fq) + " OR " + "PGD_TYPE:Suggestion )";
             filterQueries.add(fq);
         }
+
         SolrQuery solrQuery = getSolrQueryV1(query, filterQueries, rows);
         QueryResponse response = solrDao.executeQuery(solrQuery);
         return response;
@@ -108,4 +167,44 @@ public class PropguideDao {
         }
         return solrQuery;
     }
+
+    /**
+     * If the query has a typo and can be corrected then new query is generated
+     * using the suggestions and executed automatically
+     * 
+     * @param types
+     */
+
+    @Cacheable(value = Constants.CacheName.COLUMBUS)
+    public PaginatedResponse<List<PropguideDocument>> getListingDocumentsV1(
+            String query,
+            String[] categories,
+            int start,
+            int rows) {
+        QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponseForListing(query, categories, start, rows);
+        List<PropguideDocument> resultsOriginal = solrResponseOriginal.getBeans(PropguideDocument.class);
+        long totalDocs = solrResponseOriginal.getResults().getNumFound();
+        return new PaginatedResponse<List<PropguideDocument>>(resultsOriginal, totalDocs);
+    }
+
+    private QueryResponse makeSolrQueryAndGetResponseForListing(String query, String[] categories, int start, int rows) {
+        List<String> filterQueries = new ArrayList<String>();
+
+        filterQueries.add("DOCUMENT_TYPE:PROPGUIDE");
+        filterQueries.add("!PGD_TYPE:Suggestion");
+        if (categories != null) {
+            String fq = StringUtils.join(categories, " OR ");
+            fq = String.format(FQ_PGD_CATEGORY, fq);
+            filterQueries.add(fq);
+        }
+
+        SolrQuery solrQuery = getSolrQueryV1(query, filterQueries, rows);
+        solrQuery.setStart(start);
+        if (StringUtils.trim(query) == "") {
+            solrQuery.setSort(new SortClause("PGD_DATE", ORDER.desc));
+        }
+        QueryResponse response = solrDao.executeQuery(solrQuery);
+        return response;
+    }
+
 }
