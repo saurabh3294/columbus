@@ -25,5 +25,5 @@ tulip infratech,Suggestion,1,8,Typeahead-Suggestion-Builder-completed-property
 marg,Negative,1,8,Typeahead-Suggestion-Builder-upcoming-project
 marg,Suggestion,1,8,Typeahead-Suggestion-Builder-completed-property
 
-raviraj,Negative,1,8,Typeahead-Suggestion-Builder-under-construction-property
+zodiac ventures,Negative,1,8,Typeahead-Suggestion-Builder-under-construction-property
 
