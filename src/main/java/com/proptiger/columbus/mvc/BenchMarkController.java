@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.net.URI;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +24,9 @@ import com.proptiger.core.util.PropertyReader;
 @RequestMapping
 public class BenchMarkController {
     @Autowired
-    HttpRequestUtil httpRequestUtil;
+    HttpRequestUtil       httpRequestUtil;
+
+    private static Logger logger = LoggerFactory.getLogger(BenchMarkController.class);
 
     @RequestMapping("/benchmark")
     @ResponseBody
@@ -52,7 +56,7 @@ public class BenchMarkController {
                 writer.write(city + "," + diff + "\n");
             }
             catch (Exception e) {
-                // TODO: handle exception
+                logger.warn("In getTrand() while getRequiredProperyAsString", e);
             }
         }
         writer.close();

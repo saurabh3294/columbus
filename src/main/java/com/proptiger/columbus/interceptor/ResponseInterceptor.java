@@ -167,6 +167,7 @@ public class ResponseInterceptor {
             return Integer.parseInt(StringUtils.split(typeaheadRespId, '-')[2]);
         }
         catch (Exception e) {
+            logger.warn("Not able to parse-extractEntityIdFromTypeheadResonceId", e);
             return -1;
         }
     }
@@ -177,6 +178,7 @@ public class ResponseInterceptor {
             return ((Integer) (((Map<String, Object>) response).get(entityTag)));
         }
         catch (Exception e) {
+            logger.warn("Caught Exception in getEntityIdFromResponceElement", e);
             return -1;
         }
     }
@@ -278,7 +280,7 @@ public class ResponseInterceptor {
                                                 + "?"
                                                 + URLGenerationConstants.Selector
                                                 + String.format(
-                                                        URLGenerationConstants.SELECTOR_GETCITYIDS_BY_LOCALITYIDS,
+                                                        URLGenerationConstants.SELECTOR_GET_CITYIDS_BY_LOCALITYIDS,
                                                         StringUtils.join(partialLocalityIds, ","),
                                                         maxLocalityIdCountForApiCall)).build().encode().toString());
                 List<Locality> partialLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
@@ -380,14 +382,14 @@ public class ResponseInterceptor {
         int i;
         for (i = 0; i < ids.size() - IDS_LIMIT_FOR_URL + 1; i += IDS_LIMIT_FOR_URL) {
             requests.add(String.format(
-                    URLGenerationConstants.SELECTOR_GETBUILDERIDSASFACET,
+                    URLGenerationConstants.SELECTOR_GET_BUILDERIDS_AS_FACET,
                     idLabel,
                     ids.subList(i, i + IDS_LIMIT_FOR_URL).toString(),
                     BUILDER_ID));
         }
         if (i < ids.size()) {
             requests.add(String.format(
-                    URLGenerationConstants.SELECTOR_GETBUILDERIDSASFACET,
+                    URLGenerationConstants.SELECTOR_GET_BUILDERIDS_AS_FACET,
                     idLabel,
                     ids.subList(i, ids.size()).toString(),
                     BUILDER_ID));

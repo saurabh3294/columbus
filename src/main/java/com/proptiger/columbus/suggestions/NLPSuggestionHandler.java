@@ -49,7 +49,7 @@ public class NLPSuggestionHandler {
             thandler = applicationContext.getBean(ttype.getClazz());
         }
         catch (Exception e) {
-            logger.error("No template handler found for template = " + template.getId());
+            logger.error("No template handler found for template = " + template.getId() + e);
         }
         return thandler;
     }

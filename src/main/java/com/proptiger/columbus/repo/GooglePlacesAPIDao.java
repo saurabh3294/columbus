@@ -40,9 +40,9 @@ public class GooglePlacesAPIDao {
     public static final String LANG_FILTER            = "language=en";
     public static final String KEY_FILTER             = "key=%s";
     public static final String PLACE_ID_PARAM         = "placeid=%s";
-    public static String       QueryParam             = "input=%s";
-    public static String       BoundsFilter           = "location=%s,%s";
-    public static String       RadiusFilter           = "radius=%s";
+    public static final String QUERY_PARAM            = "input=%s";
+    public static final String BOUNDS_FILTER          = "location=%s,%s";
+    public static final String RADIUS_FILTER          = "radius=%s";
 
     private RestTemplate       restTemplate           = new RestTemplate();
 
@@ -62,7 +62,7 @@ public class GooglePlacesAPIDao {
 
         gpPlacePredictionUrl = addParamsToURL(
                 gpPlaceAutocompleteApiBaseUrl,
-                QueryParam,
+                QUERY_PARAM,
                 COUNTRY_FILTER,
                 LANG_FILTER,
                 String.format(KEY_FILTER, gpApiKey));
@@ -89,7 +89,7 @@ public class GooglePlacesAPIDao {
             query = URLEncoder.encode(query, "UTF-8");
         }
         catch (UnsupportedEncodingException e) {
-            logger.error("Unsupported Encoding UTF-8.");
+            logger.error("Unsupported Encoding UTF-8.", e);
         }
 
         String gpPlacePredictionUrlBounded = getGpPlacePredictionUrlBounded(geoCenter, radius);
@@ -111,8 +111,8 @@ public class GooglePlacesAPIDao {
         if (bounds != null && bounds.length >= 2 && radius > 0) {
             gpPlacePredictionUrlBounded = addParamsToURL(
                     gpPlacePredictionUrl,
-                    String.format(BoundsFilter, bounds[0], bounds[1]),
-                    String.format(RadiusFilter, String.valueOf(radius)));
+                    String.format(BOUNDS_FILTER, bounds[0], bounds[1]),
+                    String.format(RADIUS_FILTER, String.valueOf(radius)));
         }
         return gpPlacePredictionUrlBounded;
     }
