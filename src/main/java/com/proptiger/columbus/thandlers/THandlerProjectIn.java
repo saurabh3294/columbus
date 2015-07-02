@@ -148,14 +148,16 @@ public class THandlerProjectIn extends RootTHandler {
     }
 
     private List<Locality> getTopLocalities(String cityName) {
-        URI uri = URI.create(UriComponentsBuilder
-                .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
-                                .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
-                                + "?"
-                                + URLGenerationConstants.Selector
-                                + String.format(URLGenerationConstants.SelectorGetLocalityNamesByCityName, cityName))
-                .build().encode().toString());
+        URI uri = URI
+                .create(UriComponentsBuilder
+                        .fromUriString(
+                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
+                                        + "?"
+                                        + URLGenerationConstants.Selector
+                                        + String.format(
+                                                URLGenerationConstants.SELECTOR_GET_LOCALITYNAMES_BY_CITYNAME,
+                                                cityName)).build().encode().toString());
 
         List<Locality> topLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 uri,

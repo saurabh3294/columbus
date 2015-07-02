@@ -39,9 +39,9 @@ public class TypeaheadConstants {
 
     public static final int    cityRadius                         = 50;
 
-    public static Type         GSON_TOKEN_TYPE_TYPEAHEAD_LIST     = new TypeToken<List<Typeahead>>() {}.getType();
-    public static Type         GSON_TOKEN_TYPE_PROPGUIDE_DOC_LIST = new TypeToken<List<PropguideDocument>>() {}
+    public static final Type   GSON_TOKEN_TYPE_TYPEAHEAD_LIST     = new TypeToken<List<Typeahead>>() {}.getType();
+    public static final Type   GSON_TOKEN_TYPE_PROPGUIDE_DOC_LIST = new TypeToken<List<PropguideDocument>>() {}
                                                                           .getType();
 
-    public static final int   PROPGUIDE_POST_TAGS_MULTIPLIER     = 40;
+    public static final int    PROPGUIDE_POST_TAGS_MULTIPLIER     = 40;
 }

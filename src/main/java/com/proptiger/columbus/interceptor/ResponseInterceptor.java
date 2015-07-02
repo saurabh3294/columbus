@@ -47,16 +47,16 @@ public class ResponseInterceptor {
     private final String        objTypeTextProject           = DomainObject.project.getText();
     private final String        objTypeTextBuilder           = DomainObject.builder.getText();
 
-    private final String        fieldTagAuthorized           = "authorized";
-    private final String        typeAheadIdSeparator         = "-";
+    private static final String fieldTagAuthorized           = "authorized";
+    private static final String typeAheadIdSeparator         = "-";
 
-    private final int           maxLocalityIdCountForApiCall = 512;
-    private final int           maxPermissionCountForApiCall = 256;
+    private static final int    maxLocalityIdCountForApiCall = 512;
+    private static final int    maxPermissionCountForApiCall = 256;
 
-    private final static String BUILDER_ID                   = "builderId";
-    private final static String CITY_ID                      = "cityId";
-    private final static String LOCALITY_ID                  = "localityId";
-    private final static int    IDS_LIMIT_FOR_URL            = 50;
+    private static final String BUILDER_ID                   = "builderId";
+    private static final String CITY_ID                      = "cityId";
+    private static final String LOCALITY_ID                  = "localityId";
+    private static final int    IDS_LIMIT_FOR_URL            = 50;
     @Autowired
     private HttpRequestUtil     httpRequestUtil;
 
@@ -83,7 +83,7 @@ public class ResponseInterceptor {
         int cityId = 0, localityId = 0;
         List<Object> resultList = (List<Object>) data;
         for (Object element : resultList) {
-            Map<String, Object> map = ((Map<String, Object>) element);
+            Map<String, Object> map = (Map<String, Object>) element;
             String entityType = String.valueOf(map.get("type"));
             String typeAheadRespId = String.valueOf(map.get("id"));
 
@@ -130,7 +130,7 @@ public class ResponseInterceptor {
         if (apiResponse.getError() != null) {
             return null;
         }
-        return (apiResponse.getData());
+        return apiResponse.getData();
     }
 
     private MultiKeyMap getUserSubscriptionMap() {
@@ -236,11 +236,13 @@ public class ResponseInterceptor {
         HttpHeaders requestHeaders = new HttpHeaders();
         String jsessionId = RequestHolderUtil.getJsessionIdFromRequestCookie();
         requestHeaders.add("Cookie", Constants.Security.COOKIE_NAME_JSESSIONID + "=" + jsessionId);
-        URI uri = URI.create(UriComponentsBuilder
-                .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
-                                .getRequiredPropertyAsString(CorePropertyKeys.PERMISSION_API_URL) + "?userId=" + userId)
-                .build().encode().toString());
+        URI uri = URI
+                .create(UriComponentsBuilder
+                        .fromUriString(
+                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        .getRequiredPropertyAsString(CorePropertyKeys.PERMISSION_API_URL)
+                                        + "?userId="
+                                        + userId).build().encode().toString());
         List<Permission> permissions = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                 uri,
                 requestHeaders,
@@ -268,16 +270,17 @@ public class ResponseInterceptor {
                 List<Integer> partialLocalityIds = localityIds.subList(
                         i,
                         Math.min(size, i + maxLocalityIdCountForApiCall));
-                URI uri = URI.create(UriComponentsBuilder
-                        .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
-                                        .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
-                                        + "?"
-                                        + URLGenerationConstants.Selector
-                                        + String.format(
-                                                URLGenerationConstants.SelectorGetCityIdsByLocalityIds,
-                                                StringUtils.join(partialLocalityIds, ","),
-                                                maxLocalityIdCountForApiCall)).build().encode().toString());
+                URI uri = URI
+                        .create(UriComponentsBuilder
+                                .fromUriString(
+                                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                                .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
+                                                + "?"
+                                                + URLGenerationConstants.Selector
+                                                + String.format(
+                                                        URLGenerationConstants.SELECTOR_GETCITYIDS_BY_LOCALITYIDS,
+                                                        StringUtils.join(partialLocalityIds, ","),
+                                                        maxLocalityIdCountForApiCall)).build().encode().toString());
                 List<Locality> partialLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                         uri,
                         Locality.class);
@@ -325,7 +328,9 @@ public class ResponseInterceptor {
                 Map<String, List<Map<String, Long>>> facets = (Map<String, List<Map<String, Long>>>) response
                         .get("facets");
                 List<Map<String, Long>> builderIds = facets.get(BUILDER_ID);
-                logger.debug("xxxyyyzzz :: list retrieved : size = {}", (builderIds != null ? builderIds.size() : "null"));
+                logger.debug("xxxyyyzzz :: list retrieved : size = {}", (builderIds != null
+                        ? builderIds.size()
+                        : "null"));
                 for (Map<String, Long> m : builderIds) {
                     bIdsHash.addAll(m.keySet());
                 }
@@ -375,14 +380,14 @@ public class ResponseInterceptor {
         int i;
         for (i = 0; i < ids.size() - IDS_LIMIT_FOR_URL + 1; i += IDS_LIMIT_FOR_URL) {
             requests.add(String.format(
-                    URLGenerationConstants.SelectorGetBuilderIdsAsFacet,
+                    URLGenerationConstants.SELECTOR_GETBUILDERIDSASFACET,
                     idLabel,
                     ids.subList(i, i + IDS_LIMIT_FOR_URL).toString(),
                     BUILDER_ID));
         }
         if (i < ids.size()) {
             requests.add(String.format(
-                    URLGenerationConstants.SelectorGetBuilderIdsAsFacet,
+                    URLGenerationConstants.SELECTOR_GETBUILDERIDSASFACET,
                     idLabel,
                     ids.subList(i, ids.size()).toString(),
                     BUILDER_ID));

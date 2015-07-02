@@ -37,6 +37,7 @@ public class TypeaheadUtils {
             return (Integer.parseInt(idAsString));
         }
         catch (Exception ex) {
+
             return 0;
         }
     }

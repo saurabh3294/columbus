@@ -23,37 +23,37 @@ import com.proptiger.core.util.PropertyReader;
 public class BenchMarkController {
     @Autowired
     HttpRequestUtil httpRequestUtil;
-    
+
     @RequestMapping("/benchmark")
     @ResponseBody
     public APIResponse getTrend() throws Exception {
         String cities = "Agra,Ahmedabad,Aligarh,Allahabad,Almora,Alwar,Ambala,Amritsar,Anand,Anantapura,Arambagh,Aurangabad,Bangalore,Bareilly,Bharuch,Bhavnagar,Bhopal,Bhubaneswar,Bulandshahr,Burdwan,Chandigarh,Chennai,Coimbatore,Dausa,Dehradun,Delhi,Dharwad,Dindigul,Dubai,Durgapur,Ernakulam,Faridabad,Ganjam,Ghaziabad,Goa,Gulbarga,Guntur,Gurgaon,Guwahati,Gwalior,Haridwar,Hyderabad,Indore,Jabalpur,Jaipur,Jalandhar,Jamshedpur,Jhajjar,Jhansi,Jodhpur,Kannur,Kanpur,Karnal,Kochi,Kolhapur,Kolkata,Kottayam,Kozhikode,Krishna,Lucknow,Ludhiana,Madurai,Mandya,Mangalore,Mathura,Meerut,Mehsana,Moradabad,Mumbai,Mysore,Nagpur,Nainital,Nashik,Noida,Ooty,Panipat,Patiala,Patna,Pondicherry,Pune,Puri,Raigad,Ranchi,Ratnagiri,Rayagada,Rishikesh,Rohtak,Salem,Satara,Shimla,Silliguri,Solan,Solapur,Sonepat,Surat,Thiruvannamalai,Thrissur,Tirunelveli,Tirupati,Trichy,Trivandrum,Vadodara,Valsad,Varanasi,Vellore,Vijayawada,Visakhapatnam,Warangal,Wayanad";
-        
+
         String[] cityList = cities.split(",");
         File file = new File("/tmp/api.csv");
         FileWriter writer = new FileWriter(file, false);
         for (String city : cityList) {
             try {
-                URI uri = URI.create(UriComponentsBuilder
-                        .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
-                                        .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
-                                        + "?"
-                                        + URLGenerationConstants.Selector
-                                        + String.format(URLGenerationConstants.SelectorGetLocalityNamesByCityName, city))
-                        .build().encode().toString());
+                URI uri = URI
+                        .create(UriComponentsBuilder
+                                .fromUriString(
+                                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                                .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
+                                                + "?"
+                                                + URLGenerationConstants.Selector
+                                                + String.format(
+                                                        URLGenerationConstants.SELECTOR_GET_LOCALITYNAMES_BY_CITYNAME,
+                                                        city)).build().encode().toString());
 
                 Date d1 = new Date();
-                httpRequestUtil.getInternalApiResultAsTypeListFromCache(
-                        uri,
-                        Locality.class);
+                httpRequestUtil.getInternalApiResultAsTypeListFromCache(uri, Locality.class);
                 Date d2 = new Date();
                 long diff = d2.getTime() - d1.getTime();
                 writer.write(city + "," + diff + "\n");
             }
             catch (Exception e) {
                 // TODO: handle exception
-            }            
+            }
         }
         writer.close();
         return new APIResponse();

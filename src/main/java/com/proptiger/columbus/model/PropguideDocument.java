@@ -3,6 +3,7 @@ package com.proptiger.columbus.model;
 import java.util.Date;
 import java.util.List;
 
+
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -51,12 +52,15 @@ public class PropguideDocument extends AbstractTypeahead {
     @Field(value = "PGD_DATE")
     private Date              pgdDate;
 
+    
     @Field(value = "PGD_TAGS")
     private List<String>      pgdTags;
 
+    
     @Field(value = "PGD_CATEGORY")
     private List<String>      pgdCategory;
 
+    
     @JsonIgnore
     @Field(value = "PGD_ROOT_CATEGORY_ID")
     private List<Integer>     pgdRootCategoryId;
