@@ -71,7 +71,7 @@ public class TemplateInfo {
 
     @Override
     public String toString() {
-        return (this.getTemplateType());
+        return  this.getTemplateType();
     }
 
 }

@@ -99,7 +99,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     budgetUnit,
                     convertBudgetAmountInWords(x),
                     city));
-            redirectUrl = (String.format(URLGenerationConstants.GenericUrlCity, city.toLowerCase()) + String.format(
+            redirectUrl = (String.format(URLGenerationConstants.GENERIC_URL_CITY, city.toLowerCase()) + String.format(
                     genericBudgetFilter,
                     minBudget,
                     x));
@@ -130,7 +130,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     budgetUnit,
                     convertBudgetAmountInWords(x),
                     city));
-            redirectUrl = (String.format(URLGenerationConstants.GenericUrlCity, city.toLowerCase()) + String.format(
+            redirectUrl = (String.format(URLGenerationConstants.GENERIC_URL_CITY, city.toLowerCase()) + String.format(
                     genericBudgetFilter,
                     x,
                     maxBudget));
@@ -162,7 +162,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     convertBudgetAmountInWords(x[0]),
                     convertBudgetAmountInWords(x[1]),
                     city));
-            redirectUrl = (String.format(URLGenerationConstants.GenericUrlCity, city.toLowerCase()) + String.format(
+            redirectUrl = (String.format(URLGenerationConstants.GENERIC_URL_CITY, city.toLowerCase()) + String.format(
                     genericBudgetFilter,
                     x[0],
                     x[1]));
@@ -190,7 +190,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
         String displayText, redirectUrl, redirectUrlFilters;
         for (int x : areaPointsBelow) {
             displayText = (String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
-            redirectUrl = (String.format(URLGenerationConstants.GenericUrlCity, city.toLowerCase()) + String.format(
+            redirectUrl = (String.format(URLGenerationConstants.GENERIC_URL_CITY, city.toLowerCase()) + String.format(
                     genericAreaFilter,
                     minArea,
                     x));
@@ -216,7 +216,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
         String displayText, redirectUrl, redirectUrlFilters;
         for (int x : areaPointsAbove) {
             displayText = (String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
-            redirectUrl = (String.format(URLGenerationConstants.GenericUrlCity, city.toLowerCase()) + String.format(
+            redirectUrl = (String.format(URLGenerationConstants.GENERIC_URL_CITY, city.toLowerCase()) + String.format(
                     genericAreaFilter,
                     x,
                     maxArea));
@@ -242,7 +242,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
         String displayText, redirectUrl, redirectUrlFilters;
         for (int[] x : areaRanges) {
             displayText = (String.format(genericBetweenTextArea, templateText, x[0], x[1], areaUnit, city));
-            redirectUrl = (String.format(URLGenerationConstants.GenericUrlCity, city.toLowerCase()) + String.format(
+            redirectUrl = (String.format(URLGenerationConstants.GENERIC_URL_CITY, city.toLowerCase()) + String.format(
                     genericAreaFilter,
                     x[0],
                     x[1]));

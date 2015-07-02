@@ -3,7 +3,10 @@ package com.proptiger.columbus.util;
 import java.util.Comparator;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.proptiger.columbus.util.TypeaheadUtils;
 import com.proptiger.core.model.AbstractTypeahead;
 import com.proptiger.core.model.Typeahead;
 
@@ -16,6 +19,8 @@ public class TypeaheadUtils {
      *            Typeahead object
      * @return entity id extracted from typeaheadId
      */
+    private static Logger logger = LoggerFactory.getLogger(TypeaheadUtils.class);
+
     public static String parseEntityIdAsString(Typeahead t) {
         String[] tokens = StringUtils.split(t.getId(), '-');
         if (tokens.length > 2) {
@@ -37,6 +42,7 @@ public class TypeaheadUtils {
             return (Integer.parseInt(idAsString));
         }
         catch (Exception ex) {
+            logger.warn("Exception while parsing idAsString", ex);
             return 0;
         }
     }
