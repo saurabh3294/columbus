@@ -154,7 +154,7 @@ public class THandlerProjectIn extends RootTHandler {
                                 PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
                                         .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
                                         + "?"
-                                        + URLGenerationConstants.Selector
+                                        + URLGenerationConstants.SELECTOR
                                         + String.format(
                                                 URLGenerationConstants.SELECTOR_GET_LOCALITYNAMES_BY_CITYNAME,
                                                 cityName)).build().encode().toString());

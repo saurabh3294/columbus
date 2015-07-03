@@ -43,6 +43,8 @@ public class GooglePlacesAPIDao {
     public static final String QUERY_PARAM            = "input=%s";
     public static final String BOUNDS_FILTER          = "location=%s,%s";
     public static final String RADIUS_FILTER          = "radius=%s";
+    public static final String GP_RESP_STATUS_ZERO    = "ZERO_RESULTS";
+    public static final String GP_RESP_STATUS_OK      = "OK";
 
     private RestTemplate       restTemplate           = new RestTemplate();
 
@@ -156,7 +158,7 @@ public class GooglePlacesAPIDao {
         JsonParser jsonParser = new JsonParser();
         JsonObject joResponse = jsonParser.parse(apiResponse).getAsJsonObject();
         String status = joResponse.get("status").getAsString();
-        if (!status.equals("OK")) {
+        if (!(GP_RESP_STATUS_OK.equals(status))) {
             throw new Exception("Google Places API returned a NON-OK response : " + status);
         }
 
@@ -183,10 +185,10 @@ public class GooglePlacesAPIDao {
         JsonParser jsonParser = new JsonParser();
         JsonObject joResponse = jsonParser.parse(apiResponse).getAsJsonObject();
         String status = joResponse.get("status").getAsString();
-        if (status.equals("ZERO_RESULTS")) {
+        if (GP_RESP_STATUS_ZERO.equals(status)) {
             return googlePlacelist;
         }
-        else if (!status.equals("OK")) {
+        else if (!(GP_RESP_STATUS_OK.equals(status))) {
             throw new Exception("Google Places API returned a NON-OK response : " + status);
         }
 

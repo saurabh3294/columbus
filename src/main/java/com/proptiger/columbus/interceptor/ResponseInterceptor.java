@@ -39,29 +39,29 @@ import com.proptiger.core.util.RequestHolderUtil;
 @Order(1)
 @Component
 public class ResponseInterceptor {
-    private final int           objTypeIdLocality            = DomainObject.locality.getObjectTypeId();
-    private final int           objTypeIdCity                = DomainObject.city.getObjectTypeId();
-    private final int           objTypeIdBuilder             = DomainObject.builder.getObjectTypeId();
-    private final String        objTypeTextCity              = DomainObject.city.getText();
-    private final String        objTypeTextLocality          = DomainObject.locality.getText();
-    private final String        objTypeTextProject           = DomainObject.project.getText();
-    private final String        objTypeTextBuilder           = DomainObject.builder.getText();
+    private final int           objTypeIdLocality                 = DomainObject.locality.getObjectTypeId();
+    private final int           objTypeIdCity                     = DomainObject.city.getObjectTypeId();
+    private final int           objTypeIdBuilder                  = DomainObject.builder.getObjectTypeId();
+    private final String        objTypeTextCity                   = DomainObject.city.getText();
+    private final String        objTypeTextLocality               = DomainObject.locality.getText();
+    private final String        objTypeTextProject                = DomainObject.project.getText();
+    private final String        objTypeTextBuilder                = DomainObject.builder.getText();
 
-    private static final String fieldTagAuthorized           = "authorized";
-    private static final String typeAheadIdSeparator         = "-";
+    private static final String FIELD_TAG_AUTHORIZED              = "authorized";
+    private static final String TYPEAHEAD_ID_SEPARATOR            = "-";
 
-    private static final int    maxLocalityIdCountForApiCall = 512;
-    private static final int    maxPermissionCountForApiCall = 256;
+    private static final int    MAX_LOCALITY_ID_COUNT_FOR_APICALL = 512;
+    private static final int    MAX_PERMISSION_COUNT_FOR_APICALL  = 256;
 
-    private static final String BUILDER_ID                   = "builderId";
-    private static final String CITY_ID                      = "cityId";
-    private static final String LOCALITY_ID                  = "localityId";
-    private static final int    IDS_LIMIT_FOR_URL            = 50;
+    private static final String BUILDER_ID                        = "builderId";
+    private static final String CITY_ID                           = "cityId";
+    private static final String LOCALITY_ID                       = "localityId";
+    private static final int    IDS_LIMIT_FOR_URL                 = 50;
     @Autowired
     private HttpRequestUtil     httpRequestUtil;
 
     @Autowired
-    private static Logger       logger                       = LoggerFactory.getLogger(ResponseInterceptor.class);
+    private static Logger       logger                            = LoggerFactory.getLogger(ResponseInterceptor.class);
 
     @SuppressWarnings("unchecked")
     @AfterReturning(
@@ -90,7 +90,7 @@ public class ResponseInterceptor {
             if (entityType.equalsIgnoreCase(objTypeTextCity)) {
                 cityId = extractEntityIdFromTypeaheadResponseId(typeAheadRespId);
                 if (!(userSubscriptionMap.get(objTypeIdCity, cityId) != null)) {
-                    ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                    ((Map<String, Object>) element).put(FIELD_TAG_AUTHORIZED, false);
                 }
             }
             else if (entityType.equalsIgnoreCase(objTypeTextLocality)) {
@@ -99,7 +99,7 @@ public class ResponseInterceptor {
                 if (!((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
                         objTypeIdCity,
                         cityId) != null))) {
-                    ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                    ((Map<String, Object>) element).put(FIELD_TAG_AUTHORIZED, false);
                 }
             }
             else if (entityType.equalsIgnoreCase(objTypeTextProject)) {
@@ -108,14 +108,14 @@ public class ResponseInterceptor {
                 if (!((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
                         objTypeIdCity,
                         cityId) != null))) {
-                    ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                    ((Map<String, Object>) element).put(FIELD_TAG_AUTHORIZED, false);
                 }
             }
             else if (entityType.equalsIgnoreCase(objTypeTextBuilder)) {
-                String[] typeAheadIdParts = typeAheadRespId.split(typeAheadIdSeparator);
+                String[] typeAheadIdParts = typeAheadRespId.split(TYPEAHEAD_ID_SEPARATOR);
                 int builderId = Integer.parseInt(typeAheadIdParts[typeAheadIdParts.length - 1]);
                 if (!(userSubscriptionMap.containsKey(objTypeIdBuilder, builderId))) {
-                    ((Map<String, Object>) element).put(fieldTagAuthorized, false);
+                    ((Map<String, Object>) element).put(FIELD_TAG_AUTHORIZED, false);
                 }
             }
         }
@@ -200,8 +200,6 @@ public class ResponseInterceptor {
         int objectTypeId, objectId;
         List<Integer> localityIDList = new ArrayList<Integer>();
         logger.debug("TIME AT STEP 6: {}", new Date().getTime());
-        int objTypeIdLocality = DomainObject.locality.getObjectTypeId();
-        int objTypeIdCity = DomainObject.city.getObjectTypeId();
         for (Permission permission : permissions) {
             if (permission != null) {
                 objectTypeId = permission.getObjectTypeId();
@@ -268,21 +266,21 @@ public class ResponseInterceptor {
         List<Locality> localities = new ArrayList<>();
         if (localityIds != null) {
             int size = localityIds.size();
-            for (int i = 0; i < size; i = i + maxLocalityIdCountForApiCall) {
+            for (int i = 0; i < size; i = i + MAX_LOCALITY_ID_COUNT_FOR_APICALL) {
                 List<Integer> partialLocalityIds = localityIds.subList(
                         i,
-                        Math.min(size, i + maxLocalityIdCountForApiCall));
+                        Math.min(size, i + MAX_LOCALITY_ID_COUNT_FOR_APICALL));
                 URI uri = URI
                         .create(UriComponentsBuilder
                                 .fromUriString(
                                         PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
                                                 .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
                                                 + "?"
-                                                + URLGenerationConstants.Selector
+                                                + URLGenerationConstants.SELECTOR
                                                 + String.format(
                                                         URLGenerationConstants.SELECTOR_GET_CITYIDS_BY_LOCALITYIDS,
                                                         StringUtils.join(partialLocalityIds, ","),
-                                                        maxLocalityIdCountForApiCall)).build().encode().toString());
+                                                        MAX_LOCALITY_ID_COUNT_FOR_APICALL)).build().encode().toString());
                 List<Locality> partialLocalities = httpRequestUtil.getInternalApiResultAsTypeListFromCache(
                         uri,
                         Locality.class);
@@ -303,11 +301,11 @@ public class ResponseInterceptor {
         logger.debug("xxxyyyzzz :: Permissions Size = {}", size);
 
         logger.debug("TIME AT STEP 11: {}", new Date().getTime());
-        for (int i = 0; i < size; i = i + maxPermissionCountForApiCall) {
+        for (int i = 0; i < size; i = i + MAX_PERMISSION_COUNT_FOR_APICALL) {
             logger.debug("xxxyyyzzz :: enter for loop :: i = {}", i);
             List<Permission> partialPermissions = permissions.subList(
                     i,
-                    Math.min(size, i + maxPermissionCountForApiCall));
+                    Math.min(size, i + MAX_PERMISSION_COUNT_FOR_APICALL));
 
             List<String> requests = getUserAppSubscriptionRequests(partialPermissions);
             logger.debug("TIME AT STEP 14: {}", new Date().getTime());
@@ -315,7 +313,7 @@ public class ResponseInterceptor {
                 String stringUrl = PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
                         .getRequiredPropertyAsString(CorePropertyKeys.PROJECT_LISTING_API_URL)
                         + "?"
-                        + URLGenerationConstants.Selector
+                        + URLGenerationConstants.SELECTOR
                         + req;
                 logger.debug("xxxyyyzzz :: stringUrl : {}", stringUrl);
                 URI uri = URI.create(UriComponentsBuilder.fromUriString(stringUrl).build().encode().toString());

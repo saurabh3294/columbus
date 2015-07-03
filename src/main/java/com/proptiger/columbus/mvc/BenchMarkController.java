@@ -44,7 +44,7 @@ public class BenchMarkController {
                                         PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
                                                 .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
                                                 + "?"
-                                                + URLGenerationConstants.Selector
+                                                + URLGenerationConstants.SELECTOR
                                                 + String.format(
                                                         URLGenerationConstants.SELECTOR_GET_LOCALITYNAMES_BY_CITYNAME,
                                                         city)).build().encode().toString());
@@ -56,7 +56,7 @@ public class BenchMarkController {
                 writer.write(city + "," + diff + "\n");
             }
             catch (Exception e) {
-                logger.warn("In getTrand() while getRequiredProperyAsString", e);
+                logger.warn("caught exception while getting locality by cityname", e);
             }
         }
         writer.close();
