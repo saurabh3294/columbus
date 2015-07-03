@@ -200,7 +200,7 @@ public class TypeaheadService {
 
         /* Handling City filter : url-param-based and query-based */
 
-        String filterCity = filterQueries.get(TypeaheadConstants.TYPE_AHEAD_FIELD_NAME_CITY);
+        String filterCity = filterQueries.get(TypeaheadConstants.TYPEAHEAD_FIELD_NAME_CITY);
         String queryCity = extractCityNameFromQuery(query);
         String templateCity = usercity;
         City filterCityObject = null;
@@ -216,7 +216,7 @@ public class TypeaheadService {
         else if (queryCity != null) {
             templateCity = queryCity;
             newQuery = StringUtils.substringBeforeLast(query, queryCity);
-            filterQueries.put(TypeaheadConstants.TYPE_AHEAD_FIELD_NAME_CITY, queryCity);
+            filterQueries.put(TypeaheadConstants.TYPEAHEAD_FIELD_NAME_CITY, queryCity);
         }
 
         List<String> filterQueryList = getFilterQueryListV4(filterQueries);
@@ -269,10 +269,10 @@ public class TypeaheadService {
         for (Map.Entry<String, String> entry : fqMap.entrySet()) {
             key = entry.getKey();
             cityName = entry.getValue();
-            if (key.equals(TypeaheadConstants.TYPE_AHEAD_FIELD_NAME_CITY) && cityNameToCityObjectMap
+            if (key.equals(TypeaheadConstants.TYPEAHEAD_FIELD_NAME_CITY) && cityNameToCityObjectMap
                     .containsKey(cityName)) {
                 int cityId = cityNameToCityObjectMap.get(cityName).getId();
-                list.add("(" + TypeaheadConstants.TYPE_AHEAD_FIELD_NAME_CITY
+                list.add("(" + TypeaheadConstants.TYPEAHEAD_FIELD_NAME_CITY
                         + ":"
                         + cityName
                         + " OR "
@@ -357,7 +357,7 @@ public class TypeaheadService {
         int cityId = cityNameToCityObjectMap.get(usercity).getId();
 
         for (Typeahead t : results) {
-            if (t.getType().equalsIgnoreCase(TypeaheadConstants.TYPE_AHEAD_TYPE_BUILDER)) {
+            if (t.getType().equalsIgnoreCase(TypeaheadConstants.TYPEAHEAD_TYPE_BUILDER)) {
                 if (t.getBuilderCityIds().contains(cityId)) {
                     t.setScore(getCityBoostedScore(t.getScore()));
                 }
@@ -390,7 +390,7 @@ public class TypeaheadService {
         Typeahead tnew;
         Map<String, String> builderCityMap;
         for (Typeahead t : results) {
-            if (t.getType().equalsIgnoreCase(TypeaheadConstants.TYPE_AHEAD_TYPE_BUILDER)) {
+            if (t.getType().equalsIgnoreCase(TypeaheadConstants.TYPEAHEAD_TYPE_BUILDER)) {
                 builderCityMap = getBuilderCityMap(t.getBuilderCityInfo());
                 /*
                  * if builder is operational in filterCity then add only
@@ -471,7 +471,7 @@ public class TypeaheadService {
             case project:
             case suburb:
                 typeaheadId = String.format(
-                        TypeaheadConstants.TYPE_AHEAD_IDPATTERN,
+                        TypeaheadConstants.TYPEAHEAD_ID_PATTERN,
                         StringUtils.upperCase(dObj.name()),
                         String.valueOf(domainObjectId));
                 results = typeaheadDao.getTypeaheadById(typeaheadId);

@@ -48,7 +48,7 @@ public class ResponseInterceptor {
     private final String        objTypeTextBuilder                = DomainObject.builder.getText();
 
     private static final String FIELD_TAG_AUTHORIZED              = "authorized";
-    private static final String TYPE_AHEAD_ID_SEPARATOR           = "-";
+    private static final String TYPEAHEAD_ID_SEPARATOR            = "-";
 
     private static final int    MAX_LOCALITY_ID_COUNT_FOR_APICALL = 512;
     private static final int    MAX_PERMISSION_COUNT_FOR_APICALL  = 256;
@@ -112,7 +112,7 @@ public class ResponseInterceptor {
                 }
             }
             else if (entityType.equalsIgnoreCase(objTypeTextBuilder)) {
-                String[] typeAheadIdParts = typeAheadRespId.split(TYPE_AHEAD_ID_SEPARATOR);
+                String[] typeAheadIdParts = typeAheadRespId.split(TYPEAHEAD_ID_SEPARATOR);
                 int builderId = Integer.parseInt(typeAheadIdParts[typeAheadIdParts.length - 1]);
                 if (!(userSubscriptionMap.containsKey(objTypeIdBuilder, builderId))) {
                     ((Map<String, Object>) element).put(FIELD_TAG_AUTHORIZED, false);
