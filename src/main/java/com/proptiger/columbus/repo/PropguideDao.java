@@ -96,7 +96,7 @@ public class PropguideDao {
         List<PropguideDocument> postList = new ArrayList<PropguideDocument>();
 
         for (PropguideDocument pgd : resultsOriginal) {
-            if (pgd.getPgdType().equals("Suggestion")) {
+            if ("Suggestion".equals(pgd.getPgdType())) {
                 tagList.add(pgd);
             }
             else {

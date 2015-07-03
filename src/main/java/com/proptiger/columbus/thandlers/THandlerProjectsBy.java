@@ -83,7 +83,7 @@ public class THandlerProjectsBy extends RootTHandler {
                                         PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
                                                 .getRequiredPropertyAsString(CorePropertyKeys.BUILDER_API_URL)
                                                 + "?"
-                                                + URLGenerationConstants.Selector
+                                                + URLGenerationConstants.SELECTOR
                                                 + String.format(
                                                         URLGenerationConstants.SELECTOR_GET_BUILDERNAMES_BY_CITYNAME,
                                                         cityName)).build().encode().toString()),

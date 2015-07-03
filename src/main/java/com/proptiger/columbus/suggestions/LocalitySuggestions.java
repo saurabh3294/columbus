@@ -81,7 +81,7 @@ public class LocalitySuggestions {
         List<SuggestionInfo> suggestionList = new ArrayList<SuggestionInfo>();
 
         int projectCountNewLaunch = UtilityClass.safeUnbox(topResult.getEntityProjectCountNewLaunch(), 0);
-        projectCountNewLaunch *= (TypeaheadConstants.suggestionNewLaunchMultiplier);
+        projectCountNewLaunch *= (TypeaheadConstants.SUGGESTION_NEWLAUNCH_MULTIPLIER);
 
         int projectCountUnderConst = UtilityClass.safeUnbox(topResult.getEntityProjectCountUnderConstruction(), 0);
         int projectCountAffordable = UtilityClass.safeUnbox(topResult.getEntityProjectCountAffordable(), 0);
@@ -98,7 +98,7 @@ public class LocalitySuggestions {
         Collections.sort(pairList, pairComparator);
 
         for (Pair<Integer, SuggestionInfo> pair : pairList) {
-            if (pair.getFirst() > TypeaheadConstants.suggestionProjectCountTheshold) {
+            if (pair.getFirst() > TypeaheadConstants.SUGGESTION_PROJECT_COUNT_THESHOLD) {
                 suggestionList.add(pair.getSecond());
             }
         }

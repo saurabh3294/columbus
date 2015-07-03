@@ -83,7 +83,7 @@ public class BuilderSuggestions {
         Collections.sort(pairList, pairComparator);
 
         for (Pair<Integer, SuggestionInfo> pair : pairList) {
-            if (pair.getFirst() > TypeaheadConstants.suggestionProjectCountTheshold) {
+            if (pair.getFirst() > TypeaheadConstants.SUGGESTION_PROJECT_COUNT_THESHOLD) {
                 suggestionList.add(pair.getSecond());
             }
         }

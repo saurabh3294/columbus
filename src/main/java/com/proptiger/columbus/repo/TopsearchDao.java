@@ -80,7 +80,7 @@ public class TopsearchDao {
         }
 
         String typeaheadId = String.format(
-                TypeaheadConstants.typeaheadIdPattern,
+                TypeaheadConstants.TYPE_AHEAD_IDPATTERN,
                 StringUtils.upperCase(entityType),
                 String.valueOf(entityId));
 

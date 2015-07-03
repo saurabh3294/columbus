@@ -43,9 +43,9 @@ public class TypeaheadTemplateTest extends AbstractTest {
     @Value("${proptiger.url}")
     private String               BASE_URL;
 
-    private String               testCityName       = TypeaheadConstants.defaultCityName;
+    private String               testCityName       = TypeaheadConstants.DEFAULT_CITY_NAME;
 
-    private int                  testCityId         = TypeaheadConstants.defaultCityId;
+    private int                  testCityId         = TypeaheadConstants.DEFAULT_CITY_ID;
 
     private List<SuggestionTest> testList;
 

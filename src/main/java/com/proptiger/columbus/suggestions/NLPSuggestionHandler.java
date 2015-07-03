@@ -49,7 +49,7 @@ public class NLPSuggestionHandler {
             thandler = applicationContext.getBean(ttype.getClazz());
         }
         catch (Exception e) {
-            logger.error("No template handler found for template = " + template.getId() + e);
+            logger.error("No template handler found for template = " + template.getId(), e);
         }
         return thandler;
     }
@@ -57,8 +57,8 @@ public class NLPSuggestionHandler {
     public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows) {
 
         if (city == null || city.isEmpty()) {
-            city = TypeaheadConstants.defaultCityName;
-            cityId = TypeaheadConstants.defaultCityId;
+            city = TypeaheadConstants.DEFAULT_CITY_NAME;
+            cityId = TypeaheadConstants.DEFAULT_CITY_ID;
         }
 
         List<Typeahead> results = new ArrayList<Typeahead>();
@@ -66,7 +66,7 @@ public class NLPSuggestionHandler {
         List<Typeahead> templateHits = getTemplateHits(query, rows);
 
         /* If no good-matching templates are found, return empty list. */
-        if (templateHits.size() == 0 || templateHits.get(0).getScore() < templateResultScoreTheshold) {
+        if (templateHits.isEmpty() || templateHits.get(0).getScore() < templateResultScoreTheshold) {
             return results;
         }
 

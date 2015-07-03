@@ -5,7 +5,11 @@ import org.apache.commons.lang.StringUtils;
 import com.proptiger.core.model.cms.Locality;
 
 public class URLGenerationConstants {
-    public static final String Selector                               = "selector=";
+    private URLGenerationConstants() {
+
+    }
+
+    public static final String SELECTOR                               = "selector=";
 
     public static final String SELECTOR_GET_ALL_CITIES                = "{\"fields\":[\"label\", \"id\",\"centerLatitude\",\"centerLongitude\"],\"paging\":{\"start\":0,\"rows\":%d}}";
 

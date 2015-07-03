@@ -118,7 +118,7 @@ public class GooglePlacesAPIService {
 
         Typeahead typeahead = new Typeahead();
         typeahead.setId(String.format(
-                TypeaheadConstants.typeaheadIdPattern,
+                TypeaheadConstants.TYPE_AHEAD_IDPATTERN,
                 TypeaheadTypeGooglePlace,
                 googlePlace.getPlaceId()));
         typeahead.setType(TypeaheadTypeGooglePlace);

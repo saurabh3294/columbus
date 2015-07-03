@@ -24,7 +24,7 @@ public class ProjectSuggestions {
 
     private static String   entityIdFilterFormat = "{\"and\":{\"equal\":{\"propertyId\":%s}}}";
 
-    public List<Typeahead> getSuggestions(int id, Typeahead topResult, int count) {
+    public List<Typeahead> getSuggestions(Typeahead topResult, int count) {
 
         String projectName = topResult.getLabel();
 
