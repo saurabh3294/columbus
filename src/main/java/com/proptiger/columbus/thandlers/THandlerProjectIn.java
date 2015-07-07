@@ -34,6 +34,7 @@ public class THandlerProjectIn extends RootTHandler {
     private TemplateInfo  templateInfoSale;
     private TemplateInfo  templateInfoResale;
 
+    @Override
     @PostConstruct
     public void initialize() {
 

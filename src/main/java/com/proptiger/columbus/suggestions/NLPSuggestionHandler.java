@@ -56,9 +56,11 @@ public class NLPSuggestionHandler {
 
     public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows) {
 
+        String cityTemp = city;
+        int cityIdTemp = cityId;
         if (city == null || city.isEmpty()) {
-            city = TypeaheadConstants.DEFAULT_CITY_NAME;
-            cityId = TypeaheadConstants.DEFAULT_CITY_ID;
+            cityTemp = TypeaheadConstants.DEFAULT_CITY_NAME;
+            cityIdTemp = TypeaheadConstants.DEFAULT_CITY_ID;
         }
 
         List<Typeahead> results = new ArrayList<Typeahead>();
@@ -75,7 +77,7 @@ public class NLPSuggestionHandler {
         RootTHandler thandlerFirst = getTemplateHandler(templateHits.get(0));
         List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
         if (thandlerFirst != null) {
-            resultsFirstHandler = thandlerFirst.getResults(query, templateHits.get(0), city, cityId, rows);
+            resultsFirstHandler = thandlerFirst.getResults(query, templateHits.get(0), cityTemp, cityIdTemp, rows);
         }
 
         /* Populating template score as the score for all suggestions */
@@ -99,7 +101,7 @@ public class NLPSuggestionHandler {
             thandler = getTemplateHandler(t);
 
             if (thandler != null) {
-                topResult = thandler.getTopResult(query, t, city, cityId);
+                topResult = thandler.getTopResult(query, t, cityTemp, cityIdTemp);
                 topResult.setScore(t.getScore());
                 results.add(topResult);
             }

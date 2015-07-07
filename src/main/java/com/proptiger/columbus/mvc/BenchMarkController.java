@@ -2,6 +2,7 @@ package com.proptiger.columbus.mvc;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 
@@ -30,12 +31,19 @@ public class BenchMarkController {
 
     @RequestMapping("/benchmark")
     @ResponseBody
-    public APIResponse getTrend() throws Exception {
+    public APIResponse getTrend() {
         String cities = "Agra,Ahmedabad,Aligarh,Allahabad,Almora,Alwar,Ambala,Amritsar,Anand,Anantapura,Arambagh,Aurangabad,Bangalore,Bareilly,Bharuch,Bhavnagar,Bhopal,Bhubaneswar,Bulandshahr,Burdwan,Chandigarh,Chennai,Coimbatore,Dausa,Dehradun,Delhi,Dharwad,Dindigul,Dubai,Durgapur,Ernakulam,Faridabad,Ganjam,Ghaziabad,Goa,Gulbarga,Guntur,Gurgaon,Guwahati,Gwalior,Haridwar,Hyderabad,Indore,Jabalpur,Jaipur,Jalandhar,Jamshedpur,Jhajjar,Jhansi,Jodhpur,Kannur,Kanpur,Karnal,Kochi,Kolhapur,Kolkata,Kottayam,Kozhikode,Krishna,Lucknow,Ludhiana,Madurai,Mandya,Mangalore,Mathura,Meerut,Mehsana,Moradabad,Mumbai,Mysore,Nagpur,Nainital,Nashik,Noida,Ooty,Panipat,Patiala,Patna,Pondicherry,Pune,Puri,Raigad,Ranchi,Ratnagiri,Rayagada,Rishikesh,Rohtak,Salem,Satara,Shimla,Silliguri,Solan,Solapur,Sonepat,Surat,Thiruvannamalai,Thrissur,Tirunelveli,Tirupati,Trichy,Trivandrum,Vadodara,Valsad,Varanasi,Vellore,Vijayawada,Visakhapatnam,Warangal,Wayanad";
 
         String[] cityList = cities.split(",");
         File file = new File("/tmp/api.csv");
-        FileWriter writer = new FileWriter(file, false);
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(file, false);
+        }
+        catch (IOException e1) {
+            // TODO Auto-generated catch block
+            logger.warn("caught exception while opening the file", e1);
+        }
         for (String city : cityList) {
             try {
                 URI uri = URI
@@ -59,7 +67,13 @@ public class BenchMarkController {
                 logger.warn("caught exception while getting locality by cityname", e);
             }
         }
-        writer.close();
+        try {
+            writer.close();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            logger.warn("caught exception while gclosing the file", e);
+        }
         return new APIResponse();
     }
 }

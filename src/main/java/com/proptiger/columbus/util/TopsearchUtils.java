@@ -13,6 +13,9 @@ import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
 public class TopsearchUtils {
+    private TopsearchUtils() {
+
+    }
 
     private static Type type = new TypeToken<List<Typeahead>>() {}.getType();
 

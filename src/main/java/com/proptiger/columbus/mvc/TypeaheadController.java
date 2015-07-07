@@ -91,8 +91,8 @@ public class TypeaheadController extends BaseController {
 
         List<String> filterQueries = new ArrayList<String>();
         getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType);
-        usercity = getCityContext(usercity, request);
-        List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, usercity, enhance);
+        String usercityLocal = getCityContext(usercity, request);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, usercityLocal, enhance);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }
@@ -107,11 +107,11 @@ public class TypeaheadController extends BaseController {
 
         ApiVersion version = getApiVersion();
 
-        city = (city == null ? null : city.toLowerCase());
-        usercity = (usercity == null ? null : usercity.toLowerCase());
-        Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
-        usercity = getCityContext(usercity, request);
-        List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance);
+        String cityTemp = (city == null ? null : city.toLowerCase());
+        String usercityTemp = (usercity == null ? null : usercity.toLowerCase());
+        Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(cityTemp, locality, typeAheadType);
+        usercityTemp = getCityContext(usercityTemp, request);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercityTemp, enhance);
 
         return new APIResponse(super.filterFields(list, null), (long) (list.size()), version);
     }

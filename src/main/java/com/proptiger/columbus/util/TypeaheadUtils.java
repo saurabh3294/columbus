@@ -19,6 +19,10 @@ public class TypeaheadUtils {
      *            Typeahead object
      * @return entity id extracted from typeaheadId
      */
+    private TypeaheadUtils() {
+
+    }
+
     private static Logger logger = LoggerFactory.getLogger(TypeaheadUtils.class);
 
     public static String parseEntityIdAsString(Typeahead t) {

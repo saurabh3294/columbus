@@ -155,8 +155,8 @@ public class PropguideDao {
     }
 
     private SolrQuery getSolrQueryV1(String query, List<String> filterQueries, int rows) {
-        query = QueryParserUtil.escape(query.toLowerCase());
-        SolrQuery solrQuery = new SolrQuery(query);
+        String queryLocal = QueryParserUtil.escape(query.toLowerCase());
+        SolrQuery solrQuery = new SolrQuery(queryLocal);
         solrQuery.setRows(rows);
         solrQuery.setParam("qt", "/propguide");
         if (filterQueries == null) {

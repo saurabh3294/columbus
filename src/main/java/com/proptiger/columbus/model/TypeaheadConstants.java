@@ -8,10 +8,6 @@ import com.proptiger.core.model.Typeahead;
 
 public class TypeaheadConstants {
 
-    private TypeaheadConstants() {
-
-    }
-
     public static final String TYPEAHEAD_ID_PATTERN               = "TYPEAHEAD-%s-%s";
 
     public static final String DEFAULT_CITY_NAME                  = "Noida";
@@ -48,4 +44,8 @@ public class TypeaheadConstants {
                                                                           .getType();
 
     public static final int    PROPGUIDE_POST_TAGS_MULTIPLIER     = 40;
+
+    private TypeaheadConstants() {
+
+    }
 }

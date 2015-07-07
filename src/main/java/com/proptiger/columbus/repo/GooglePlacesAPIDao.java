@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.proptiger.columbus.model.GooglePlace;
+import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.util.UtilityClass;
 
 @Repository
@@ -87,15 +88,17 @@ public class GooglePlacesAPIDao {
     }
 
     private List<GooglePlace> getMatchingPlaces(String query, int rows, double[] geoCenter, int radius) {
+
+        String queryTemp = query;
         try {
-            query = URLEncoder.encode(query, "UTF-8");
+            queryTemp = URLEncoder.encode(query, "UTF-8");
         }
         catch (UnsupportedEncodingException e) {
             logger.error("Unsupported Encoding UTF-8.", e);
         }
 
         String gpPlacePredictionUrlBounded = getGpPlacePredictionUrlBounded(geoCenter, radius);
-        String apiUrl = String.format(gpPlacePredictionUrlBounded, StringUtils.replace(query, " ", "+"));
+        String apiUrl = String.format(gpPlacePredictionUrlBounded, StringUtils.replace(queryTemp, " ", "+"));
         String apiResponse = getResponse(apiUrl);
 
         List<GooglePlace> placelist = new ArrayList<GooglePlace>();
@@ -103,7 +106,7 @@ public class GooglePlacesAPIDao {
             placelist = parsePlaceAutocompleteApiResponse(apiResponse);
         }
         catch (Exception ex) {
-            logger.error("Exception while fetching place list from Google Places API. Query= " + query, ex);
+            logger.error("Exception while fetching place list from Google Places API. Query= " + queryTemp, ex);
         }
         return UtilityClass.getFirstNElementsOfList(placelist, rows);
     }
@@ -153,13 +156,13 @@ public class GooglePlacesAPIDao {
      * @throws Exception
      *             if any problem while parsing response
      */
-    private GooglePlace parsePlaceDetailApiResponse(String apiResponse) throws Exception {
+    private GooglePlace parsePlaceDetailApiResponse(String apiResponse) throws ProAPIException {
         GooglePlace googlePlace = new GooglePlace();
         JsonParser jsonParser = new JsonParser();
         JsonObject joResponse = jsonParser.parse(apiResponse).getAsJsonObject();
         String status = joResponse.get("status").getAsString();
         if (!(GP_RESP_STATUS_OK.equals(status))) {
-            throw new Exception("Google Places API returned a NON-OK response : " + status);
+            throw new ProAPIException("Google Places API returned a NON-OK response : " + status);
         }
 
         JsonObject joResult = joResponse.get("result").getAsJsonObject();
@@ -179,7 +182,7 @@ public class GooglePlacesAPIDao {
      * @throws Exception
      *             if any problem while parsing response
      */
-    private List<GooglePlace> parsePlaceAutocompleteApiResponse(String apiResponse) throws Exception {
+    private List<GooglePlace> parsePlaceAutocompleteApiResponse(String apiResponse) throws ProAPIException {
 
         List<GooglePlace> googlePlacelist = new ArrayList<GooglePlace>();
         JsonParser jsonParser = new JsonParser();
@@ -189,7 +192,7 @@ public class GooglePlacesAPIDao {
             return googlePlacelist;
         }
         else if (!(GP_RESP_STATUS_OK.equals(status))) {
-            throw new Exception("Google Places API returned a NON-OK response : " + status);
+            throw new ProAPIException("Google Places API returned a NON-OK response : " + status);
         }
 
         JsonArray joPredictions = joResponse.get("predictions").getAsJsonArray();

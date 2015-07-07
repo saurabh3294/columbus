@@ -54,6 +54,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
 
     private TemplateInfo templateInfo;
 
+    @Override
     @PostConstruct
     public void initialize() {
         /* TODO :: remove hardcoded string from here. */
