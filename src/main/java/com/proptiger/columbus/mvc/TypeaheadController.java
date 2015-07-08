@@ -91,7 +91,7 @@ public class TypeaheadController extends BaseController {
 
         List<String> filterQueries = new ArrayList<String>();
         getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType);
-        usercity = getCityContext(usercity, request);
+        usercity = getCityContext(usercity);
         List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, usercity, enhance);
 
         return new APIResponse(super.filterFields(list, null), list.size());
@@ -110,13 +110,13 @@ public class TypeaheadController extends BaseController {
         city = (city == null ? null : city.toLowerCase());
         usercity = (usercity == null ? null : usercity.toLowerCase());
         Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
-        usercity = getCityContext(usercity, request);
+        usercity = getCityContext(usercity);
         List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance);
 
         return new APIResponse(super.filterFields(list, null), (long) (list.size()), version);
     }
 
-    private String getCityContext(String usercity, HttpServletRequest request) {
+    private String getCityContext(String usercity) {
         /* if city was explicitly set in URL use that */
         if (usercity != null && !usercity.isEmpty()) {
             return usercity;

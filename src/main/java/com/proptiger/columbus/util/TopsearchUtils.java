@@ -31,11 +31,9 @@ public class TopsearchUtils {
      * @param inputRows
      * @return
      */
-    public static List<Typeahead> typeaheadToTopsearchConverter(
-            List<Typeahead> typeaheadList,
-            String requiredEntities,
-            Boolean isGroup,
-            int inputRows) {
+    public static List<Typeahead> typeaheadToTopsearchConverter(List<Typeahead> typeaheadList, String requiredEntities,
+
+    int inputRows) {
         List<Typeahead> topsearchList = new ArrayList<Typeahead>();
 
         requiredEntities = requiredEntities.toLowerCase();

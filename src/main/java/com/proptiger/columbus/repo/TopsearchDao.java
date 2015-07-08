@@ -89,11 +89,9 @@ public class TopsearchDao {
         results.addAll(typeaheadList);
 
         List<Typeahead> topsearchIncompleteResults = new ArrayList<Typeahead>();
-        topsearchIncompleteResults = TopsearchUtils.typeaheadToTopsearchConverter(
-                results,
-                requiredEntities,
-                isGroup,
-                rows);
+        topsearchIncompleteResults = TopsearchUtils.typeaheadToTopsearchConverter(results, requiredEntities,
+
+        rows);
 
         List<String> typeaheadIds = new ArrayList<String>();
 

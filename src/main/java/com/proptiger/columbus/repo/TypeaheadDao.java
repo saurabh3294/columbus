@@ -82,7 +82,7 @@ public class TypeaheadDao {
     public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         try {
-            results = getSpellCheckedResponseV3(query, rows, filterQueries, usercity);
+            results = getSpellCheckedResponseV3(query, rows, filterQueries);
         }
         catch (ProAPIException e) {
             if (e.getCause() instanceof RemoteSolrException) {
@@ -118,11 +118,7 @@ public class TypeaheadDao {
      * If the query has a typo and can be corrected then new query is generated
      * using the suggestions and executed automatically
      */
-    private List<Typeahead> getSpellCheckedResponseV3(
-            String query,
-            int rows,
-            List<String> filterQueries,
-            String usercity) {
+    private List<Typeahead> getSpellCheckedResponseV3(String query, int rows, List<String> filterQueries) {
 
         /* Fetch results for entered query first */
         SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
