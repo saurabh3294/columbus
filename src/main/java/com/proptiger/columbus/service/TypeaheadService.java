@@ -546,16 +546,16 @@ public class TypeaheadService {
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
         /* Restrict suggestion count */
-        int rowsTemp = Math.min(rows, TypeaheadConstants.MAX_SUGGESTION_COUNT);
+        rows = Math.min(rows, TypeaheadConstants.MAX_SUGGESTION_COUNT);
 
         int templateCityId;
         try {
-            suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rowsTemp);
+            suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
 
             if (suggestions == null || suggestions.isEmpty()) {
                 templateCityId = ((templateCity == null) ? 0 : cityNameToCityObjectMap.get(templateCity).getId());
                 suggestions = nlpSuggestionHandler
-                        .getNlpTemplateBasedResults(query, templateCity, templateCityId, rowsTemp);
+                        .getNlpTemplateBasedResults(query, templateCity, templateCityId, rows);
             }
         }
         catch (Exception ex) {
