@@ -24,12 +24,6 @@ public class NLPSuggestionHandler {
     private TypeaheadDao       typeaheadDao;
 
     @Autowired
-    private HttpRequestUtil    httpRequestUtil;
-
-    @Autowired
-    private TemplateInfoDao    templateInfoDao;
-
-    @Autowired
     private TemplateMap        templateMap;
 
     private Logger             logger                           = LoggerFactory.getLogger(NLPSuggestionHandler.class);

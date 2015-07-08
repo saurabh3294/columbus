@@ -30,9 +30,6 @@ import com.proptiger.core.util.UtilityClass;
 public class TopsearchDao {
 
     @Autowired
-    private SolrDao         solrDao;
-
-    @Autowired
     private TypeaheadDao    typeaheadDao;
 
     private ComparatorChain chain;
