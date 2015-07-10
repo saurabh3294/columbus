@@ -104,13 +104,22 @@ public class TopsearchDao {
 
         List<Typeahead> topsearchList = typeaheadDao.getTypeaheadById(typeaheadIds);
 
+        return topSearchHelper(topsearchList, topsearchResults, typeaheadIdScoreMap, isGroup, rows);
+
+    }
+
+    public List<Typeahead> topSearchHelper(
+            List<Typeahead> topsearchList,
+            List<Typeahead> topsearchResults,
+            Map<String, Float> typeaheadIdScoreMap,
+            Boolean isGroup,
+            int rows) {
         if (topsearchList == null) {
             return topsearchResults;
         }
         else {
             return sortTopsearchByTypeAndScore(topsearchList, typeaheadIdScoreMap, isGroup, rows);
         }
-
     }
 
     private List<Typeahead> sortTopsearchByTypeAndScore(

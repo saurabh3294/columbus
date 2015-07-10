@@ -50,11 +50,9 @@ public class NLPSuggestionHandler {
 
     public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows) {
 
-        if (city == null || city.isEmpty()) {
-            city = TypeaheadConstants.DEFAULT_CITY_NAME;
-            cityId = TypeaheadConstants.DEFAULT_CITY_ID;
-        }
-
+        /* Check for city if it is null or not */
+        city = setCity(city);
+        cityId = setCityId(cityId, city);
         List<Typeahead> results = new ArrayList<Typeahead>();
 
         List<Typeahead> templateHits = getTemplateHits(query, rows);
@@ -68,10 +66,15 @@ public class NLPSuggestionHandler {
 
         RootTHandler thandlerFirst = getTemplateHandler(templateHits.get(0));
         List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
-        if (thandlerFirst != null) {
-            resultsFirstHandler = thandlerFirst.getResults(query, templateHits.get(0), city, cityId, rows);
-        }
 
+        resultsFirstHandler = getResultForFirstTemplate(
+                thandlerFirst,
+                resultsFirstHandler,
+                templateHits,
+                city,
+                cityId,
+                rows,
+                query);
         /* Populating template score as the score for all suggestions */
         for (Typeahead t : resultsFirstHandler) {
             t.setScore(templateHits.get(0).getScore());
@@ -108,14 +111,52 @@ public class NLPSuggestionHandler {
          */
 
         int size = resultsFirstHandler.size();
+        return populateFirstTemplate(results, resultsFirstHandler, size, rows);
+    }
+
+    List<Typeahead> populateFirstTemplate(
+            List<Typeahead> results,
+            List<Typeahead> resultsFirstHandler,
+            int size,
+            int rows) {
         for (int i = 1; i < size; i++) {
             if (results.size() >= rows) {
                 break;
             }
             results.add(resultsFirstHandler.get(i));
         }
-
         return results;
+    }
+
+    public String setCity(String city) {
+        if (city == null || city.isEmpty()) {
+            /* set Default city */
+            city = TypeaheadConstants.DEFAULT_CITY_NAME;
+        }
+        return city;
+    }
+
+    public int setCityId(int cityId, String city) {
+        if (city == null || city.isEmpty()) {
+            /* set Default cityId */
+            cityId = TypeaheadConstants.DEFAULT_CITY_ID;
+        }
+        return cityId;
+    }
+
+    List<Typeahead> getResultForFirstTemplate(
+            RootTHandler thandlerFirst,
+            List<Typeahead> resultFirstHandler,
+            List<Typeahead> templatesHits,
+            String city,
+            int cityId,
+            int rows,
+            String query) {
+        if (thandlerFirst != null) {
+            resultFirstHandler = thandlerFirst.getResults(query, templatesHits.get(0), city, cityId, rows);
+        }
+
+        return resultFirstHandler;
     }
 
     private List<Typeahead> getTemplateHits(String query, int rows) {

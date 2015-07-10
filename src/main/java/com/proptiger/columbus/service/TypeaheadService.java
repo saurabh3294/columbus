@@ -156,9 +156,8 @@ public class TypeaheadService {
          * Remove not-so-good results and replace them with google place
          * landmarks.
          */
-        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.EXTERNAL_API_IDENTIFIER_GOOGLE)) {
-            results = incorporateGooglePlaceResults(oldQuery, null, results, rows);
-        }
+
+        results = incorporateGooglePlaceResults(oldQuery, null, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
         List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows);
@@ -248,9 +247,8 @@ public class TypeaheadService {
          * Remove not-so-good results and replace them with third party
          * enhancements
          */
-        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.EXTERNAL_API_IDENTIFIER_GOOGLE)) {
-            results = incorporateGooglePlaceResults(enhanceQuery, filterCityObject, results, rows);
-        }
+
+        results = incorporateGooglePlaceResults(enhanceQuery, filterCityObject, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
         List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows);
@@ -496,17 +494,14 @@ public class TypeaheadService {
             String query,
             City city,
             List<Typeahead> results,
-            int totalRows) {
-
+            int totalRows,
+            String enhance) {
+        if (!(enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.EXTERNAL_API_IDENTIFIER_GOOGLE))) {
+            return results;
+        }
         List<Typeahead> finalResults = new ArrayList<Typeahead>();
 
-        int counter = 0;
-        for (Typeahead t : results) {
-            if ((t.getScore() > googlePlaceThresholdScore) || (t.getScore() > googlePlaceTopThresholdScore && counter < ownResultsPrivilegedSlots)) {
-                finalResults.add(t);
-            }
-            counter++;
-        }
+        finalResults = getGoogleResults(results, finalResults);
 
         /* If all results are good then google results are not needed */
         if (finalResults.size() >= totalRows) {
@@ -522,6 +517,17 @@ public class TypeaheadService {
         int radius = TypeaheadConstants.CITY_RADIUS;
         List<Typeahead> gpResults = googlePlacesAPIService.getPlacePredictions(query, gpRows, geoCenter, radius);
         finalResults.addAll(gpResults);
+        return finalResults;
+    }
+
+    List<Typeahead> getGoogleResults(List<Typeahead> results, List<Typeahead> finalResults) {
+        int counter = 0;
+        for (Typeahead t : results) {
+            if ((t.getScore() > googlePlaceThresholdScore) || (t.getScore() > googlePlaceTopThresholdScore && counter < ownResultsPrivilegedSlots)) {
+                finalResults.add(t);
+            }
+            counter++;
+        }
         return finalResults;
     }
 
