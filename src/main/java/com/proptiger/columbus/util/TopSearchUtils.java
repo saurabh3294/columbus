@@ -12,8 +12,8 @@ import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
-public class TopsearchUtils {
-    private TopsearchUtils() {
+public class TopSearchUtils {
+    private TopSearchUtils() {
 
     }
 

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.columbus.model.TypeaheadConstants;
-import com.proptiger.columbus.util.TopsearchUtils;
+import com.proptiger.columbus.util.TopSearchUtils;
 import com.proptiger.columbus.util.TypeaheadUtils;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
@@ -27,7 +27,7 @@ import com.proptiger.core.util.UtilityClass;
  */
 
 @Repository
-public class TopsearchDao {
+public class TopSearchDao {
 
     @Autowired
     private TypeaheadDao    typeaheadDao;
@@ -65,7 +65,7 @@ public class TopsearchDao {
      * @return
      */
 
-    public List<Typeahead> getTopsearchess(
+    public List<Typeahead> getTopSearches(
             int entityId,
             String entityType,
             String requiredEntities,
@@ -82,46 +82,29 @@ public class TopsearchDao {
                 String.valueOf(entityId));
 
         List<Typeahead> typeaheadList = typeaheadDao.getTypeaheadById(typeaheadId);
-        if (typeaheadList == null) {
+        if (typeaheadList == null || typeaheadList.isEmpty()) {
             return topsearchResults;
         }
-        List<Typeahead> results = new ArrayList<Typeahead>();
-        results.addAll(typeaheadList);
-
-        List<Typeahead> topsearchIncompleteResults = new ArrayList<Typeahead>();
-        topsearchIncompleteResults = TopsearchUtils.typeaheadToTopsearchConverter(results, requiredEntities,
-
-        rows);
-
-        List<String> typeaheadIds = new ArrayList<String>();
+        
+        List<Typeahead> topsearchIncompleteResults = TopSearchUtils.typeaheadToTopsearchConverter(typeaheadList, requiredEntities, rows);
 
         Map<String, Float> typeaheadIdScoreMap = new HashMap<String, Float>();
-
         for (Typeahead th : topsearchIncompleteResults) {
-            typeaheadIds.add(th.getId());
             typeaheadIdScoreMap.put(th.getId(), th.getScore());
         }
 
+        List<String> typeaheadIds = new ArrayList<String>(typeaheadIdScoreMap.keySet());
         List<Typeahead> topsearchList = typeaheadDao.getTypeaheadById(typeaheadIds);
 
-        return topSearchHelper(topsearchList, topsearchResults, typeaheadIdScoreMap, isGroup, rows);
+        if (topsearchList != null) {
+            topsearchResults = sortTopsearchByTypeAndScore(topsearchList, typeaheadIdScoreMap, isGroup, rows);
+        }
+        
+        return topsearchResults;
 
     }
 
-    public List<Typeahead> topSearchHelper(
-            List<Typeahead> topsearchList,
-            List<Typeahead> topsearchResults,
-            Map<String, Float> typeaheadIdScoreMap,
-            Boolean isGroup,
-            int rows) {
-        if (topsearchList == null) {
-            return topsearchResults;
-        }
-        else {
-            return sortTopsearchByTypeAndScore(topsearchList, typeaheadIdScoreMap, isGroup, rows);
-        }
-    }
-
+    @SuppressWarnings("unchecked")
     private List<Typeahead> sortTopsearchByTypeAndScore(
             List<Typeahead> topsearchList,
             Map<String, Float> typeaheadIdScoreMap,
