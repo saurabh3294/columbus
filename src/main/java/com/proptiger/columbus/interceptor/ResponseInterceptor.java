@@ -61,13 +61,13 @@ public class ResponseInterceptor {
     private HttpRequestUtil     httpRequestUtil;
 
     @Autowired
-    private static Logger       logger                            = LoggerFactory.getLogger(ResponseInterceptor.class);
+    private static final Logger logger                            = LoggerFactory.getLogger(ResponseInterceptor.class);
 
     @SuppressWarnings("unchecked")
     @AfterReturning(
             pointcut = "@annotation(com.proptiger.core.annotations.Intercepted.TypeaheadListing))",
             returning = "retVal")
-    public void filterTypeAhead(Object retVal) throws Throwable {
+    public void filterTypeAhead(Object retVal) {
         if (RequestHolderUtil.getApplicationTypeFromRequest() == null || !RequestHolderUtil
                 .getApplicationTypeFromRequest().equals(Application.B2B)) {
             logger.debug("Not a B2B request. Skipping authorized check");
@@ -82,6 +82,7 @@ public class ResponseInterceptor {
         logger.debug("TIME AT STEP 17: {}", new Date().getTime());
         int cityId = 0, localityId = 0;
         List<Object> resultList = (List<Object>) data;
+
         for (Object element : resultList) {
             Map<String, Object> map = (Map<String, Object>) element;
             String entityType = String.valueOf(map.get("type"));

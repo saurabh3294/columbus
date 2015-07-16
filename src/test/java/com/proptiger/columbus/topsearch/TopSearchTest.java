@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Ordering;
 import com.proptiger.columbus.model.TypeaheadConstants;
-import com.proptiger.columbus.mvc.TopsearchController;
+import com.proptiger.columbus.mvc.TopSearchController;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.util.TypeaheadUtils;
 import com.proptiger.core.model.Typeahead;
@@ -23,9 +23,9 @@ import com.proptiger.core.pojo.response.APIResponse;
 
 @Component
 @Test(singleThreaded = true)
-public class TopsearchTest extends AbstractTest {
+public class TopSearchTest extends AbstractTest {
 
-    private static Logger logger                       = LoggerFactory.getLogger(TopsearchTest.class);
+    private static Logger logger                       = LoggerFactory.getLogger(TopSearchTest.class);
 
     private String        URL_PARAM_TEMPLATE_TOPSEARCH = "entityId=%s&entityType=%s&requiredEntities=%s&group=%s&rows=%s";
 
@@ -35,7 +35,7 @@ public class TopsearchTest extends AbstractTest {
     private String        defaultRequiredEntities      = "locality,project";
 
     @Autowired
-    TopsearchController   topsearchController;
+    TopSearchController   topsearchController;
 
     @Value("${topsearch.api.url}")
     private String        TOP_SEARCH_URL;

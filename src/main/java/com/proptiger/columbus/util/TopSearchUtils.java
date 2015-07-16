@@ -12,7 +12,10 @@ import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
-public class TopsearchUtils {
+public class TopSearchUtils {
+    private TopSearchUtils() {
+
+    }
 
     private static Type type = new TypeToken<List<Typeahead>>() {}.getType();
 
@@ -28,11 +31,9 @@ public class TopsearchUtils {
      * @param inputRows
      * @return
      */
-    public static List<Typeahead> typeaheadToTopsearchConverter(
-            List<Typeahead> typeaheadList,
-            String requiredEntities,
-            Boolean isGroup,
-            int inputRows) {
+    public static List<Typeahead> typeaheadToTopsearchConverter(List<Typeahead> typeaheadList, String requiredEntities,
+
+    int inputRows) {
         List<Typeahead> topsearchList = new ArrayList<Typeahead>();
 
         requiredEntities = requiredEntities.toLowerCase();

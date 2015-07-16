@@ -120,20 +120,21 @@ public class TypeaheadService {
 
         /* Handling City filter : url-param-based and query-based */
 
-        boolean fqEmpty = filterQueries.isEmpty() ? true : false;
+        boolean fqEmpty = filterQueries.isEmpty();
         String qcity = extractCityNameFromQuery(query);
         String oldQuery = query;
+        String templateCity = usercity;
         if (qcity != null) {
+            templateCity = qcity;
             query = StringUtils.substringBeforeLast(query, qcity);
             filterQueries.add("TYPEAHEAD_CITY:" + qcity);
         }
-
+        
         /* If any filters were passed in URL, return only normal results */
         if (!fqEmpty) {
             return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity));
         }
 
-        String templateCity = qcity == null ? usercity : qcity;
 
         /*
          * Get Normal Results matching the query String. filterQueries if we
@@ -156,9 +157,8 @@ public class TypeaheadService {
          * Remove not-so-good results and replace them with google place
          * landmarks.
          */
-        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.EXTERNAL_API_IDENTIFIER_GOOGLE)) {
-            results = incorporateGooglePlaceResults(oldQuery, null, results, rows);
-        }
+
+        results = enhanceWithGooglePlaceResults(oldQuery, null, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
         List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows);
@@ -248,9 +248,8 @@ public class TypeaheadService {
          * Remove not-so-good results and replace them with third party
          * enhancements
          */
-        if (enhance != null && enhance.equalsIgnoreCase(TypeaheadConstants.EXTERNAL_API_IDENTIFIER_GOOGLE)) {
-            results = incorporateGooglePlaceResults(enhanceQuery, filterCityObject, results, rows);
-        }
+
+        results = enhanceWithGooglePlaceResults(enhanceQuery, filterCityObject, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
         List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows);
@@ -464,16 +463,15 @@ public class TypeaheadService {
     private List<Typeahead> getResultsByTypeaheadID(long domainObjectId) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         DomainObject dObj = DomainObject.getDomainInstance(domainObjectId);
-        String typeaheadId;
+        String typeaheadId = String.format(
+                TypeaheadConstants.TYPEAHEAD_ID_PATTERN,
+                StringUtils.upperCase(dObj.name()),
+                String.valueOf(domainObjectId));
         switch (dObj) {
             case builder:
             case locality:
             case project:
             case suburb:
-                typeaheadId = String.format(
-                        TypeaheadConstants.TYPEAHEAD_ID_PATTERN,
-                        StringUtils.upperCase(dObj.name()),
-                        String.valueOf(domainObjectId));
                 results = typeaheadDao.getTypeaheadById(typeaheadId);
                 break;
             default:
@@ -492,11 +490,16 @@ public class TypeaheadService {
      * @return A new list of typeaheads having sub-par elements of original
      *         results replaced with google-place results
      */
-    private List<Typeahead> incorporateGooglePlaceResults(
+    private List<Typeahead> enhanceWithGooglePlaceResults(
             String query,
             City city,
             List<Typeahead> results,
-            int totalRows) {
+            int totalRows,
+            String enhance) {
+
+        if ((enhance == null || !enhance.equalsIgnoreCase(TypeaheadConstants.EXTERNAL_API_IDENTIFIER_GOOGLE))) {
+            return results;
+        }
 
         List<Typeahead> finalResults = new ArrayList<Typeahead>();
 
@@ -514,15 +517,37 @@ public class TypeaheadService {
         }
 
         int gpRows = totalRows - finalResults.size();
-
-        double[] geoCenter = null;
-        if (city != null && city.getCenterLatitude() != null && city.getCenterLongitude() != null) {
-            geoCenter = new double[] { city.getCenterLatitude(), city.getCenterLongitude() };
-        }
+        double[] geoCenter = getGeoCenterForCity(city);
         int radius = TypeaheadConstants.CITY_RADIUS;
         List<Typeahead> gpResults = googlePlacesAPIService.getPlacePredictions(query, gpRows, geoCenter, radius);
         finalResults.addAll(gpResults);
         return finalResults;
+    }
+
+    private double[] getGeoCenterForCity(City city) {
+        double[] geoCenter = null;
+        if (city != null && city.getCenterLatitude() != null && city.getCenterLongitude() != null) {
+            geoCenter = new double[] { city.getCenterLatitude(), city.getCenterLongitude() };
+        }
+        return geoCenter;
+    }
+
+    /**
+     * TODO :: Write description here;
+     * 
+     * @param results
+     * @param cleanedResults
+     * @return
+     */
+    List<Typeahead> getCleanedResults(List<Typeahead> results, List<Typeahead> cleanedResults) {
+        int counter = 0;
+        for (Typeahead t : results) {
+            if ((t.getScore() > googlePlaceThresholdScore) || (t.getScore() > googlePlaceTopThresholdScore && counter < ownResultsPrivilegedSlots)) {
+                cleanedResults.add(t);
+            }
+            counter++;
+        }
+        return cleanedResults;
     }
 
     /**

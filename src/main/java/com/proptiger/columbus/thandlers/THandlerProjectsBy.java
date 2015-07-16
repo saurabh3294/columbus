@@ -27,6 +27,7 @@ public class THandlerProjectsBy extends RootTHandler {
 
     private TemplateInfo  templateInfo;
 
+    @Override
     @PostConstruct
     public void initialize() {
         templateInfo = templateInfoDao.findByTemplateType(TemplateTypes.PropertyBy.name());
