@@ -258,7 +258,6 @@ public class TypeaheadService {
         results = enhanceWithGooglePlaceResults(enhanceQuery, filterCityObject, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
-        
         List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows, typeaheadType);
 
         /* Consolidate results */

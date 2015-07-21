@@ -31,8 +31,8 @@ public class TypeaheadConstants {
 
     public static final String TYPEAHEAD_TYPE_BUILDER             = "BUILDER";
     
-    public static final String TYPEAHEAD_TYPE			          = "TYPEAHEAD_TYPE";
-    
+    public static final String TYPEAHEAD_TYPE                     = "TYPEAHEAD_TYPE";
+
     public static final float  FORCED_DIRECTABLE_THRESHOLD        = 35.0f;
 
     /** Used while creating suggestions **/
