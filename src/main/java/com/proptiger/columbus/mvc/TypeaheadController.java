@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.response.ColumbusApiResponse;
 import com.proptiger.columbus.service.TypeaheadService;
@@ -126,16 +128,17 @@ public class TypeaheadController extends BaseController {
             required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
             required = false) String usercity, @RequestParam(required = false) String enhance) {
 
-        ApiVersion version = getApiVersion();
+        APIResponse results = getTypeaheadsV4(request,query,rows,typeAheadType,city,locality,usercity,enhance);
 
-        city = (city == null ? null : city.toLowerCase());
-        usercity = (usercity == null ? null : usercity.toLowerCase());
-        Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
-        usercity = getCityContext(usercity);
-        List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance);
-
+        ObjectMapper mapper = new ObjectMapper();
+        List<Object> data = (List<Object>) results.getData();
+        List<Typeahead> list = new ArrayList<Typeahead>();        
+        for(Object typeaheadObject:data){
+          list.add(mapper.convertValue(typeaheadObject, Typeahead.class));  
+        }
+        
         Boolean forcedDirectable = checkForcedDirectable(list);
-        return new ColumbusApiResponse(super.filterFields(list, null), (long) (list.size()), version, forcedDirectable);
+        return new ColumbusApiResponse(super.filterFields(list, null), (long) (list.size()), results.getVersion(), forcedDirectable);
     }
     
     private String getCityContext(String usercity) {
