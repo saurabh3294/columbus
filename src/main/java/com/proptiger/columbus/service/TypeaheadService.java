@@ -66,7 +66,7 @@ public class TypeaheadService {
     private int                     MAX_CITY_COUNT      = 1000;
 
     private String                  domainObjectIdRegex = "^[\\d]{5,6}$";
-
+    
     @Value("${google.place.threshold.score}")
     private int                     googlePlaceThresholdScore;
 
@@ -161,7 +161,7 @@ public class TypeaheadService {
         results = enhanceWithGooglePlaceResults(oldQuery, null, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
-        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows);
+        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows,null);
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, results, suggestions);
@@ -197,7 +197,13 @@ public class TypeaheadService {
         if (query.matches(domainObjectIdRegex)) {
             return getResultsByTypeaheadID(Long.parseLong(query));
         }
-
+        
+        // Extracting the typeaheadType received in request
+        String typeaheadType = null;
+        if(filterQueries.containsKey(TypeaheadConstants.TYPEAHEAD_TYPE)){
+            typeaheadType = filterQueries.get(TypeaheadConstants.TYPEAHEAD_TYPE);
+        }
+        
         /* Handling City filter : url-param-based and query-based */
 
         String filterCity = filterQueries.get(TypeaheadConstants.TYPEAHEAD_FIELD_NAME_CITY);
@@ -252,11 +258,12 @@ public class TypeaheadService {
         results = enhanceWithGooglePlaceResults(enhanceQuery, filterCityObject, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
-        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows);
+        
+        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows, typeaheadType);
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, results, suggestions);
-
+        
         return consolidatedResults;
     }
 
@@ -566,8 +573,12 @@ public class TypeaheadService {
             List<Typeahead> results,
             String query,
             String templateCity,
-            int rows) {
-
+            int rows,
+            String typeaheadType) {
+    	
+    	if(typeaheadType != null){
+    		return new ArrayList<Typeahead>();
+    	}
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
         /* Restrict suggestion count */
