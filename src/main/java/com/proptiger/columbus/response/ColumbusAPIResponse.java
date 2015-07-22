@@ -5,24 +5,23 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.service.ApiVersionService.ApiVersion;
 
-public class ColumbusApiResponse extends APIResponse {
+public class ColumbusAPIResponse extends APIResponse {
 
     private static final long serialVersionUID = -2779854202059782696L;
 
     @JsonInclude(Include.NON_NULL)
-    Boolean                   forcedDirectable;
+    Boolean                   redirectable;
 
-    public ColumbusApiResponse(Object data, Long totalCount, ApiVersion version, Boolean forcedDirectable) {
+    public ColumbusAPIResponse(Object data, Long totalCount, ApiVersion version, Boolean forcedDirectable) {
         super(data, totalCount, version);
-        this.forcedDirectable = forcedDirectable;
+        this.redirectable = forcedDirectable;
     }
 
-    public Boolean getForcedDirectable() {
-        return forcedDirectable;
+    public Boolean getRedirectable() {
+        return redirectable;
     }
 
-    public void setForcedDirectable(Boolean forcedDirectable) {
-        this.forcedDirectable = true;
+    public void setRedirectable(Boolean redirectable) {
+        this.redirectable = redirectable;
     }
-
 }

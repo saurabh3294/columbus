@@ -17,10 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.proptiger.columbus.model.TypeaheadConstants;
-import com.proptiger.columbus.response.ColumbusApiResponse;
+import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.meta.DisableCaching;
@@ -104,43 +102,22 @@ public class TypeaheadController extends BaseController {
     @Intercepted.TypeaheadListing
     @RequestMapping(value = { "app/v4/typeahead" })
     @ResponseBody
-    public APIResponse getTypeaheadsV4(HttpServletRequest request, @RequestParam String query, @RequestParam(
+    public ColumbusAPIResponse getTypeaheadsV4(HttpServletRequest request, @RequestParam String query, @RequestParam(
             defaultValue = "5") int rows, @RequestParam(required = false) String typeAheadType, @RequestParam(
             required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
             required = false) String usercity, @RequestParam(required = false) String enhance) {
 
         ApiVersion version = getApiVersion();
-
         city = (city == null ? null : city.toLowerCase());
         usercity = (usercity == null ? null : usercity.toLowerCase());
         Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
         usercity = getCityContext(usercity);
         List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance);
 
-        return new APIResponse(super.filterFields(list, null), (long) (list.size()), version);
+        Boolean isRedirectable = isRedirectable(list);
+        return new ColumbusAPIResponse(super.filterFields(list, null), (long) (list.size()), version, isRedirectable);
     }
 
-    @Intercepted.TypeaheadListing
-    @RequestMapping(value = { "app/v5/typeahead" })
-    @ResponseBody
-    public ColumbusApiResponse getTypeaheadsV5(HttpServletRequest request, @RequestParam String query, @RequestParam(
-            defaultValue = "5") int rows, @RequestParam(required = false) String typeAheadType, @RequestParam(
-            required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
-            required = false) String usercity, @RequestParam(required = false) String enhance) {
-
-        APIResponse results = getTypeaheadsV4(request,query,rows,typeAheadType,city,locality,usercity,enhance);
-
-        ObjectMapper mapper = new ObjectMapper();
-        List<Object> data = (List<Object>) results.getData();
-        List<Typeahead> list = new ArrayList<Typeahead>();        
-        for(Object typeaheadObject:data){
-          list.add(mapper.convertValue(typeaheadObject, Typeahead.class));  
-        }
-        
-        Boolean forcedDirectable = checkForcedDirectable(list);
-        return new ColumbusApiResponse(super.filterFields(list, null), (long) (list.size()), results.getVersion(), forcedDirectable);
-    }
-    
     private String getCityContext(String usercity) {
         /* if city was explicitly set in URL use that */
         if (usercity != null && !usercity.isEmpty()) {
@@ -184,9 +161,9 @@ public class TypeaheadController extends BaseController {
                 RequestHolderUtil.getMixpanelDistinctIdFromRequestCookie());
         return version;
     }
-    
-    private Boolean checkForcedDirectable(List<Typeahead> list) {
-        if (!list.isEmpty() && list.get(0).getScore() > TypeaheadConstants.FORCED_DIRECTABLE_THRESHOLD) {
+
+    private Boolean isRedirectable(List<Typeahead> list) {
+        if (list != null && !list.isEmpty() && list.get(0).getScore() > TypeaheadConstants.FORCED_DIRECTABLE_THRESHOLD) {
             return new Boolean(true);
         }
         else {

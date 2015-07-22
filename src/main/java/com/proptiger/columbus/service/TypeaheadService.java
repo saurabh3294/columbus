@@ -66,7 +66,7 @@ public class TypeaheadService {
     private int                     MAX_CITY_COUNT      = 1000;
 
     private String                  domainObjectIdRegex = "^[\\d]{5,6}$";
-    
+
     @Value("${google.place.threshold.score}")
     private int                     googlePlaceThresholdScore;
 
@@ -129,12 +129,11 @@ public class TypeaheadService {
             query = StringUtils.substringBeforeLast(query, qcity);
             filterQueries.add("TYPEAHEAD_CITY:" + qcity);
         }
-        
+
         /* If any filters were passed in URL, return only normal results */
         if (!fqEmpty) {
             return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity));
         }
-
 
         /*
          * Get Normal Results matching the query String. filterQueries if we
@@ -161,7 +160,7 @@ public class TypeaheadService {
         results = enhanceWithGooglePlaceResults(oldQuery, null, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
-        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows,null);
+        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows, null);
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, results, suggestions);
@@ -197,13 +196,13 @@ public class TypeaheadService {
         if (query.matches(domainObjectIdRegex)) {
             return getResultsByTypeaheadID(Long.parseLong(query));
         }
-        
+
         // Extracting the typeaheadType received in request
         String typeaheadType = null;
-        if(filterQueries.containsKey(TypeaheadConstants.TYPEAHEAD_TYPE)){
+        if (filterQueries.containsKey(TypeaheadConstants.TYPEAHEAD_TYPE)) {
             typeaheadType = filterQueries.get(TypeaheadConstants.TYPEAHEAD_TYPE);
         }
-        
+
         /* Handling City filter : url-param-based and query-based */
 
         String filterCity = filterQueries.get(TypeaheadConstants.TYPEAHEAD_FIELD_NAME_CITY);
@@ -262,7 +261,7 @@ public class TypeaheadService {
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, results, suggestions);
-        
+
         return consolidatedResults;
     }
 
@@ -316,7 +315,7 @@ public class TypeaheadService {
         buildParams = String.format(buildParams, MAX_CITY_COUNT);
         URI uri = URI.create(UriComponentsBuilder
                 .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.DAL_API_KEY) + PropertyReader
                                 .getRequiredPropertyAsString(CorePropertyKeys.CITY_API_URL) + buildParams).build()
                 .encode().toString());
         cityNameToCityObjectMap = new HashMap<String, City>();
@@ -574,11 +573,13 @@ public class TypeaheadService {
             String templateCity,
             int rows,
             String typeaheadType) {
-    	
-    	if(typeaheadType != null){
-    		return new ArrayList<Typeahead>();
-    	}
+
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
+
+        /* No suggestions should be given if typeahead-type is set.*/
+        if (typeaheadType != null) {
+            return suggestions;
+        }
 
         /* Restrict suggestion count */
         rows = Math.min(rows, TypeaheadConstants.MAX_SUGGESTION_COUNT);
