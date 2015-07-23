@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.core.annotations.Intercepted;
 import com.proptiger.core.meta.DisableCaching;
@@ -100,20 +102,20 @@ public class TypeaheadController extends BaseController {
     @Intercepted.TypeaheadListing
     @RequestMapping(value = { "app/v4/typeahead" })
     @ResponseBody
-    public APIResponse getTypeaheadsV4(HttpServletRequest request, @RequestParam String query, @RequestParam(
+    public ColumbusAPIResponse getTypeaheadsV4(HttpServletRequest request, @RequestParam String query, @RequestParam(
             defaultValue = "5") int rows, @RequestParam(required = false) String typeAheadType, @RequestParam(
             required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
             required = false) String usercity, @RequestParam(required = false) String enhance) {
 
         ApiVersion version = getApiVersion();
-
         city = (city == null ? null : city.toLowerCase());
         usercity = (usercity == null ? null : usercity.toLowerCase());
         Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
         usercity = getCityContext(usercity);
         List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance);
 
-        return new APIResponse(super.filterFields(list, null), (long) (list.size()), version);
+        Boolean isRedirectable = isRedirectable(list);
+        return new ColumbusAPIResponse(super.filterFields(list, null), (long) (list.size()), version, isRedirectable);
     }
 
     private String getCityContext(String usercity) {
@@ -148,7 +150,7 @@ public class TypeaheadController extends BaseController {
             filterQueries.put("TYPEAHEAD_LOCALITY", "(\"" + locality + "\")");
         }
         if (typeAheadType != null && typeAheadType.trim() != "") {
-            filterQueries.put("TYPEAHEAD_TYPE", typeAheadType.toUpperCase());
+            filterQueries.put(TypeaheadConstants.TYPEAHEAD_TYPE, typeAheadType.toUpperCase());
         }
         return filterQueries;
     }
@@ -158,6 +160,15 @@ public class TypeaheadController extends BaseController {
                 ConfigGroupName.Search,
                 RequestHolderUtil.getMixpanelDistinctIdFromRequestCookie());
         return version;
+    }
+
+    private Boolean isRedirectable(List<Typeahead> list) {
+        if (list != null && !list.isEmpty() && list.get(0).getScore() > TypeaheadConstants.FORCED_DIRECTABLE_THRESHOLD) {
+            return new Boolean(true);
+        }
+        else {
+            return null;
+        }
     }
 
 }
