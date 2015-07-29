@@ -163,12 +163,13 @@ public class TypeaheadController extends BaseController {
     }
 
     private Boolean isRedirectable(List<Typeahead> list) {
-        if (list != null && !list.isEmpty() && list.get(0).getScore() > TypeaheadConstants.FORCED_DIRECTABLE_THRESHOLD) {
-            return new Boolean(true);
+        if (list != null && !list.isEmpty()) {
+            Float score = list.get(0).getScore();
+            if (score != null && score > TypeaheadConstants.FORCED_DIRECTABLE_THRESHOLD) {
+                return new Boolean(true);
+            }
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
 }
