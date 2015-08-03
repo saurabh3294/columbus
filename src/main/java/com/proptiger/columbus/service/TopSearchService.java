@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.columbus.repo.TopsearchDao;
+import com.proptiger.columbus.repo.TopSearchDao;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.Constants;
 
@@ -19,10 +19,10 @@ import com.proptiger.core.util.Constants;
  */
 
 @Service
-public class TopsearchService {
+public class TopSearchService {
 
     @Autowired
-    private TopsearchDao topsearchDao;
+    private TopSearchDao topsearchDao;
 
     /**
      * 
@@ -55,7 +55,7 @@ public class TopsearchService {
             Boolean isGroup,
             int rows) {
 
-        List<Typeahead> topsearches = topsearchDao.getTopsearchess(
+        List<Typeahead> topsearches = topsearchDao.getTopSearches(
                 entityId,
                 entityType,
                 requiredEntities,

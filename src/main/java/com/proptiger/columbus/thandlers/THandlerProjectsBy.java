@@ -27,6 +27,7 @@ public class THandlerProjectsBy extends RootTHandler {
 
     private TemplateInfo  templateInfo;
 
+    @Override
     @PostConstruct
     public void initialize() {
         templateInfo = templateInfoDao.findByTemplateType(TemplateTypes.PropertyBy.name());
@@ -83,9 +84,9 @@ public class THandlerProjectsBy extends RootTHandler {
                                         PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
                                                 .getRequiredPropertyAsString(CorePropertyKeys.BUILDER_API_URL)
                                                 + "?"
-                                                + URLGenerationConstants.Selector
+                                                + URLGenerationConstants.SELECTOR
                                                 + String.format(
-                                                        URLGenerationConstants.SelectorGetBuilderNamesByCityName,
+                                                        URLGenerationConstants.SELECTOR_GET_BUILDERNAMES_BY_CITYNAME,
                                                         cityName)).build().encode().toString()),
                         PropertyReader.getRequiredPropertyAsInt(PropertyKeys.INTERNAL_API_SLA_MS),
                         Builder.class);
@@ -100,8 +101,8 @@ public class THandlerProjectsBy extends RootTHandler {
     }
 
     private String getBuilderCityFilter(int cityId, int builderId) {
-        String builderFilter = String.format(URLGenerationConstants.builderIdFilterFormat, builderId);
-        String cityFilter = String.format(URLGenerationConstants.cityIdFilterFormat, cityId);
+        String builderFilter = String.format(URLGenerationConstants.BUILDER_ID_FILTER_FORMAT, builderId);
+        String cityFilter = String.format(URLGenerationConstants.CITY_ID_FILTER_FORMAT, cityId);
         return String.format(cityFilter + "," + builderFilter);
     }
 }

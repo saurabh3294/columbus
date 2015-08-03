@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.columbus.service.TopsearchService;
+import com.proptiger.columbus.service.TopSearchService;
 import com.proptiger.core.constants.ResponseCodes;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.exception.ProAPIException;
@@ -27,10 +27,10 @@ import com.proptiger.core.pojo.response.APIResponse;
  */
 @Controller
 @DisableCaching
-public class TopsearchController extends BaseController {
+public class TopSearchController extends BaseController {
 
     @Autowired
-    private TopsearchService topsearchService;
+    private TopSearchService topsearchService;
 
     @RequestMapping(value = "app/v1/topsearch")
     @ResponseBody

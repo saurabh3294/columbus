@@ -26,10 +26,10 @@ import com.proptiger.core.util.UtilityClass;
 @Repository
 public class PropguideDao {
 
-    public static String FQ_PGD_CATEGORY = "PGD_ROOT_CATEGORY_ID:(%s)";
+    public static final String FQ_PGD_CATEGORY = "PGD_ROOT_CATEGORY_ID:(%s)";
 
     @Autowired
-    private SolrDao      solrDao;
+    private SolrDao            solrDao;
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows) {
@@ -96,7 +96,7 @@ public class PropguideDao {
         List<PropguideDocument> postList = new ArrayList<PropguideDocument>();
 
         for (PropguideDocument pgd : resultsOriginal) {
-            if (pgd.getPgdType().equals("Suggestion")) {
+            if ("Suggestion".equals(pgd.getPgdType())) {
                 tagList.add(pgd);
             }
             else {

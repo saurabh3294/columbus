@@ -46,7 +46,7 @@ public class EntitySuggestionHandler {
          * No suggestions for Google Place results or if top-result is not
          * relevant enough
          */
-        if (topResult.isGooglePlace() || topResult.getScore() < TypeaheadConstants.suggestionScoreThreshold) {
+        if (topResult.isGooglePlace() || topResult.getScore() < TypeaheadConstants.SUGGESTION_SCORE_THRESHOLD) {
             return suggestions;
         }
 
@@ -56,12 +56,12 @@ public class EntitySuggestionHandler {
          */
         String typeaheadId = topResult.getId();
         String[] idTokens = StringUtils.split(typeaheadId, '-');
-        if (idTokens == null || idTokens.length < 3 || !(idTokens[0].equals("TYPEAHEAD"))) {
+        if (idTokens == null || idTokens.length < 3 || !("TYPEAHEAD".equals(idTokens[0]))) {
             return suggestions;
         }
 
         /* Extract Entity type and Id */
-
+        /* TODO :: Get this from typeaheadType instaed. */
         int entityId = 0;
         try {
             entityId = Integer.parseInt(idTokens[2]);
@@ -73,7 +73,7 @@ public class EntitySuggestionHandler {
 
         switch (idTokens[1]) {
             case "PROJECT":
-                suggestions = projectSuggestions.getSuggestions(entityId, topResult, count);
+                suggestions = projectSuggestions.getSuggestions(topResult, count);
                 break;
             case "CITY":
                 suggestions = citySuggestions.getSuggestions(entityId, topResult, count);

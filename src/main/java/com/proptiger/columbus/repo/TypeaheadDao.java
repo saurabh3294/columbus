@@ -82,7 +82,7 @@ public class TypeaheadDao {
     public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         try {
-            results = getSpellCheckedResponseV3(query, rows, filterQueries, usercity);
+            results = getSpellCheckedResponseV3(query, rows, filterQueries);
         }
         catch (ProAPIException e) {
             if (e.getCause() instanceof RemoteSolrException) {
@@ -118,11 +118,7 @@ public class TypeaheadDao {
      * If the query has a typo and can be corrected then new query is generated
      * using the suggestions and executed automatically
      */
-    private List<Typeahead> getSpellCheckedResponseV3(
-            String query,
-            int rows,
-            List<String> filterQueries,
-            String usercity) {
+    private List<Typeahead> getSpellCheckedResponseV3(String query, int rows, List<String> filterQueries) {
 
         /* Fetch results for entered query first */
         SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
@@ -174,10 +170,10 @@ public class TypeaheadDao {
     }
 
     private List<SortClause> getCustomSortOrderV4() {
-        List<SortClause> sortClauseList = new ArrayList<SortClause>();
-        sortClauseList.add(new SortClause("score", ORDER.desc));
-        sortClauseList.add(new SortClause("TYPEAHEAD_ENTITY_POPULARITY", ORDER.desc));
-        return sortClauseList;
+        List<SortClause> sortClauseListLocal = new ArrayList<SortClause>();
+        sortClauseListLocal.add(new SortClause("score", ORDER.desc));
+        sortClauseListLocal.add(new SortClause("TYPEAHEAD_ENTITY_POPULARITY", ORDER.desc));
+        return sortClauseListLocal;
     }
 
     /******************* Legacy Methods ****************************************/
@@ -212,18 +208,20 @@ public class TypeaheadDao {
             return boostQuery;
         }
 
-        float boost = TypeaheadConstants.queryTimeBoostStart;
+        float boost = TypeaheadConstants.QUERY_TIME_BOOST_START;
         /* Boost all-but-last query strings as core-texts */
         for (int i = 0; i < count - 1; i++) {
             boostQuery += "Core_text:" + st.nextToken() + "^" + Math.max(1, boost) + " ";
-            boost *= TypeaheadConstants.queryTimeBoostMultiplier;
+            boost *= TypeaheadConstants.QUERY_TIME_BOOST_MULTIPLIER;
         }
 
         /* Boost last query string as an edgeNGram */
         boostQuery += ("ENGram:" + st.nextToken() + "^" + Math.max(1, boost) + " ");
 
-        // System.out.println("=====>> Q = [" + query + "], BQ = [" + boostQuery
-        // + "]");
+        /**
+         * System.out.println("=====>> Q = [" + query + "], BQ = [" + boostQuery
+         * + "]");
+         */
         return boostQuery;
     }
 

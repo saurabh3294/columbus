@@ -17,17 +17,12 @@ import com.proptiger.columbus.thandlers.TemplateMap;
 import com.proptiger.columbus.thandlers.TemplateTypes;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.HttpRequestUtil;
+import com.proptiger.core.util.UtilityClass;
 
 @Component
 public class NLPSuggestionHandler {
     @Autowired
     private TypeaheadDao       typeaheadDao;
-
-    @Autowired
-    private HttpRequestUtil    httpRequestUtil;
-
-    @Autowired
-    private TemplateInfoDao    templateInfoDao;
 
     @Autowired
     private TemplateMap        templateMap;
@@ -49,41 +44,34 @@ public class NLPSuggestionHandler {
             thandler = applicationContext.getBean(ttype.getClazz());
         }
         catch (Exception e) {
-            logger.error("No template handler found for template = " + template.getId());
+            logger.error("No template handler found for template = " + template.getId(), e);
         }
         return thandler;
     }
 
     public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows) {
 
+        /* Check for city if it is null or not */
         if (city == null || city.isEmpty()) {
-            city = TypeaheadConstants.defaultCityName;
-            cityId = TypeaheadConstants.defaultCityId;
+            city = TypeaheadConstants.DEFAULT_CITY_NAME;
+            cityId = TypeaheadConstants.DEFAULT_CITY_ID;
         }
 
         List<Typeahead> results = new ArrayList<Typeahead>();
-
         List<Typeahead> templateHits = getTemplateHits(query, rows);
 
         /* If no good-matching templates are found, return empty list. */
-        if (templateHits.size() == 0 || templateHits.get(0).getScore() < templateResultScoreTheshold) {
+        if (templateHits.isEmpty() || templateHits.get(0).getScore() < templateResultScoreTheshold) {
             return results;
         }
 
+        Typeahead firstHit = templateHits.get(0);
+        float firstHitScore = firstHit.getScore();
+
         /* Get All results for first template. */
 
-        RootTHandler thandlerFirst = getTemplateHandler(templateHits.get(0));
-        List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
-        if (thandlerFirst != null) {
-            resultsFirstHandler = thandlerFirst.getResults(query, templateHits.get(0), city, cityId, rows);
-        }
-
-        /* Populating template score as the score for all suggestions */
-        for (Typeahead t : resultsFirstHandler) {
-            t.setScore(templateHits.get(0).getScore());
-        }
-
-        if (templateHits.get(0).getScore() > templateFirstResultScoreTheshold) {
+        List<Typeahead> resultsFirstHandler = getAllResultsForTemplate(firstHit, city, cityId, rows, query);
+        if (firstHitScore > templateFirstResultScoreTheshold) {
             return resultsFirstHandler;
         }
 
@@ -91,37 +79,51 @@ public class NLPSuggestionHandler {
          * Get top result for each template. (as we needed to incorporate
          * multiple template hits)
          */
-        String templateText;
-        RootTHandler thandler;
-        Typeahead topResult;
         for (Typeahead t : templateHits) {
-            templateText = t.getTemplateText().trim();
-            thandler = getTemplateHandler(t);
-
-            if (thandler != null) {
-                topResult = thandler.getTopResult(query, t, city, cityId);
-                topResult.setScore(t.getScore());
-                results.add(topResult);
-            }
-            else {
-                logger.warn("No Template Handler found for typeahead template : " + templateText);
-            }
+            results.addAll(getTopResultsForTemplate(t, city, cityId, query));
         }
 
         /*
          * If top results are not enough then populate the list by rest of the
          * results for first template up to a maximum of 'rows'.
          */
+        
+        resultsFirstHandler.remove(0);
+        results.addAll(resultsFirstHandler);
+        UtilityClass.getFirstNElementsOfList(results, rows);
+        return results;
+    }
 
-        int size = resultsFirstHandler.size();
-        for (int i = 1; i < size; i++) {
-            if (results.size() >= rows) {
-                break;
-            }
-            results.add(resultsFirstHandler.get(i));
+    List<Typeahead> getTopResultsForTemplate(Typeahead template, String city, int cityId, String query) {
+        String templateText = template.getTemplateText().trim();
+        RootTHandler thandler = getTemplateHandler(template);
+        List<Typeahead> results = new ArrayList<Typeahead>();
+
+        if (thandler == null) {
+            logger.warn("No Template Handler found for typeahead template : " + templateText);
+            return results;
         }
 
+        Typeahead topResult = thandler.getTopResult(query, template, city, cityId);
+        topResult.setScore(template.getScore());
+        results.add(topResult);
         return results;
+    }
+
+    List<Typeahead> getAllResultsForTemplate(Typeahead template, String city, int cityId, int rows, String query) {
+
+        RootTHandler thandlerFirst = getTemplateHandler(template);
+        List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
+
+        if (thandlerFirst != null) {
+            resultsFirstHandler = thandlerFirst.getResults(query, template, city, cityId, rows);
+        }
+
+        /* Populating template score as the score for all suggestions */
+        for (Typeahead t : resultsFirstHandler) {
+            t.setScore(template.getScore());
+        }
+        return resultsFirstHandler;
     }
 
     private List<Typeahead> getTemplateHits(String query, int rows) {

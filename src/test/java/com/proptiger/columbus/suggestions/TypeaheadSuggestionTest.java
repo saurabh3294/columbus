@@ -36,16 +36,16 @@ public class TypeaheadSuggestionTest extends AbstractTest {
     EntitySuggestionHandler      entitySuggestionHandler;
 
     private List<SuggestionTest> testList;
-    
+
     @Autowired
-    SuggestionTestStructure suggestionTestStructure;
-    
+    SuggestionTestStructure      suggestionTestStructure;
+
     @Autowired
-    SuggestionTestURL suggestionTestURL;
-    
+    SuggestionTestURL            suggestionTestURL;
+
     @Autowired
-    SuggestionTestFilter suggestionTestFilter;
-    
+    SuggestionTestFilter         suggestionTestFilter;
+
     @PostConstruct
     public void initialize() {
         this.testList = new ArrayList<SuggestionTest>();
@@ -135,7 +135,7 @@ public class TypeaheadSuggestionTest extends AbstractTest {
     }
 
     private void setDummyProjectCounts(Typeahead topResult) {
-        topResult.setScore(TypeaheadConstants.suggestionScoreThreshold);
+        topResult.setScore(TypeaheadConstants.SUGGESTION_SCORE_THRESHOLD);
         topResult.setEntityProjectCountTotal(500);
         topResult.setEntityProjectCountAffordable(100);
         topResult.setEntityProjectCountLuxury(100);
