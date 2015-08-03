@@ -8,10 +8,6 @@ import com.proptiger.core.model.Typeahead;
 
 public class TypeaheadConstants {
 
-    private TypeaheadConstants() {
-
-    }
-
     public static final String TYPEAHEAD_ID_PATTERN               = "TYPEAHEAD-%s-%s";
 
     public static final String DEFAULT_CITY_NAME                  = "Noida";
@@ -27,13 +23,17 @@ public class TypeaheadConstants {
     public static final float  CITY_BOOST_MIN_SCORE               = 8.0f;
     public static final float  CITY_BOOST                         = 1.25f;
     public static final float  DOCUMENT_FETCH_MULTIPLIER          = 4.0f;
-    public static final float  DOCUMENT_FETCH_LIMIT               = 20;
+    public static final float  DOCUMENT_FETCH_LIMIT               = 100;
 
     public static final String EXTERNAL_API_IDENTIFIER_GOOGLE     = "gp";
 
     public static final String TYPEAHEAD_FIELD_NAME_CITY          = "TYPEAHEAD_CITY";
 
     public static final String TYPEAHEAD_TYPE_BUILDER             = "BUILDER";
+    
+    public static final String TYPEAHEAD_TYPE                     = "TYPEAHEAD_TYPE";
+
+    public static final float  FORCED_DIRECTABLE_THRESHOLD        = 35.0f;
 
     /** Used while creating suggestions **/
 
@@ -48,4 +48,8 @@ public class TypeaheadConstants {
                                                                           .getType();
 
     public static final int    PROPGUIDE_POST_TAGS_MULTIPLIER     = 40;
+
+    private TypeaheadConstants() {
+
+    }
 }

@@ -34,6 +34,7 @@ public class THandlerProjectIn extends RootTHandler {
     private TemplateInfo  templateInfoSale;
     private TemplateInfo  templateInfoResale;
 
+    @Override
     @PostConstruct
     public void initialize() {
 
@@ -89,7 +90,7 @@ public class THandlerProjectIn extends RootTHandler {
         TemplateInfo templateInfo = getTemplateInfo(template);
 
         String typeaheadId = getTemplateType(template).toString();
-        String entityName = getEntityName(city, cityId, locality);
+        String entityName = getEntityName(city, locality);
         String typeaheadDisplayText = String.format(templateInfo.getDisplayTextFormat() + " " + entityName);
 
         String redirectUrl = String.format(templateInfo.getRedirectUrlFormat(), city.toLowerCase());
@@ -166,7 +167,7 @@ public class THandlerProjectIn extends RootTHandler {
         return topLocalities;
     }
 
-    private String getEntityName(String city, int cityId, Locality locality) {
+    private String getEntityName(String city, Locality locality) {
         if (locality == null) {
             return StringUtils.capitalize(city);
         }
