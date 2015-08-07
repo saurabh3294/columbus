@@ -140,7 +140,7 @@ public class ResponseInterceptor {
         try {
             URI uri = URI.create(UriComponentsBuilder
                     .fromUriString(
-                            PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                            PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.USERSERVICE_API_KEY) + PropertyReader
                                     .getRequiredPropertyAsString(CorePropertyKeys.WHO_AM_I_URL)).build().encode()
                     .toString());
             HttpHeaders requestHeaders = new HttpHeaders();
@@ -240,7 +240,7 @@ public class ResponseInterceptor {
         URI uri = URI
                 .create(UriComponentsBuilder
                         .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.DAL_API_KEY) + PropertyReader
                                         .getRequiredPropertyAsString(CorePropertyKeys.PERMISSION_API_URL)
                                         + "?userId="
                                         + userId).build().encode().toString());
@@ -274,7 +274,7 @@ public class ResponseInterceptor {
                 URI uri = URI
                         .create(UriComponentsBuilder
                                 .fromUriString(
-                                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.DAL_API_KEY) + PropertyReader
                                                 .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
                                                 + "?"
                                                 + URLGenerationConstants.SELECTOR
@@ -311,7 +311,7 @@ public class ResponseInterceptor {
             List<String> requests = getUserAppSubscriptionRequests(partialPermissions);
             logger.debug("TIME AT STEP 14: {}", new Date().getTime());
             for (String req : requests) {
-                String stringUrl = PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                String stringUrl = PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.DAL_API_KEY) + PropertyReader
                         .getRequiredPropertyAsString(CorePropertyKeys.PROJECT_LISTING_API_URL)
                         + "?"
                         + URLGenerationConstants.SELECTOR
