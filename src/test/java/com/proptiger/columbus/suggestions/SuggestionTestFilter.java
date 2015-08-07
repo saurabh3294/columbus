@@ -24,7 +24,7 @@ public class SuggestionTestFilter implements SuggestionTest {
     @Autowired
     private HttpRequestUtil httpRequestUtil;
 
-    @Value("${proptiger.url}")
+    @Value("${internal.api.dal}")
     private String          BASE_URL;
 
     @Value("${project.listing.api.url}")
