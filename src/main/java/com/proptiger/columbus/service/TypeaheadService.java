@@ -315,7 +315,7 @@ public class TypeaheadService {
         buildParams = String.format(buildParams, MAX_CITY_COUNT);
         URI uri = URI.create(UriComponentsBuilder
                 .fromUriString(
-                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.DAL_API_KEY) + PropertyReader
                                 .getRequiredPropertyAsString(CorePropertyKeys.CITY_API_URL) + buildParams).build()
                 .encode().toString());
         cityNameToCityObjectMap = new HashMap<String, City>();

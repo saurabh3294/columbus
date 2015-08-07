@@ -21,7 +21,7 @@ import com.proptiger.core.util.HttpRequestUtil;
 @Component
 public class TaTestGenerator {
 
-    @Value("${proptiger.url}")
+    @Value("${internal.api.dal}")
     private String          BASE_URL;
 
     @Value("${city.api.url}")
