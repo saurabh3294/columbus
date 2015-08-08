@@ -152,7 +152,7 @@ public class THandlerProjectIn extends RootTHandler {
         URI uri = URI
                 .create(UriComponentsBuilder
                         .fromUriString(
-                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.DAL_API_KEY) + PropertyReader
                                         .getRequiredPropertyAsString(CorePropertyKeys.LOCALITY_API_URL)
                                         + "?"
                                         + URLGenerationConstants.SELECTOR
