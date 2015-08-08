@@ -81,7 +81,7 @@ public class THandlerProjectsBy extends RootTHandler {
                 .getInternalApiResultAsTypeListFromCache(
                         URI.create(UriComponentsBuilder
                                 .fromUriString(
-                                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.PROPTIGER_URL) + PropertyReader
+                                        PropertyReader.getRequiredPropertyAsString(CorePropertyKeys.DAL_API_KEY) + PropertyReader
                                                 .getRequiredPropertyAsString(CorePropertyKeys.BUILDER_API_URL)
                                                 + "?"
                                                 + URLGenerationConstants.SELECTOR
