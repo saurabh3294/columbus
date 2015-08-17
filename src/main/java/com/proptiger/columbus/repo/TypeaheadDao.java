@@ -10,7 +10,7 @@ import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
-import org.apache.solr.client.solrj.impl.HttpSolrServer.RemoteSolrException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient.RemoteSolrException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.slf4j.Logger;
@@ -166,6 +166,7 @@ public class TypeaheadDao {
         solrQuery.setParam("qt", "/payload_v4");
         solrQuery.setParam("defType", "payload");
         solrQuery.setParam("fl", "*,score");
+        solrQuery.setParam("spellcheck", "on");
         return solrQuery;
     }
 
