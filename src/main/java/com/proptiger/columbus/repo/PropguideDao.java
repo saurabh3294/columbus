@@ -159,6 +159,7 @@ public class PropguideDao {
         SolrQuery solrQuery = new SolrQuery(query);
         solrQuery.setRows(rows);
         solrQuery.setParam("qt", "/propguide");
+	solrQuery.setParam("spellcheck","on");
         if (filterQueries == null) {
             return solrQuery;
         }
