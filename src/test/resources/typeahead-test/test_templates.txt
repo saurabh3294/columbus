@@ -1,5 +1,5 @@
 
-projects above,Suggestion,1,8,Typeahead-Template-PropertyAbove
+#projects above,Suggestion,1,8,Typeahead-Template-PropertyAbove
 projects by,Suggestion,1,8,Typeahead-Template-PropertyBy
 projects for sale in,Suggestion,1,8,Typeahead-Template-PropertyForSaleIn
 projects for resale in,Suggestion,1,8,Typeahead-Template-PropertyForResaleIn
