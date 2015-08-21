@@ -272,7 +272,7 @@ public class TopSearchTest extends AbstractTest {
         String url;
         APIResponse apiResponse = null;
         int rows = 40;
-        int entityId = 2;
+        int entityId = 20;
         String entityType = "city";
         String requiredEntities = "locality,project,suburb,builder";
 
