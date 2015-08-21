@@ -26,8 +26,8 @@
 		<profile>
 			<id>release</id>
 			<properties>
-				<midl-core.version>2.0.67</midl-core.version>
-                <skipTests>false</skipTests>
+				<midl-core.version>2.0.84</midl-core.version>
+				<skipTests>false</skipTests>
 			</properties>
 		</profile>
 	</profiles>
