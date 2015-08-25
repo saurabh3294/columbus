@@ -30,11 +30,12 @@ public class TypeaheadConstants {
     public static final String TYPEAHEAD_FIELD_NAME_CITY          = "TYPEAHEAD_CITY";
 
     public static final String TYPEAHEAD_TYPE_BUILDER             = "BUILDER";
-    
+
     public static final String TYPEAHEAD_TYPE                     = "TYPEAHEAD_TYPE";
 
     public static final float  FORCED_DIRECTABLE_THRESHOLD        = 35.0f;
 
+    public static final String DOMAIN_PROPTIGER                   = "proptiger";
     /** Used while creating suggestions **/
 
     public static final int    MAX_SUGGESTION_COUNT               = 3;
