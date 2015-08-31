@@ -26,10 +26,11 @@ import com.proptiger.core.util.UtilityClass;
 @Repository
 public class PropguideDao {
 
-    public static final String FQ_PGD_CATEGORY = "PGD_ROOT_CATEGORY_ID:(%s)";
+    public static final String  FQ_PGD_CATEGORY = "PGD_ROOT_CATEGORY_ID:(%s)";
+    private static final String recencyBoost    = "recip(ms(NOW/HOUR,PGD_DATE),3.16e-11,1,1)^500";
 
     @Autowired
-    private SolrDao            solrDao;
+    private SolrDao             solrDao;
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
     public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows) {
@@ -205,21 +206,20 @@ public class PropguideDao {
         return response;
     }
 
-     private SolrQuery getSolrQueryListingV1(String query, List<String> filterQueries, int rows) {
-         query = QueryParserUtil.escape(query.toLowerCase());
-         String recencyBoost = "recip(ms(NOW/HOUR,PGD_DATE),3.16e-11,1,1)^500"; 
-         SolrQuery solrQuery = new SolrQuery(query);
-         solrQuery.setRows(rows);
-         solrQuery.setParam("qt", "/propguide");
-         solrQuery.setParam("spellcheck", "on");
-         solrQuery.setParam("bf",recencyBoost);
-         if (filterQueries == null) {
-             return solrQuery;
-         }
-         for (String fq : filterQueries) {
-             solrQuery.addFilterQuery(fq);
-         }
-         return solrQuery;
-     }
+    private SolrQuery getSolrQueryListingV1(String query, List<String> filterQueries, int rows) {
+        query = QueryParserUtil.escape(query.toLowerCase());
+        SolrQuery solrQuery = new SolrQuery(query);
+        solrQuery.setRows(rows);
+        solrQuery.setParam("qt", "/propguide");
+        solrQuery.setParam("spellcheck", "on");
+        solrQuery.setParam("bf", recencyBoost);
+        if (filterQueries == null) {
+            return solrQuery;
+        }
+        for (String fq : filterQueries) {
+            solrQuery.addFilterQuery(fq);
+        }
+        return solrQuery;
+    }
 
 }
