@@ -159,7 +159,7 @@ public class PropguideDao {
         SolrQuery solrQuery = new SolrQuery(query);
         solrQuery.setRows(rows);
         solrQuery.setParam("qt", "/propguide");
-	solrQuery.setParam("spellcheck","on");
+        solrQuery.setParam("spellcheck", "on");
         if (filterQueries == null) {
             return solrQuery;
         }
@@ -199,13 +199,27 @@ public class PropguideDao {
             filterQueries.add(fq);
         }
 
-        SolrQuery solrQuery = getSolrQueryV1(query, filterQueries, rows);
+        SolrQuery solrQuery = getSolrQueryListingV1(query, filterQueries, rows);
         solrQuery.setStart(start);
-        if (StringUtils.trim(query) == "") {
-            solrQuery.setSort(new SortClause("PGD_DATE", ORDER.desc));
-        }
         QueryResponse response = solrDao.executeQuery(solrQuery);
         return response;
     }
+
+     private SolrQuery getSolrQueryListingV1(String query, List<String> filterQueries, int rows) {
+         query = QueryParserUtil.escape(query.toLowerCase());
+         String recencyBoost = "recip(ms(NOW/HOUR,PGD_DATE),3.16e-11,1,1)^500"; 
+         SolrQuery solrQuery = new SolrQuery(query);
+         solrQuery.setRows(rows);
+         solrQuery.setParam("qt", "/propguide");
+         solrQuery.setParam("spellcheck", "on");
+         solrQuery.setParam("bf",recencyBoost);
+         if (filterQueries == null) {
+             return solrQuery;
+         }
+         for (String fq : filterQueries) {
+             solrQuery.addFilterQuery(fq);
+         }
+         return solrQuery;
+     }
 
 }
