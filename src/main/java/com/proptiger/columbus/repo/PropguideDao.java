@@ -27,7 +27,7 @@ import com.proptiger.core.util.UtilityClass;
 public class PropguideDao {
 
     public static final String  FQ_PGD_CATEGORY = "PGD_ROOT_CATEGORY_ID:(%s)";
-    private static final String recencyBoost    = "recip(ms(NOW/HOUR,PGD_DATE),3.16e-11,1,1)^500";
+    private static final String RECENCYBOOST    = "recip(ms(NOW/HOUR,PGD_DATE),3.16e-11,1,1)^500";
 
     @Autowired
     private SolrDao             solrDao;
@@ -212,7 +212,7 @@ public class PropguideDao {
         solrQuery.setRows(rows);
         solrQuery.setParam("qt", "/propguide");
         solrQuery.setParam("spellcheck", "on");
-        solrQuery.setParam("bf", recencyBoost);
+        solrQuery.setParam("bf", RECENCYBOOST);
         if (filterQueries == null) {
             return solrQuery;
         }
