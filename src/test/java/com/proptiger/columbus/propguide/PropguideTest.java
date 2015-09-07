@@ -1,7 +1,6 @@
 package com.proptiger.columbus.propguide;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,6 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.mvc.PropguideController;
 import com.proptiger.columbus.service.AbstractTest;
+import com.proptiger.columbus.util.TestEssential;
+import com.proptiger.core.annotations.ResultEssential;
 import com.proptiger.core.pojo.response.APIResponse;
 
 @Component
@@ -30,6 +31,9 @@ public class PropguideTest extends AbstractTest {
 
     @Autowired
     PropguideController   propguideController;
+
+    @Autowired
+    TestEssential         testEssential;
 
     @Value("${propguide.api.url}")
     private String        PROPGUIDE_URL;
@@ -58,7 +62,7 @@ public class PropguideTest extends AbstractTest {
         Assert.assertEquals(apiResponse.getStatusCode(), "2XX", "Invalid status code in response.");
 
         @SuppressWarnings("unchecked")
-        List<Object> results = (List<Object>)(apiResponse.getData());
+        List<Object> results = (List<Object>) (apiResponse.getData());
 
         Assert.assertTrue(results.size() <= rows, "Row-Limiting failed. Rows recieved = " + results.size()
                 + " .Expected not more than "
@@ -82,15 +86,15 @@ public class PropguideTest extends AbstractTest {
         Assert.assertEquals(apiResponse.getStatusCode(), "2XX", "Invalid status code in response.");
 
         @SuppressWarnings("unchecked")
-        List<Object> results = (List<Object>)(apiResponse.getData());
+        List<Object> results = (List<Object>) (apiResponse.getData());
 
         Assert.assertNotNull(results, "Null pgd-list in apiResponse.");
         Assert.assertTrue(results.size() > 0, "0 documents recieved");
-        
+
         PropguideDocument pd = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
-            pd = mapper.readValue(mapper.writer().writeValueAsString(results.get(rows-1)), PropguideDocument.class);
+            pd = mapper.readValue(mapper.writer().writeValueAsString(results.get(rows - 1)), PropguideDocument.class);
         }
         catch (IOException e) {
             Assert.assertTrue(false, "Error mapping response to PropguideDocument.");
@@ -99,39 +103,14 @@ public class PropguideTest extends AbstractTest {
     }
 
     private void testObjectValidity(PropguideDocument pd) {
-        Assert.assertNotNull(pd, "Propguide object is null");
 
+        List<ResultEssential> results = testEssential.testEssentialFields(pd);
+        for (ResultEssential result : results) {
+            Assert.assertTrue(result.isStatus(), result.getErrorMessage());
+        }
+        
         String id = pd.getId();
-        Assert.assertNotNull(id, "ID is null");
-        Assert.assertFalse(id.isEmpty(), "Propguide ID is empty");
         Assert.assertTrue(StringUtils.contains(id, "PROPGUIDE-"));
-
-        Integer pgdId = pd.getPgdId();
-        Assert.assertNotNull(pgdId, "Propguide ID is null");
-
-        String pgdType = pd.getPgdType();
-        Assert.assertNotNull(pgdType, "Propguide Type is null");
-        Assert.assertFalse(pgdType.isEmpty(), "Propguide Type is empty");
-
-        String pgdTitle = pd.getPgdTitle();
-        Assert.assertNotNull(pgdTitle, "Propguide title is null");
-        Assert.assertFalse(pgdTitle.isEmpty(), "Propguide title is empty");
-
-        String pgdExcerpt = pd.getPgdExcerpt();
-        Assert.assertNotNull(pgdExcerpt, "Propguide excerpt is null");
-        // Assert.assertFalse(pgdExcerpt.isEmpty(),
-        // "Propguide excerpt is empty");
-
-        String pgdPostType = pd.getPgdPostType();
-        Assert.assertNotNull(pgdPostType, "Propguide post-type is null");
-        Assert.assertFalse(pgdPostType.isEmpty(), "Propguide post-type filter is empty");
-
-        String pgdPostName = pd.getPgdPostName();
-        Assert.assertNotNull(pgdPostName, "Propguide post-name is null");
-        Assert.assertFalse(pgdPostName.isEmpty(), "Propguide post-name filter is empty");
-
-        Date pgdDate = pd.getPgdDate();
-        Assert.assertNotNull(pgdDate, "Propguide post-date is null");
-    }
+      }
 
 }
