@@ -9,14 +9,14 @@ import org.testng.Assert;
 
 import com.proptiger.columbus.service.SuggestionTest;
 import com.proptiger.columbus.util.TestEssential;
-import com.proptiger.core.annotations.ResultEssential;
+import com.proptiger.columbus.util.ResultEssential;
 import com.proptiger.core.model.Typeahead;
 
 @Component
 public class SuggestionTestStructure implements SuggestionTest {
 
     @Autowired
-    private TestEssential testEssential;
+    private TestEssential<Typeahead> testEssential;
 
     public void test(List<Typeahead> suggestions) {
         for (Typeahead suggestion : suggestions) {
@@ -29,7 +29,7 @@ public class SuggestionTestStructure implements SuggestionTest {
 
         List<ResultEssential> results = testEssential.testEssentialFields(typeahead);
         for (ResultEssential result : results) {
-            Assert.assertTrue(result.isStatus(),result.getErrorMessage());
+            Assert.assertTrue(result.isPassed(), result.getMessage());
         }
 
         String typeaheadId = typeahead.getId();

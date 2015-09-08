@@ -18,25 +18,25 @@ import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.mvc.PropguideController;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.util.TestEssential;
-import com.proptiger.core.annotations.ResultEssential;
+import com.proptiger.columbus.util.ResultEssential;
 import com.proptiger.core.pojo.response.APIResponse;
 
 @Component
 @Test(singleThreaded = true)
 public class PropguideTest extends AbstractTest {
 
-    private static Logger logger                      = LoggerFactory.getLogger(PropguideTest.class);
+    private static Logger                    logger                      = LoggerFactory.getLogger(PropguideTest.class);
 
-    private String        URL_PARAM_TEMPLATE_PROPGUDE = "query=%s&rows=%s";
-
-    @Autowired
-    PropguideController   propguideController;
+    private String                           URL_PARAM_TEMPLATE_PROPGUDE = "query=%s&rows=%s";
 
     @Autowired
-    TestEssential         testEssential;
+    private PropguideController              propguideController;
+
+    @Autowired
+    private TestEssential<PropguideDocument> testEssential;
 
     @Value("${propguide.api.url}")
-    private String        PROPGUIDE_URL;
+    private String                           PROPGUIDE_URL;
 
     @Test(enabled = true)
     public void testControllerResponseValidity() {
@@ -106,11 +106,11 @@ public class PropguideTest extends AbstractTest {
 
         List<ResultEssential> results = testEssential.testEssentialFields(pd);
         for (ResultEssential result : results) {
-            Assert.assertTrue(result.isStatus(), result.getErrorMessage());
+            Assert.assertTrue(result.isPassed(), result.getMessage());
         }
-        
+
         String id = pd.getId();
         Assert.assertTrue(StringUtils.contains(id, "PROPGUIDE-"));
-      }
+    }
 
 }

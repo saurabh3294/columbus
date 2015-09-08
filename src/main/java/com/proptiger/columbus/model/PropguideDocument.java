@@ -25,7 +25,7 @@ public class PropguideDocument extends AbstractTypeahead {
 
     private static final long serialVersionUID = 1L;
 
-    @Essential(value = {TestType.NOT_EMPTY, TestType.NOT_NULL})
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_TYPE")
     private String            pgdType;
 
@@ -33,11 +33,11 @@ public class PropguideDocument extends AbstractTypeahead {
     @Field(value = "PGD_ID")
     private Integer           pgdId;
 
-    @Essential(value = {TestType.NOT_EMPTY, TestType.NOT_NULL})
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_TITLE")
     private String            pgdTitle;
 
-    @Essential(value = {TestType.NOT_EMPTY, TestType.NOT_NULL})
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_EXCERPT")
     private String            pgdExcerpt;
 
@@ -45,11 +45,11 @@ public class PropguideDocument extends AbstractTypeahead {
     @Field(value = "PGD_CONTENT")
     private String            pgdContent;
 
-    @Essential(value = {TestType.NOT_EMPTY, TestType.NOT_NULL})
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_POST_TYPE")
     private String            pgdPostType;
 
-    @Essential(value = {TestType.NOT_EMPTY, TestType.NOT_NULL})
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_POST_NAME")
     private String            pgdPostName;
 
@@ -60,15 +60,12 @@ public class PropguideDocument extends AbstractTypeahead {
     @Field(value = "PGD_DATE")
     private Date              pgdDate;
 
-    
     @Field(value = "PGD_TAGS")
     private List<String>      pgdTags;
 
-    
     @Field(value = "PGD_CATEGORY")
     private List<String>      pgdCategory;
 
-    
     @JsonIgnore
     @Field(value = "PGD_ROOT_CATEGORY_ID")
     private List<Integer>     pgdRootCategoryId;
