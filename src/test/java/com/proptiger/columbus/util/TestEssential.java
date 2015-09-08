@@ -20,10 +20,10 @@ public class TestEssential<T> {
     private ReflectionUtils reflectionUtils;
 
     public List<ResultEssential> testEssentialFields(T object) {
-        List<Field> essentialFields = reflectionUtils.getFieldsWithAnnotation(object, Essential.class);
+        List<Field> essentialFieldsList = reflectionUtils.getFieldsWithAnnotation(object, Essential.class);
         List<ResultEssential> listResult = new ArrayList<ResultEssential>();
 
-        for (Field field : essentialFields) {
+        for (Field field : essentialFieldsList) {
             listResult.addAll(testEssentialField(field, object));
         }
         return listResult;
