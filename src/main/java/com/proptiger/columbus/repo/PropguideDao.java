@@ -182,9 +182,11 @@ public class PropguideDao {
         QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponseForListing(query, categories, start, rows);
         List<PropguideDocument> resultsOriginal = solrResponseOriginal.getBeans(PropguideDocument.class);
         long totalDocs = solrResponseOriginal.getResults().getNumFound();
+        ColumbusAPIResponse response = new ColumbusAPIResponse(resultsOriginal, totalDocs);
+        
         Map<String, List<Map<Object, Long>>> facetMap = SolrHelper.getFacetsFromSolrResponse(solrResponseOriginal);
-
-        return new ColumbusAPIResponse(resultsOriginal, totalDocs, facetMap);
+        response.setFacets(facetMap);
+        return response;
     }
 
     private QueryResponse makeSolrQueryAndGetResponseForListing(String query, String[] categories, int start, int rows) {

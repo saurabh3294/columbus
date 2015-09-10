@@ -23,9 +23,8 @@ public class ColumbusAPIResponse extends APIResponse {
         this.redirectable = forcedDirectable;
     }
 
-    public ColumbusAPIResponse(Object data, Long totalCount, Map<String, List<Map<Object, Long>>> facets){
+    public ColumbusAPIResponse(Object data, Long totalCount){
         super(data, totalCount);
-        this.facets = facets;
     }
     
     public Boolean getRedirectable() {
