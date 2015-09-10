@@ -10,7 +10,7 @@
 		<spring.version>4.1.2.RELEASE</spring.version>
 		<jackson.version>2.2.2</jackson.version>
 		<jdk.version>1.8</jdk.version>
-		<solr.version>4.4.0</solr.version>
+		<solr.version>5.2.1</solr.version>
 		<slf4j.version>1.7.5</slf4j.version>
 		<logback.version>1.0.13</logback.version>
 		<aspectj.version>1.8.0</aspectj.version>
@@ -36,7 +36,7 @@
 		<profile>
 			<id>release</id>
 			<properties>
-				<midl-core.version>2.0.63</midl-core.version>
+				<midl-core.version>2.0.98</midl-core.version>
 				<skipTests>false</skipTests>
 			</properties>
 		</profile>
@@ -83,6 +83,33 @@
 				<version>2.17</version>
 				<dependencies>
 				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.cargo</groupId>
+				<artifactId>cargo-maven2-plugin</artifactId>
+				<version>1.4.8</version>
+				<configuration>
+					<configuration>
+						<properties>
+							<cargo.servlet.port>8080</cargo.servlet.port>
+							<cargo.rmi.port>8205</cargo.rmi.port>
+							<cargo.tomcat.ajp.port>8009</cargo.tomcat.ajp.port>
+						</properties>
+					</configuration>
+					<container>
+						<containerId>tomcat8x</containerId>
+					</container>
+					<deployables>
+						<deployable>
+							<groupId>com.proptiger</groupId>
+							<artifactId>columbus</artifactId>
+							<type>war</type>
+							<properties>
+								<context>${project.build.finalName}</context>
+							</properties>
+						</deployable>
+					</deployables>
+				</configuration>
 			</plugin>
 		</plugins>
 		<extensions>

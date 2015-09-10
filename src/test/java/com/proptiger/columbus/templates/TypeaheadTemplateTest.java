@@ -10,7 +10,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.testng.Assert;
@@ -39,9 +38,6 @@ public class TypeaheadTemplateTest extends AbstractTest {
     private static Logger        logger             = LoggerFactory.getLogger(TypeaheadTemplateTest.class);
 
     private String               assertMsgNoResults = "No results recieved for temptate = %s, city = %s";
-
-    @Value("${proptiger.url}")
-    private String               BASE_URL;
 
     private String               testCityName       = TypeaheadConstants.DEFAULT_CITY_NAME;
 
