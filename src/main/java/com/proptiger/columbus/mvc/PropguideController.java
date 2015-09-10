@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.columbus.model.PropguideDocument;
+import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.columbus.service.PropguideService;
 import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.mvc.BaseController;
@@ -39,18 +40,18 @@ public class PropguideController extends BaseController {
 
     @RequestMapping(value = "app/v1/propguide/listing")
     @ResponseBody
-    public APIResponse getListingDocumentsV1(
+    public ColumbusAPIResponse getListingDocumentsV1(
             @RequestParam String query,
             @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "0") int start,
             @RequestParam(defaultValue = "5") int rows) {
 
         String[] categories = StringUtils.split(category, ',');
-        PaginatedResponse<List<PropguideDocument>> paginatedReponse = propguideService.getListingDocumentsV1(
+        ColumbusAPIResponse response = propguideService.getListingDocumentsV1(
                 query,
                 categories,
                 start,
                 rows);
-        return new APIResponse(paginatedReponse);
+        return response;
     }
 }
