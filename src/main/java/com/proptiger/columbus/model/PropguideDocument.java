@@ -3,7 +3,6 @@ package com.proptiger.columbus.model;
 import java.util.Date;
 import java.util.List;
 
-
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -12,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.core.annotations.Essential;
+import com.proptiger.core.annotations.Essential.TestType;
 import com.proptiger.core.model.AbstractTypeahead;
 
 @JsonAutoDetect(
@@ -24,15 +25,19 @@ public class PropguideDocument extends AbstractTypeahead {
 
     private static final long serialVersionUID = 1L;
 
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_TYPE")
     private String            pgdType;
 
+    @Essential
     @Field(value = "PGD_ID")
     private Integer           pgdId;
 
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_TITLE")
     private String            pgdTitle;
 
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_EXCERPT")
     private String            pgdExcerpt;
 
@@ -40,27 +45,27 @@ public class PropguideDocument extends AbstractTypeahead {
     @Field(value = "PGD_CONTENT")
     private String            pgdContent;
 
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_POST_TYPE")
     private String            pgdPostType;
 
+    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_POST_NAME")
     private String            pgdPostName;
 
     @Field(value = "PGD_GUID")
     private String            pgdGuid;
 
+    @Essential
     @Field(value = "PGD_DATE")
     private Date              pgdDate;
 
-    
     @Field(value = "PGD_TAGS")
     private List<String>      pgdTags;
 
-    
     @Field(value = "PGD_CATEGORY")
     private List<String>      pgdCategory;
 
-    
     @JsonIgnore
     @Field(value = "PGD_ROOT_CATEGORY_ID")
     private List<Integer>     pgdRootCategoryId;
