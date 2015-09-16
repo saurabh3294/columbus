@@ -1,7 +1,10 @@
 package com.proptiger.columbus.propguide;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -9,25 +12,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.stereotype.Component;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.mvc.PropguideController;
+import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.util.TestEssential;
 import com.proptiger.columbus.util.ResultEssential;
+import com.proptiger.core.init.CustomObjectMapper;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.DateUtil;
 
-@Component
 @Test(singleThreaded = true)
 public class PropguideTest extends AbstractTest {
 
-    private static Logger                    logger                      = LoggerFactory.getLogger(PropguideTest.class);
+    private static Logger                    logger                              = LoggerFactory
+                                                                                         .getLogger(PropguideTest.class);
 
-    private String                           URL_PARAM_TEMPLATE_PROPGUDE = "query=%s&rows=%s";
+    private String                           URL_PARAM_TEMPLATE_PROPGUDE         = "query=%s&rows=%s";
+
+    private String                           URL_PARAM_TEMPLATE_PROPGUDE_LISTING = "query=%s&rows=%s&category=%s";
 
     @Autowired
     private PropguideController              propguideController;
@@ -37,6 +44,8 @@ public class PropguideTest extends AbstractTest {
 
     @Value("${propguide.api.url}")
     private String                           PROPGUIDE_URL;
+
+    private CustomObjectMapper               mapper;
 
     @Test(enabled = true)
     public void testControllerResponseValidity() {
@@ -71,6 +80,59 @@ public class PropguideTest extends AbstractTest {
         Assert.assertTrue(results.size() > 0, "Row-Limiting failed. Rows recieved = " + results.size()
                 + " .Atlease one result should be returned.");
 
+    }
+
+    @Test(enabled = true)
+    public void testDocumentorder() {
+        String url;
+        ColumbusAPIResponse apiResponse = null;
+        int rows = 10;
+        String query = "term of the day";
+        String category = "15,17,18,19";
+        url = PROPGUIDE_URL + "/listing?" + String.format(URL_PARAM_TEMPLATE_PROPGUDE_LISTING, query, rows, category);
+
+        logger.info("RUNNING TEST (Propguide-document-order). Url = " + url);
+        apiResponse = mockRequestAndGetColumbusAPIResponse(propguideController, url);
+        List<Object> results = (List<Object>) (apiResponse.getData());
+        List<PropguideDocument> pgdDocs = new ArrayList<PropguideDocument>();
+        PropguideDocument pgdDoc = null;
+        try {
+            for (Object result : results) {
+                ObjectMapper mapper = new ObjectMapper();
+                pgdDoc = mapper.readValue(mapper.writer().writeValueAsString(result), PropguideDocument.class);
+                pgdDocs.add(pgdDoc);
+            }
+        }
+        catch (IOException e) {
+            Assert.assertTrue(false, "Error mapping response to PropguideDocument.");
+        }
+        Assert.assertTrue(descDate(pgdDocs));
+    }
+
+    @Test(enabled = true)
+    public void testFaceting() {
+        String url;
+        ColumbusAPIResponse apiResponse = null;
+        int rows = 10;
+        String query = "term of the day";
+        String category = "15,17,18,19";
+        url = PROPGUIDE_URL + "/listing?" + String.format(URL_PARAM_TEMPLATE_PROPGUDE_LISTING, query, rows, category);
+
+        logger.info("RUNNING TEST (Propguide-faceting). Url = " + url);
+        apiResponse = mockRequestAndGetColumbusAPIResponse(propguideController, url);
+        long totalCount = apiResponse.getTotalCount();
+        Map<String, List<Map<Object, Long>>> facets = (Map<String, List<Map<Object, Long>>>) (apiResponse.getFacets());
+
+        Assert.assertTrue(facets != null);
+        List<Map<Object, Long>> facet = facets.get("PGD_ROOT_CATEGORY_ID");
+
+        long ctgCount = 0;
+        for (Map<Object, Long> ctg : facet) {
+            for (Object key : ctg.keySet()) {
+                ctgCount += ctg.get(key);
+            }
+        }
+        Assert.assertTrue(ctgCount >= totalCount);
     }
 
     @Test(enabled = true)
@@ -113,4 +175,22 @@ public class PropguideTest extends AbstractTest {
         Assert.assertTrue(StringUtils.contains(id, "PROPGUIDE-"));
     }
 
+    private boolean descDate(List<PropguideDocument> results) {
+        boolean decreasingDates = false;
+        if (!results.isEmpty()) {
+            Date date = results.get(0).getPgdDate();
+            for (int i = 1; i < results.size(); i++) {
+                long days = DateUtil.getDaysBetween(results.get(i).getPgdDate(), date);
+                if (days > 10) {
+                    decreasingDates = false;
+                    break;
+                }
+                else {
+                    date = results.get(i).getPgdDate();
+                    decreasingDates = true;
+                }
+            }
+        }
+        return decreasingDates;
+    }
 }
