@@ -3,12 +3,11 @@ package com.proptiger.columbus.repo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +16,11 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.columbus.util.TypeaheadUtils;
-import com.proptiger.core.pojo.response.PaginatedResponse;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.Constants;
+import com.proptiger.core.util.SolrHelper;
 import com.proptiger.core.util.UtilityClass;
 
 @Repository
@@ -178,15 +178,15 @@ public class PropguideDao {
      */
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public PaginatedResponse<List<PropguideDocument>> getListingDocumentsV1(
-            String query,
-            String[] categories,
-            int start,
-            int rows) {
+    public ColumbusAPIResponse getListingDocumentsV1(String query, String[] categories, int start, int rows) {
         QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponseForListing(query, categories, start, rows);
         List<PropguideDocument> resultsOriginal = solrResponseOriginal.getBeans(PropguideDocument.class);
         long totalDocs = solrResponseOriginal.getResults().getNumFound();
-        return new PaginatedResponse<List<PropguideDocument>>(resultsOriginal, totalDocs);
+        ColumbusAPIResponse response = new ColumbusAPIResponse(resultsOriginal, totalDocs);
+        
+        Map<String, List<Map<Object, Long>>> facetMap = SolrHelper.getFacetsFromSolrResponse(solrResponseOriginal);
+        response.setFacets(facetMap);
+        return response;
     }
 
     private QueryResponse makeSolrQueryAndGetResponseForListing(String query, String[] categories, int start, int rows) {
@@ -213,6 +213,8 @@ public class PropguideDao {
         solrQuery.setParam("qt", "/propguide");
         solrQuery.setParam("spellcheck", "on");
         solrQuery.setParam("bf", RECENCYBOOST);
+        solrQuery.setFacet(true);
+        solrQuery.addFacetField("PGD_ROOT_CATEGORY_ID");
         if (filterQueries == null) {
             return solrQuery;
         }

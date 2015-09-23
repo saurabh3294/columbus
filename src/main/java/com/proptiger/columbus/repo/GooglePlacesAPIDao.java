@@ -203,6 +203,7 @@ public class GooglePlacesAPIDao {
             googlePlace = new GooglePlace();
             googlePlace.setPlaceId(joPrediction.get("place_id").getAsString());
             googlePlace.setDescription(joPrediction.get("description").getAsString());
+            googlePlace.setPlaceName(getGooglePlaceLabel(joPrediction));
             googlePlacelist.add(googlePlace);
         }
         return googlePlacelist;
@@ -212,6 +213,11 @@ public class GooglePlacesAPIDao {
         String urlparams = StringUtils.join(filters, "&");
         String join = (StringUtils.contains(url, "?") ? "&" : "?");
         return url + join + urlparams;
+    }
+
+    private String getGooglePlaceLabel(JsonObject je) {
+        JsonArray jaTerms = je.get("terms").getAsJsonArray();
+        return jaTerms.get(0).getAsJsonObject().get("value").getAsString();
     }
 
 }
