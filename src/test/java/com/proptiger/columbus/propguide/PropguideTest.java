@@ -82,7 +82,7 @@ public class PropguideTest extends AbstractTest {
 
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public void testDocumentorder() {
         String url;
         ColumbusAPIResponse apiResponse = null;
