@@ -12,7 +12,7 @@ dlf,Negative,1,5,TYPEAHEAD-BUILDERCITY-100002-11,city:pune
 
 #====== Google Places with city filter ======#
 
-gip,Landmark,1,1,TYPEAHEAD-GP-ChIJAQAA8UjkDDkRmdprFuRlLbo,enhance:gp|city:noida
+gip,Landmark,1,4,TYPEAHEAD-GP-ChIJAQAA8UjkDDkRmdprFuRlLbo,enhance:gp|city:noida
 
 #======== City context for builder-city Documents  ============#
 
