@@ -1,4 +1,9 @@
-#####CUSTOM TESTS FOR LOCALITY####
-#banner,Locality,1,1,TYPEAHEAD-LOCALITY-50184
-banner,Locality,1,2,TYPEAHEAD-LOCALITY-50184
-banner,Locality,1,2,TYPEAHEAD-LOCALITY-50111
+##### Locality and Suburb ####
+
+banner,Locality,1,5,TYPEAHEAD-LOCALITY-53610
+banner,Locality,1,5,TYPEAHEAD-LOCALITY-50184
+banner,Locality,1,5,TYPEAHEAD-SUBURB-10383
+
+noida city center,Project,1,5,TYPEAHEAD-PROJECT-648368
+noida city center,Suburb,1,5,TYPEAHEAD-SUBURB-10053
+

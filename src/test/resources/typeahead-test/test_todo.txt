@@ -4,26 +4,26 @@
 #gcorp icon,1,1,TYPEAHEAD-PROJECT-501851
 #glen,Project,1,2,TYPEAHEAD-PROJECT-509124
 
-
 #====== Spellcheck  ======
 
-#armani,BUILDER,1,1,TYPEAHEAD-BUILDER-101761
-#wine,PROJECT,1,2,TYPEAHEAD-PROJECT-662636
+#armani,Builder,1,1,TYPEAHEAD-BUILDER-101761
+#wine,Project,1,2,TYPEAHEAD-PROJECT-662636
 #Gaursuns sdundaryam,Project,1,1,TYPEAHEAD-PROJECT-513515
 #unitech sunbreexze,Project,1,1,TYPEAHEAD-PROJECT-501453
 #Hill shir,Project,1,1,TYPEAHEAD-PROJECT-644389
 #aristo bellanza,Project,1,1,TYPEAHEAD-PROJECT-664622
 #purva windermere,Project,1,1,TYPEAHEAD-PROJECT-501266
 #purvan windermere,Project,1,1,TYPEAHEAD-PROJECT-501266
+#banner,Locality,1,5,TYPEAHEAD-LOCALITY-50111
 
 #====== Spellcheck causing bad results ======
 
-#roman,PROJECT,1,2,TYPEAHEAD-PROJECT-652425
+#roman,Project,1,2,TYPEAHEAD-PROJECT-652425
 
 #====== Very Less score for single word match =======
 
-#nook,PROJECT,1,2,TYPEAHEAD-PROJECT-650302
-#nook,PROJECT,1,1,TYPEAHEAD-PROJECT-503662
+#nook,Project,1,2,TYPEAHEAD-PROJECT-650302
+#nook,Project,1,1,TYPEAHEAD-PROJECT-503662
 
 #caroline(14.41) = caro+line(20.0)
-#caroline,PROJECT,1,1,TYPEAHEAD-PROJECT-641941
+#caroline,Project,1,1,TYPEAHEAD-PROJECT-641941
