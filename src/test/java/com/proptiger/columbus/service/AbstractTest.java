@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.google.gson.Gson;
+import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.core.config.WebMvcConfig;
 import com.proptiger.core.init.CustomObjectMapper;
 import com.proptiger.core.mvc.BaseController;
@@ -66,6 +67,26 @@ public abstract class AbstractTest extends AbstractTestNGSpringContextTests {
             apiResponse = mapper.readValue(response, APIResponse.class);
         }
         catch (Exception ex) {
+            Assert.assertTrue(false, "Exception while getting response. Url = " + url);
+        }
+        Assert.assertNotNull(apiResponse, "Null apiResponse. Url = " + url);
+        return apiResponse;
+    }
+
+    public ColumbusAPIResponse mockRequestAndGetColumbusAPIResponse(BaseController baseController, String url) {
+        MockHttpServletResponse mhsr = null;
+        String response;
+        ColumbusAPIResponse apiResponse = null;
+        try {
+            MockMvc mockMvc = MockMvcBuilders.standaloneSetup(baseController).build();
+            mhsr = mockMvc.perform(MockMvcRequestBuilders.get(url)).andReturn().getResponse();
+            Assert.assertNotNull(mhsr, "Null mockMvc response. Url = " + url);
+            response = mhsr.getContentAsString();
+            Assert.assertTrue(!response.trim().isEmpty());
+            apiResponse = mapper.readValue(response, ColumbusAPIResponse.class);
+        }
+        catch (Exception ex) {
+            logger.error(ex);
             Assert.assertTrue(false, "Exception while getting response. Url = " + url);
         }
         Assert.assertNotNull(apiResponse, "Null apiResponse. Url = " + url);
