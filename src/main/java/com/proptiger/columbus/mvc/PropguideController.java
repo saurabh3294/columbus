@@ -16,7 +16,6 @@ import com.proptiger.columbus.service.PropguideService;
 import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
-import com.proptiger.core.pojo.response.PaginatedResponse;
 
 @Controller
 @DisableCaching
@@ -52,6 +51,7 @@ public class PropguideController extends BaseController {
                 categories,
                 start,
                 rows);
+        response.setData(super.filterFields(response.getData(), null));
         return response;
     }
 }
