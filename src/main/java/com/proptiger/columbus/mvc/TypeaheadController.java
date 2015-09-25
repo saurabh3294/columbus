@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -145,13 +146,13 @@ public class TypeaheadController extends BaseController {
 
     private Map<String, String> getFilterQueryMapFromRequestParams(String city, String locality, String typeAheadType, String domain) {
         Map<String, String> filterQueries = new HashMap<String, String>();
-        if (city != null && city.trim() != "") {
-            filterQueries.put("TYPEAHEAD_CITY", city);
+        if (city != null && !city.trim().isEmpty()) {
+            filterQueries.put("TYPEAHEAD_CITY", StringUtils.replace(city, ",", " OR "));
         }
-        if (locality != null && locality.trim() != "") {
+        if (locality != null && !locality.trim().isEmpty()) {
             filterQueries.put("TYPEAHEAD_LOCALITY", "(\"" + locality + "\")");
         }
-        if (typeAheadType != null && typeAheadType.trim() != "") {
+        if (typeAheadType != null && !typeAheadType.trim().isEmpty()){
             filterQueries.put(TypeaheadConstants.TYPEAHEAD_TYPE, typeAheadType.toUpperCase());
         }
         if (domain!= null && domain.trim() != "") {
