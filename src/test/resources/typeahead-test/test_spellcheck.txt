@@ -31,7 +31,7 @@ Prestige,Builder,1,1,TYPEAHEAD-BUILDER-100365
 
 #====== Misc ======#
 
-one world,Project,1,2,TYPEAHEAD-PROJECT-654803
+one world,Project,1,4,TYPEAHEAD-PROJECT-654803
 # Haridwar I & II Chs,Project,1,3,TYPEAHEAD-PROJECT-505524
 
 #===== better results in previous version =====#
