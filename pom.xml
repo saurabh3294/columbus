@@ -21,7 +21,7 @@
 			<id>develop</id>
 			<properties>
 				<sonar.jdbc.url>
-					jdbc:mysql://192.168.0.28:3306/sonar?useUnicode=true&amp;characterEncoding=utf8
+					jdbc:mysql://qa.proptiger-ws.com:3306/sonar?useUnicode=true&amp;characterEncoding=utf8
 				</sonar.jdbc.url>
 				<sonar.jdbc.driverClassName>com.mysql.jdbc.Driver</sonar.jdbc.driverClassName>
 				<sonar.jdbc.username>root</sonar.jdbc.username>
@@ -30,7 +30,7 @@
 					http://ci.proptiger-ws.com:9300/
 				</sonar.host.url>
 				<sonar.projectName>COLUMBUS</sonar.projectName>
-				<midl-core.version>develop-SNAPSHOT</midl-core.version>
+				<midl-core.version>2.1.7</midl-core.version>
 			</properties>
 		</profile>
 		<profile>
