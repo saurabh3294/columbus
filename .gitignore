@@ -1,5 +1,5 @@
 .classpath
 .project
 .settings
-/target
-/test-output
+data/target
+data/test-output
