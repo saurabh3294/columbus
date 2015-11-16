@@ -86,8 +86,8 @@ public class TypeaheadService {
      * @return List<Typeahead>
      */
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries) {
-        List<Typeahead> typeaheads = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
+    public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries, String domain) {
+        List<Typeahead> typeaheads = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries, domain);
         if (typeaheads != null) {
             for (Typeahead typeahead : typeaheads) {
                 typeahead.setScore(null);
@@ -97,9 +97,9 @@ public class TypeaheadService {
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
+    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries, String domain) {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
-        return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
+        return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries, domain);
     }
 
     public List<Typeahead> getTypeaheadsV3(
@@ -107,7 +107,8 @@ public class TypeaheadService {
             int rows,
             List<String> filterQueries,
             String usercity,
-            String enhance) {
+            String enhance,
+            String domain) {
 
         if (query == null || query.isEmpty()) {
             return new ArrayList<Typeahead>();
@@ -115,7 +116,7 @@ public class TypeaheadService {
 
         /* If query is a number of 5-7 digits, return id-based results. */
         if (query.matches(domainObjectIdRegex)) {
-            return getResultsByTypeaheadID(Long.parseLong(query));
+            return getResultsByTypeaheadID(Long.parseLong(query), domain);
         }
 
         /* Handling City filter : url-param-based and query-based */
@@ -132,7 +133,7 @@ public class TypeaheadService {
 
         /* If any filters were passed in URL, return only normal results */
         if (!fqEmpty) {
-            return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity));
+            return (typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity, domain));
         }
 
         /*
@@ -142,7 +143,7 @@ public class TypeaheadService {
         filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
 
-        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity);
+        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(query, rows, filterQueries, usercity, domain);
 
         /* Sort and remove duplicates */
         results = sortAndRemoveDuplicates(results);
@@ -160,7 +161,7 @@ public class TypeaheadService {
         results = enhanceWithGooglePlaceResults(oldQuery, null, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
-        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows, null);
+        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows, null, domain);
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, results, suggestions);
@@ -186,7 +187,8 @@ public class TypeaheadService {
             int rows,
             Map<String, String> filterQueries,
             String usercity,
-            String enhance) {
+            String enhance,
+            String domain) {
 
         if (query == null || query.isEmpty()) {
             return new ArrayList<Typeahead>();
@@ -194,7 +196,7 @@ public class TypeaheadService {
 
         /* If query is a number of 5-7 digits, return id-based results. */
         if (query.matches(domainObjectIdRegex)) {
-            return getResultsByTypeaheadID(Long.parseLong(query));
+            return getResultsByTypeaheadID(Long.parseLong(query), domain);
         }
 
         // Extracting the typeaheadType received in request
@@ -234,7 +236,7 @@ public class TypeaheadService {
                 rows * TypeaheadConstants.DOCUMENT_FETCH_MULTIPLIER,
                 TypeaheadConstants.DOCUMENT_FETCH_LIMIT));
 
-        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(newQuery, newRows, filterQueryList, usercity);
+        List<Typeahead> results = typeaheadDao.getTypeaheadsV3(newQuery, newRows, filterQueryList, usercity, domain);
 
         /* Sort and remove duplicates */
         results = sortAndRemoveDuplicates(results);
@@ -257,7 +259,13 @@ public class TypeaheadService {
         results = enhanceWithGooglePlaceResults(enhanceQuery, filterCityObject, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
-        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows, typeaheadType);
+        List<Typeahead> suggestions = getSuggestionsAndTemplates(
+                results,
+                query,
+                templateCity,
+                rows,
+                typeaheadType,
+                domain);
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, results, suggestions);
@@ -465,7 +473,7 @@ public class TypeaheadService {
      *            : domain-object-id for (suburb, locality, builder or project)
      * @return The corresponding unique typeahead-object.
      */
-    private List<Typeahead> getResultsByTypeaheadID(long domainObjectId) {
+    private List<Typeahead> getResultsByTypeaheadID(long domainObjectId, String domain) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         DomainObject dObj = DomainObject.getDomainInstance(domainObjectId);
         String typeaheadId = String.format(
@@ -477,7 +485,7 @@ public class TypeaheadService {
             case locality:
             case project:
             case suburb:
-                results = typeaheadDao.getTypeaheadById(typeaheadId);
+                results = typeaheadDao.getTypeaheadById(typeaheadId, domain);
                 break;
             default:
                 break;
@@ -572,11 +580,12 @@ public class TypeaheadService {
             String query,
             String templateCity,
             int rows,
-            String typeaheadType) {
+            String typeaheadType,
+            String domain) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
-        /* No suggestions should be given if typeahead-type is set.*/
+        /* No suggestions should be given if typeahead-type is set. */
         if (typeaheadType != null) {
             return suggestions;
         }
@@ -590,8 +599,12 @@ public class TypeaheadService {
 
             if (suggestions == null || suggestions.isEmpty()) {
                 templateCityId = ((templateCity == null) ? 0 : cityNameToCityObjectMap.get(templateCity).getId());
-                suggestions = nlpSuggestionHandler
-                        .getNlpTemplateBasedResults(query, templateCity, templateCityId, rows);
+                suggestions = nlpSuggestionHandler.getNlpTemplateBasedResults(
+                        query,
+                        templateCity,
+                        templateCityId,
+                        rows,
+                        domain);
             }
         }
         catch (Exception ex) {

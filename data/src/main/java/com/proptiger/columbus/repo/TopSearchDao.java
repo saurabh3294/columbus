@@ -70,7 +70,8 @@ public class TopSearchDao {
             String entityType,
             String requiredEntities,
             Boolean isGroup,
-            int rows) {
+            int rows,
+            String domain) {
         List<Typeahead> topsearchResults = new ArrayList<Typeahead>();
         if (requiredEntities == null || requiredEntities.trim().isEmpty() || entityId == 0) {
             return topsearchResults;
@@ -81,7 +82,7 @@ public class TopSearchDao {
                 StringUtils.upperCase(entityType),
                 String.valueOf(entityId));
 
-        List<Typeahead> typeaheadList = typeaheadDao.getTypeaheadById(typeaheadId);
+        List<Typeahead> typeaheadList = typeaheadDao.getTypeaheadById(typeaheadId, domain);
         if (typeaheadList == null || typeaheadList.isEmpty()) {
             return topsearchResults;
         }
@@ -94,7 +95,7 @@ public class TopSearchDao {
         }
 
         List<String> typeaheadIds = new ArrayList<String>(typeaheadIdScoreMap.keySet());
-        List<Typeahead> topsearchList = typeaheadDao.getTypeaheadById(typeaheadIds);
+        List<Typeahead> topsearchList = typeaheadDao.getTypeaheadById(typeaheadIds, domain);
 
         if (topsearchList != null) {
             topsearchResults = sortTopsearchByTypeAndScore(topsearchList, typeaheadIdScoreMap, isGroup, rows);

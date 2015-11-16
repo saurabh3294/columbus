@@ -39,12 +39,19 @@ public class TopSearchController extends BaseController {
             @RequestParam String entityType,
             @RequestParam String requiredEntities,
             @RequestParam(defaultValue = "false") Boolean group,
-            @RequestParam(defaultValue = "5") int rows) {
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(defaultValue = "proptiger") String domain) {
 
         if (!entityType.equalsIgnoreCase(getEntityTypeFromEntityId(entityId))) {
             throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid entityId for the given entityType");
         }
-        List<Typeahead> list = topsearchService.getTopsearches(entityId, entityType, requiredEntities, group, rows);
+        List<Typeahead> list = topsearchService.getTopsearches(
+                entityId,
+                entityType,
+                requiredEntities,
+                group,
+                rows,
+                domain);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }

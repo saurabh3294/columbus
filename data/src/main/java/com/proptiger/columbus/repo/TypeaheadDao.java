@@ -51,16 +51,16 @@ public class TypeaheadDao {
     // ******* TYPEAHEAD :: VERSION 3 ********
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadById(String typeaheadId) {
+    public List<Typeahead> getTypeaheadById(String typeaheadId, String domain) {
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("id:" + typeaheadId);
         SolrQuery solrQuery = getSolrQueryV3("", 1, queryFilters);
-        List<Typeahead> results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+        List<Typeahead> results = solrDao.executeQuery(solrQuery, domain).getBeans(Typeahead.class);
         return results;
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadById(List<String> typeaheadIds) {
+    public List<Typeahead> getTypeaheadById(List<String> typeaheadIds, String domain) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         if (typeaheadIds == null || typeaheadIds.isEmpty()) {
             return results;
@@ -74,15 +74,20 @@ public class TypeaheadDao {
         filterIds = "(" + filterIds + ")";
         queryFilters.add(filterIds);
         SolrQuery solrQuery = getSolrQueryV3("", typeaheadIds.size(), queryFilters);
-        results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+        results = solrDao.executeQuery(solrQuery, domain).getBeans(Typeahead.class);
         return results;
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String usercity) {
+    public List<Typeahead> getTypeaheadsV3(
+            String query,
+            int rows,
+            List<String> filterQueries,
+            String usercity,
+            String domain) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         try {
-            results = getSpellCheckedResponseV3(query, rows, filterQueries);
+            results = getSpellCheckedResponseV3(query, rows, filterQueries, domain);
         }
         catch (ProAPIException e) {
             if (e.getCause() instanceof RemoteSolrException) {
@@ -95,11 +100,11 @@ public class TypeaheadDao {
         return results;
     }
 
-    public List<Typeahead> getResponseV3(String query, int rows, List<String> filterQueries) {
+    public List<Typeahead> getResponseV3(String query, int rows, List<String> filterQueries, String domain) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         SolrQuery solrQuery = getSolrQueryV3(query, rows, filterQueries);
         try {
-            results = solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+            results = solrDao.executeQuery(solrQuery, domain).getBeans(Typeahead.class);
         }
         catch (ProAPIException e) {
             if (e.getCause() instanceof RemoteSolrException) {
@@ -118,13 +123,13 @@ public class TypeaheadDao {
      * If the query has a typo and can be corrected then new query is generated
      * using the suggestions and executed automatically
      */
-    private List<Typeahead> getSpellCheckedResponseV3(String query, int rows, List<String> filterQueries) {
+    private List<Typeahead> getSpellCheckedResponseV3(String query, int rows, List<String> filterQueries, String domain) {
 
         /* Fetch results for entered query first */
         SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
         solrQuery.setSorts(sortClauseList);
         List<Typeahead> resultsOriginal = new ArrayList<Typeahead>();
-        QueryResponse response = solrDao.executeQuery(solrQuery);
+        QueryResponse response = solrDao.executeQuery(solrQuery, domain);
         resultsOriginal = response.getBeans(Typeahead.class);
 
         SpellCheckResponse scr = response.getSpellCheckResponse();
@@ -139,7 +144,7 @@ public class TypeaheadDao {
         if (spellsuggestion != null && !spellsuggestion.isEmpty()) {
             SolrQuery newQuery = this.getSolrQueryV3(spellsuggestion.toString(), rows, filterQueries);
             newQuery.setSorts(sortClauseList);
-            resultsSuggested = solrDao.executeQuery(newQuery).getBeans(Typeahead.class);
+            resultsSuggested = solrDao.executeQuery(newQuery, domain).getBeans(Typeahead.class);
         }
 
         /* Merge results */
@@ -179,9 +184,9 @@ public class TypeaheadDao {
 
     /******************* Legacy Methods ****************************************/
 
-    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
+    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries, String domain) {
         SolrQuery solrQuery = this.getSolrQueryV2(query, rows, filterQueries);
-        List<Typeahead> results = getSpellCheckedResponseV2(solrQuery, rows, filterQueries);
+        List<Typeahead> results = getSpellCheckedResponseV2(solrQuery, rows, filterQueries, domain);
         return UtilityClass.getFirstNElementsOfList(results, rows);
     }
 
@@ -230,10 +235,14 @@ public class TypeaheadDao {
      * If the query has a typo and can be corrected then new query is generated
      * using the suggestions and executed automatically
      */
-    private List<Typeahead> getSpellCheckedResponseV2(SolrQuery solrQuery, int rows, List<String> filterQueries) {
+    private List<Typeahead> getSpellCheckedResponseV2(
+            SolrQuery solrQuery,
+            int rows,
+            List<String> filterQueries,
+            String domain) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
-        QueryResponse response = solrDao.executeQuery(solrQuery);
+        QueryResponse response = solrDao.executeQuery(solrQuery, domain);
         SpellCheckResponse scr = response.getSpellCheckResponse();
         String spellsuggestion = ((scr != null) ? scr.getCollatedResult() : null);
         results = response.getBeans(Typeahead.class);
@@ -241,7 +250,7 @@ public class TypeaheadDao {
         if (spellsuggestion != null && results.size() < 5) {
             SolrQuery newQuery = this.getSolrQueryV2(spellsuggestion.toString(), rows, filterQueries);
             List<Typeahead> suggestResults = new ArrayList<Typeahead>();
-            suggestResults = solrDao.executeQuery(newQuery).getBeans(Typeahead.class);
+            suggestResults = solrDao.executeQuery(newQuery, domain).getBeans(Typeahead.class);
             results.addAll(suggestResults);
             return results;
         }

@@ -63,7 +63,8 @@ public class TypeaheadSuggestionTest extends AbstractTest {
                 1,
                 new HashMap<String, String>(),
                 null,
-                null);
+                null,
+                TypeaheadConstants.DOMAIN_PROPTIGER);
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
         executeAllTests(suggestions);
@@ -74,7 +75,13 @@ public class TypeaheadSuggestionTest extends AbstractTest {
 
         String entityId = "50186";
         logger.info("TEST NAME = LOCALITY SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(
+                entityId,
+                1,
+                null,
+                null,
+                null,
+                TypeaheadConstants.DOMAIN_PROPTIGER);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
@@ -88,7 +95,13 @@ public class TypeaheadSuggestionTest extends AbstractTest {
 
         String entityId = "10512";
         logger.info("TEST NAME = SUBURB SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(
+                entityId,
+                1,
+                null,
+                null,
+                null,
+                TypeaheadConstants.DOMAIN_PROPTIGER);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
@@ -102,7 +115,13 @@ public class TypeaheadSuggestionTest extends AbstractTest {
 
         String entityId = "100002";
         logger.info("TEST NAME = BUILDER SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(
+                entityId,
+                1,
+                null,
+                null,
+                null,
+                TypeaheadConstants.DOMAIN_PROPTIGER);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
@@ -116,7 +135,13 @@ public class TypeaheadSuggestionTest extends AbstractTest {
 
         String entityId = "501421";
         logger.info("TEST NAME = PROJECT SUGGESTION");
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4(entityId, 1, null, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(
+                entityId,
+                1,
+                null,
+                null,
+                null,
+                TypeaheadConstants.DOMAIN_PROPTIGER);
         results.get(0).setScore(100f);
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());

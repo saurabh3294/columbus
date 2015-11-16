@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.core.model.Typeahead;
@@ -96,7 +97,13 @@ public class TypeaheadEqualScoreTieBreakTest extends AbstractTest {
         Assert.assertTrue((endIndex < rows), "Invalid test case : end index >= rows");
 
         Map<String, String> filterQueries = new HashMap<String, String>();
-        List<Typeahead> results = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, null, null);
+        List<Typeahead> results = typeaheadService.getTypeaheadsV4(
+                query,
+                rows,
+                filterQueries,
+                null,
+                null,
+                TypeaheadConstants.DOMAIN_PROPTIGER);
 
         Assert.assertNotNull(results);
         Assert.assertTrue(results.size() > endIndex, "Result-Count should be greater then endIndex(" + endIndex + ")");

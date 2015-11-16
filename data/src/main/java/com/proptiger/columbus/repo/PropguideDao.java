@@ -33,9 +33,9 @@ public class PropguideDao {
     private SolrDao             solrDao;
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows) {
+    public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows, String domain) {
         List<PropguideDocument> results = new ArrayList<PropguideDocument>();
-        results = getResponseV1(query, categories, rows);
+        results = getResponseV1(query, categories, rows, domain);
         return results;
     }
 
@@ -45,15 +45,19 @@ public class PropguideDao {
      * 
      * @param categories
      */
-    private List<PropguideDocument> getResponseV1(String query, String[] categories, int rows) {
+    private List<PropguideDocument> getResponseV1(String query, String[] categories, int rows, String domain) {
         int enlargedRows = rows * TypeaheadConstants.PROPGUIDE_POST_TAGS_MULTIPLIER;
-        QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponse(query, categories, enlargedRows);
+        QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponse(query, categories, enlargedRows, domain);
         List<PropguideDocument> resultsOriginal = solrResponseOriginal.getBeans(PropguideDocument.class);
 
         SpellCheckResponse scr = solrResponseOriginal.getSpellCheckResponse();
         String querySuggested = getSuggestedQuery(scr);
         if (querySuggested != null) {
-            QueryResponse solrResponseSpellcheck = makeSolrQueryAndGetResponse(querySuggested, categories, enlargedRows);
+            QueryResponse solrResponseSpellcheck = makeSolrQueryAndGetResponse(
+                    querySuggested,
+                    categories,
+                    enlargedRows,
+                    domain);
             List<PropguideDocument> resultsSpellcheck = solrResponseSpellcheck.getBeans(PropguideDocument.class);
             resultsOriginal = combineOriginalAndSpellcheckResults(resultsOriginal, resultsSpellcheck);
         }
@@ -141,7 +145,7 @@ public class PropguideDao {
         return spellsuggestion;
     }
 
-    private QueryResponse makeSolrQueryAndGetResponse(String query, String[] categories, int rows) {
+    private QueryResponse makeSolrQueryAndGetResponse(String query, String[] categories, int rows, String domain) {
         List<String> filterQueries = new ArrayList<String>();
         filterQueries.add("DOCUMENT_TYPE:PROPGUIDE");
         if (categories != null) {
@@ -151,7 +155,7 @@ public class PropguideDao {
         }
 
         SolrQuery solrQuery = getSolrQueryV1(query, filterQueries, rows);
-        QueryResponse response = solrDao.executeQuery(solrQuery);
+        QueryResponse response = solrDao.executeQuery(solrQuery, domain);
         return response;
     }
 
@@ -178,18 +182,33 @@ public class PropguideDao {
      */
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public ColumbusAPIResponse getListingDocumentsV1(String query, String[] categories, int start, int rows) {
-        QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponseForListing(query, categories, start, rows);
+    public ColumbusAPIResponse getListingDocumentsV1(
+            String query,
+            String[] categories,
+            int start,
+            int rows,
+            String domain) {
+        QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponseForListing(
+                query,
+                categories,
+                start,
+                rows,
+                domain);
         List<PropguideDocument> resultsOriginal = solrResponseOriginal.getBeans(PropguideDocument.class);
         long totalDocs = solrResponseOriginal.getResults().getNumFound();
         ColumbusAPIResponse response = new ColumbusAPIResponse(resultsOriginal, totalDocs);
-        
+
         Map<String, List<Map<Object, Long>>> facetMap = SolrHelper.getFacetsFromSolrResponse(solrResponseOriginal);
         response.setFacets(facetMap);
         return response;
     }
 
-    private QueryResponse makeSolrQueryAndGetResponseForListing(String query, String[] categories, int start, int rows) {
+    private QueryResponse makeSolrQueryAndGetResponseForListing(
+            String query,
+            String[] categories,
+            int start,
+            int rows,
+            String domain) {
         List<String> filterQueries = new ArrayList<String>();
 
         filterQueries.add("DOCUMENT_TYPE:PROPGUIDE");
@@ -202,7 +221,7 @@ public class PropguideDao {
 
         SolrQuery solrQuery = getSolrQueryListingV1(query, filterQueries, rows);
         solrQuery.setStart(start);
-        QueryResponse response = solrDao.executeQuery(solrQuery);
+        QueryResponse response = solrDao.executeQuery(solrQuery, domain);
         return response;
     }
 

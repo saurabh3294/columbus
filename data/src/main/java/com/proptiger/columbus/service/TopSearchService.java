@@ -53,14 +53,16 @@ public class TopSearchService {
             String entityType,
             String requiredEntities,
             Boolean isGroup,
-            int rows) {
+            int rows,
+            String domain) {
 
         List<Typeahead> topsearches = topsearchDao.getTopSearches(
                 entityId,
                 entityType,
                 requiredEntities,
                 isGroup,
-                rows);
+                rows,
+                domain);
         return topsearches;
     }
 }

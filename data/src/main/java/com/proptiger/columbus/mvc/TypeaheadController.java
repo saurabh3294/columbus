@@ -59,10 +59,14 @@ public class TypeaheadController extends BaseController {
             @RequestParam(required = false) String locality) {
 
         List<String> filterQueries = new ArrayList<String>();
-        getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType, TypeaheadConstants.DOMAIN_PROPTIGER);
+        getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType);
 
         filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
-        List<Typeahead> list = typeaheadService.getTypeaheads(query, rows, filterQueries);
+        List<Typeahead> list = typeaheadService.getTypeaheads(
+                query,
+                rows,
+                filterQueries,
+                TypeaheadConstants.DOMAIN_PROPTIGER);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }
@@ -78,9 +82,13 @@ public class TypeaheadController extends BaseController {
             @RequestParam(required = false) String locality) {
 
         List<String> filterQueries = new ArrayList<String>();
-        getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType, TypeaheadConstants.DOMAIN_PROPTIGER);
+        getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType);
 
-        List<Typeahead> list = typeaheadService.getTypeaheadsV2(query, rows, filterQueries);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV2(
+                query,
+                rows,
+                filterQueries,
+                TypeaheadConstants.DOMAIN_PROPTIGER);
         return new APIResponse(super.filterFields(list, null), list.size());
     }
 
@@ -93,9 +101,15 @@ public class TypeaheadController extends BaseController {
             required = false) String usercity, @RequestParam(required = false) String enhance) {
 
         List<String> filterQueries = new ArrayList<String>();
-        getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType, TypeaheadConstants.DOMAIN_PROPTIGER);
+        getFilterQueryListFromRequestParams(filterQueries, city, locality, typeAheadType);
         usercity = getCityContext(usercity);
-        List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, usercity, enhance);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV3(
+                query,
+                rows,
+                filterQueries,
+                usercity,
+                enhance,
+                TypeaheadConstants.DOMAIN_PROPTIGER);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }
@@ -112,9 +126,9 @@ public class TypeaheadController extends BaseController {
         ApiVersion version = getApiVersion();
         city = (city == null ? null : city.toLowerCase());
         usercity = (usercity == null ? null : usercity.toLowerCase());
-        Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType, domain);
+        Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
         usercity = getCityContext(usercity);
-        List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance, domain);
 
         Boolean isRedirectable = isRedirectable(list);
         return new ColumbusAPIResponse(super.filterFields(list, null), (long) (list.size()), version, isRedirectable);
@@ -138,13 +152,12 @@ public class TypeaheadController extends BaseController {
             List<String> filterQueries,
             String city,
             String locality,
-            String typeAheadType,
-            String domain) {
-        Map<String, String> filterQueryMap = getFilterQueryMapFromRequestParams(city, locality, typeAheadType, domain);
+            String typeAheadType) {
+        Map<String, String> filterQueryMap = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
         filterQueries.addAll(UtilityClass.convertMapToDlimSeparatedKeyValueList(filterQueryMap, ":"));
     }
 
-    private Map<String, String> getFilterQueryMapFromRequestParams(String city, String locality, String typeAheadType, String domain) {
+    private Map<String, String> getFilterQueryMapFromRequestParams(String city, String locality, String typeAheadType) {
         Map<String, String> filterQueries = new HashMap<String, String>();
         if (city != null && !city.trim().isEmpty()) {
             filterQueries.put("TYPEAHEAD_CITY", StringUtils.replace(city, ",", " OR "));
@@ -152,11 +165,8 @@ public class TypeaheadController extends BaseController {
         if (locality != null && !locality.trim().isEmpty()) {
             filterQueries.put("TYPEAHEAD_LOCALITY", "(\"" + locality + "\")");
         }
-        if (typeAheadType != null && !typeAheadType.trim().isEmpty()){
+        if (typeAheadType != null && !typeAheadType.trim().isEmpty()) {
             filterQueries.put(TypeaheadConstants.TYPEAHEAD_TYPE, typeAheadType.toUpperCase());
-        }
-        if (domain!= null && domain.trim() != "") {
-            filterQueries.put("TYPEAHEAD_DOMAIN", domain);
         }
         return filterQueries;
     }

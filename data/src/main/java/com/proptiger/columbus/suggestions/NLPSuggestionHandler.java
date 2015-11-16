@@ -10,13 +10,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.columbus.model.TypeaheadConstants;
-import com.proptiger.columbus.repo.TemplateInfoDao;
 import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.thandlers.RootTHandler;
 import com.proptiger.columbus.thandlers.TemplateMap;
 import com.proptiger.columbus.thandlers.TemplateTypes;
 import com.proptiger.core.model.Typeahead;
-import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.UtilityClass;
 
 @Component
@@ -49,7 +47,7 @@ public class NLPSuggestionHandler {
         return thandler;
     }
 
-    public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows) {
+    public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows, String domain) {
 
         /* Check for city if it is null or not */
         if (city == null || city.isEmpty()) {
@@ -58,7 +56,7 @@ public class NLPSuggestionHandler {
         }
 
         List<Typeahead> results = new ArrayList<Typeahead>();
-        List<Typeahead> templateHits = getTemplateHits(query, rows);
+        List<Typeahead> templateHits = getTemplateHits(query, rows, domain);
 
         /* If no good-matching templates are found, return empty list. */
         if (templateHits.isEmpty() || templateHits.get(0).getScore() < templateResultScoreTheshold) {
@@ -87,7 +85,7 @@ public class NLPSuggestionHandler {
          * If top results are not enough then populate the list by rest of the
          * results for first template up to a maximum of 'rows'.
          */
-        
+
         resultsFirstHandler.remove(0);
         results.addAll(resultsFirstHandler);
         UtilityClass.getFirstNElementsOfList(results, rows);
@@ -126,10 +124,10 @@ public class NLPSuggestionHandler {
         return resultsFirstHandler;
     }
 
-    private List<Typeahead> getTemplateHits(String query, int rows) {
+    private List<Typeahead> getTemplateHits(String query, int rows, String domain) {
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
-        List<Typeahead> templateHits = typeaheadDao.getResponseV3(query, rows, queryFilters);
+        List<Typeahead> templateHits = typeaheadDao.getResponseV3(query, rows, queryFilters, domain);
         return templateHits;
     }
 }

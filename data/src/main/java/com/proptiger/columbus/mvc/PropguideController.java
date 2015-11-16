@@ -29,11 +29,12 @@ public class PropguideController extends BaseController {
     public APIResponse getDocumentsV1(
             @RequestParam String query,
             @RequestParam(required = false) String category,
-            @RequestParam(defaultValue = "5") int rows) {
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(defaultValue = "proptiger") String domain) {
 
         String[] categories = StringUtils.split(category, ',');
         List<PropguideDocument> results = new ArrayList<PropguideDocument>();
-        results = propguideService.getDocumentsV1(query, categories, rows);
+        results = propguideService.getDocumentsV1(query, categories, rows, domain);
         return new APIResponse(super.filterFields(results, null), results.size());
     }
 
@@ -43,14 +44,11 @@ public class PropguideController extends BaseController {
             @RequestParam String query,
             @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "0") int start,
-            @RequestParam(defaultValue = "5") int rows) {
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(defaultValue = "proptiger") String domain) {
 
         String[] categories = StringUtils.split(category, ',');
-        ColumbusAPIResponse response = propguideService.getListingDocumentsV1(
-                query,
-                categories,
-                start,
-                rows);
+        ColumbusAPIResponse response = propguideService.getListingDocumentsV1(query, categories, start, rows, domain);
         response.setData(super.filterFields(response.getData(), null));
         return response;
     }

@@ -26,8 +26,8 @@ public class PropguideService {
      *            : Categories to be used to filter results.
      * @param rows
      */
-    public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows) {
-        List<PropguideDocument> results = propguideDao.getDocumentsV1(query, categories, rows);
+    public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows, String domain) {
+        List<PropguideDocument> results = propguideDao.getDocumentsV1(query, categories, rows, domain);
         return results;
     }
 
@@ -45,12 +45,9 @@ public class PropguideService {
             String query,
             String[] categories,
             int start,
-            int rows) {
-        ColumbusAPIResponse response = propguideDao.getListingDocumentsV1(
-                query,
-                categories,
-                start,
-                rows);
+            int rows,
+            String domain) {
+        ColumbusAPIResponse response = propguideDao.getListingDocumentsV1(query, categories, start, rows, domain);
         return response;
     }
 
