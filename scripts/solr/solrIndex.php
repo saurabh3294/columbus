@@ -71,8 +71,6 @@ $paramProjectIds = null;
 $paramIds;
 $solrCollectionType;
 $elasticSearchClient;
-$SOLR_SERVER_HOSTNAME_CONFIG  = SOLR_SERVER_HOSTNAME;
-$SOLR_SERVER_PORT_CONFIG = SOLR_SERVER_PORT;
 $TYPEAHEAD_SOLR_SERVER_HOSTNAME_CONFIG  = TYPEAHEAD_SOLR_SERVER_HOSTNAME;
 $TYPEAHEAD_SOLR_SERVER_PORT_CONFIG = TYPEAHEAD_SOLR_SERVER_PORT;
 
@@ -94,7 +92,8 @@ try {
     $messageFromSQS = receiveMessageFromSQS();
     if(empty($argv[1])){
         $arguments = explode(' ', $messageFromSQS);
-        $argv = appendElements($arguments,$argv);
+        $argv_ = array_merge($argv,$arguments);
+        $argv = $argv_;
     }
     $projStatusCondition = " psm.project_status not in ('Cancelled', 'OnHold', 'NotLaunched') ";
     $elasticSearchClient = new Elasticsearch\Client($elasticParams);   //from elasticSearchConfig.php
@@ -111,7 +110,7 @@ try {
     }
     else if (in_array("makaan",$argv) || in_array("makaaniq",$argv)){
         $logger->info("Connecting to makaan Solr instance");
-        $typeaheadSolr = new Apache_Solr_Service($TYPEAHEAD_SOLR_SERVER_HOSTNAME_CONFIG, $TYPEAHEAD_SOLR_SERVER_PORT_CONFIG, '/solr/collection_makaan_clbs/');
+        $typeaheadSolr = new Apache_Solr_Service($TYPEAHEAD_SOLR_SERVER_HOSTNAME_CONFIG, $TYPEAHEAD_SOLR_SERVER_PORT_CONFIG, '/solr/collection_mp_clbs/');
         $logger->info("Running for Website instance");
         $projCmsActiveCondition = "\"Active\"";
         $locationFunctionProjActiveCondition = "\"Inactive\",\"Active\"";
@@ -132,8 +131,6 @@ try {
     if (!empty($argv[1])){
         if( $argv[1] == 'deleteThenInsert')
         {
-            $solr->deleteByQuery("*:*");
-            $solr->commit();
             $typeaheadSolr->deleteByQuery("*:*");
             $typeaheadSolr->commit();
             $logger->info("Deleted documents");
@@ -170,7 +167,7 @@ try {
         $logger->info(json_encode($domains));
         $logger->info(" PROJECT ".$paramProjectIds." PROPERTY ".$paramPropertyIds." BUILDER ".$paramBuilderIds." CITY ".$paramCityIds." SUBURB ".$paramSuburbIds." LOCALITY ".$paramLocalityIds."\n");
     }
-    
+
     $solrTypeaheadList = array();
     if( empty($domains) || isset($domains[PROPTIGER]) || isset($domains[B2B]) ){
 		indexTypeahead($typeaheadSolr, $solrDB, $logger,PROPTIGER);
@@ -312,13 +309,6 @@ function receiveMessageFromSQS(){
     catch (Exception $e) {
         echo 'Exception while processing message: ',  $e->getMessage(), "\n";
     }
-}
-
-function appendElements($source,&$destination){
-    foreach($source as $key => $value){
-        $destination[] = $value;
-    }
-    return $destination;
 }
 
 ?>
