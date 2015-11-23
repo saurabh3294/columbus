@@ -30,7 +30,7 @@
 					http://ci.proptiger-ws.com:9300/
 				</sonar.host.url>
 				<sonar.projectName>COLUMBUS</sonar.projectName>
-				<midl-core.version>2.1.7</midl-core.version>
+				<midl-core.version>develop-marketplace-SNAPSHOT</midl-core.version>
 			</properties>
 		</profile>
 		<profile>
