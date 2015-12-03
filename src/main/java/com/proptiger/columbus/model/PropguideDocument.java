@@ -37,7 +37,6 @@ public class PropguideDocument extends AbstractTypeahead {
     @Field(value = "PGD_TITLE")
     private String            pgdTitle;
 
-    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_EXCERPT")
     private String            pgdExcerpt;
 
@@ -45,11 +44,9 @@ public class PropguideDocument extends AbstractTypeahead {
     @Field(value = "PGD_CONTENT")
     private String            pgdContent;
 
-    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_POST_TYPE")
     private String            pgdPostType;
 
-    @Essential(value = { TestType.NOT_EMPTY, TestType.NOT_NULL })
     @Field(value = "PGD_POST_NAME")
     private String            pgdPostName;
 
