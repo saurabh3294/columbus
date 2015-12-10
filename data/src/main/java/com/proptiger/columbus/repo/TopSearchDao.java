@@ -16,8 +16,8 @@ import org.springframework.stereotype.Repository;
 import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.util.TopSearchUtils;
 import com.proptiger.columbus.util.TypeaheadUtils;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.model.Typeahead;
-import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.UtilityClass;
 
 /**
@@ -71,7 +71,7 @@ public class TopSearchDao {
             String requiredEntities,
             Boolean isGroup,
             int rows,
-            String domain) {
+            Domain domain) {
         List<Typeahead> topsearchResults = new ArrayList<Typeahead>();
         if (requiredEntities == null || requiredEntities.trim().isEmpty() || entityId == 0) {
             return topsearchResults;

@@ -14,6 +14,7 @@ import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.columbus.thandlers.RootTHandler;
 import com.proptiger.columbus.thandlers.TemplateMap;
 import com.proptiger.columbus.thandlers.TemplateTypes;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.UtilityClass;
 
@@ -47,7 +48,7 @@ public class NLPSuggestionHandler {
         return thandler;
     }
 
-    public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows, String domain) {
+    public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int cityId, int rows, Domain domain) {
 
         /* Check for city if it is null or not */
         if (city == null || city.isEmpty()) {
@@ -124,7 +125,7 @@ public class NLPSuggestionHandler {
         return resultsFirstHandler;
     }
 
-    private List<Typeahead> getTemplateHits(String query, int rows, String domain) {
+    private List<Typeahead> getTemplateHits(String query, int rows, Domain domain) {
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("DOCUMENT_TYPE:TYPEAHEAD" + " AND " + "TYPEAHEAD_TYPE:TEMPLATE");
         List<Typeahead> templateHits = typeaheadDao.getResponseV3(query, rows, queryFilters, domain);

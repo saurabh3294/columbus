@@ -22,6 +22,7 @@ import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.columbus.service.TypeaheadService;
 import com.proptiger.core.annotations.Intercepted;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.mvc.BaseController;
@@ -31,11 +32,9 @@ import com.proptiger.core.service.ApiVersionService.ApiVersion;
 import com.proptiger.core.service.ConfigService.ConfigGroupName;
 import com.proptiger.core.util.RequestHolderUtil;
 import com.proptiger.core.util.UtilityClass;
+import com.proptiger.core.util.DomainUtils;
 
 /**
- * 
- * @author mukand
- * @author hemendra
  * @author rahul
  */
 @Controller
@@ -66,7 +65,7 @@ public class TypeaheadController extends BaseController {
                 query,
                 rows,
                 filterQueries,
-                TypeaheadConstants.DOMAIN_PROPTIGER);
+                Domain.Proptiger);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }
@@ -88,7 +87,7 @@ public class TypeaheadController extends BaseController {
                 query,
                 rows,
                 filterQueries,
-                TypeaheadConstants.DOMAIN_PROPTIGER);
+                Domain.Proptiger);
         return new APIResponse(super.filterFields(list, null), list.size());
     }
 
@@ -109,7 +108,7 @@ public class TypeaheadController extends BaseController {
                 filterQueries,
                 usercity,
                 enhance,
-                TypeaheadConstants.DOMAIN_PROPTIGER);
+                Domain.Proptiger);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }
@@ -121,14 +120,18 @@ public class TypeaheadController extends BaseController {
             defaultValue = "5") int rows, @RequestParam(required = false) String typeAheadType, @RequestParam(
             required = false) String city, @RequestParam(required = false) String locality, @RequestParam(
             required = false) String usercity, @RequestParam(required = false) String enhance, @RequestParam(
-            defaultValue = "proptiger") String domain) {
+            required = false) Domain sourceDomain) {
+        
+        if(sourceDomain == null){
+            sourceDomain = DomainUtils.getCurrentDefaultDomain();
+        }
 
         ApiVersion version = getApiVersion();
         city = (city == null ? null : city.toLowerCase());
         usercity = (usercity == null ? null : usercity.toLowerCase());
         Map<String, String> filterQueries = getFilterQueryMapFromRequestParams(city, locality, typeAheadType);
         usercity = getCityContext(usercity);
-        List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance, domain);
+        List<Typeahead> list = typeaheadService.getTypeaheadsV4(query, rows, filterQueries, usercity, enhance, sourceDomain);
 
         Boolean isRedirectable = isRedirectable(list);
         return new ColumbusAPIResponse(super.filterFields(list, null), (long) (list.size()), version, isRedirectable);

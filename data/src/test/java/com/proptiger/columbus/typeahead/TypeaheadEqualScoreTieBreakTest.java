@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.service.TypeaheadService;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.model.Typeahead;
 
 public class TypeaheadEqualScoreTieBreakTest extends AbstractTest {
@@ -103,7 +103,7 @@ public class TypeaheadEqualScoreTieBreakTest extends AbstractTest {
                 filterQueries,
                 null,
                 null,
-                TypeaheadConstants.DOMAIN_PROPTIGER);
+                Domain.Proptiger);
 
         Assert.assertNotNull(results);
         Assert.assertTrue(results.size() > endIndex, "Result-Count should be greater then endIndex(" + endIndex + ")");

@@ -3,12 +3,9 @@ package com.proptiger.columbus.suggestions;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.columbus.repo.TypeaheadDao;
 import com.proptiger.core.model.Typeahead;
-import com.proptiger.core.util.HttpRequestUtil;
 import com.proptiger.core.util.UtilityClass;
 
 @Component

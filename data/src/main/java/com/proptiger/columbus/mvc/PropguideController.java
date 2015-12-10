@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.columbus.service.PropguideService;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.DomainUtils;
 
 @Controller
 @DisableCaching
@@ -30,11 +32,15 @@ public class PropguideController extends BaseController {
             @RequestParam String query,
             @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "5") int rows,
-            @RequestParam(defaultValue = "proptiger") String domain) {
-
+            @RequestParam(required = false) Domain sourceDomain) {
+        
+        if(sourceDomain == null){
+            sourceDomain = DomainUtils.getCurrentDefaultDomain();
+        }
+        
         String[] categories = StringUtils.split(category, ',');
         List<PropguideDocument> results = new ArrayList<PropguideDocument>();
-        results = propguideService.getDocumentsV1(query, categories, rows, domain);
+        results = propguideService.getDocumentsV1(query, categories, rows, sourceDomain);
         return new APIResponse(super.filterFields(results, null), results.size());
     }
 
@@ -45,10 +51,14 @@ public class PropguideController extends BaseController {
             @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "0") int start,
             @RequestParam(defaultValue = "5") int rows,
-            @RequestParam(defaultValue = "proptiger") String domain) {
+            @RequestParam(required = false) Domain sourceDomain) {
+
+        if(sourceDomain == null){
+            sourceDomain = DomainUtils.getCurrentDefaultDomain();
+        }
 
         String[] categories = StringUtils.split(category, ',');
-        ColumbusAPIResponse response = propguideService.getListingDocumentsV1(query, categories, start, rows, domain);
+        ColumbusAPIResponse response = propguideService.getListingDocumentsV1(query, categories, start, rows, sourceDomain);
         response.setData(super.filterFields(response.getData(), null));
         return response;
     }

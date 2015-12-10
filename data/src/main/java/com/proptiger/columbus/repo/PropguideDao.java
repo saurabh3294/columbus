@@ -18,6 +18,7 @@ import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.columbus.util.TypeaheadUtils;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.repo.SolrDao;
 import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.SolrHelper;
@@ -33,7 +34,7 @@ public class PropguideDao {
     private SolrDao             solrDao;
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows, String domain) {
+    public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows, Domain domain) {
         List<PropguideDocument> results = new ArrayList<PropguideDocument>();
         results = getResponseV1(query, categories, rows, domain);
         return results;
@@ -45,7 +46,7 @@ public class PropguideDao {
      * 
      * @param categories
      */
-    private List<PropguideDocument> getResponseV1(String query, String[] categories, int rows, String domain) {
+    private List<PropguideDocument> getResponseV1(String query, String[] categories, int rows, Domain domain) {
         int enlargedRows = rows * TypeaheadConstants.PROPGUIDE_POST_TAGS_MULTIPLIER;
         QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponse(query, categories, enlargedRows, domain);
         List<PropguideDocument> resultsOriginal = solrResponseOriginal.getBeans(PropguideDocument.class);
@@ -145,7 +146,7 @@ public class PropguideDao {
         return spellsuggestion;
     }
 
-    private QueryResponse makeSolrQueryAndGetResponse(String query, String[] categories, int rows, String domain) {
+    private QueryResponse makeSolrQueryAndGetResponse(String query, String[] categories, int rows, Domain domain) {
         List<String> filterQueries = new ArrayList<String>();
         filterQueries.add("DOCUMENT_TYPE:PROPGUIDE");
         if (categories != null) {
@@ -187,7 +188,7 @@ public class PropguideDao {
             String[] categories,
             int start,
             int rows,
-            String domain) {
+            Domain domain) {
         QueryResponse solrResponseOriginal = makeSolrQueryAndGetResponseForListing(
                 query,
                 categories,
@@ -208,7 +209,7 @@ public class PropguideDao {
             String[] categories,
             int start,
             int rows,
-            String domain) {
+            Domain domain) {
         List<String> filterQueries = new ArrayList<String>();
 
         filterQueries.add("DOCUMENT_TYPE:PROPGUIDE");

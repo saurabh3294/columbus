@@ -21,7 +21,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.proptiger.columbus.model.GooglePlace;
-import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.util.UtilityClass;
 
 @Repository
