@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.columbus.service.TopSearchService;
 import com.proptiger.core.constants.ResponseCodes;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.meta.DisableCaching;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.mvc.BaseController;
 import com.proptiger.core.pojo.response.APIResponse;
+import com.proptiger.core.util.DomainUtils;
 
 /**
  * 
@@ -40,18 +42,23 @@ public class TopSearchController extends BaseController {
             @RequestParam String requiredEntities,
             @RequestParam(defaultValue = "false") Boolean group,
             @RequestParam(defaultValue = "5") int rows,
-            @RequestParam(defaultValue = "proptiger") String domain) {
+            @RequestParam(required = false) Domain sourceDomain) {
+
+        if(sourceDomain == null){
+            sourceDomain = DomainUtils.getCurrentDefaultDomain();
+        }
 
         if (!entityType.equalsIgnoreCase(getEntityTypeFromEntityId(entityId))) {
             throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid entityId for the given entityType");
         }
+        
         List<Typeahead> list = topsearchService.getTopsearches(
                 entityId,
                 entityType,
                 requiredEntities,
                 group,
                 rows,
-                domain);
+                sourceDomain);
 
         return new APIResponse(super.filterFields(list, null), list.size());
     }

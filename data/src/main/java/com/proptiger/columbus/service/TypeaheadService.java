@@ -27,6 +27,7 @@ import com.proptiger.columbus.suggestions.EntitySuggestionHandler;
 import com.proptiger.columbus.suggestions.NLPSuggestionHandler;
 import com.proptiger.columbus.thandlers.URLGenerationConstants;
 import com.proptiger.columbus.util.TypeaheadUtils;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.enums.DomainObject;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.model.cms.City;
@@ -37,10 +38,8 @@ import com.proptiger.core.util.PropertyReader;
 import com.proptiger.core.util.UtilityClass;
 
 /**
- * @author mukand
- * @author Hemendra
+ * @author rahul
  */
-
 @Service
 public class TypeaheadService {
 
@@ -86,7 +85,7 @@ public class TypeaheadService {
      * @return List<Typeahead>
      */
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries, String domain) {
+    public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries, Domain domain) {
         List<Typeahead> typeaheads = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries, domain);
         if (typeaheads != null) {
             for (Typeahead typeahead : typeaheads) {
@@ -97,7 +96,7 @@ public class TypeaheadService {
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries, String domain) {
+    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries, Domain domain) {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
         return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries, domain);
     }
@@ -108,7 +107,7 @@ public class TypeaheadService {
             List<String> filterQueries,
             String usercity,
             String enhance,
-            String domain) {
+            Domain domain) {
 
         if (query == null || query.isEmpty()) {
             return new ArrayList<Typeahead>();
@@ -188,7 +187,7 @@ public class TypeaheadService {
             Map<String, String> filterQueries,
             String usercity,
             String enhance,
-            String domain) {
+            Domain domain) {
 
         if (query == null || query.isEmpty()) {
             return new ArrayList<Typeahead>();
@@ -473,7 +472,7 @@ public class TypeaheadService {
      *            : domain-object-id for (suburb, locality, builder or project)
      * @return The corresponding unique typeahead-object.
      */
-    private List<Typeahead> getResultsByTypeaheadID(long domainObjectId, String domain) {
+    private List<Typeahead> getResultsByTypeaheadID(long domainObjectId, Domain domain) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         DomainObject dObj = DomainObject.getDomainInstance(domainObjectId);
         String typeaheadId = String.format(
@@ -581,7 +580,7 @@ public class TypeaheadService {
             String templateCity,
             int rows,
             String typeaheadType,
-            String domain) {
+            Domain domain) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 

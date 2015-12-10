@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.columbus.model.TypeaheadConstants;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.exception.ProAPIException;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.repo.SolrDao;
@@ -27,12 +28,8 @@ import com.proptiger.core.util.Constants;
 import com.proptiger.core.util.UtilityClass;
 
 /**
- * 
- * @author mukand
- * @author hemendra
- * 
+ * @author rahul
  */
-
 @Repository
 public class TypeaheadDao {
 
@@ -51,7 +48,7 @@ public class TypeaheadDao {
     // ******* TYPEAHEAD :: VERSION 3 ********
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadById(String typeaheadId, String domain) {
+    public List<Typeahead> getTypeaheadById(String typeaheadId, Domain domain) {
         List<String> queryFilters = new ArrayList<String>();
         queryFilters.add("id:" + typeaheadId);
         SolrQuery solrQuery = getSolrQueryV3("", 1, queryFilters);
@@ -60,7 +57,7 @@ public class TypeaheadDao {
     }
 
     @Cacheable(value = Constants.CacheName.COLUMBUS)
-    public List<Typeahead> getTypeaheadById(List<String> typeaheadIds, String domain) {
+    public List<Typeahead> getTypeaheadById(List<String> typeaheadIds, Domain domain) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         if (typeaheadIds == null || typeaheadIds.isEmpty()) {
             return results;
@@ -84,7 +81,7 @@ public class TypeaheadDao {
             int rows,
             List<String> filterQueries,
             String usercity,
-            String domain) {
+            Domain domain) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         try {
             results = getSpellCheckedResponseV3(query, rows, filterQueries, domain);
@@ -100,7 +97,7 @@ public class TypeaheadDao {
         return results;
     }
 
-    public List<Typeahead> getResponseV3(String query, int rows, List<String> filterQueries, String domain) {
+    public List<Typeahead> getResponseV3(String query, int rows, List<String> filterQueries, Domain domain) {
         List<Typeahead> results = new ArrayList<Typeahead>();
         SolrQuery solrQuery = getSolrQueryV3(query, rows, filterQueries);
         try {
@@ -123,7 +120,7 @@ public class TypeaheadDao {
      * If the query has a typo and can be corrected then new query is generated
      * using the suggestions and executed automatically
      */
-    private List<Typeahead> getSpellCheckedResponseV3(String query, int rows, List<String> filterQueries, String domain) {
+    private List<Typeahead> getSpellCheckedResponseV3(String query, int rows, List<String> filterQueries, Domain domain) {
 
         /* Fetch results for entered query first */
         SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
@@ -184,7 +181,7 @@ public class TypeaheadDao {
 
     /******************* Legacy Methods ****************************************/
 
-    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries, String domain) {
+    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries, Domain domain) {
         SolrQuery solrQuery = this.getSolrQueryV2(query, rows, filterQueries);
         List<Typeahead> results = getSpellCheckedResponseV2(solrQuery, rows, filterQueries, domain);
         return UtilityClass.getFirstNElementsOfList(results, rows);
@@ -239,7 +236,7 @@ public class TypeaheadDao {
             SolrQuery solrQuery,
             int rows,
             List<String> filterQueries,
-            String domain) {
+            Domain domain) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
         QueryResponse response = solrDao.executeQuery(solrQuery, domain);

@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.columbus.repo.TopSearchDao;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.model.Typeahead;
 import com.proptiger.core.util.Constants;
 
@@ -54,7 +55,7 @@ public class TopSearchService {
             String requiredEntities,
             Boolean isGroup,
             int rows,
-            String domain) {
+            Domain domain) {
 
         List<Typeahead> topsearches = topsearchDao.getTopSearches(
                 entityId,

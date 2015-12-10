@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.columbus.model.PropguideDocument;
 import com.proptiger.columbus.repo.PropguideDao;
 import com.proptiger.columbus.response.ColumbusAPIResponse;
+import com.proptiger.core.enums.Domain;
 
 @Service
 public class PropguideService {
@@ -26,7 +27,7 @@ public class PropguideService {
      *            : Categories to be used to filter results.
      * @param rows
      */
-    public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows, String domain) {
+    public List<PropguideDocument> getDocumentsV1(String query, String[] categories, int rows, Domain domain) {
         List<PropguideDocument> results = propguideDao.getDocumentsV1(query, categories, rows, domain);
         return results;
     }
@@ -46,7 +47,7 @@ public class PropguideService {
             String[] categories,
             int start,
             int rows,
-            String domain) {
+            Domain domain) {
         ColumbusAPIResponse response = propguideDao.getListingDocumentsV1(query, categories, start, rows, domain);
         return response;
     }

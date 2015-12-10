@@ -35,9 +35,6 @@ public class TypeaheadConstants {
 
     public static final float  FORCED_DIRECTABLE_THRESHOLD        = 35.0f;
 
-    public static final String DOMAIN_PROPTIGER                   = "proptiger";
-    /** Used while creating suggestions **/
-
     public static final int    MAX_SUGGESTION_COUNT               = 3;
     public static final int    SUGGESTION_NEWLAUNCH_MULTIPLIER    = 3;
     public static final int    SUGGESTION_PROJECT_COUNT_THESHOLD  = 0;

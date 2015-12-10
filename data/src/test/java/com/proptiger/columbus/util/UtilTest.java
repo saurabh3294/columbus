@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.service.TypeaheadService;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.model.Typeahead;
 
 @Component
@@ -22,7 +22,7 @@ public class UtilTest extends AbstractTest {
         int[] idList = new int[] { 10052, 51656, 100002, 502704 };
         Typeahead t;
         for (int id : idList) {
-            t = typeaheadService.getTypeaheadsV4(String.valueOf(id), 1, null, null, null, TypeaheadConstants.DOMAIN_PROPTIGER).get(0);
+            t = typeaheadService.getTypeaheadsV4(String.valueOf(id), 1, null, null, null, Domain.Proptiger).get(0);
             Assert.assertEquals(String.valueOf(id), TypeaheadUtils.parseEntityIdAsString(t));
             Assert.assertEquals(id, TypeaheadUtils.parseEntityIdAsInt(t));
         }

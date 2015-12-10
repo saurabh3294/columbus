@@ -17,6 +17,7 @@ import com.proptiger.columbus.model.TypeaheadConstants;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.service.SuggestionTest;
 import com.proptiger.columbus.service.TypeaheadService;
+import com.proptiger.core.enums.Domain;
 import com.proptiger.core.model.Typeahead;
 
 @Component
@@ -64,7 +65,7 @@ public class TypeaheadSuggestionTest extends AbstractTest {
                 new HashMap<String, String>(),
                 null,
                 null,
-                TypeaheadConstants.DOMAIN_PROPTIGER);
+                Domain.Proptiger);
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
         executeAllTests(suggestions);
@@ -81,7 +82,7 @@ public class TypeaheadSuggestionTest extends AbstractTest {
                 null,
                 null,
                 null,
-                TypeaheadConstants.DOMAIN_PROPTIGER);
+                Domain.Proptiger);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
@@ -101,7 +102,7 @@ public class TypeaheadSuggestionTest extends AbstractTest {
                 null,
                 null,
                 null,
-                TypeaheadConstants.DOMAIN_PROPTIGER);
+                Domain.Proptiger);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
@@ -121,7 +122,7 @@ public class TypeaheadSuggestionTest extends AbstractTest {
                 null,
                 null,
                 null,
-                TypeaheadConstants.DOMAIN_PROPTIGER);
+                Domain.Proptiger);
         setDummyProjectCounts(results.get(0));
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());
@@ -141,7 +142,7 @@ public class TypeaheadSuggestionTest extends AbstractTest {
                 null,
                 null,
                 null,
-                TypeaheadConstants.DOMAIN_PROPTIGER);
+                Domain.Proptiger);
         results.get(0).setScore(100f);
         List<Typeahead> suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, suggCount);
         logger.info("Suggestions recieved = " + suggestions.toString());

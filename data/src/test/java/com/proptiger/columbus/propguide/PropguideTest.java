@@ -22,7 +22,6 @@ import com.proptiger.columbus.response.ColumbusAPIResponse;
 import com.proptiger.columbus.service.AbstractTest;
 import com.proptiger.columbus.util.ResultEssential;
 import com.proptiger.columbus.util.TestEssential;
-import com.proptiger.core.init.CustomObjectMapper;
 import com.proptiger.core.pojo.response.APIResponse;
 import com.proptiger.core.util.DateUtil;
 
@@ -44,8 +43,6 @@ public class PropguideTest extends AbstractTest {
 
     @Value("${propguide.api.url}")
     private String                           PROPGUIDE_URL;
-
-    private CustomObjectMapper               mapper;
 
     @Test(enabled = true)
     public void testControllerResponseValidity() {
@@ -93,6 +90,7 @@ public class PropguideTest extends AbstractTest {
 
         logger.info("RUNNING TEST (Propguide-document-order). Url = " + url);
         apiResponse = mockRequestAndGetColumbusAPIResponse(propguideController, url);
+        @SuppressWarnings("unchecked")
         List<Object> results = (List<Object>) (apiResponse.getData());
         List<PropguideDocument> pgdDocs = new ArrayList<PropguideDocument>();
         PropguideDocument pgdDoc = null;
