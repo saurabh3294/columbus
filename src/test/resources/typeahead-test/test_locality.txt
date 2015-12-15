@@ -1,6 +1,6 @@
 ##### Locality and Suburb ####
 
-banner,Locality,1,5,TYPEAHEAD-LOCALITY-53671
+#banner,Locality,1,5,TYPEAHEAD-LOCALITY-53671
 banner,Locality,1,5,TYPEAHEAD-LOCALITY-50184
 banner,Locality,1,5,TYPEAHEAD-SUBURB-10383
 

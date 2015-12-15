@@ -1,6 +1,6 @@
 #====== Spellchecking ======#
 
-boida,City,1,1,TYPEAHEAD-CITY-20
+#boida,City,1,1,TYPEAHEAD-CITY-20
 Gaur soundaryam,Project,1,1,TYPEAHEAD-PROJECT-513515
 Gaursons soundaryam,Project,1,1,TYPEAHEAD-PROJECT-513515
 XBIA,Project,1,1,TYPEAHEAD-BUILDER-102595
@@ -12,8 +12,8 @@ guargian hill shire,Project,1,3,TYPEAHEAD-PROJECT-644389
 
 #===== Word Split Spellchecking ====#
 
-jaypee suncourt,Project,1,3,TYPEAHEAD-PROJECT-506148
-jaypee suncourt,Project,1,3,TYPEAHEAD-PROJECT-512233
+#jaypee suncourt,Project,1,3,TYPEAHEAD-PROJECT-506148
+#jaypee suncourt,Project,1,3,TYPEAHEAD-PROJECT-512233
 #Hillshire,Project,1,1,TYPEAHEAD-PROJECT-644389
 shore line,Builder,1,3,TYPEAHEAD-BUILDER-103855
 

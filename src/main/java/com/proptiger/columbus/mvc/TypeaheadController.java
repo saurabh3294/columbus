@@ -109,6 +109,7 @@ public class TypeaheadController extends BaseController {
             required = false) String usercity, @RequestParam(required = false) String enhance, @RequestParam(
             defaultValue = "proptiger") String domain) {
 
+        query = query.replaceAll("[^a-zA-Z0-9 ]", "");
         ApiVersion version = getApiVersion();
         city = (city == null ? null : city.toLowerCase());
         usercity = (usercity == null ? null : usercity.toLowerCase());

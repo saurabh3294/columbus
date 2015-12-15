@@ -120,6 +120,11 @@ public class TypeaheadDao {
      */
     private List<Typeahead> getSpellCheckedResponseV3(String query, int rows, List<String> filterQueries) {
 
+        /*
+         * Running phrase queries only
+         */
+        query = "\"" + query + "\"";
+
         /* Fetch results for entered query first */
         SolrQuery solrQuery = this.getSolrQueryV3(query, rows, filterQueries);
         solrQuery.setSorts(sortClauseList);
