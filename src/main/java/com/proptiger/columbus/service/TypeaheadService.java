@@ -67,6 +67,7 @@ public class TypeaheadService {
 
     private String                  domainObjectIdRegex = "^[\\d]{5,6}$";
 
+    private int                     MaX_GP_RESULTS      = 1;
     @Value("${google.place.threshold.score}")
     private int                     googlePlaceThresholdScore;
 
@@ -164,7 +165,6 @@ public class TypeaheadService {
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, results, suggestions);
-
         return consolidatedResults;
     }
 
@@ -257,7 +257,12 @@ public class TypeaheadService {
         results = enhanceWithGooglePlaceResults(enhanceQuery, filterCityObject, results, rows, enhance);
 
         /* Get recommendations (suggestions and templates) */
-        List<Typeahead> suggestions = getSuggestionsAndTemplates(results, query, templateCity, rows, typeaheadType);
+        List<Typeahead> suggestions = getSuggestionsAndTemplates(
+                results,
+                query,
+                templateCity,
+                rows,
+                typeaheadType);
 
         /* Consolidate results */
         List<Typeahead> consolidatedResults = consolidateResults(rows, results, suggestions);
@@ -521,11 +526,15 @@ public class TypeaheadService {
             return finalResults;
         }
 
-        int gpRows = totalRows - finalResults.size();
+        /*
+         * Only one google place result is added
+         */
+        int gpRows = MaX_GP_RESULTS;
         double[] geoCenter = getGeoCenterForCity(city);
         int radius = TypeaheadConstants.CITY_RADIUS;
         List<Typeahead> gpResults = googlePlacesAPIService.getPlacePredictions(query, gpRows, geoCenter, radius);
         finalResults.addAll(gpResults);
+
         return finalResults;
     }
 
@@ -576,17 +585,19 @@ public class TypeaheadService {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
-        /* No suggestions should be given if typeahead-type is set.*/
+        /* No suggestions should be given if typeahead-type is set. */
         if (typeaheadType != null) {
             return suggestions;
         }
 
-        /* Restrict suggestion count */
-        rows = Math.min(rows, TypeaheadConstants.MAX_SUGGESTION_COUNT);
 
+        /* Restrict suggestion count */
+        int numSuggestions = ((results.size() < rows)
+                ? rows + TypeaheadConstants.MAX_SUGGESTION_COUNT - results.size()
+                : TypeaheadConstants.MAX_SUGGESTION_COUNT);
         int templateCityId;
         try {
-            suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, rows);
+            suggestions = entitySuggestionHandler.getEntityBasedSuggestions(results, numSuggestions);
 
             if (suggestions == null || suggestions.isEmpty()) {
                 templateCityId = ((templateCity == null) ? 0 : cityNameToCityObjectMap.get(templateCity).getId());
@@ -606,7 +617,7 @@ public class TypeaheadService {
 
         List<Typeahead> consolidatedResults = new ArrayList<Typeahead>();
         consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(results, rows));
-        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(suggestions, rows));
+        consolidatedResults.addAll(suggestions);
         return (consolidatedResults);
     }
 
