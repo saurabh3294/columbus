@@ -169,7 +169,17 @@ public class TypeaheadController extends BaseController {
             filterQueries.put("TYPEAHEAD_LOCALITY", "(\"" + locality + "\")");
         }
         if (typeAheadType != null && !typeAheadType.trim().isEmpty()) {
-            filterQueries.put(TypeaheadConstants.TYPEAHEAD_TYPE, typeAheadType.toUpperCase());
+            String[] typeaheadTypes = typeAheadType.split("[,]");
+            String filter  = "(";
+            for(int i=0;i<typeaheadTypes.length;i++){
+                if(i==0){
+                    filter += typeaheadTypes[i].toUpperCase();
+                }else{
+                    filter += " OR " + typeaheadTypes[i].toUpperCase();
+                }
+            }
+            filter += ")";
+            filterQueries.put(TypeaheadConstants.TYPEAHEAD_TYPE, filter);
         }
         return filterQueries;
     }
