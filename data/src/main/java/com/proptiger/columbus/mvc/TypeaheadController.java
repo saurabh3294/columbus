@@ -169,17 +169,9 @@ public class TypeaheadController extends BaseController {
             filterQueries.put("TYPEAHEAD_LOCALITY", "(\"" + locality + "\")");
         }
         if (typeAheadType != null && !typeAheadType.trim().isEmpty()) {
-            String[] typeaheadTypes = typeAheadType.split("[,]");
-            String filter  = "(";
-            for(int i=0;i<typeaheadTypes.length;i++){
-                if(i==0){
-                    filter += typeaheadTypes[i].toUpperCase();
-                }else{
-                    filter += " OR " + typeaheadTypes[i].toUpperCase();
-                }
-            }
-            filter += ")";
-            filterQueries.put(TypeaheadConstants.TYPEAHEAD_TYPE, filter);
+            String typeaheadTypeFilter = StringUtils.replace(typeAheadType, ",", " OR ").toUpperCase();
+            typeaheadTypeFilter = "("+customQueryCleansing(typeaheadTypeFilter)+")";
+            filterQueries.put(TypeaheadConstants.TYPEAHEAD_TYPE, typeaheadTypeFilter);
         }
         return filterQueries;
     }
@@ -201,4 +193,8 @@ public class TypeaheadController extends BaseController {
         return null;
     }
 
+    private String customQueryCleansing(String query){
+        String cleanedQuery = query.replaceAll("[^a-zA-Z0-9 ]", "");
+        return cleanedQuery;
+    }
 }
