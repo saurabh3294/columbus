@@ -198,10 +198,10 @@ public class TypeaheadService {
             return getResultsByTypeaheadID(Long.parseLong(query), domain);
         }
 
-        // Extracting the typeaheadType received in request
-        String typeaheadType = null;
+        // Extracting the typeaheadTypeFilter received in request
+        String typeaheadTypeFilter = null;
         if (filterQueries.containsKey(TypeaheadConstants.TYPEAHEAD_TYPE)) {
-            typeaheadType = filterQueries.get(TypeaheadConstants.TYPEAHEAD_TYPE);
+            typeaheadTypeFilter = filterQueries.get(TypeaheadConstants.TYPEAHEAD_TYPE);
         }
 
         /* Handling City filter : url-param-based and query-based */
@@ -263,7 +263,7 @@ public class TypeaheadService {
                 query,
                 templateCity,
                 rows,
-                typeaheadType,
+                typeaheadTypeFilter,
                 domain);
 
         /* Consolidate results */
@@ -579,13 +579,13 @@ public class TypeaheadService {
             String query,
             String templateCity,
             int rows,
-            String typeaheadType,
+            String typeaheadTypeFilter,
             Domain domain) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
 
         /* No suggestions should be given if typeahead-type is set. */
-        if (typeaheadType != null) {
+        if (typeaheadTypeFilter != null) {
             return suggestions;
         }
 

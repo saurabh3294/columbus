@@ -169,7 +169,9 @@ public class TypeaheadController extends BaseController {
             filterQueries.put("TYPEAHEAD_LOCALITY", "(\"" + locality + "\")");
         }
         if (typeAheadType != null && !typeAheadType.trim().isEmpty()) {
-            filterQueries.put(TypeaheadConstants.TYPEAHEAD_TYPE, typeAheadType.toUpperCase());
+            String typeaheadTypeFilter = StringUtils.replace(typeAheadType, ",", " OR ").toUpperCase();
+            typeaheadTypeFilter = "("+customQueryCleansing(typeaheadTypeFilter)+")";
+            filterQueries.put(TypeaheadConstants.TYPEAHEAD_TYPE, typeaheadTypeFilter);
         }
         return filterQueries;
     }
@@ -191,4 +193,8 @@ public class TypeaheadController extends BaseController {
         return null;
     }
 
+    private String customQueryCleansing(String query){
+        String cleanedQuery = query.replaceAll("[^a-zA-Z0-9 ]", "");
+        return cleanedQuery;
+    }
 }
