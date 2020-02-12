@@ -10,7 +10,7 @@
 		<spring.version>4.1.2.RELEASE</spring.version>
 		<jackson.version>2.2.2</jackson.version>
 		<jdk.version>1.8</jdk.version>
-		<solr.version>5.2.1</solr.version>
+		<solr.version>8.4.1</solr.version>
 		<slf4j.version>1.7.5</slf4j.version>
 		<logback.version>1.0.13</logback.version>
 		<aspectj.version>1.8.0</aspectj.version>
